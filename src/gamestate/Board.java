@@ -97,19 +97,19 @@ public class Board {
 		pieceBB[piece] = setBit(pieceBB[piece], sq);
 	}
 
-	/**
-	 * It is preferred to use method taking piece type argument instead for
-	 * performance reasons.
-	 * 
-	 * @param sq
-	 */
-	private void clearPieceAt(int sq) {
-		DebugLibrary.validateSquare(sq);
-		playerBB[Player.WHITE] = clearBit(playerBB[Player.WHITE], sq);
-		playerBB[Player.BLACK] = clearBit(playerBB[Player.BLACK], sq);
-		for (int i = 0; i < PieceType.PIECE_TYPES.length; ++i)
-			pieceBB[PieceType.PIECE_TYPES[i]] = clearBit(pieceBB[PieceType.PIECE_TYPES[i]], sq);
-	}
+//	/**
+//	 * It is preferred to use method taking piece type argument instead for
+//	 * performance reasons.
+//	 * 
+//	 * @param sq
+//	 */
+//	private void clearPieceAt(int sq) {
+//		DebugLibrary.validateSquare(sq);
+//		playerBB[Player.WHITE] = clearBit(playerBB[Player.WHITE], sq);
+//		playerBB[Player.BLACK] = clearBit(playerBB[Player.BLACK], sq);
+//		for (int i = 0; i < PieceType.PIECE_TYPES.length; ++i)
+//			pieceBB[PieceType.PIECE_TYPES[i]] = clearBit(pieceBB[PieceType.PIECE_TYPES[i]], sq);
+//	}
 
 	private void clearPieceAt(int pt, int sq) {
 		DebugLibrary.validateSquare(sq);

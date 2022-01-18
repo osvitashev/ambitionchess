@@ -2,8 +2,6 @@ package gamestate.test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import javax.swing.UIDefaults.ProxyLazyValue;
-
 import org.junit.jupiter.api.Test;
 
 import gamestate.BitField32;
