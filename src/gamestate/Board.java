@@ -201,7 +201,7 @@ public class Board {
 	 */
 	public boolean isPlayerInCheck(int pl) {
 		DebugLibrary.validatePlayer(pl);
-		int sq = Bitboard.bitScanForward(getPieces(pl, PieceType.KING));
+		int sq = Bitboard.bitScanForward(getPieces(pl, PieceType.KING));// TODO: denorm king position
 		return isSquareAttackedBy(sq, Player.getOtherPlayer(pl));
 	}
 
