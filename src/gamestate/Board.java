@@ -11,7 +11,9 @@ public class Board {
 	private long[] playerBB = new long[Player.PLAYERS.length];
 	private long[] pieceBB = new long[PieceType.PIECE_TYPES.length];
 
-	private int playerToMove = Player.NO_PLAYER;;
+	private int playerToMove = Player.NO_PLAYER;
+	//TODO: denorm opponent as well in order to avoid calling getOtherPlayer many times.
+	
 	private int quietHalfmoveClock = 0;// used for 50 more rule. FEN already specifies it as a number of half-moves.
 	private int gamePlyCount = 0;
 
@@ -97,19 +99,19 @@ public class Board {
 		pieceBB[piece] = setBit(pieceBB[piece], sq);
 	}
 
-	/**
-	 * It is preferred to use method taking piece type argument instead for
-	 * performance reasons.
-	 * 
-	 * @param sq
-	 */
-	private void clearPieceAt(int sq) {
-		DebugLibrary.validateSquare(sq);
-		playerBB[Player.WHITE] = clearBit(playerBB[Player.WHITE], sq);
-		playerBB[Player.BLACK] = clearBit(playerBB[Player.BLACK], sq);
-		for (int i = 0; i < PieceType.PIECE_TYPES.length; ++i)
-			pieceBB[PieceType.PIECE_TYPES[i]] = clearBit(pieceBB[PieceType.PIECE_TYPES[i]], sq);
-	}
+//	/**
+//	 * It is preferred to use method taking piece type argument instead for
+//	 * performance reasons.
+//	 * 
+//	 * @param sq
+//	 */
+//	private void clearPieceAt(int sq) {
+//		DebugLibrary.validateSquare(sq);
+//		playerBB[Player.WHITE] = clearBit(playerBB[Player.WHITE], sq);
+//		playerBB[Player.BLACK] = clearBit(playerBB[Player.BLACK], sq);
+//		for (int i = 0; i < PieceType.PIECE_TYPES.length; ++i)
+//			pieceBB[PieceType.PIECE_TYPES[i]] = clearBit(pieceBB[PieceType.PIECE_TYPES[i]], sq);
+//	}
 
 	private void clearPieceAt(int pt, int sq) {
 		DebugLibrary.validateSquare(sq);
@@ -201,7 +203,7 @@ public class Board {
 	 */
 	public boolean isPlayerInCheck(int pl) {
 		DebugLibrary.validatePlayer(pl);
-		int sq = Bitboard.bitScanForward(getPieces(pl, PieceType.KING));
+		int sq = Bitboard.bitScanForward(getPieces(pl, PieceType.KING));// TODO: denorm king position
 		return isSquareAttackedBy(sq, Player.getOtherPlayer(pl));
 	}
 

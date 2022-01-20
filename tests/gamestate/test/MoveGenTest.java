@@ -6,11 +6,14 @@ import static gamestate.GlobalConstants.Square.*;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.lang.reflect.Field;
+
 import org.junit.jupiter.api.Test;
 
 import gamestate.Board;
 import gamestate.Move;
 import gamestate.MoveGen;
+import gamestate.MovePool;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
@@ -20,22 +23,24 @@ class MoveGenTest {
 	 * TODO: refactor this away. A legacy Performs dirty move make/unmake. Checks if
 	 * either king is in check after performing a given move.
 	 * 
-	 * @param candidateMoves      Collection of moves to examine
-	 * @param candidateMoves_size Number of moves to validate
-	 * @param returnMoves         Collection to be appended with valid moves from
+	 * @param candidateMoves      Collection of movepool to examine
+	 * @param candidateMoves_size Number of movepool to validate
+	 * @param returnMoves         Collection to be appended with valid movepool from
 	 *                            the first argument
 	 * @param returnMoves_begin   index of first insertion
-	 * @return number of moves added to the return collection
+	 * @return number of movepool added to the return collection
 	 */
 	private int filterValidMovesAndSetCheck(Board brd, int[] candidateMoves, int candidateMoves_size, int[] returnMoves, int returnMoves_begin) {
-		int returnMoves_begin_old = returnMoves_begin;
-
+		MovePool mp = new MovePool();
 		for (int i = 0; i < candidateMoves_size; ++i) {
 			int move = candidateMoves[i];
-			returnMoves_begin = MoveGen.addToMoveListIfValid(brd, returnMoves, returnMoves_begin, move);
+			MoveGen.addToMoveListIfValid(brd, mp, move);
 		}
-
-		return returnMoves_begin - returnMoves_begin_old;
+		
+		for(int i=0;i<mp.size();++i)
+			returnMoves[returnMoves_begin+i]=mp.get(i);
+		
+		return mp.size();
 	}
 
 	@Test
@@ -232,8 +237,20 @@ class MoveGenTest {
 		}
 	}
 
-	private void assertMoveListsEqual(int[] expected, int[] actual, int actual_size) {// TODO: add a sanity check test
+	private void assertMoveListsEqual(int[] expected, MovePool movepool_actual, int discard) {// TODO: add a sanity check test
 		java.util.Arrays.sort(expected);
+		int actual_size = movepool_actual.size();
+		int[] actual = new int[0];
+		
+		try {
+			Field fld = MovePool.class.getDeclaredField("movepool");
+			fld.setAccessible(true);
+			actual=(int[]) fld.get(movepool_actual);
+			//method.invoke(brd, move);
+		} catch (Exception e) {
+
+		}
+		
 		java.util.Arrays.sort(actual, 0, actual_size);
 
 		StringBuilder b = new StringBuilder();
@@ -261,230 +278,294 @@ class MoveGenTest {
 	@Test
 	void testGenerateEnpassant() {
 		Board brd;
-		int[] moves = new int[100];
+		MovePool movepool = new MovePool();
+		//int[] movepool = new int[100];
 
 		brd = new Board("8/1k6/8/3PpP2/8/8/1K6/8 w - e6 0 1");
-		assertMoveListsEqual(new int[] { Move.createEnpassant(Square.D5, Square.E6, Player.WHITE), Move.createEnpassant(Square.F5, Square.E6, Player.WHITE) }, moves,
-				MoveGen.generateEnpassant(brd, moves, 0));
+		assertMoveListsEqual(new int[] { Move.createEnpassant(Square.D5, Square.E6, Player.WHITE), Move.createEnpassant(Square.F5, Square.E6, Player.WHITE) }, movepool,
+				MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
 
 		brd = new Board("8/1k6/8/3PpP2/8/8/1K6/8 w - - 0 1");
-		assertMoveListsEqual(new int[] {}, moves, MoveGen.generateEnpassant(brd, moves, 0));
+		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
 
 		brd = new Board("4R3/8/7B/4PpP1/8/1K2k3/8/8 w - f6 0 1");
 		assertMoveListsEqual(new int[] { Move.setCheck(Move.createEnpassant(Square.E5, Square.F6, Player.WHITE)), Move.setCheck(Move.createEnpassant(Square.G5, Square.F6, Player.WHITE)) },
-				moves, MoveGen.generateEnpassant(brd, moves, 0));
-
+				movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("8/1k6/3P4/4pP2/8/8/1K6/8 w - e6 0 1");
-		assertMoveListsEqual(new int[] { Move.createEnpassant(Square.F5, Square.E6, Player.WHITE) }, moves, MoveGen.generateEnpassant(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createEnpassant(Square.F5, Square.E6, Player.WHITE) }, movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("8/1k6/8/3ppP2/3P4/5p2/1K6/8 w - e6 0 1");
-		assertMoveListsEqual(new int[] { Move.createEnpassant(Square.F5, Square.E6, Player.WHITE) }, moves, MoveGen.generateEnpassant(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createEnpassant(Square.F5, Square.E6, Player.WHITE) }, movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("8/1k1P1P2/3p4/3ppP2/8/4P3/1K6/8 w - e6 0 1");
-		assertMoveListsEqual(new int[] { Move.createEnpassant(Square.F5, Square.E6, Player.WHITE) }, moves, MoveGen.generateEnpassant(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createEnpassant(Square.F5, Square.E6, Player.WHITE) }, movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("8/k7/8/Pp6/2K5/8/8/8 w - b6 0 1");
-		assertMoveListsEqual(new int[] { Move.setCheck(Move.createEnpassant(Square.A5, Square.B6, Player.WHITE)) }, moves, MoveGen.generateEnpassant(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.setCheck(Move.createEnpassant(Square.A5, Square.B6, Player.WHITE)) }, movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 		// open checks preventing en passant
 		brd = new Board("8/b7/7k/2Pp4/3K4/8/8/8 w - d6 0 1");
-		assertMoveListsEqual(new int[] {}, moves, MoveGen.generateEnpassant(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("8/b7/7k/2Pp4/2K5/8/8/8 w - d6 0 1");
-		assertMoveListsEqual(new int[] { (Move.createEnpassant(Square.C5, Square.D6, Player.WHITE)) }, moves, MoveGen.generateEnpassant(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { (Move.createEnpassant(Square.C5, Square.D6, Player.WHITE)) }, movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("2r5/b7/7k/2Pp4/2K5/8/8/8 w - d6 0 1");
-		assertMoveListsEqual(new int[] {}, moves, MoveGen.generateEnpassant(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("2r5/b7/7k/2Pp4/4K3/8/8/8 w - d6 0 1");
-		assertMoveListsEqual(new int[] { (Move.createEnpassant(Square.C5, Square.D6, Player.WHITE)) }, moves, MoveGen.generateEnpassant(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { (Move.createEnpassant(Square.C5, Square.D6, Player.WHITE)) }, movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("2r5/1b6/7k/2Pp4/4K3/8/8/8 w - d6 0 1");
-		assertMoveListsEqual(new int[] {}, moves, MoveGen.generateEnpassant(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("2r5/1b6/7k/2PpP3/4K3/8/8/8 w - d6 0 1");
-		assertMoveListsEqual(new int[] {}, moves, MoveGen.generateEnpassant(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("4r2k/8/8/3pP3/8/8/4K3/8 w - d6 0 1");
-		assertMoveListsEqual(new int[] {}, moves, MoveGen.generateEnpassant(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 		// starts in check
 		brd = new Board("2k5/8/8/5PpP/3n4/1K6/8/8 w - g6 0 1");
-		assertMoveListsEqual(new int[] {}, moves, MoveGen.generateEnpassant(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 		/// black
 		brd = new Board("8/8/6K1/8/1pPp4/6k1/8/8 b - c3 0 1");
-		assertMoveListsEqual(new int[] { Move.createEnpassant(Square.B4, Square.C3, Player.BLACK), Move.createEnpassant(Square.D4, Square.C3, Player.BLACK) }, moves,
-				MoveGen.generateEnpassant(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createEnpassant(Square.B4, Square.C3, Player.BLACK), Move.createEnpassant(Square.D4, Square.C3, Player.BLACK) }, movepool,
+				MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("8/8/6K1/8/1pPp4/6k1/8/8 b - - 0 1");
-		assertMoveListsEqual(new int[] {}, moves, MoveGen.generateEnpassant(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("8/8/6K1/8/p1P1p3/6k1/1p1p4/8 b - c3 0 1");
-		assertMoveListsEqual(new int[] {}, moves, MoveGen.generateEnpassant(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("8/8/8/3K4/1pPp4/6k1/b7/3r4 b - c3 0 1");
 		assertMoveListsEqual(new int[] { Move.setCheck(Move.createEnpassant(Square.B4, Square.C3, Player.BLACK)), Move.setCheck(Move.createEnpassant(Square.D4, Square.C3, Player.BLACK)) },
-				moves, MoveGen.generateEnpassant(brd, moves, 0));
-
+				movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("6k1/3K4/8/8/1pPp4/8/Q7/3r4 b - c3 0 1");
-		assertMoveListsEqual(new int[] {}, moves, MoveGen.generateEnpassant(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("8/1k1K4/8/8/1pPp4/8/1Q6/3r4 b - c3 0 1");
-		assertMoveListsEqual(new int[] { Move.setCheck(Move.createEnpassant(Square.D4, Square.C3, Player.BLACK)) }, moves, MoveGen.generateEnpassant(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.setCheck(Move.createEnpassant(Square.D4, Square.C3, Player.BLACK)) }, movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("8/8/8/8/1pPp4/1k6/3K4/4r3 b - c3 0 1");
 		assertMoveListsEqual(new int[] { Move.setCheck(Move.createEnpassant(Square.B4, Square.C3, Player.BLACK)), Move.setCheck(Move.createEnpassant(Square.D4, Square.C3, Player.BLACK)) },
-				moves, MoveGen.generateEnpassant(brd, moves, 0));
-
+				movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 		// open checks
 		brd = new Board("8/8/5K2/2k5/1pPp4/Q7/8/4r1B1 b - c3 0 1");
-		assertMoveListsEqual(new int[] {}, moves, MoveGen.generateEnpassant(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("4k3/8/2K3Q1/8/1pPp4/8/8/4r1B1 b - c3 0 1");
-		assertMoveListsEqual(new int[] {}, moves, MoveGen.generateEnpassant(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("8/8/8/3k4/1pPp4/4N3/8/1K6 w - c3 0 1");
-		assertMoveListsEqual(new int[] {}, moves, MoveGen.generateEnpassant(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		movepool.clear();
+		
 //		brd = new Board("");
 //		assertMoveListsEqual(new int[] { Move.createEnpassant(Square.G5, Square.H6, Player.WHITE) },
-//				moves, MoveGen.generateEnpassant(brd, moves, 0));
+//				movepool, MoveGen.generateEnpassant(brd, movepool));
 	}
 
 	@Test
 	void testGenerateCastling() {
-		int[] moves = new int[100];
+		MovePool movepool = new MovePool();
 		// white
 		Board brd = new Board("8/8/8/4k3/1pPp4/4N3/8/R3K2R w KQ c3 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE), Move.createCastleQueen(Player.WHITE) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE), Move.createCastleQueen(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
 		brd = new Board("8/8/8/4k3/1pPp4/4N3/8/R3K2R w - c3 0 1");
-		assertMoveListsEqual(new int[] {}, moves, MoveGen.generateCastling(brd, moves, 0));
+		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
 
 		brd = new Board("r3k2r/ppp2ppp/8/8/1pPp4/4N3/8/R3K2R w kq c3 0 1");
-		assertMoveListsEqual(new int[] {}, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k2r/ppp2ppp/6Q1/8/8/8/8/R3K2R w Qkq - 0 1");// fen condition
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k2r/ppp2ppp/6Q1/r7/8/8/8/R3K2R w KQkq - 0 1");// castling is allowed even rook is attacked
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE), Move.createCastleQueen(WHITE) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE), Move.createCastleQueen(WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k2r/ppp2ppp/6Q1/1r6/8/8/8/R3K2R w KQkq - 0 1");//castling when square passed by rook is attacked
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE), Move.createCastleQueen(Player.WHITE) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE), Move.createCastleQueen(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k2r/ppp2ppp/6Q1/2r5/8/8/8/R3K2R w KQkq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k2r/ppp2ppp/6Q1/3r4/8/8/8/R3K2R w KQkq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k2r/ppp2ppp/6Q1/4r3/8/8/8/R3K2R w KQkq - 0 1");// check!
-		assertMoveListsEqual(new int[] {}, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k2r/ppp2ppp/6Q1/5r2/8/8/8/R3K2R w KQkq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k2r/ppp2ppp/6Q1/6r1/8/8/8/R3K2R w KQkq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k2r/ppp2ppp/6Q1/7r/8/8/8/R3K2R w KQkq - 0 1");// can castle even when rook is attacked
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE), Move.createCastleKing(WHITE) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE), Move.createCastleKing(WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k1nr/ppp2ppp/6Q1/8/8/8/8/RN2K2R w KQkq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k1nr/ppp2ppp/6Q1/8/8/8/8/R1N1K2R w KQkq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k1nr/ppp2ppp/6Q1/8/8/8/8/R2NK2R w KQkq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k1nr/ppp2ppp/6Q1/8/8/8/8/R3KN1R w KQkq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k1nr/ppp2ppp/6Q1/8/8/8/8/R3K1NR w KQkq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		// castling leads to check
 		brd = new Board("8/5k2/8/8/8/8/1q4PP/4K2R w K - 0 1");
-		assertMoveListsEqual(new int[] { Move.setCheck(Move.createCastleKing(Player.WHITE)) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.setCheck(Move.createCastleKing(Player.WHITE)) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("8/8/3k4/8/q7/8/PPP3PP/R3K3 w Q - 0 1");
-		assertMoveListsEqual(new int[] { Move.setCheck(Move.createCastleQueen(Player.WHITE)) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.setCheck(Move.createCastleQueen(Player.WHITE)) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		//////// BLACK
 		brd = new Board("r3k2r/8/8/8/8/8/8/4K3 b kq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK), Move.createCastleQueen(Player.BLACK) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK), Move.createCastleQueen(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k2r/8/8/8/8/8/8/4K3 b q - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k2r/8/8/8/8/8/8/4K3 b - - 0 1");
-		assertMoveListsEqual(new int[] {}, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("4k3/8/8/8/8/8/8/R3K2R b KQ - 0 1");
-		assertMoveListsEqual(new int[] {}, moves, MoveGen.generateCastling(brd, moves, 0));
+		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
 		// attacked square
 		brd = new Board("r3k2r/8/8/8/8/7R/8/4K3 b kq - 0 1");// can castle even when rook is attacked
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK), Move.createCastleKing(BLACK) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK), Move.createCastleKing(BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k2r/8/8/8/8/6R1/8/4K3 b kq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k2r/8/8/8/8/5R2/8/4K3 b kq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k2r/8/8/8/8/4R3/8/4K3 b kq - 0 1");
-		assertMoveListsEqual(new int[] {}, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k2r/8/8/8/8/3R4/8/4K3 b kq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k2r/8/8/8/8/2R5/8/4K3 b kq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k2r/8/8/8/8/1R6/8/4K3 b kq - 0 1");//castling when rook has to pass through an attacked square
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK), Move.createCastleQueen(Player.BLACK) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK), Move.createCastleQueen(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k2r/8/8/8/8/R7/8/4K3 b kq - 0 1");// can castle even when rook is attacked;
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK), Move.createCastleQueen(BLACK) }, moves, MoveGen.generateCastling(brd, moves, 0));
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK), Move.createCastleQueen(BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
 		// blocked square
 		brd = new Board("r3k1nr/8/8/8/8/8/8/4K3 b kq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3kn1r/8/8/8/8/8/8/4K3 b kq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r2nk2r/8/8/8/8/8/8/4K3 b kq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r1n1k2r/8/8/8/8/8/8/4K3 b kq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("rn2k2r/8/8/8/8/8/8/4K3 b kq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK) }, moves, MoveGen.generateCastling(brd, moves, 0));
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
 		// check from castling
 		brd = new Board("4k2r/ppp3pp/8/8/8/8/5K2/8 b k - 0 1");
-		assertMoveListsEqual(new int[] { Move.setCheck(Move.createCastleKing(Player.BLACK)) }, moves, MoveGen.generateCastling(brd, moves, 0));
-
+		assertMoveListsEqual(new int[] { Move.setCheck(Move.createCastleKing(Player.BLACK)) }, movepool, MoveGen.generateCastling(brd, movepool));
+		movepool.clear();
+		
 		brd = new Board("r3k3/ppp3pp/8/8/8/8/3K4/8 b q - 0 1");
-		assertMoveListsEqual(new int[] { Move.setCheck(Move.createCastleQueen(Player.BLACK)) }, moves, MoveGen.generateCastling(brd, moves, 0));
+		assertMoveListsEqual(new int[] { Move.setCheck(Move.createCastleQueen(Player.BLACK)) }, movepool, MoveGen.generateCastling(brd, movepool));
 	}
 
-	private static int[] assertMovelist_moves = new int[300];
+	private static MovePool assertMovePool = new MovePool();
 	private static Board assertMovelist_brd = new Board();
 
 	private void assertMovelist(String fen, MoveGen.LegalMoveGenerator generator, int[] expectedMoves) {
+		assertMovePool.clear();
 		assertMovelist_brd.loadFromFEN(fen);
-		int nummoves = generator.generateLegalMoves(assertMovelist_brd, assertMovelist_moves, 0);
-		assertMoveListsEqual(expectedMoves, assertMovelist_moves, nummoves);
+		int nummoves = generator.generateLegalMoves(assertMovelist_brd, assertMovePool);
+		assertMoveListsEqual(expectedMoves, assertMovePool, nummoves);
 	}
 
 	private void assertMovelistLength(String fen, int expectedMoves) {
+		assertMovePool.clear();
 		assertMovelist_brd.loadFromFEN(fen);
-		int nummoves = MoveGen.generateLegalMoves(assertMovelist_brd, assertMovelist_moves, 0);
+		int nummoves = MoveGen.generateLegalMoves(assertMovelist_brd, assertMovePool);
 		StringBuilder b = new StringBuilder();
 		b.append("Expected: (#");
 		b.append(expectedMoves);
@@ -494,7 +575,7 @@ class MoveGenTest {
 
 		b.append("): (");
 		for (int i = 0; i < nummoves; ++i) {
-			b.append(Move.moveToString(assertMovelist_moves[i]));
+			b.append(Move.moveToString(assertMovePool.get(i)));
 			b.append(", ");
 		}
 		b.append(")");

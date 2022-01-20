@@ -3,7 +3,6 @@ package gamestate;
 /***
  * Class containing static methods required to do bit manipulation on integer bit fields.
  * It is essentially a base class for Move and UndoInfo, but avoid explicit inheritance.
- * @author sveta
  *
  */
 

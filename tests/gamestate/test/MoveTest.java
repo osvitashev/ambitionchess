@@ -142,6 +142,39 @@ class MoveTest {
 		move = Move.createNormal(Square.E1, Square.E2, PieceType.KING, Player.WHITE);
 		assertEquals("e1-e2", Move.moveToString(move));
 	}
+	
+	@Test
+	void testToUCINotation() {
+		int move = Move.setCheck( Move.createCapture(Square.E7, Square.G6, PieceType.KNIGHT, PieceType.QUEEN, Player.WHITE));
+		assertEquals("e7g6", Move.toUCINotation(move));
+		
+		move = Move.setCheck( Move.createCapturePromo(Square.D2, Square.C1, PieceType.KNIGHT, PieceType.ROOK, Player.BLACK));
+		assertEquals("d2c1r", Move.toUCINotation(move));
+		
+		move = Move.setCheck( Move.createPromo(Square.D2, Square.D1, PieceType.KNIGHT, Player.BLACK));
+		assertEquals("d2d1n", Move.toUCINotation(move));
+		
+		move = Move.createEnpassant(Square.B5, Square.C4, Player.WHITE);
+		assertEquals("b5c4", Move.toUCINotation(move));
+		
+		move = Move.createNormal(Square.B5, Square.C4, PieceType.QUEEN, Player.WHITE);
+		assertEquals("b5c4", Move.toUCINotation(move));
+		
+		move = Move.createDoublePush(Square.E7, Square.E5, Player.BLACK);
+		assertEquals("e7e5", Move.toUCINotation(move));
+		
+		move = Move.createCastleKing(Player.WHITE);
+		assertEquals("e1g1", Move.toUCINotation(move));
+		
+		move = Move.createCastleQueen(Player.WHITE);
+		assertEquals("e1c1", Move.toUCINotation(move));
+		
+		move = Move.createCastleKing(Player.BLACK);
+		assertEquals("e8g8", Move.toUCINotation(move));
+		
+		move = Move.createCastleQueen(Player.BLACK);
+		assertEquals("e8c8", Move.toUCINotation(move));
+	}
 
 	void assertBoardLocation(Board brd, int player, int piece, int sq) {
 		assertEquals(player, brd.getPlayerAt(sq));

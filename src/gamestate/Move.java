@@ -4,6 +4,7 @@ import static gamestate.BitField32.*;
 
 import gamestate.GlobalConstants.MoveType;
 import gamestate.GlobalConstants.PieceType;
+import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
 
 /**
@@ -164,6 +165,45 @@ public class Move {
 		}
 		if (Move.getCheck(move))
 			ret += "+";
+		return ret;
+	}
+
+	public static String toUCINotation(int move) {
+		String ret = "NOT YET IMPLEMENTED!";
+		switch (Move.getMoveType(move)) {
+		case MoveType.PROMO_CAPTURE:
+			ret = Square.squareToAlgebraicString(Move.getSquareFrom(move)) + Square.squareToAlgebraicString(Move.getSquareTo(move))
+					+ PieceType.toString(Move.getPiecePromotedType(move)).toLowerCase();
+			break;
+		case MoveType.PROMO:
+			ret = Square.squareToAlgebraicString(Move.getSquareFrom(move)) + Square.squareToAlgebraicString(Move.getSquareTo(move))
+			+ PieceType.toString(Move.getPiecePromotedType(move)).toLowerCase();
+			break;
+		case MoveType.CAPTURE:
+			ret = Square.squareToAlgebraicString(Move.getSquareFrom(move)) + Square.squareToAlgebraicString(Move.getSquareTo(move));
+			break;
+		case MoveType.ENPASSANT:
+			ret = Square.squareToAlgebraicString(Move.getSquareFrom(move)) + Square.squareToAlgebraicString(Move.getSquareTo(move));
+			break;
+		case MoveType.CASTLE_KING:
+			if(Move.getPlayer(move) == Player.WHITE)
+				ret = "e1g1";
+			else
+				ret="e8g8";
+			break;
+		case MoveType.CASTLE_QUEEN:
+			if(Move.getPlayer(move) == Player.WHITE)
+				ret = "e1c1";
+			else
+				ret="e8c8";
+			break;
+		case MoveType.NORMAL:
+			ret = Square.squareToAlgebraicString(Move.getSquareFrom(move)) + Square.squareToAlgebraicString(Move.getSquareTo(move));
+			break;
+		case MoveType.DOUBLE_PUSH:
+			ret = Square.squareToAlgebraicString(Move.getSquareFrom(move)) + Square.squareToAlgebraicString(Move.getSquareTo(move));
+			break;
+		}
 		return ret;
 	}
 
