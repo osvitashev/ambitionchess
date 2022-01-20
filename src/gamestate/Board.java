@@ -11,7 +11,9 @@ public class Board {
 	private long[] playerBB = new long[Player.PLAYERS.length];
 	private long[] pieceBB = new long[PieceType.PIECE_TYPES.length];
 
-	private int playerToMove = Player.NO_PLAYER;;
+	private int playerToMove = Player.NO_PLAYER;
+	//TODO: denorm opponent as well in order to avoid calling getOtherPlayer many times.
+	
 	private int quietHalfmoveClock = 0;// used for 50 more rule. FEN already specifies it as a number of half-moves.
 	private int gamePlyCount = 0;
 

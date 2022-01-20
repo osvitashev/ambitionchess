@@ -2,12 +2,11 @@ package puzzler;
 
 import gamestate.Board;
 import gamestate.MoveGen;
-import gamestate.Move;
+import gamestate.MovePool;
 
 public class PuzzleSolver {
 
-	private int[] movelist = new int[1000];
-	private int movelist_size = 0;
+	private MovePool movepool = new MovePool();
 	private int searchPlyDepth = 1;// value in halfmoves. Can only be an odd number.
 
 	public PuzzleSolver(int searchDepth) {
@@ -21,17 +20,17 @@ public class PuzzleSolver {
 	// returns true is black is checkmated
 	private boolean toPlayAndWin_opponentStep(Board brd, int depth) {
 		boolean isWin = true;
-		int movelist_size_old = movelist_size;
-		movelist_size = MoveGen.generateLegalMoves(brd, movelist, movelist_size);
-		if (movelist_size == movelist_size_old && brd.isCheck()) {// checkmate
+		int movelist_size_old = movepool.size();
+		MoveGen.generateLegalMoves(brd, movepool);
+		if (movepool.size() == movelist_size_old && brd.isCheck()) {// checkmate
 
 			isWin = true;
 		} else if (depth == searchPlyDepth) {
 			isWin = false;
-		} else if (movelist_size != movelist_size_old) {
-			for (int i = movelist_size_old; i < movelist_size; ++i) {
+		} else if (movepool.size() != movelist_size_old) {
+			for (int i = movelist_size_old; i < movepool.size(); ++i) {
 				// here return isWin iff every opponent's move leads to isWin
-				int move = movelist[i];
+				int move = movepool.get(i);
 
 				brd.makeMove(move);
 				isWin = toPlayAndWin_step(brd, depth + 1);
@@ -42,23 +41,23 @@ public class PuzzleSolver {
 			}
 		}
 
-		movelist_size = movelist_size_old;
+		movepool.resize(movelist_size_old);
 		return isWin;
 	}
 
 	private boolean toPlayAndWin_step(Board brd, int depth) {
 		boolean isWin = false;
-		int movelist_size_old = movelist_size;
-		movelist_size = MoveGen.generateLegalMoves(brd, movelist, movelist_size);
-		if (movelist_size == movelist_size_old) {
+		int movelist_size_old = movepool.size();
+		MoveGen.generateLegalMoves(brd, movepool);
+		if (movepool.size() == movelist_size_old) {
 
 			isWin = false;
 		} else if (depth == searchPlyDepth) {
 			isWin = false;
-		} else if (movelist_size != movelist_size_old) {
-			for (int i = movelist_size_old; i < movelist_size; ++i) {
+		} else if (movepool.size() != movelist_size_old) {
+			for (int i = movelist_size_old; i < movepool.size(); ++i) {
 				// here return isWin if ANY of our moves evaluates to isWin
-				int move = movelist[i];
+				int move = movepool.get(i);
 
 				brd.makeMove(move);
 				isWin = toPlayAndWin_opponentStep(brd, depth + 1);
@@ -69,21 +68,27 @@ public class PuzzleSolver {
 			}
 		}
 
-		movelist_size = movelist_size_old;
+		movepool.resize(movelist_size_old);
 		return isWin;
 	}
 
+	/**
+	 * 
+	 * @param brd
+	 * @param targetDepth - What the puzzle description typically says. 'Mate in 2' means 'us-them-us' when expanded.
+	 * @return
+	 */
 	public int toPlayAndWin(Board brd, int targetDepth) {
-		searchPlyDepth = 2*targetDepth+1;
+		searchPlyDepth = 2*targetDepth-1;
 		return toPlayAndWin(brd);
 	}
 
 	public int toPlayAndWin(Board brd) {
-		movelist_size = 0;// reset
-		int movelist_size_old = movelist_size;
-		movelist_size = MoveGen.generateLegalMoves(brd, movelist, movelist_size);
-		for (int i = movelist_size_old; i < movelist_size; ++i) {
-			int move = movelist[i];
+		movepool.clear();
+		int movelist_size_old = 0;
+		MoveGen.generateLegalMoves(brd, movepool);
+		for (int i = movelist_size_old; i < movepool.size(); ++i) {
+			int move = movepool.get(i);
 
 			brd.makeMove(move);
 			boolean temp = toPlayAndWin_opponentStep(brd, 1);
@@ -93,7 +98,7 @@ public class PuzzleSolver {
 				return move;
 		}
 
-		movelist_size = movelist_size_old;
+		movepool.resize( movelist_size_old);
 		return 0;// return code for no-move
 	}
 

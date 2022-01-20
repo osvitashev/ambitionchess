@@ -13,10 +13,6 @@ class PuzzleTest {
 	@Test
 	void test() {
 
-		int[][] rr = { { 1, 2, 3 }, { 4 } };
-
-		String[][] testCases = { { "6k1/8/6K1/2P5/5B2/R4N2/7r/8 w - - 0 1", "a3a8" }, };
-
 		String fen = "6k1/8/6K1/2P5/5B2/R4N2/7r/8 w - - 0 1";
 		Board brd = new Board(fen);
 		PuzzleSolver slv = new PuzzleSolver();
@@ -44,25 +40,25 @@ class PuzzleTest {
 		
 		fen = "5q2/3r3k/6Rp/8/P2p1p2/1P2r3/2P3QP/6RK w - - 0 1";//mate in 2!!!
 		brd.loadFromFEN(fen);
-		move = slv.toPlayAndWin(brd, 3);
+		move = slv.toPlayAndWin(brd, 2);
 		assertEquals("g6h6", Move.toUCINotation(move));
 		System.out.println(Move.moveToString(move));
 		
 		fen = "4R3/1p1r1ppk/2r3b1/8/7P/2B1Q3/1P3P2/6K1 w - - 0 1";//mate in 3!!!
 		brd.loadFromFEN(fen);
-		move = slv.toPlayAndWin(brd, 5);
+		move = slv.toPlayAndWin(brd, 3);
 		assertEquals("e8h8", Move.toUCINotation(move));
 		System.out.println(Move.moveToString(move));
 		
 		fen = "4rrk1/p5pp/8/2P3Q1/5nn1/1N6/PP3qBP/2R3QK b - - 0 1";//mate in 3!!!
 		brd.loadFromFEN(fen);
-		move = slv.toPlayAndWin(brd, 5);
+		move = slv.toPlayAndWin(brd, 3);
 		assertEquals("f2g1", Move.toUCINotation(move));
 		System.out.println(Move.moveToString(move));
 		
 		fen = "kbK5/pp6/1P6/8/8/8/8/R7 w - - 0 1";//mate in 6!!!
 		brd.loadFromFEN(fen);
-		move = slv.toPlayAndWin(brd, 11);
+		move = slv.toPlayAndWin(brd, 6);
 		assertEquals("a1a6", Move.toUCINotation(move));
 		System.out.println(Move.moveToString(move));
 		
