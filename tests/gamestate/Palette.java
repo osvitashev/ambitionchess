@@ -1,4 +1,4 @@
-package gamestate.test;
+package gamestate;
 
 import gamestate.DebugLibrary;
 

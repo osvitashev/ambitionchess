@@ -1,4 +1,4 @@
-package gamestate.test;
+package gamestate;
 
 import static gamestate.Bitboard.*;
 import static org.junit.Assert.assertArrayEquals;

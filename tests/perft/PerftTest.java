@@ -1,4 +1,4 @@
-package gamestate.perft;
+package perft;
 
 import static org.junit.jupiter.api.Assertions.*;
 

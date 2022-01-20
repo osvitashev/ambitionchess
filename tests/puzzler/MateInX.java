@@ -1,4 +1,4 @@
-package puzzler.test;
+package puzzler;
 
 import static org.junit.jupiter.api.Assertions.*;
 

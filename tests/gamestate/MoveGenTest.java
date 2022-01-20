@@ -1,4 +1,4 @@
-package gamestate.test;
+package gamestate;
 
 import static gamestate.GlobalConstants.PieceType.*;
 import static gamestate.GlobalConstants.Player.*;
