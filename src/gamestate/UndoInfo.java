@@ -91,7 +91,7 @@ public class UndoInfo {
 		return getBoolean(info, 18);
 	}
 
-	public static int setIsCheck(int info, boolean val) {
+	public static int setCheck(int info, boolean val) {
 		return setBoolean(info, val, 18);
 	}
 	

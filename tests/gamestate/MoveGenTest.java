@@ -382,7 +382,7 @@ class MoveGenTest {
 		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
-		brd = new Board("8/8/8/3k4/1pPp4/4N3/8/1K6 w - c3 0 1");
+		brd = new Board("8/8/8/3k4/1pPp4/4N3/8/1K6 b - c3 0 1");
 		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
 		movepool.clear();
 		

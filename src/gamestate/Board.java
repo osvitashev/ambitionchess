@@ -154,19 +154,18 @@ public class Board {
 	}
 
 	/**
-	 * Validates two kings on the board. Side to move may be in check, but the
-	 * opponent's king may not be en prise.. Makes no changes.
+	 * Validates that no king is en prise, but side-to-move may be in check
 	 * 
 	 * @return
 	 */
 	public boolean validateKingExposure() {
-		if (!Bitboard.hasOnly1Bit(pieceBB[PieceType.KING] & playerBB[Player.WHITE]))
-			return false;
-		if (!Bitboard.hasOnly1Bit(pieceBB[PieceType.KING] & playerBB[Player.BLACK]))
-			return false;
-		if (isPlayerInCheck(Player.getOtherPlayer(getPlayerToMove())))
-			return false;
-		return true;
+	//	if (!Bitboard.hasOnly1Bit(pieceBB[PieceType.KING] & playerBB[Player.WHITE]))
+	//		return false;
+	//	if (!Bitboard.hasOnly1Bit(pieceBB[PieceType.KING] & playerBB[Player.BLACK]))
+	//		return false;
+	//	if (isPlayerInCheck(Player.getOtherPlayer(getPlayerToMove())))
+	//		return false;
+		return !isPlayerInCheck(Player.getOtherPlayer(getPlayerToMove()));
 	}
 
 	/**
@@ -372,7 +371,7 @@ public class Board {
 		undoinfo = UndoInfo.setCastlingWQ(undoinfo, castling_WQ);
 		undoinfo = UndoInfo.setCastlingBK(undoinfo, castling_BK);
 		undoinfo = UndoInfo.setCastlingBQ(undoinfo, castling_BQ);
-		undoinfo = UndoInfo.setIsCheck(undoinfo, isCheck);
+		undoinfo = UndoInfo.setCheck(undoinfo, isCheck);
 		undoStack[undoStack_sze] = undoinfo;
 		undoStack_sze += 1;
 
@@ -597,14 +596,9 @@ public class Board {
 				}
 			}
 		}
-		// TODO: remove this try-catch.
-		// Also remove the two-king check from in-game board validation, as no legal
-		// move can lead to a king missing form the board.
-		try {// try is needed in case a king is missing form the board. Let the board
-				// validation deal with it, then
-			isCheck = isPlayerInCheck(playerToMove);
-		} catch (Exception e) {
-		}
+		validateState();
+		isCheck = isPlayerInCheck(playerToMove);
+
 		return this;
 	}
 
@@ -687,6 +681,26 @@ public class Board {
 		movenum = 1 + movenum / 2;
 		fen += " " + movenum;
 		return fen;
+	}
+	
+
+	/**
+	 * heavy-handed validation of the game state. Is only meant to be used after
+	 * loading from FEN. Tests done on move making and generation are supposed to
+	 * ensure that all subsequent state transitions are valid.
+	 * 
+	 * @return
+	 */
+	public void validateState() {
+		//TODO: expand this to include en passant, castling and so on.
+		boolean invalid = false;
+		invalid |= !Bitboard.hasOnly1Bit(pieceBB[PieceType.KING] & playerBB[Player.WHITE]);
+		invalid |= !Bitboard.hasOnly1Bit(pieceBB[PieceType.KING] & playerBB[Player.BLACK]);
+		if(! invalid)
+			invalid |= isPlayerInCheck(Player.getOtherPlayer(getPlayerToMove()));
+
+		if(invalid)
+			throw new RuntimeException("Invalid Game State!");
 	}
 
 }
