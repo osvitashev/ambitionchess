@@ -24,9 +24,7 @@ public class Board {
 	private boolean isCheck = false; // true if the current player to move is in check.
 	private int[] undoStack = new int[200];
 	private int undoStack_sze = 0;
-	// TOTO: there should be a stack of historical moves, zorbist codes to
-
-	// TODO: The only public mutators should be loadFromFen(), make and unmake move!
+	// TOTO: there should be a stack of historical moves, zorbist codes to0
 
 	public int getPlayerToMove() {
 		return playerToMove;
