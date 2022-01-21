@@ -8,7 +8,6 @@ import java.util.ArrayList;
 
 import org.junit.jupiter.api.Test;
 
-import gamestate.Bitboard;
 
 class BitboardTest {
 

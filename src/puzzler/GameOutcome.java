@@ -1,6 +1,6 @@
 package puzzler;
 
-import static gamestate.BitField32.*;
+import static util.BitField32.*;
 
 /**
  * Contains information needed for search to mate.

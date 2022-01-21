@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-import gamestate.BitboardGen;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
 

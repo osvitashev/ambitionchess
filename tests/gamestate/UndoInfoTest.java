@@ -4,13 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-import gamestate.BitField32;
-import gamestate.Board;
-import gamestate.Move;
-import gamestate.UndoInfo;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
+import util.BitField32;
 
 class UndoInfoTest {
 

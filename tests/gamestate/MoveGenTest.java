@@ -10,10 +10,6 @@ import java.lang.reflect.Field;
 
 import org.junit.jupiter.api.Test;
 
-import gamestate.Board;
-import gamestate.Move;
-import gamestate.MoveGen;
-import gamestate.MovePool;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;

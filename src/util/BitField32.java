@@ -1,4 +1,4 @@
-package gamestate;
+package util;
 
 /***
  * Class containing static methods required to do bit manipulation on integer bit fields.

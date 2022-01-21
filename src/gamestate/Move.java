@@ -1,6 +1,6 @@
 package gamestate;
 
-import static gamestate.BitField32.*;
+import static util.BitField32.*;
 
 import gamestate.GlobalConstants.MoveType;
 import gamestate.GlobalConstants.PieceType;

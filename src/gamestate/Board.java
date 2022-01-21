@@ -12,8 +12,9 @@ public class Board {
 	private long[] pieceBB = new long[PieceType.PIECE_TYPES.length];
 
 	private int playerToMove = Player.NO_PLAYER;
-	//TODO: denorm opponent as well in order to avoid calling getOtherPlayer many times.
-	
+	// TODO: denorm opponent as well in order to avoid calling getOtherPlayer many
+	// times.
+
 	private int quietHalfmoveClock = 0;// used for 50 more rule. FEN already specifies it as a number of half-moves.
 	private int gamePlyCount = 0;
 
@@ -181,6 +182,9 @@ public class Board {
 	public boolean isSquareAttackedBy(int sq, int pl) {
 		DebugLibrary.validatePlayer(pl);
 		DebugLibrary.validateSquare(sq);
+		// IDEA: this function can be a dynamic part of the game state. If there are no
+		// more knights on the board, there is no point in checking for knight attacks.
+		// Most moves do not modify such conditions.
 		int otherPlayer = Player.getOtherPlayer(pl);
 		if (!Bitboard.isEmpty(getPieces(pl, PieceType.PAWN) & BitboardGen.getPawnAttackSet(sq, otherPlayer)))
 			return true;

@@ -6,13 +6,10 @@ import java.lang.reflect.Method;
 
 import org.junit.jupiter.api.Test;
 
-import gamestate.BitField32;
-import gamestate.Board;
-import gamestate.GlobalConstants;
-import gamestate.Move;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
+import util.BitField32;
 
 class MoveTest {
 

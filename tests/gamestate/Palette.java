@@ -1,6 +1,5 @@
 package gamestate;
 
-import gamestate.DebugLibrary;
 
 public class Palette {
 	

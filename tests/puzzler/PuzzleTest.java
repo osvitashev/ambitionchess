@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import gamestate.Board;
 import gamestate.Move;
-import puzzler.PuzzleSolver;
 
 class PuzzleTest {
 

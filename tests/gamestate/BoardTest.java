@@ -6,7 +6,6 @@ import java.lang.reflect.Method;
 
 import org.junit.jupiter.api.Test;
 
-import gamestate.Board;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
