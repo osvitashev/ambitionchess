@@ -35,48 +35,34 @@ public class ExpensiveExchangeEvaluator {
 		return movepool.size();
 	}
 
-	private boolean toCaptureAndOccupy_opponentStep(Board brd) {
-		boolean isWin = true;
+	/**
+	 * Negamax/alpha beta type recursive algorithm.
+	 * @param brd
+	 * @param isOpponent - determines whether we are minimizing or maximizing.
+	 * @return
+	 */
+	private boolean toCaptureAndOccupy_step(Board brd, boolean isOpponent) {
+		boolean isDone = isOpponent;
 		int movelist_size_old = movepool.size();
 		generateExchangeMoves(brd, movepool);
 		for (int i = movelist_size_old; i < movepool.size(); ++i) {
 			int move = movepool.get(i);
 			if ((Move.getMoveType(move) == MoveType.CAPTURE || Move.getMoveType(move) == MoveType.PROMO_CAPTURE) && square == Move.getSquareTo(move)) {
-				// here return isWin iff every opponent's move leads to isWin
 				brd.makeMove(move);
-				isWin = toCaptureAndOccupy_step(brd);
+				isDone = toCaptureAndOccupy_step(brd, !isOpponent);
 				brd.unmakeMove(move);
-				if (!isWin)
+				if (isDone && !isOpponent || !isDone && isOpponent)
 					break;
 			}
 		}
 		movepool.resize(movelist_size_old);
-		return isWin;
-	}
-
-	private boolean toCaptureAndOccupy_step(Board brd) {
-		boolean isWin = false;
-		int movelist_size_old = movepool.size();
-		generateExchangeMoves(brd, movepool);
-		for (int i = movelist_size_old; i < movepool.size(); ++i) {
-			int move = movepool.get(i);
-			if ((Move.getMoveType(move) == MoveType.CAPTURE || Move.getMoveType(move) == MoveType.PROMO_CAPTURE) && square == Move.getSquareTo(move)) {
-				// here return isWin if ANY of our moves evaluates to isWin
-				brd.makeMove(move);
-				isWin = toCaptureAndOccupy_opponentStep(brd);
-				brd.unmakeMove(move);
-				if (isWin)
-					break;
-			}
-		}
-		movepool.resize(movelist_size_old);
-		return isWin;
+		return isDone;
 	}
 
 	/**
 	 * Determines if a given square can be occupied by a series of exchanges.
 	 * Disregards material cost - only is occupation can be forced. En Passant is
-	 * not considered because location of the captured pawn does not match te
+	 * not considered because location of the captured pawn does not match the
 	 * location of the pawn making the capture. Performs evaluation from the point
 	 * of view of side-to-move.
 	 * 
@@ -87,7 +73,7 @@ public class ExpensiveExchangeEvaluator {
 	public boolean toCaptureAndOccupy(Board brd, int square) {
 		this.square = square;
 		movepool.clear();
-		return toCaptureAndOccupy_step(brd);
+		return toCaptureAndOccupy_step(brd, false);
 	}
 
 }
