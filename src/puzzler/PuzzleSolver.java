@@ -97,9 +97,7 @@ public class PuzzleSolver {
 			if (temp)
 				return move;
 		}
-
 		movepool.resize( movelist_size_old);
 		return 0;// return code for no-move
 	}
-
 }

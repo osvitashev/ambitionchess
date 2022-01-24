@@ -868,19 +868,19 @@ class MoveGenTest {
 
 	@Test
 	void testGeneratePawnPromotions() {
-		assertMovelist("1nn5/1P4P1/8/8/5k2/1K6/8/8 w - - 0 1", MoveGen::generatePawnPromotions, // basic
+		assertMovelist("1nn5/1P4P1/8/8/5k2/1K6/8/8 w - - 0 1", MoveGen::generatePawnPromotionsAndCapturePromotions, // basic
 				new int[] { Move.createPromo(G7, G8, ROOK, WHITE), Move.createPromo(G7, G8, KNIGHT, WHITE), Move.createPromo(G7, G8, BISHOP, WHITE), Move.createPromo(G7, G8, QUEEN, WHITE),
 						Move.createCapturePromo(B7, C8, KNIGHT, ROOK, WHITE), Move.createCapturePromo(B7, C8, KNIGHT, KNIGHT, WHITE), Move.createCapturePromo(B7, C8, KNIGHT, BISHOP, WHITE),
 						Move.createCapturePromo(B7, C8, KNIGHT, QUEEN, WHITE), });
 
-		assertMovelist("2n1b3/3P2k1/8/1K6/8/1P1p3r/P1P3P1/8 w - - 0 1", MoveGen::generatePawnPromotions, // pin and check
+		assertMovelist("2n1b3/3P2k1/8/1K6/8/1P1p3r/P1P3P1/8 w - - 0 1", MoveGen::generatePawnPromotionsAndCapturePromotions, // pin and check
 				new int[] { Move.createCapturePromo(D7, E8, BISHOP, ROOK, WHITE), Move.setCheck(Move.createCapturePromo(D7, E8, BISHOP, KNIGHT, WHITE)),
 						Move.createCapturePromo(D7, E8, BISHOP, BISHOP, WHITE), Move.createCapturePromo(D7, E8, BISHOP, QUEEN, WHITE), });
 
-		assertMovelist("1brq4/2P5/8/7k/4P3/2K2P2/1p6/8 w - - 0 1", MoveGen::generatePawnPromotions, // blocked and pinned
+		assertMovelist("1brq4/2P5/8/7k/4P3/2K2P2/1p6/8 w - - 0 1", MoveGen::generatePawnPromotionsAndCapturePromotions, // blocked and pinned
 				new int[] {});
 		// black
-		assertMovelist("8/1p4pK/2B5/7p/8/8/kpRp2p1/N1n1bQQ1 b - - 0 1", MoveGen::generatePawnPromotions, // mixed
+		assertMovelist("8/1p4pK/2B5/7p/8/8/kpRp2p1/N1n1bQQ1 b - - 0 1", MoveGen::generatePawnPromotionsAndCapturePromotions, // mixed
 				new int[] { Move.createPromo(D2, D1, ROOK, BLACK), Move.createPromo(D2, D1, KNIGHT, BLACK), Move.createPromo(D2, D1, BISHOP, BLACK), Move.createPromo(D2, D1, QUEEN, BLACK),
 						Move.createCapturePromo(G2, F1, QUEEN, ROOK, BLACK), Move.createCapturePromo(G2, F1, QUEEN, KNIGHT, BLACK), Move.createCapturePromo(G2, F1, QUEEN, BISHOP, BLACK),
 						Move.createCapturePromo(G2, F1, QUEEN, QUEEN, BLACK), });
