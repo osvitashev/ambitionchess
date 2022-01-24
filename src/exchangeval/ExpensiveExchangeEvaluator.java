@@ -1,10 +1,12 @@
 package exchangeval;
 
 import gamestate.Board;
+import gamestate.DebugLibrary;
 import gamestate.Move;
 import gamestate.MoveGen;
 import gamestate.MovePool;
 import gamestate.GlobalConstants.MoveType;
+import gamestate.GlobalConstants.Player;
 
 /**
  * Used to calculate outcomes of potential exchanges by performing series of
@@ -63,16 +65,24 @@ public class ExpensiveExchangeEvaluator {
 	 * Determines if a given square can be occupied by a series of exchanges.
 	 * Disregards material cost - only is occupation can be forced. En Passant is
 	 * not considered because location of the captured pawn does not match the
-	 * location of the pawn making the capture. Performs evaluation from the point
-	 * of view of side-to-move.
+	 * location of the pawn making the capture.
+	 * IMPORTANT: player argument overrides FEN side-to-move.
 	 * 
 	 * @param brd
-	 * @param square - occupied by the opponent
+	 * @param square
 	 * @return
 	 */
-	public boolean toCaptureAndOccupy(Board brd, int square) {
+	public boolean toCaptureAndOccupy(Board brd, int square, int player) {
+		DebugLibrary.validatePlayer(player);
+		DebugLibrary.validateSquare(square);
 		this.square = square;
 		movepool.clear();
+		//This is an insanely horrible substitute for a null move...
+		if(brd.getPlayerToMove() != player) {
+			String fen = brd.toFEN();
+			fen = fen.replace((player == Player.WHITE)? " b " : " w ", (player == Player.BLACK)? " b " : " w ");
+			brd = new Board(fen);
+		}
 		return toCaptureAndOccupy_step(brd, false);
 	}
 
