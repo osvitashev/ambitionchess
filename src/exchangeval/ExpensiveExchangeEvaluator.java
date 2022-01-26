@@ -6,6 +6,7 @@ import gamestate.Move;
 import gamestate.MoveGen;
 import gamestate.MovePool;
 import gamestate.GlobalConstants.MoveType;
+import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 
 /**
@@ -15,8 +16,13 @@ import gamestate.GlobalConstants.Player;
  *
  */
 public class ExpensiveExchangeEvaluator {
+	//point values: https://www.chessprogramming.org/Point_Value
+	static final int[] shannonPieceValues = { 100, 300, 300, 500, 900, 100000  };
+	
+	static final int[] pieceValues = shannonPieceValues;// index matches piece type.
+
 	private MovePool movepool = new MovePool();// main move pool used in the search
-	private MovePool bufferpool = new MovePool();// temporary , used to dp move filtering.
+	private MovePool bufferpool = new MovePool();// temporary , used to do move filtering.
 	private int square;// square the evaluation is for.
 
 	/**
@@ -144,6 +150,72 @@ public class ExpensiveExchangeEvaluator {
 		if (brd.getPlayerAt(square) == Player.NO_PLAYER)
 			return toMoveAndOccupy_step(brd, false);
 		return toCaptureAndOccupy_step(brd, false);
+	}
+
+	private int incrementalMoveValue(int move, boolean maximizingPlayer) {
+		int retVal = 0;
+		if (Move.getMoveType(move) == MoveType.PROMO_CAPTURE) {
+			throw new RuntimeException("NOT DONE YET!");
+		} else if (Move.getMoveType(move) == MoveType.CAPTURE) {
+			retVal = pieceValues[Move.getPieceCapturedType(move)];
+		} else if (Move.getMoveType(move) == MoveType.PROMO) {
+			throw new RuntimeException("NOT DONE YET!");
+		}
+		if(!maximizingPlayer)
+			retVal = -1*retVal;
+		return retVal;
+	}
+	
+	private int evaluateSquareInPosition(Board brd, int currentAccumulation, boolean maximizingPlayer) {
+		return currentAccumulation;
+	}
+
+	// current implementation does not leave an option of rejecting a capture -
+	// effectively this is the Occupy At All Costs version of exchanger.
+	// ACTUALLY, NO! the current version returns material loss even of it does not lead to successful occupation.
+	private int toExchange_step(Board brd, int alpha, int beta, int currentValue, boolean maximizingPlayer) {
+		int retVal = evaluateSquareInPosition(brd, currentValue,maximizingPlayer);
+		int movelist_size_old = movepool.size();
+		generateExchangeCaptureMoves(brd);
+		if (maximizingPlayer) {
+			int value = retVal;
+			for (int i = movelist_size_old; i < movepool.size(); ++i) {
+				int move = movepool.get(i);
+				brd.makeMove(move);
+				value = Math.max(value, toExchange_step(brd, alpha, beta, currentValue + incrementalMoveValue(move, maximizingPlayer), false));
+	//			System.out.println("Move " + Move.moveToString(move) + " has outcome of " + value);
+				brd.unmakeMove(move);
+				// if (value >= beta)
+				// break;
+				// alpha = Math.max(alpha, value);
+			}
+			retVal = value;
+		} else {
+			int value = retVal;
+			for (int i = movelist_size_old; i < movepool.size(); ++i) {
+				int move = movepool.get(i);
+				brd.makeMove(move);
+				value = Math.min(value, toExchange_step(brd, alpha, beta, currentValue + incrementalMoveValue(move, maximizingPlayer), true));
+	//			System.out.println("Move " + Move.moveToString(move) + " has outcome of " + value);
+				brd.unmakeMove(move);
+				// if (value <= alpha)
+				// break;
+				// beta = Math.min(beta, value);
+			}
+			retVal = value;
+
+		}
+
+		movepool.resize(movelist_size_old);
+		return retVal;
+	}
+
+	public int toExchange(Board brd, int square) {
+		DebugLibrary.validateSquare(square);
+
+		this.square = square;
+		movepool.clear();
+		return toExchange_step(brd, -pieceValues[PieceType.KING], pieceValues[PieceType.KING], 0, true);
 	}
 
 }

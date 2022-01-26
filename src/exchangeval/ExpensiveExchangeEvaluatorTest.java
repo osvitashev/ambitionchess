@@ -215,5 +215,22 @@ class ExpensiveExchangeEvaluatorTest {
 	//TODO:Exchange involving KING
 	
 	//TODO: Validate exception is evaluator is called while in check
+	
+	
+	
+	@Test
+	void testExchange() {
+		Board brd = new Board();
+		ExpensiveExchangeEvaluator eval = new ExpensiveExchangeEvaluator();
+		
+
+		assertEquals(300,  eval.toExchange(brd.loadFromFEN("8/6pk/6pp/8/8/2n3PP/1P4PK/8 w - - 0 1"), Square.C3));
+		assertEquals(200,  eval.toExchange(brd.loadFromFEN("8/6pk/6pp/8/1p6/2n3PP/1P4PK/8 w - - 0 1"), Square.C3));
+		assertEquals(300,  eval.toExchange(brd.loadFromFEN("8/6pk/6pp/8/1p6/2n3PP/1P2N1PK/8 w - - 0 1"), Square.C3));
+		assertEquals(100,  eval.toExchange(brd.loadFromFEN("8/6pk/6pp/8/1p6/2n3PP/4N1PK/B7 w - - 0 1"), Square.C3));
+		assertEquals(500,  eval.toExchange(brd.loadFromFEN("8/6pk/6pp/2p5/3r4/2P3PP/4N1PK/8 w - - 0 1"), Square.D4));
+		assertEquals(400,  eval.toExchange(brd.loadFromFEN("8/6pk/6pp/2p5/3r4/2P3PP/1b2N1PK/q7 w - - 0 1"), Square.D4));
+		assertEquals(0,  eval.toExchange(brd.loadFromFEN("8/6pk/b5pp/8/2n5/6PP/2R3PK/8 w - - 0 1"), Square.C4));
+	}
 
 }
