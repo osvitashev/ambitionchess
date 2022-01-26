@@ -17,13 +17,21 @@ import gamestate.GlobalConstants.Player;
  */
 public class ExpensiveExchangeEvaluator {
 	//point values: https://www.chessprogramming.org/Point_Value
-	static final int[] shannonPieceValues = { 100, 300, 300, 500, 900, 100000  };
+	private static final int[] ShannonPieceValues = { 100, 300, 300, 500, 900, 100000  };
+	static final int[] BerlinerPieceValues = { 100, 320, 333, 510, 800, 100000  };
 	
-	static final int[] pieceValues = shannonPieceValues;// index matches piece type.
+	private static final int[] pieceValues = BerlinerPieceValues;// index matches piece type.
 
 	private MovePool movepool = new MovePool();// main move pool used in the search
 	private MovePool bufferpool = new MovePool();// temporary , used to do move filtering.
 	private int square;// square the evaluation is for.
+	
+	public int getPieceTypeValue(int piecetype, boolean maximizingPlayer) {
+		int temp = pieceValues[piecetype];
+		if(!maximizingPlayer)
+			temp = -1*temp;
+		return temp;
+	}
 
 	/**
 	 * Generates all legal captures and capture promotions stopping the the square
