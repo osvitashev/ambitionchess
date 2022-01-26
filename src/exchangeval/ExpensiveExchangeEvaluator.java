@@ -15,46 +15,58 @@ import gamestate.GlobalConstants.Player;
  *
  */
 public class ExpensiveExchangeEvaluator {
-	private MovePool movepool = new MovePool();
+	private MovePool movepool = new MovePool();// main move pool used in the search
+	private MovePool bufferpool = new MovePool();// temporary , used to dp move filtering.
 	private int square;// square the evaluation is for.
 
 	/**
-	 * Generates all legal captures, capture promotions and pawn pushes(which should
-	 * be filtered out) in a position. It is caller's responsibility to ensure that
-	 * the ones played through fall on the correct square.
+	 * Generates all legal captures and capture promotions stopping the the square
+	 * private field.
 	 * 
 	 * @param brd
-	 * @param movepool
 	 * @return
 	 */
-	private static int generateExchangeCaptureMoves(Board brd, MovePool movepool) {
-		MoveGen.generatePawnCaptures(brd, movepool);
-		MoveGen.generatePawnPromotionsAndCapturePromotions(brd, movepool);
-		MoveGen.generateRookCaptures(brd, movepool);
-		MoveGen.generateKnightCaptures(brd, movepool);
-		MoveGen.generateBishopCaptures(brd, movepool);
-		MoveGen.generateQueenCaptures(brd, movepool);
-		MoveGen.generateKingCaptures(brd, movepool);
+	private int generateExchangeCaptureMoves(Board brd) {
+		bufferpool.clear();
+		MoveGen.generatePawnCaptures(brd, bufferpool);
+		MoveGen.generatePawnPromotionsAndCapturePromotions(brd, bufferpool);
+		MoveGen.generateRookCaptures(brd, bufferpool);
+		MoveGen.generateKnightCaptures(brd, bufferpool);
+		MoveGen.generateBishopCaptures(brd, bufferpool);
+		MoveGen.generateQueenCaptures(brd, bufferpool);
+		MoveGen.generateKingCaptures(brd, bufferpool);
+		for (int i = 0; i < bufferpool.size(); ++i) {
+			int move = bufferpool.get(i);
+			if ((Move.getMoveType(move) == MoveType.CAPTURE || Move.getMoveType(move) == MoveType.PROMO_CAPTURE) && square == Move.getSquareTo(move)) {
+				movepool.add(move);
+			}
+		}
 		return movepool.size();
 	}
 
 	/**
-	 * Generates legal non-captures in a position. Only includes NORMAL and PROMO
-	 * and DOUBLE_PUSH move type. It is caller's responsibility to ensure that the
-	 * ones played through fall on the correct square.
+	 * Generates legal non-captures in a position for the private square field. Only
+	 * includes NORMAL and PROMO and DOUBLE_PUSH move type.
 	 * 
 	 * @param brd
-	 * @param movepool
 	 * @return
 	 */
-	private static int generateExchangeNonCaptureMoves(Board brd, MovePool movepool) {
-		MoveGen.generatePawnMoves(brd, movepool);
-		MoveGen.generatePawnPromotionsAndCapturePromotions(brd, movepool);
-		MoveGen.generateRookMoves(brd, movepool);
-		MoveGen.generateKnightMoves(brd, movepool);
-		MoveGen.generateBishopMoves(brd, movepool);
-		MoveGen.generateQueenMoves(brd, movepool);
-		MoveGen.generateKingMoves(brd, movepool);
+	private int generateExchangeNonCaptureMoves(Board brd) {
+		bufferpool.clear();
+		MoveGen.generatePawnMoves(brd, bufferpool);
+		MoveGen.generatePawnPromotionsAndCapturePromotions(brd, bufferpool);
+		MoveGen.generateRookMoves(brd, bufferpool);
+		MoveGen.generateKnightMoves(brd, bufferpool);
+		MoveGen.generateBishopMoves(brd, bufferpool);
+		MoveGen.generateQueenMoves(brd, bufferpool);
+		MoveGen.generateKingMoves(brd, bufferpool);
+		for (int i = 0; i < bufferpool.size(); ++i) {
+			int move = bufferpool.get(i);
+			if ((Move.getMoveType(move) == MoveType.PROMO || Move.getMoveType(move) == MoveType.NORMAL || Move.getMoveType(move) == MoveType.DOUBLE_PUSH)
+					&& square == Move.getSquareTo(move)) {
+				movepool.add(move);
+			}
+		}
 		return movepool.size();
 	}
 
@@ -68,16 +80,14 @@ public class ExpensiveExchangeEvaluator {
 	private boolean toCaptureAndOccupy_step(Board brd, boolean isOpponent) {
 		boolean isDone = isOpponent;
 		int movelist_size_old = movepool.size();
-		generateExchangeCaptureMoves(brd, movepool);
+		generateExchangeCaptureMoves(brd);
 		for (int i = movelist_size_old; i < movepool.size(); ++i) {
 			int move = movepool.get(i);
-			if ((Move.getMoveType(move) == MoveType.CAPTURE || Move.getMoveType(move) == MoveType.PROMO_CAPTURE) && square == Move.getSquareTo(move)) {
-				brd.makeMove(move);
-				isDone = toCaptureAndOccupy_step(brd, !isOpponent);
-				brd.unmakeMove(move);
-				if (isDone && !isOpponent || !isDone && isOpponent)
-					break;
-			}
+			brd.makeMove(move);
+			isDone = toCaptureAndOccupy_step(brd, !isOpponent);
+			brd.unmakeMove(move);
+			if (isDone && !isOpponent || !isDone && isOpponent)
+				break;
 		}
 		movepool.resize(movelist_size_old);
 		return isDone;
@@ -93,17 +103,14 @@ public class ExpensiveExchangeEvaluator {
 	private boolean toMoveAndOccupy_step(Board brd, boolean isOpponent) {
 		boolean isDone = isOpponent;
 		int movelist_size_old = movepool.size();
-		generateExchangeNonCaptureMoves(brd, movepool);
+		generateExchangeNonCaptureMoves(brd);
 		for (int i = movelist_size_old; i < movepool.size(); ++i) {
 			int move = movepool.get(i);
-			if ((Move.getMoveType(move) == MoveType.PROMO || Move.getMoveType(move) == MoveType.NORMAL || Move.getMoveType(move) == MoveType.DOUBLE_PUSH)
-					&& square == Move.getSquareTo(move)) {
-				brd.makeMove(move);
-				isDone = toCaptureAndOccupy_step(brd, !isOpponent);
-				brd.unmakeMove(move);
-				if (isDone && !isOpponent || !isDone && isOpponent)
-					break;
-			}
+			brd.makeMove(move);
+			isDone = toCaptureAndOccupy_step(brd, !isOpponent);
+			brd.unmakeMove(move);
+			if (isDone && !isOpponent || !isDone && isOpponent)
+				break;
 		}
 		movepool.resize(movelist_size_old);
 		return isDone;
@@ -124,8 +131,8 @@ public class ExpensiveExchangeEvaluator {
 	public boolean toOccupy(Board brd, int square, int player) {
 		DebugLibrary.validatePlayer(player);
 		DebugLibrary.validateSquare(square);
-		if(brd.getPlayerAt(square) == player)
-			return false;//friendly capture
+		if (brd.getPlayerAt(square) == player)
+			return false;// friendly capture
 		this.square = square;
 		movepool.clear();
 		// This is an insanely horrible substitute for a null move...
@@ -134,7 +141,7 @@ public class ExpensiveExchangeEvaluator {
 			fen = fen.replace((player == Player.WHITE) ? " b " : " w ", (player == Player.BLACK) ? " b " : " w ");
 			brd = new Board(fen);
 		}
-		if(brd.getPlayerAt(square) == Player.NO_PLAYER)
+		if (brd.getPlayerAt(square) == Player.NO_PLAYER)
 			return toMoveAndOccupy_step(brd, false);
 		return toCaptureAndOccupy_step(brd, false);
 	}
