@@ -127,7 +127,12 @@ public class Board {
 				return i;
 		return PieceType.NO_PIECE;
 	}
-
+	
+	/**
+	 * May return NO_PLAYER, so should be used with care.
+	 * @param sq
+	 * @return player
+	 */
 	public int getPlayerAt(int sq) {
 		DebugLibrary.validateSquare(sq);
 		if (testBit(playerBB[Player.WHITE], sq))

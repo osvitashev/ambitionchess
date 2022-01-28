@@ -54,7 +54,7 @@ public class MoveGen {
 	 * Generates legal enpassant moves (up to two) for a given position. Sets check
 	 * flag on them.
 	 * 
-	 * @param brd           valid game state
+	 * @param brd      valid game state
 	 * @param MovePool
 	 * @return movelist_size Updated collection size
 	 */
@@ -82,7 +82,7 @@ public class MoveGen {
 	 * promotions! Validates king exposure for own king and sets check flag for
 	 * opponent's king. If the move is legal, it is added to movelist.
 	 * 
-	 * @param brd           valid game state
+	 * @param brd      valid game state
 	 * @param movepool
 	 * @return movelist_size Updated collection size
 	 */
@@ -179,7 +179,7 @@ public class MoveGen {
 		return movepool.size();
 	}
 
-	public static int generatePawnPromotions(Board brd, MovePool movepool) {
+	public static int generatePawnPromotionsAndCapturePromotions(Board brd, MovePool movepool) {
 		// TODO: THIS IS STUPIDLY INEFFECIENT...
 		int player = brd.getPlayerToMove();
 		long pawnBB;
@@ -578,11 +578,13 @@ public class MoveGen {
 	}
 
 	public static int generateLegalMoves(Board brd, MovePool movepool) {
+		// TODO: ALL Movegen methods should accept a boolean-valued function determining
+		// the move's acceptance. This would be called inside dirty make/unmake wrapper.
 		generateEnpassant(brd, movepool);
 
 		generatePawnMoves(brd, movepool);
 		generatePawnCaptures(brd, movepool);
-		generatePawnPromotions(brd, movepool);
+		generatePawnPromotionsAndCapturePromotions(brd, movepool);
 
 		generateRookMoves(brd, movepool);
 		generateRookCaptures(brd, movepool);
