@@ -13,17 +13,17 @@ class BitboardTest {
 
 	@Test
 	void testBitScanForward() {
-		assertEquals(64, Bitboard.bitScanForward(0));// counter-intuitive but correct
-		assertEquals(0, Bitboard.bitScanForward(1));
-		assertEquals(1, Bitboard.bitScanForward(2));
-		assertEquals(2, Bitboard.bitScanForward(4));
-		assertEquals(1, Bitboard.bitScanForward(6));
-		assertEquals(10, Bitboard.bitScanForward(1024 + 4096));
-		assertEquals(63, Bitboard.bitScanForward(-9223372036854775808L));
-		assertEquals(2, Bitboard.bitScanForward(-9223372036854775808L + 4));
-		assertEquals(3, Bitboard.bitScanForward(4611686018427387904L + 8));
-		assertEquals(62, Bitboard.bitScanForward(4611686018427387904L));
-		assertEquals(3, Bitboard.bitScanForward(4611686018427387904L + 8));
+		assertEquals(64, Bitboard.getLowSquareIndex(0));// counter-intuitive but correct
+		assertEquals(0, Bitboard.getLowSquareIndex(1));
+		assertEquals(1, Bitboard.getLowSquareIndex(2));
+		assertEquals(2, Bitboard.getLowSquareIndex(4));
+		assertEquals(1, Bitboard.getLowSquareIndex(6));
+		assertEquals(10, Bitboard.getLowSquareIndex(1024 + 4096));
+		assertEquals(63, Bitboard.getLowSquareIndex(-9223372036854775808L));
+		assertEquals(2, Bitboard.getLowSquareIndex(-9223372036854775808L + 4));
+		assertEquals(3, Bitboard.getLowSquareIndex(4611686018427387904L + 8));
+		assertEquals(62, Bitboard.getLowSquareIndex(4611686018427387904L));
+		assertEquals(3, Bitboard.getLowSquareIndex(4611686018427387904L + 8));
 	}
 
 	@Test
@@ -149,7 +149,7 @@ class BitboardTest {
 				int bi = 0;
 				for (long zarg = val, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 																																							// expanded
-					bi = Bitboard.bitScanForward(barg);
+					bi = Bitboard.getLowSquareIndex(barg);
 					ans.add(bi);
 				}
 			}
@@ -160,7 +160,7 @@ class BitboardTest {
 			ans = new ArrayList<>();
 			int ind = 0;
 			for (long zarg = val, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBits expanded
-				ind = Bitboard.bitScanForward(barg);
+				ind = Bitboard.getLowSquareIndex(barg);
 				ans.add(ind);
 			}
 			assertArrayEquals(powers[test], ans.toArray());
@@ -172,6 +172,9 @@ class BitboardTest {
 		long v = 0xc3811c141c1481c3L;
 		assertEquals(0x811c141c1481c300L, Bitboard.shiftNorth(v));
 		assertEquals(0xc3811c141c1481L, Bitboard.shiftSouth(v));
+		
+		assertEquals(0x8602382838280286L, Bitboard.shiftEast(v));
+		assertEquals(0x61400e0a0e0a4061L, Bitboard.shiftWest(v));
 	}
 
 }

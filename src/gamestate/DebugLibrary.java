@@ -75,6 +75,14 @@ public class DebugLibrary {
 		return mt;
 	}
 
+	public static int validateValueInRange(int val, int[] allowed) {
+		if (ENABLE_PRIMITIVE_TYPE_VALIDATION) {
+			if (allowed[allowed.length - 1] < val || val < allowed[0])
+				throw new RuntimeException("Argument is out of range " + val);
+		}
+		return val;
+	}
+
 //	/**
 //	 * Checks that board is in valid state. No two pieces or players cooccupy same
 //	 * square. Enpassant square can only be rank 3 or 6. Casling availability

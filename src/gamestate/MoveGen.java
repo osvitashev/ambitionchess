@@ -67,7 +67,7 @@ public class MoveGen {
 			{
 				int bi = 0;
 				for (long zarg = attackersBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-					bi = Bitboard.bitScanForward(barg);
+					bi = Bitboard.getLowSquareIndex(barg);
 					int move = Move.createEnpassant(bi, enpassantSquare, player);
 					addToMoveListIfValid(brd, movepool, move);
 				}
@@ -96,7 +96,7 @@ public class MoveGen {
 		{
 			int bi = 0;
 			for (long zarg = pawnBB, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				// single
 				if (0 == (brd.getOccupied() & Bitboard.shiftNorth(barg))) {// use shiftNorth to check is the target square is empty
 					move = Move.createNormal(bi, bi + 8, PieceType.PAWN, player);
@@ -117,7 +117,7 @@ public class MoveGen {
 		{
 			int bi = 0;
 			for (long zarg = pawnBB, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				// single
 				if (0 == (brd.getOccupied() & Bitboard.shiftSouth(barg))) {// use shiftSouth to check is the target square is empty
 					move = Move.createNormal(bi, bi - 8, PieceType.PAWN, player);
@@ -146,7 +146,7 @@ public class MoveGen {
 		{
 			int bi = 0;
 			for (long zarg = pawnBB, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				generatePawnCaptures_helper(brd, bi, movepool);
 			}
 		}
@@ -156,7 +156,7 @@ public class MoveGen {
 		{
 			int bi = 0;
 			for (long zarg = pawnBB, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				generatePawnCaptures_helper(brd, bi, movepool);
 			}
 		}
@@ -171,7 +171,7 @@ public class MoveGen {
 		{
 			int bi = 0;
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				move = Move.createCapture(sqFrom, bi, PieceType.PAWN, brd.getPieceAt(bi), brd.getPlayerToMove());
 				addToMoveListIfValid(brd, movepool, move);
 			}
@@ -189,7 +189,7 @@ public class MoveGen {
 		{
 			int bi = 0;
 			for (long zarg = pawnBB, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				generatePawnPromotions_helper(brd, bi, movepool);
 			}
 		}
@@ -199,7 +199,7 @@ public class MoveGen {
 		{
 			int bi = 0;
 			for (long zarg = pawnBB, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				generatePawnPromotions_helper(brd, bi, movepool);
 			}
 		}
@@ -215,7 +215,7 @@ public class MoveGen {
 		{
 			int bi = 0;
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				move = Move.createCapturePromo(sqFrom, bi, brd.getPieceAt(bi), PieceType.ROOK, brd.getPlayerToMove());
 				addToMoveListIfValid(brd, movepool, move);
 				move = Move.createCapturePromo(sqFrom, bi, brd.getPieceAt(bi), PieceType.KNIGHT, brd.getPlayerToMove());
@@ -266,13 +266,13 @@ public class MoveGen {
 	 * @return movelist_size Updated collection size
 	 */
 	public static int generateKingMoves(Board brd, MovePool movepool) {
-		int sq_from = Bitboard.bitScanForward(brd.getPieces(brd.getPlayerToMove(), PieceType.KING));
+		int sq_from = Bitboard.getLowSquareIndex(brd.getPieces(brd.getPlayerToMove(), PieceType.KING));
 		int move;
 		long targetBitboard = BitboardGen.getKingSet(sq_from) & brd.getEmpty();
 		{
 			int bi = 0;
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				move = Move.createNormal(sq_from, bi, PieceType.KING, brd.getPlayerToMove());
 				addToMoveListIfValid(brd, movepool, move);
 			}
@@ -293,13 +293,13 @@ public class MoveGen {
 	 * @return movelist_size Updated collection size
 	 */
 	public static int generateKingCaptures(Board brd, MovePool movepool) {
-		int sq_from = Bitboard.bitScanForward(brd.getPieces(brd.getPlayerToMove(), PieceType.KING));
+		int sq_from = Bitboard.getLowSquareIndex(brd.getPieces(brd.getPlayerToMove(), PieceType.KING));
 		int move;
 		long targetBitboard = BitboardGen.getKingSet(sq_from) & brd.getPlayerPieces(Player.getOtherPlayer(brd.getPlayerToMove()));
 		{
 			int bi = 0;
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				move = Move.createCapture(sq_from, bi, PieceType.KING, brd.getPieceAt(bi), brd.getPlayerToMove());
 				addToMoveListIfValid(brd, movepool, move);
 			}
@@ -312,7 +312,7 @@ public class MoveGen {
 			int bi = 0;
 			for (long zarg = brd.getPieces(brd.getPlayerToMove(), PieceType.KNIGHT),
 					barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				generateKnightMoves_helper(brd, bi, movepool);
 			}
 		}
@@ -326,7 +326,7 @@ public class MoveGen {
 		{
 			int bi = 0;
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				move = Move.createNormal(sqFrom, bi, PieceType.KNIGHT, brd.getPlayerToMove());
 				addToMoveListIfValid(brd, movepool, move);
 			}
@@ -339,7 +339,7 @@ public class MoveGen {
 			int bi = 0;
 			for (long zarg = brd.getPieces(brd.getPlayerToMove(), PieceType.KNIGHT),
 					barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				generateKnightCaptures_helper(brd, bi, movepool);
 			}
 		}
@@ -353,7 +353,7 @@ public class MoveGen {
 		{
 			int bi = 0;
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				move = Move.createCapture(sqFrom, bi, PieceType.KNIGHT, brd.getPieceAt(bi), brd.getPlayerToMove());
 				addToMoveListIfValid(brd, movepool, move);
 			}
@@ -366,7 +366,7 @@ public class MoveGen {
 			int bi = 0;
 			for (long zarg = brd.getPieces(brd.getPlayerToMove(), PieceType.ROOK),
 					barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				generateRookMoves_helper(brd, bi, movepool);
 			}
 		}
@@ -380,7 +380,7 @@ public class MoveGen {
 		{
 			int bi = 0;
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				move = Move.createNormal(sqFrom, bi, PieceType.ROOK, brd.getPlayerToMove());
 				addToMoveListIfValid(brd, movepool, move);
 			}
@@ -393,7 +393,7 @@ public class MoveGen {
 			int bi = 0;
 			for (long zarg = brd.getPieces(brd.getPlayerToMove(), PieceType.ROOK),
 					barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				generateRookCaptures_helper(brd, bi, movepool);
 			}
 		}
@@ -407,7 +407,7 @@ public class MoveGen {
 		{
 			int bi = 0;
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				move = Move.createCapture(sqFrom, bi, PieceType.ROOK, brd.getPieceAt(bi), brd.getPlayerToMove());
 				addToMoveListIfValid(brd, movepool, move);
 			}
@@ -420,7 +420,7 @@ public class MoveGen {
 			int bi = 0;
 			for (long zarg = brd.getPieces(brd.getPlayerToMove(), PieceType.BISHOP),
 					barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				generateBishopMoves_helper(brd, bi, movepool);
 			}
 		}
@@ -434,7 +434,7 @@ public class MoveGen {
 		{
 			int bi = 0;
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				move = Move.createNormal(sqFrom, bi, PieceType.BISHOP, brd.getPlayerToMove());
 				addToMoveListIfValid(brd, movepool, move);
 			}
@@ -447,7 +447,7 @@ public class MoveGen {
 			int bi = 0;
 			for (long zarg = brd.getPieces(brd.getPlayerToMove(), PieceType.BISHOP),
 					barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				generateBishopCaptures_helper(brd, bi, movepool);
 			}
 		}
@@ -461,7 +461,7 @@ public class MoveGen {
 		{
 			int bi = 0;
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				move = Move.createCapture(sqFrom, bi, PieceType.BISHOP, brd.getPieceAt(bi), brd.getPlayerToMove());
 				addToMoveListIfValid(brd, movepool, move);
 			}
@@ -474,7 +474,7 @@ public class MoveGen {
 			int bi = 0;
 			for (long zarg = brd.getPieces(brd.getPlayerToMove(), PieceType.QUEEN),
 					barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				generateQueenMoves_helper(brd, bi, movepool);
 			}
 		}
@@ -488,7 +488,7 @@ public class MoveGen {
 		{
 			int bi = 0;
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				move = Move.createNormal(sqFrom, bi, PieceType.QUEEN, brd.getPlayerToMove());
 				addToMoveListIfValid(brd, movepool, move);
 			}
@@ -501,7 +501,7 @@ public class MoveGen {
 			int bi = 0;
 			for (long zarg = brd.getPieces(brd.getPlayerToMove(), PieceType.QUEEN),
 					barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				generateQueenCaptures_helper(brd, bi, movepool);
 			}
 		}
@@ -515,7 +515,7 @@ public class MoveGen {
 		{
 			int bi = 0;
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-				bi = Bitboard.bitScanForward(barg);
+				bi = Bitboard.getLowSquareIndex(barg);
 				move = Move.createCapture(sqFrom, bi, PieceType.QUEEN, brd.getPieceAt(bi), brd.getPlayerToMove());
 				addToMoveListIfValid(brd, movepool, move);
 			}

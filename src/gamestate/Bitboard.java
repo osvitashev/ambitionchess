@@ -29,7 +29,7 @@ import gamestate.GlobalConstants.Square;
  *
  */
 public final class Bitboard {
-	public static int bitScanForward(long bb) {
+	public static int getLowSquareIndex(long bb) {
 		return Long.numberOfTrailingZeros(bb);
 	}
 
@@ -78,13 +78,20 @@ public final class Bitboard {
 		return Long.bitCount(bb);
 	}
 
-	// TODO: ADD directional shifts for east and west
 	public static long shiftNorth(long bb) {
 		return bb<<8;
 	}
 	
 	public static long shiftSouth(long bb) {
 		return bb>>>8;// unsigned shift pads the argument with zeros.
+	}
+	
+	public static long shiftEast(long bb) {
+		return (bb<<1) & ~0x101010101010101L;
+	}
+	
+	public static long shiftWest(long bb) {
+		return (bb>>>1) & ~0x8080808080808080L;// unsigned shift pads the argument with zeros.
 	}
 
 	/**
