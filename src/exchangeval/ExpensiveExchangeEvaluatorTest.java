@@ -255,6 +255,12 @@ class ExpensiveExchangeEvaluatorTest {
 		tests.add(Quartet.with(new int[] {PAWN}, new int[] {KNIGHT}, "2r5/5qpk/4b1pp/8/2n2R2/1P4PP/B5PK/8 w - - 0 1", Square.C4));
 		tests.add(Quartet.with(new int[] {}, new int[] {}, "8/6pk/b5pp/8/2p5/3P2PP/6PK/8 w - - 0 1", Square.C4));
 		tests.add(Quartet.with(new int[] {}, new int[] {PAWN}, "8/6pk/b5pp/N7/2p5/3P2PP/6PK/8 w - - 0 1", Square.C4));
+		tests.add(Quartet.with(new int[] {}, new int[] {KNIGHT}, "8/6pk/6pp/8/2n5/3P2PP/1N2b1PK/5q2 w - - 0 1", Square.C4));
+		tests.add(Quartet.with(new int[] {PAWN}, new int[] {ROOK}, "8/6pk/6pp/2p5/3r4/2P3PP/1b2N1PK/q7 w - - 0 1", Square.D4));
+		tests.add(Quartet.with(new int[] {}, new int[] {}, "8/6pk/b5pp/8/2n5/6PP/2R3PK/8 w - - 0 1", Square.C4));
+		
+		//first move - non-capture
+		//Moving to an empty square is not going to win material, because the opponent is not going to perform a losing capture.
 
 		Board brd = new Board();
 		ExpensiveExchangeEvaluator eval = new ExpensiveExchangeEvaluator();
@@ -266,13 +272,11 @@ class ExpensiveExchangeEvaluatorTest {
 
 			int expectedValue = 0;
 			for (int i = 0; i < given.length; ++i)
-				expectedValue += eval.getPieceTypeValue(given[i], false);
+				expectedValue += ExpensiveExchangeEvaluator.getPieceTypeValue(given[i], false);
 			for (int i = 0; i < taken.length; ++i)
-				expectedValue += eval.getPieceTypeValue(taken[i], true);
-			assertEquals(expectedValue, eval.toExchange(brd.loadFromFEN(fen), square));
+				expectedValue += ExpensiveExchangeEvaluator.getPieceTypeValue(taken[i], true);
+			assertEquals(expectedValue, eval.toWinMaterial(brd.loadFromFEN(fen), square));
 		}
-//		assertEquals(400,  eval.toExchange(brd.loadFromFEN("8/6pk/6pp/2p5/3r4/2P3PP/1b2N1PK/q7 w - - 0 1"), Square.D4));
-//		assertEquals(0,  eval.toExchange(brd.loadFromFEN("8/6pk/b5pp/8/2n5/6PP/2R3PK/8 w - - 0 1"), Square.C4));
 
 		Pair<Integer, String> pair = Pair.with(9086651, "Dell Laptop");
 		System.out.println(pair);

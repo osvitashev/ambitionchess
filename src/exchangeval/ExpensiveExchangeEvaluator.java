@@ -17,7 +17,7 @@ import gamestate.GlobalConstants.Player;
  */
 public class ExpensiveExchangeEvaluator {
 	//point values: https://www.chessprogramming.org/Point_Value
-	private static final int[] ShannonPieceValues = { 100, 300, 300, 500, 900, 100000  };
+	//private static final int[] ShannonPieceValues = { 100, 300, 300, 500, 900, 100000  };
 	static final int[] BerlinerPieceValues = { 100, 320, 333, 510, 800, 100000  };
 	
 	private static final int[] pieceValues = BerlinerPieceValues;// index matches piece type.
@@ -25,8 +25,10 @@ public class ExpensiveExchangeEvaluator {
 	private MovePool movepool = new MovePool();// main move pool used in the search
 	private MovePool bufferpool = new MovePool();// temporary , used to do move filtering.
 	private int square;// square the evaluation is for.
+	private boolean generateCaptures;
 	
-	public int getPieceTypeValue(int piecetype, boolean maximizingPlayer) {
+	public static int getPieceTypeValue(int piecetype, boolean maximizingPlayer) {
+		DebugLibrary.validatePieceType(piecetype);
 		int temp = pieceValues[piecetype];
 		if(!maximizingPlayer)
 			temp = -1*temp;
@@ -184,7 +186,12 @@ public class ExpensiveExchangeEvaluator {
 	private int toExchange_step(Board brd, int alpha, int beta, int currentValue, boolean maximizingPlayer) {
 		int retVal = evaluateSquareInPosition(brd, currentValue,maximizingPlayer);
 		int movelist_size_old = movepool.size();
-		generateExchangeCaptureMoves(brd);
+		if(generateCaptures)
+			generateExchangeCaptureMoves(brd);
+		else {
+			generateExchangeNonCaptureMoves(brd);
+			generateCaptures = true;
+		}
 		if (maximizingPlayer) {
 			int value = retVal;
 			for (int i = movelist_size_old; i < movepool.size(); ++i) {
@@ -218,9 +225,10 @@ public class ExpensiveExchangeEvaluator {
 		return retVal;
 	}
 
-	public int toExchange(Board brd, int square) {
-		DebugLibrary.validateSquare(square);
-
+	public int toWinMaterial(Board brd, int square) {
+		DebugLibrary.validateSquare(square);		
+		generateCaptures = brd.getPlayerAt(square) != Player.NO_PLAYER;
+		
 		this.square = square;
 		movepool.clear();
 		return toExchange_step(brd, -pieceValues[PieceType.KING], pieceValues[PieceType.KING], 0, true);
