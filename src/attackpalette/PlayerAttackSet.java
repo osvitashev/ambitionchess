@@ -8,7 +8,8 @@ import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 
 public class PlayerAttackSet {
-	private long[] bbdata = new long[30];// bitboards of various attacks;
+	private long[] bbdata = new long[40];// bitboards of various attacks;
+	//CONSIDERkeeping a ledger of piece locations  = bishop0 is at c6, for example.
 
 	public static class SetType {
 		// integer values correspond to indexes of bbdata array;
@@ -29,17 +30,36 @@ public class PlayerAttackSet {
 		final static int BishopQueenSet0 = 6;
 		final static int BishopQueenPawnSet0 = 7;
 		final static int BishopQueenQueenSet0 = 8;
-
 		final static int BishopSet1 = 9;
 		final static int BishopPawnSet1 = 10;
 		final static int BishopQueenSet1 = 11;
 		final static int BishopQueenPawnSet1 = 12;
 		final static int BishopQueenQueenSet1 = 13;
+		
+		
+		final static int RookSet0 = 14;
+		final static int RookRookSet0 = 15;
+		final static int RookQueenSet0 = 16;
+		final static int RookRookQueenSet0 = 17;
+		final static int RookQueenRookSet0 = 18;
+		final static int RookQueenQueenSet0 = 19;
+		
+		final static int RookSet1 = 20;
+		final static int RookRookSet1 = 21;
+		final static int RookQueenSet1 = 22;
+		final static int RookRookQueenSet1 = 23;
+		final static int RookQueenRookSet1 = 24;
+		final static int RookQueenQueenSet1 = 25;
 
-		final static int KingSet = 29;
+		final static int KingSet = 39;
 
-		final static int[] SET_TYPES = { PawnSetEast, PawnSetWest, KnightSet0, KnightSet1, BishopSet0, BishopPawnSet0, BishopQueenSet0, BishopQueenPawnSet0, BishopQueenQueenSet0, BishopSet1,
-				BishopPawnSet1, BishopQueenSet1, BishopQueenPawnSet1, BishopQueenQueenSet1, KingSet };
+		final static int[] SET_TYPES = { PawnSetEast, PawnSetWest, 
+				KnightSet0, KnightSet1, 
+				BishopSet0, BishopPawnSet0, BishopQueenSet0, BishopQueenPawnSet0, BishopQueenQueenSet0, 
+				BishopSet1,	BishopPawnSet1, BishopQueenSet1, BishopQueenPawnSet1, BishopQueenQueenSet1,
+				RookSet0,RookRookSet0,RookQueenSet0,RookRookQueenSet0,RookQueenRookSet0,RookQueenQueenSet0,
+				RookSet1,RookRookSet1,RookQueenSet1,RookRookQueenSet1,RookQueenRookSet1,RookQueenQueenSet1,
+				KingSet };
 	}
 
 	public long get(int type) {
@@ -129,8 +149,50 @@ public class PlayerAttackSet {
 					long attackedQueens2 = get(SetType.BishopQueenSet0) & brd.getPieces(player, PieceType.QUEEN);
 					set(SetType.BishopQueenQueenSet0,
 							BitboardGen.getBishopSet(bi, brd.getOccupied() & ~attackedQueens & ~attackedQueens2) & ~get(SetType.BishopSet0) & ~get(SetType.BishopQueenSet0));
-
 					break;
+				}
+			}
+			
+			{// Rooks
+				bi = 0;
+				numOfType = 0;
+				for (long zarg = brd.getPieces(player, PieceType.ROOK), barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
+					bi = Bitboard.getLowSquareIndex(barg);
+					if (numOfType == 0) {
+						set(SetType.RookSet0, BitboardGen.getRookSet(bi, brd.getOccupied()));
+						long attackedRooks = get(SetType.RookSet0) & brd.getPieces(player, PieceType.ROOK);
+						set(SetType.RookRookSet0, BitboardGen.getRookSet(bi, brd.getOccupied() & ~attackedRooks) & ~get(SetType.RookSet0));
+						long attackedQueens = get(SetType.RookSet0) & brd.getPieces(player, PieceType.QUEEN);
+						set(SetType.RookQueenSet0, BitboardGen.getRookSet(bi, brd.getOccupied() & ~attackedQueens) & ~get(SetType.RookSet0));
+						long attackedRooks2 = get(SetType.RookQueenSet0) & brd.getPieces(player, PieceType.ROOK);
+						set(SetType.RookQueenRookSet0, BitboardGen.getRookSet(bi, brd.getOccupied() & ~attackedQueens & ~attackedRooks2) & ~get(SetType.RookSet0) & ~get(SetType.RookQueenSet0));
+						long attackedQueens2 = get(SetType.RookQueenSet0) & brd.getPieces(player, PieceType.QUEEN);
+						set(SetType.RookQueenQueenSet0, BitboardGen.getRookSet(bi, brd.getOccupied() & ~attackedQueens & ~attackedQueens2) & ~get(SetType.RookSet0) & ~get(SetType.RookQueenSet0));
+						attackedQueens = get(SetType.RookRookSet0) & brd.getPieces(player, PieceType.QUEEN);
+						set(SetType.RookRookQueenSet0, BitboardGen.getRookSet(bi, brd.getOccupied()& ~attackedRooks & ~attackedQueens) & ~get(SetType.RookSet0)& ~get(SetType.RookRookSet0));
+						numOfType++;
+					} else {
+						set(SetType.RookSet1, get(SetType.RookSet0));
+						set(SetType.RookRookSet1, get(SetType.RookRookSet0));
+						set(SetType.RookQueenSet1, get(SetType.RookQueenSet0));
+						set(SetType.RookRookQueenSet1, get(SetType.RookRookQueenSet0));
+						set(SetType.RookQueenRookSet1, get(SetType.RookQueenRookSet0));
+						set(SetType.RookQueenQueenSet1, get(SetType.RookQueenQueenSet0));
+						
+						set(SetType.RookSet0, BitboardGen.getRookSet(bi, brd.getOccupied()));
+						long attackedRooks = get(SetType.RookSet0) & brd.getPieces(player, PieceType.ROOK);
+						set(SetType.RookRookSet0, BitboardGen.getRookSet(bi, brd.getOccupied() & ~attackedRooks) & ~get(SetType.RookSet0));
+						long attackedQueens = get(SetType.RookSet0) & brd.getPieces(player, PieceType.QUEEN);
+						set(SetType.RookQueenSet0, BitboardGen.getRookSet(bi, brd.getOccupied() & ~attackedQueens) & ~get(SetType.RookSet0));
+						long attackedRooks2 = get(SetType.RookQueenSet0) & brd.getPieces(player, PieceType.ROOK);
+						set(SetType.RookQueenRookSet0, BitboardGen.getRookSet(bi, brd.getOccupied() & ~attackedQueens & ~attackedRooks2) & ~get(SetType.RookSet0) & ~get(SetType.RookQueenSet0));
+						long attackedQueens2 = get(SetType.RookQueenSet0) & brd.getPieces(player, PieceType.QUEEN);
+						set(SetType.RookQueenQueenSet0, BitboardGen.getRookSet(bi, brd.getOccupied() & ~attackedQueens & ~attackedQueens2) & ~get(SetType.RookSet0) & ~get(SetType.RookQueenSet0));
+						attackedQueens = get(SetType.RookRookSet0) & brd.getPieces(player, PieceType.QUEEN);
+						set(SetType.RookRookQueenSet0, BitboardGen.getRookSet(bi, brd.getOccupied()& ~attackedRooks & ~attackedQueens) & ~get(SetType.RookSet0)& ~get(SetType.RookRookSet0));
+						
+						break;
+					}
 				}
 			}
 		}

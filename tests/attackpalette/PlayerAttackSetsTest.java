@@ -71,25 +71,77 @@ class PlayerAttackSetsTest {
 		assertEquals(0x2000000004000L, pas.get(SetType.BishopQueenSet0));
 		assertEquals(0x100000000000000L, pas.get(SetType.BishopQueenPawnSet0));
 		assertEquals(0L, pas.get(SetType.BishopQueenQueenSet0));
-		
 		assertEquals(0x110a000a11L, pas.get(SetType.BishopSet1));
 		assertEquals(0L, pas.get(SetType.BishopPawnSet1));
 		assertEquals(0x200000000000L, pas.get(SetType.BishopQueenSet1));
 		assertEquals(0L, pas.get(SetType.BishopQueenPawnSet1));
 		assertEquals(0L, pas.get(SetType.BishopQueenQueenSet1));
-
 		pas.initialize(new Board("8/8/1P6/2Q3P1/K7/4Q3/kP6/2B3B1 w - - 0 1"), Player.WHITE);
 		assertEquals(0x10a000L, pas.get(SetType.BishopSet0));
 		assertEquals(0L, pas.get(SetType.BishopPawnSet0));
 		assertEquals(0x408000000L, pas.get(SetType.BishopQueenSet0));
 		assertEquals(0L, pas.get(SetType.BishopQueenPawnSet0));
 		assertEquals(0x20000000000L, pas.get(SetType.BishopQueenQueenSet0));
-		
 		assertEquals(0x100a00L, pas.get(SetType.BishopSet1));
 		assertEquals(0x10000L, pas.get(SetType.BishopPawnSet1));
 		assertEquals(0x4020000000L, pas.get(SetType.BishopQueenSet1));
 		assertEquals(0x800000000000L, pas.get(SetType.BishopQueenPawnSet1));
 		assertEquals(0L, pas.get(SetType.BishopQueenQueenSet1));
+		//rook
+		pas.initialize(new Board("8/5n1k/8/8/8/8/3K1R2/8 w - - 0 1"), Player.WHITE);
+		assertEquals(0x2020202020d820L, pas.get(SetType.RookSet0));
+		pas.initialize(new Board("8/2n4k/8/8/2R5/8/2RK4/8 w - - 0 1"), Player.WHITE);
+		assertEquals(0x4L, pas.get(SetType.RookRookSet0));
+		pas.initialize(new Board("8/2n4k/8/8/8/2QR1K2/8/8 w - - 0 1"), Player.WHITE);
+		assertEquals(0x30000L, pas.get(SetType.RookQueenSet0));
+		pas.initialize(new Board("8/7k/2Q5/2R5/2R5/8/7K/8 w - - 0 1"), Player.WHITE);
+		assertEquals(0L, pas.get(SetType.RookRookQueenSet0));
+		assertEquals(0x404000000000000L, pas.get(SetType.RookRookQueenSet1));
+		pas.initialize(new Board("8/7k/8/8/8/1RQ2R2/7K/8 w - - 0 1"), Player.WHITE);
+		assertEquals(0x10000L, pas.get(SetType.RookQueenRookSet0));
+		assertEquals(0xc00000L, pas.get(SetType.RookQueenRookSet1));
+		pas.initialize(new Board("8/7k/2R5/2Q5/8/R1Q3Q1/7K/8 w - - 0 1"), Player.WHITE);
+		assertEquals(0x404L, pas.get(SetType.RookQueenQueenSet0));
+		assertEquals(0x800000L, pas.get(SetType.RookQueenQueenSet1));
+		//rook pair
+		pas.initialize(new Board("8/7k/8/1RQ1R3/8/8/4Q2K/8 w - - 0 1"), Player.WHITE);
+		assertEquals(0x101010ec10101000L, pas.get(SetType.RookSet0));
+		assertEquals(0L, pas.get(SetType.RookRookSet0));
+		assertEquals(0x200000010L, pas.get(SetType.RookQueenSet0));
+		assertEquals(0x100000000L, pas.get(SetType.RookQueenRookSet0));
+		assertEquals(0L, pas.get(SetType.RookQueenQueenSet0));
+		assertEquals(0x202020502020202L, pas.get(SetType.RookSet1));
+		assertEquals(0L, pas.get(SetType.RookRookSet1));
+		assertEquals(0x1800000000L, pas.get(SetType.RookQueenSet1));
+		assertEquals(0xe000000000L, pas.get(SetType.RookQueenRookSet1));
+		assertEquals(0L, pas.get(SetType.RookQueenQueenSet1));
+		pas.initialize(new Board("7k/8/8/3R4/8/3Q4/3Q3K/8 w - - 0 1"), Player.WHITE);
+		assertEquals(0x80808f708080000L, pas.get(SetType.RookSet0));
+		assertEquals(0L, pas.get(SetType.RookRookSet0));
+		assertEquals(0x800L, pas.get(SetType.RookQueenSet0));
+		assertEquals(0L, pas.get(SetType.RookQueenRookSet0));
+		assertEquals(0x8L, pas.get(SetType.RookQueenQueenSet0));
+		assertEquals(0L, pas.get(SetType.RookSet1));
+		assertEquals(0L, pas.get(SetType.RookRookSet1));
+		assertEquals(0L, pas.get(SetType.RookQueenSet1));
+		assertEquals(0L, pas.get(SetType.RookQueenRookSet1));
+		assertEquals(0L, pas.get(SetType.RookQueenQueenSet1));
+		pas.initialize(new Board("7k/8/8/3R1R2/8/3Q4/3Q3K/8 w - - 0 1"), Player.WHITE);
+		assertEquals(0x202020d820202020L, pas.get(SetType.RookSet0));
+		assertEquals(0x700000000L, pas.get(SetType.RookRookSet0));
+		assertEquals(0L, pas.get(SetType.RookQueenSet0));
+		assertEquals(0L, pas.get(SetType.RookQueenRookSet0));
+		assertEquals(0L, pas.get(SetType.RookQueenQueenSet0));
+		assertEquals(0x808083708080000L, pas.get(SetType.RookSet1));
+		assertEquals(0xc000000000L, pas.get(SetType.RookRookSet1));
+		assertEquals(0x800L, pas.get(SetType.RookQueenSet1));
+		assertEquals(0L, pas.get(SetType.RookQueenRookSet1));
+		assertEquals(0x8L, pas.get(SetType.RookQueenQueenSet1));
+		
+		
+		
+		
+		
 
 
 	}
