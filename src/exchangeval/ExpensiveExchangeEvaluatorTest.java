@@ -278,8 +278,8 @@ class ExpensiveExchangeEvaluatorTest {
 			assertEquals(expectedValue, eval.toWinMaterial(brd.loadFromFEN(fen), square));
 		}
 
-		Pair<Integer, String> pair = Pair.with(9086651, "Dell Laptop");
-		System.out.println(pair);
+		//Pair<Integer, String> pair = Pair.with(9086651, "Dell Laptop");
+		//System.out.println(pair);
 	}
 
 }
