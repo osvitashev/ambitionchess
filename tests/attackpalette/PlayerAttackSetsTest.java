@@ -64,7 +64,7 @@ class PlayerAttackSetsTest {
 		assertEquals(0x810a000L, pas.get(SetType.BishopSet0));
 		assertEquals(0x20400000000L, pas.get(SetType.BishopQueenSet0));
 		assertEquals(0x1000000000000L, pas.get(SetType.BishopQueenQueenSet0));
-		//bishop pair
+		// bishop pair
 		pas.initialize(new Board("7k/1P3P1p/2Q2K2/3BQ3/8/2B2Q1R/6P1/8 w - - 0 1"), Player.WHITE);
 		assertEquals(0x20140014220100L, pas.get(SetType.BishopSet0));
 		assertEquals(0x4000000000000000L, pas.get(SetType.BishopPawnSet0));
@@ -87,7 +87,7 @@ class PlayerAttackSetsTest {
 		assertEquals(0x4020000000L, pas.get(SetType.BishopQueenSet1));
 		assertEquals(0x800000000000L, pas.get(SetType.BishopQueenPawnSet1));
 		assertEquals(0L, pas.get(SetType.BishopQueenQueenSet1));
-		//rook
+		// rook
 		pas.initialize(new Board("8/5n1k/8/8/8/8/3K1R2/8 w - - 0 1"), Player.WHITE);
 		assertEquals(0x2020202020d820L, pas.get(SetType.RookSet0));
 		pas.initialize(new Board("8/2n4k/8/8/2R5/8/2RK4/8 w - - 0 1"), Player.WHITE);
@@ -103,7 +103,7 @@ class PlayerAttackSetsTest {
 		pas.initialize(new Board("8/7k/2R5/2Q5/8/R1Q3Q1/7K/8 w - - 0 1"), Player.WHITE);
 		assertEquals(0x404L, pas.get(SetType.RookQueenQueenSet0));
 		assertEquals(0x800000L, pas.get(SetType.RookQueenQueenSet1));
-		//rook pair
+		// rook pair
 		pas.initialize(new Board("8/7k/8/1RQ1R3/8/8/4Q2K/8 w - - 0 1"), Player.WHITE);
 		assertEquals(0x101010ec10101000L, pas.get(SetType.RookSet0));
 		assertEquals(0L, pas.get(SetType.RookRookSet0));
@@ -137,7 +137,7 @@ class PlayerAttackSetsTest {
 		assertEquals(0x800L, pas.get(SetType.RookQueenSet1));
 		assertEquals(0L, pas.get(SetType.RookQueenRookSet1));
 		assertEquals(0x8L, pas.get(SetType.RookQueenQueenSet1));
-		//queen
+		// queen
 		pas.initialize(new Board("8/6k1/1Q1K4/1N6/3b4/8/8/8 w - - 0 1"), Player.WHITE);
 		assertEquals(0xa070d0708000000L, pas.get(SetType.QueenSet0));
 		pas.initialize(new Board("8/1P1P1Pk1/8/1P1Q1P2/6K1/1P1P1P2/6N1/8 w - - 0 1"), Player.WHITE);
@@ -164,36 +164,154 @@ class PlayerAttackSetsTest {
 		assertEquals(0x201L, pas.get(SetType.QueenBishopQueenSet0));
 		assertEquals(0x200000000000L, pas.get(SetType.QueenBishopSet1));
 		assertEquals(0x8040000000000000L, pas.get(SetType.QueenBishopQueenSet1));
-		
 		pas.initialize(new Board("8/8/k2P1P2/4Q3/3Q4/2B5/5K2/8 w - - 0 1"), Player.WHITE);
 		assertEquals(0L, pas.get(SetType.QueenQueenPawnSet0));
 		assertEquals(0x201L, pas.get(SetType.QueenQueenBishopSet0));
 		assertEquals(0x40000000000000L, pas.get(SetType.QueenQueenPawnSet1));
 		assertEquals(0L, pas.get(SetType.QueenQueenBishopSet1));
-		
 		pas.initialize(new Board("8/8/k2P1P2/4Q3/3Q4/2B5/5K2/8 w - - 0 1"), Player.WHITE);
 		assertEquals(0L, pas.get(SetType.QueenQueenPawnSet0));
 		assertEquals(0x201L, pas.get(SetType.QueenQueenBishopSet0));
 		assertEquals(0x40000000000000L, pas.get(SetType.QueenQueenPawnSet1));
 		assertEquals(0L, pas.get(SetType.QueenQueenBishopSet1));
-		
 		pas.initialize(new Board("k7/4P3/1P1B1P2/2P1Q1P1/3P1Q2/1K4P1/8/8 w - - 0 1"), Player.WHITE);
 		assertEquals(0L, pas.get(SetType.QueenQueenPawnSet0));
 		assertEquals(0L, pas.get(SetType.QueenQueenBishopSet0));
 		assertEquals(0L, pas.get(SetType.QueenQueenPawnSet1));
 		assertEquals(0x204000000000000L, pas.get(SetType.QueenQueenBishopSet1));
-		
 		pas.initialize(new Board("6k1/8/5K2/8/8/Q1Q1R3/8/8 w - - 0 1"), Player.WHITE);
 		assertEquals(0L, pas.get(SetType.QueenQueenRookSet0));
 		assertEquals(0xe00000L, pas.get(SetType.QueenQueenRookSet1));
-		
 		pas.initialize(new Board("5K1k/6pp/2Q5/8/4Q3/8/8/8 w - - 0 1"), Player.WHITE);
 		assertEquals(0x150efb0e15040404L, pas.get(SetType.QueenSet0));
 		assertEquals(0x204080L, pas.get(SetType.QueenQueenSet0));
 		assertEquals(0x10905438ef385492L, pas.get(SetType.QueenSet1));
 		assertEquals(0x102000000000000L, pas.get(SetType.QueenQueenSet1));
-		
+	}
 
+	@Test
+	void testCombinedPosition() {
+		PlayerAttackSet pas = new PlayerAttackSet();
+
+		pas.initialize(new Board("2k5/1pp1rpbp/pn4p1/3Qq1r1/2N2p2/1PP1N1P1/PBPR1PBP/3R2K1 w - - 0 1"), Player.WHITE);
+		assertEquals(0x8c4a0000L, pas.get(SetType.PawnSetEast));
+		assertEquals(0x23520000L, pas.get(SetType.PawnSetWest));
+		assertEquals(0xa1100110a00L, pas.get(SetType.KnightSet0));
+		assertEquals(0x2844004428L, pas.get(SetType.KnightSet1));
+		assertEquals(0x810a000a0L, pas.get(SetType.BishopSet0));
+		assertEquals(0L, pas.get(SetType.BishopPawnSet0));
+		assertEquals(0x2040000000000L, pas.get(SetType.BishopQueenSet0));
+		assertEquals(0L, pas.get(SetType.BishopQueenPawnSet0));
+		assertEquals(0L, pas.get(SetType.BishopQueenQueenSet0));
+		assertEquals(0x50005L, pas.get(SetType.BishopSet1));
+		assertEquals(0x8000000L, pas.get(SetType.BishopPawnSet1));
+		assertEquals(0L, pas.get(SetType.BishopQueenSet1));
+		assertEquals(0L, pas.get(SetType.BishopQueenPawnSet1));
+		assertEquals(0L, pas.get(SetType.BishopQueenQueenSet1));
+		assertEquals(0x808083408L, pas.get(SetType.RookSet0));
+		assertEquals(0L, pas.get(SetType.RookRookSet0));
+		assertEquals(0x808080000000000L, pas.get(SetType.RookQueenSet0));
+		assertEquals(0L, pas.get(SetType.RookRookQueenSet0));
+		assertEquals(0L, pas.get(SetType.RookQueenRookSet0));
+		assertEquals(0L, pas.get(SetType.RookQueenQueenSet0));
+		assertEquals(0x877L, pas.get(SetType.RookSet1));
+		assertEquals(0x808080000L, pas.get(SetType.RookRookSet1));
+		assertEquals(0L, pas.get(SetType.RookQueenSet1));
+		assertEquals(0x808080000000000L, pas.get(SetType.RookRookQueenSet1));
+		assertEquals(0L, pas.get(SetType.RookQueenRookSet1));
+		assertEquals(0L, pas.get(SetType.RookQueenQueenSet1));
+		assertEquals(0x82a1c171c284800L, pas.get(SetType.QueenSet0));
+		assertEquals(0L, pas.get(SetType.QueenPawnSet0));
+		assertEquals(0x80L, pas.get(SetType.QueenBishopSet0));
+		assertEquals(0L, pas.get(SetType.QueenBishopPawnSet0));
+		assertEquals(0L, pas.get(SetType.QueenQueenSet0));
+		assertEquals(0L, pas.get(SetType.QueenQueenPawnSet0));
+		assertEquals(0L, pas.get(SetType.QueenQueenBishopSet0));
+		assertEquals(0L, pas.get(SetType.QueenBishopQueenSet0));
+		assertEquals(0x8L, pas.get(SetType.QueenRookSet0));
+		assertEquals(0L, pas.get(SetType.QueenQueenRookSet0));
+		assertEquals(0L, pas.get(SetType.QueenRookQueenSet0));
+		assertEquals(0xe0a0L, pas.get(SetType.KingSet));
+
+		pas.initialize(new Board("2k5/1pp1rpbp/pn4p1/3Qq1r1/2N2p2/1PP1N1P1/PBPR1PBP/3R2K1 w - - 0 1"), Player.BLACK);
+		assertEquals(0x4c8200400000L, pas.get(SetType.PawnSetEast));
+		assertEquals(0x532000100000L, pas.get(SetType.PawnSetWest));
+		assertEquals(0x508000805000000L, pas.get(SetType.KnightSet0));
+		assertEquals(0L, pas.get(SetType.KnightSet1));
+		assertEquals(0xa000a01000000000L, pas.get(SetType.BishopSet0));
+		assertEquals(0L, pas.get(SetType.BishopPawnSet0));
+		assertEquals(0x8040000L, pas.get(SetType.BishopQueenSet0));
+		assertEquals(0L, pas.get(SetType.BishopQueenPawnSet0));
+		assertEquals(0L, pas.get(SetType.BishopQueenQueenSet0));
+		assertEquals(0L, pas.get(SetType.BishopSet1));
+		assertEquals(0L, pas.get(SetType.BishopPawnSet1));
+		assertEquals(0L, pas.get(SetType.BishopQueenSet1));
+		assertEquals(0L, pas.get(SetType.BishopQueenPawnSet1));
+		assertEquals(0L, pas.get(SetType.BishopQueenQueenSet1));
+		assertEquals(0x102c101000000000L, pas.get(SetType.RookSet0));
+		assertEquals(0L, pas.get(SetType.RookRookSet0));
+		assertEquals(0x10100000L, pas.get(SetType.RookQueenSet0));
+		assertEquals(0L, pas.get(SetType.RookRookQueenSet0));
+		assertEquals(0L, pas.get(SetType.RookQueenRookSet0));
+		assertEquals(0L, pas.get(SetType.RookQueenQueenSet0));
+		assertEquals(0x40b040400000L, pas.get(SetType.RookSet1));
+		assertEquals(0L, pas.get(SetType.RookRookSet1));
+		assertEquals(0x800000000L, pas.get(SetType.RookQueenSet1));
+		assertEquals(0L, pas.get(SetType.RookRookQueenSet1));
+		assertEquals(0L, pas.get(SetType.RookQueenRookSet1));
+		assertEquals(0L, pas.get(SetType.RookQueenQueenSet1));
+		assertEquals(0x54386838140000L, pas.get(SetType.QueenSet0));
+		assertEquals(0x400000L, pas.get(SetType.QueenPawnSet0));
+		assertEquals(0x8000000000000000L, pas.get(SetType.QueenBishopSet0));
+		assertEquals(0L, pas.get(SetType.QueenBishopPawnSet0));
+		assertEquals(0L, pas.get(SetType.QueenQueenSet0));
+		assertEquals(0L, pas.get(SetType.QueenQueenPawnSet0));
+		assertEquals(0L, pas.get(SetType.QueenQueenBishopSet0));
+		assertEquals(0L, pas.get(SetType.QueenBishopQueenSet0));
+		assertEquals(0x1000008000000000L, pas.get(SetType.QueenRookSet0));
+		assertEquals(0L, pas.get(SetType.QueenQueenRookSet0));
+		assertEquals(0L, pas.get(SetType.QueenRookQueenSet0));
+		assertEquals(0xa0e000000000000L, pas.get(SetType.KingSet));
+
+//		pas.initialize(new Board(""), Player.WHITE);
+//		assertEquals(0L, pas.get(SetType.PawnSetEast));
+//		assertEquals(0L, pas.get(SetType.PawnSetWest));
+//		assertEquals(0L, pas.get(SetType.KnightSet0));
+//		assertEquals(0L, pas.get(SetType.KnightSet1));
+//		assertEquals(0L, pas.get(SetType.BishopSet0));
+//		assertEquals(0L, pas.get(SetType.BishopPawnSet0));
+//		assertEquals(0L, pas.get(SetType.BishopQueenSet0));
+//		assertEquals(0L, pas.get(SetType.BishopQueenPawnSet0));
+//		assertEquals(0L, pas.get(SetType.BishopQueenQueenSet0));
+//		assertEquals(0L, pas.get(SetType.BishopSet1));
+//		assertEquals(0L, pas.get(SetType.BishopPawnSet1));
+//		assertEquals(0L, pas.get(SetType.BishopQueenSet1));
+//		assertEquals(0L, pas.get(SetType.BishopQueenPawnSet1));
+//		assertEquals(0L, pas.get(SetType.BishopQueenQueenSet1));
+//		assertEquals(0L, pas.get(SetType.RookSet0));
+//		assertEquals(0L, pas.get(SetType.RookRookSet0));
+//		assertEquals(0L, pas.get(SetType.RookQueenSet0));
+//		assertEquals(0L, pas.get(SetType.RookRookQueenSet0));
+//		assertEquals(0L, pas.get(SetType.RookQueenRookSet0));
+//		assertEquals(0L, pas.get(SetType.RookQueenQueenSet0));
+//		assertEquals(0L, pas.get(SetType.RookSet1));
+//		assertEquals(0L, pas.get(SetType.RookRookSet1));
+//		assertEquals(0L, pas.get(SetType.RookQueenSet1));
+//		assertEquals(0L, pas.get(SetType.RookRookQueenSet1));
+//		assertEquals(0L, pas.get(SetType.RookQueenRookSet1));
+//		assertEquals(0L, pas.get(SetType.RookQueenQueenSet1));
+//		assertEquals(0L, pas.get(SetType.QueenSet0));
+//		assertEquals(0L, pas.get(SetType.QueenPawnSet0));
+//		assertEquals(0L, pas.get(SetType.QueenBishopSet0));
+//		assertEquals(0L, pas.get(SetType.QueenBishopPawnSet0));
+//		assertEquals(0L, pas.get(SetType.QueenQueenSet0));
+//		assertEquals(0L, pas.get(SetType.QueenQueenPawnSet0));
+//		assertEquals(0L, pas.get(SetType.QueenQueenBishopSet0));
+//		assertEquals(0L, pas.get(SetType.QueenBishopQueenSet0));
+//		assertEquals(0L, pas.get(SetType.QueenRookSet0));
+//		assertEquals(0L, pas.get(SetType.QueenQueenRookSet0));
+//		assertEquals(0L, pas.get(SetType.QueenRookQueenSet0));
+//		assertEquals(0L, pas.get(SetType.KingSet));
 
 	}
 	// when i get to covering natural capture ordering, need to make sure this
