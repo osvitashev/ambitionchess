@@ -8,7 +8,7 @@ import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 
 public class PlayerAttackSet {
-	private long[] bbdata = new long[40];// bitboards of various attacks;
+	private long[] bbdata = new long[50];// bitboards of various attacks;
 	//CONSIDERkeeping a ledger of piece locations  = bishop0 is at c6, for example.
 
 	public static class SetType {
@@ -30,6 +30,7 @@ public class PlayerAttackSet {
 		final static int BishopQueenSet0 = 6;
 		final static int BishopQueenPawnSet0 = 7;
 		final static int BishopQueenQueenSet0 = 8;
+		
 		final static int BishopSet1 = 9;
 		final static int BishopPawnSet1 = 10;
 		final static int BishopQueenSet1 = 11;
@@ -50,8 +51,33 @@ public class PlayerAttackSet {
 		final static int RookRookQueenSet1 = 23;
 		final static int RookQueenRookSet1 = 24;
 		final static int RookQueenQueenSet1 = 25;
-
-		final static int KingSet = 39;
+		
+		
+		final static int QueenSet0 = 26;
+		final static int QueenPawnSet0 = 27;
+		final static int QueenBishopSet0 = 28;
+		final static int QueenBishopPawnSet0 = 29;
+		final static int QueenQueenSet0 = 30;
+		final static int QueenQueenPawnSet0 = 31;
+		final static int QueenQueenBishopSet0 = 32;
+		final static int QueenBishopQueenSet0 = 33;
+		final static int QueenRookSet0 = 34;
+		final static int QueenQueenRookSet0 = 35;
+		final static int QueenRookQueenSet0 = 36;
+		
+		final static int QueenSet1 = 37;
+		final static int QueenPawnSet1 = 38;
+		final static int QueenBishopSet1 = 39;
+		final static int QueenBishopPawnSet1 = 40;
+		final static int QueenQueenSet1 = 41;
+		final static int QueenQueenPawnSet1 = 42;
+		final static int QueenQueenBishopSet1 = 43;
+		final static int QueenBishopQueenSet1 = 44;
+		final static int QueenRookSet1 = 45;
+		final static int QueenQueenRookSet1 = 46;
+		final static int QueenRookQueenSet1 = 47;
+		
+		final static int KingSet = 49;
 
 		final static int[] SET_TYPES = { PawnSetEast, PawnSetWest, 
 				KnightSet0, KnightSet1, 
@@ -59,6 +85,8 @@ public class PlayerAttackSet {
 				BishopSet1,	BishopPawnSet1, BishopQueenSet1, BishopQueenPawnSet1, BishopQueenQueenSet1,
 				RookSet0,RookRookSet0,RookQueenSet0,RookRookQueenSet0,RookQueenRookSet0,RookQueenQueenSet0,
 				RookSet1,RookRookSet1,RookQueenSet1,RookRookQueenSet1,RookQueenRookSet1,RookQueenQueenSet1,
+				QueenSet0,QueenPawnSet0,QueenBishopSet0,QueenBishopPawnSet0,QueenQueenSet0,QueenQueenPawnSet0,QueenQueenBishopSet0,QueenBishopQueenSet0,QueenRookSet0,QueenQueenRookSet0,QueenRookQueenSet0,
+				
 				KingSet };
 	}
 
@@ -195,8 +223,78 @@ public class PlayerAttackSet {
 					}
 				}
 			}
+			
+			{//queens
+				bi = 0;
+				numOfType = 0;
+				for (long zarg = brd.getPieces(player, PieceType.QUEEN), barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
+					bi = Bitboard.getLowSquareIndex(barg);
+					if (numOfType == 0) {
+						
+						populateQueenAttacks(brd, bi, player);
+						
+
+						numOfType++;
+					} else {
+						set(SetType.QueenSet1, get(SetType.QueenSet0));
+						set(SetType.QueenPawnSet1, get(SetType.QueenPawnSet0));
+						set(SetType.QueenBishopSet1, get(SetType.QueenBishopSet0));
+						set(SetType.QueenBishopPawnSet1, get(SetType.QueenBishopPawnSet0));
+						set(SetType.QueenQueenSet1, get(SetType.QueenQueenSet0));
+						set(SetType.QueenQueenPawnSet1, get(SetType.QueenQueenPawnSet0));
+						set(SetType.QueenQueenBishopSet1, get(SetType.QueenQueenBishopSet0));
+						set(SetType.QueenBishopQueenSet1, get(SetType.QueenBishopQueenSet0));
+						set(SetType.QueenRookSet1, get(SetType.QueenRookSet0));
+						set(SetType.QueenQueenRookSet1, get(SetType.QueenQueenRookSet0));
+						set(SetType.QueenRookQueenSet1, get(SetType.QueenRookQueenSet0));
+						
+						populateQueenAttacks(brd, bi, player);
+						
+						
+						
+						
+						break;
+					}
+				}
+			
+			
+			
+			}
 		}
 
+	}
+	
+	private void populateQueenAttacks(Board brd, int bi, int player) {
+		long bishopSet = BitboardGen.getBishopSet(bi, brd.getOccupied());
+		long rookSet = BitboardGen.getRookSet(bi, brd.getOccupied());
+		set(SetType.QueenSet0, bishopSet | rookSet);
+		set(SetType.QueenPawnSet0, augmentWithPawnAttacks(brd, player, bishopSet, bi));
+		long attackedBishops = bishopSet & brd.getPieces(player, PieceType.BISHOP);
+		set(SetType.QueenBishopSet0, BitboardGen.getBishopSet(bi, brd.getOccupied() & ~attackedBishops) & ~get(SetType.QueenSet0));
+		set(SetType.QueenBishopPawnSet0, augmentWithPawnAttacks(brd, player, get(SetType.QueenBishopSet0), bi) & ~get(SetType.QueenSet0));
+		long attackedQueens2 = get(SetType.QueenBishopSet0) & brd.getPieces(player, PieceType.QUEEN);
+		set(SetType.QueenBishopQueenSet0, BitboardGen.getBishopSet(bi, brd.getOccupied() & ~attackedBishops & ~attackedQueens2) & ~get(SetType.QueenSet0) & ~get(SetType.QueenBishopSet0));
+		long attackedRooks = rookSet & brd.getPieces(player, PieceType.ROOK);
+		set(SetType.QueenRookSet0, BitboardGen.getRookSet(bi, brd.getOccupied() & ~attackedRooks) & ~get(SetType.QueenSet0));
+		attackedQueens2 = get(SetType.QueenRookSet0) & brd.getPieces(player, PieceType.QUEEN);
+		set(SetType.QueenRookQueenSet0, BitboardGen.getRookSet(bi, brd.getOccupied() & ~attackedRooks & ~attackedQueens2) & ~get(SetType.QueenSet0) & ~get(SetType.QueenRookSet0));
+		
+		//treating blocker queen as bishop for now...
+		long attackedQueens = bishopSet & brd.getPieces(player, PieceType.QUEEN);
+		set(SetType.QueenQueenSet0, BitboardGen.getBishopSet(bi, brd.getOccupied() & ~attackedQueens) & ~get(SetType.QueenSet0));
+		set(SetType.QueenQueenPawnSet0, augmentWithPawnAttacks(brd, player, get(SetType.QueenQueenSet0), bi) & ~get(SetType.QueenSet0));
+		long attackedBishops2 = get(SetType.QueenQueenSet0) & brd.getPieces(player, PieceType.BISHOP);
+		set(SetType.QueenQueenBishopSet0, BitboardGen.getBishopSet(bi, brd.getOccupied() & ~attackedQueens & ~attackedBishops2) & ~get(SetType.QueenSet0) & ~get(SetType.QueenQueenSet0));
+		
+		attackedQueens = rookSet & brd.getPieces(player, PieceType.QUEEN);
+		long temp = BitboardGen.getRookSet(bi, brd.getOccupied() & ~attackedQueens) & ~get(SetType.QueenSet0);// = QQ as rook
+		
+		long attackedRooks2 = temp & brd.getPieces(player, PieceType.ROOK);
+		set(SetType.QueenQueenRookSet0, BitboardGen.getRookSet(bi, brd.getOccupied() & ~attackedQueens & ~attackedRooks2) & ~get(SetType.QueenSet0) & ~temp);
+		
+		set(SetType.QueenQueenSet0, get(SetType.QueenQueenSet0) | temp);
+		
+		//QueenQueenSet0,QueenQueenRookSet0,
 	}
 
 }
