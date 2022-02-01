@@ -20,6 +20,7 @@ public class KingAttackSet {
 
 	public void populateAttacks(Board brd, int bi, int player) {
 		location = bi;
+		//CONSIDER: better set generation
 		kingSet = BitboardGen.getKingSet(Bitboard.getLowSquareIndex(brd.getPieces(player, PieceType.KING)));
 	}
 }
