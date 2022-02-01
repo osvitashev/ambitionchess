@@ -133,5 +133,27 @@ class PieceAttackSetsTest {
 		assertEquals(0x20000000201000L, aset.getQueenBishopSet());
 		assertEquals(0x1000000000000000L, aset.getQueenBishopPawnSet());
 	}
+	
+	@Test
+	void testKingAttacks() {
+		KingAttackSet aset = new KingAttackSet();
+		aset.populateAttacks(new Board("7k/5Ppp/6B1/7Q/6B1/8/4P3/6K1 w - - 0 1"), Square.G1, Player.WHITE);
+		assertEquals(0xe0a0L, aset.getKingSet());
+	}
+	
+	@Test
+	void testKnightAttacks() {
+		KnightAttackSet aset = new KnightAttackSet();
+		aset.populateAttacks(new Board("7k/5Ppp/6B1/7Q/N5B1/8/4P3/6K1 w - - 0 1"), Square.A4, Player.WHITE);
+		assertEquals(0x20400040200L, aset.getKnightSet());
+	}
+	
+	@Test
+	void testPawnsAttackSet() {
+		PawnsAttackSet aset = new PawnsAttackSet();
+		aset.populateAttacks(new Board("7k/5Ppp/6B1/7Q/N5BP/P7/4P3/6K1 w - - 0 1"), Player.WHITE);
+		assertEquals(0x4000000002200000L, aset.getPawnEast());
+		assertEquals(0x1000004000080000L, aset.getPawnWest());
+	}
 
 }
