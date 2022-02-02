@@ -9,14 +9,11 @@ import gamestate.GlobalConstants.Player;
 public class BishopAttackSet {
 	private int location;
 	
-	//for now: go with piece values of 1,3,3,5,9
-	
-	//PC=prevous commitment
-	private long bishopSet;//pc=0
-	private long bishopPawnSet;//pc=1
-	private long bishopQueenSet;//pc=9
-	private long bishopQueenPawnSet;//pc=10
-	private long bishopQueenQueenSet;//pc=18
+	private long bishopSet;
+	private long bishopPawnSet;
+	private long bishopQueenSet;
+	private long bishopQueenPawnSet;
+	private long bishopQueenQueenSet;
 	
 	//package private: currently used for testing only
 	int getLocation() {
@@ -46,7 +43,7 @@ public class BishopAttackSet {
 			if (player == Player.WHITE)
 				attackedPawnAttackSet = Bitboard.shiftEast(Bitboard.shiftNorth(attackedPawns)) | Bitboard.shiftWest(Bitboard.shiftNorth(attackedPawns));
 			else
-				attackedPawnAttackSet = Bitboard.shiftEast(Bitboard.shiftSouth(attackedPawns)) | Bitboard.shiftSouth(Bitboard.shiftNorth(attackedPawns));
+				attackedPawnAttackSet = Bitboard.shiftEast(Bitboard.shiftSouth(attackedPawns)) | Bitboard.shiftWest(Bitboard.shiftSouth(attackedPawns));
 		}
 		long newAttackSet = BitboardGen.getBishopSetEmptyBoard(sqOrigin) & attackedPawnAttackSet & ~currentAttackSet;
 		return newAttackSet;

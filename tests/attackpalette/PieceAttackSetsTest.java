@@ -56,7 +56,17 @@ class PieceAttackSetsTest {
 		aset.populateAttacks(new Board("6k1/5pp1/1B6/6P1/8/4Q3/5P2/5K2 w - - 0 1"), Square.B6, Player.WHITE);
 		assertEquals(0L, aset.getBishopQueenPawnSet());
 		aset.populateAttacks(new Board("6k1/5pp1/1B6/2Q3P1/3P4/8/8/5K2 w - - 0 1"), Square.B6, Player.WHITE);
-		assertEquals(0L, aset.getBishopQueenPawnSet());		
+		assertEquals(0L, aset.getBishopQueenPawnSet());	
+		
+		aset.populateAttacks(new Board("1k6/8/8/8/8/2b5/1p6/1K6 w - - 0 1"), Square.C3, Player.BLACK);
+		assertEquals(0x804020110a000a10L, aset.getBishopSet());
+		assertEquals(0x1L, aset.getBishopPawnSet());
+		
+		aset.populateAttacks(new Board("bk6/8/2q2pP1/5Q2/8/1Pb5/1pB1pQp1/1K2B3 w - - 0 1"), Square.A8, Player.BLACK);
+		assertEquals(0x2040000000000L, aset.getBishopSet());
+		assertEquals(0x0L, aset.getBishopPawnSet());
+		assertEquals(0x810204000L, aset.getBishopQueenSet());
+		assertEquals(0x80L, aset.getBishopQueenPawnSet());
 	}
 	
 	@Test
