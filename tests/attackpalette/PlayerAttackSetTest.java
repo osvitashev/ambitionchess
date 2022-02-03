@@ -81,7 +81,6 @@ class PlayerAttackSetTest {
 		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.WHITE, Square.F5));
 		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.WHITE, Square.G6));
 		assertEquals(0, countTotalAttackers(aset, PieceType.BISHOP, Player.WHITE, Square.H7));
-		
 		assertEquals(0, countTotalAttackers(aset, PieceType.BISHOP, Player.WHITE, Square.B2));
 		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.WHITE, Square.C3));
 		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.WHITE, Square.D4));
@@ -89,7 +88,6 @@ class PlayerAttackSetTest {
 		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.WHITE, Square.F6));
 		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.WHITE, Square.G7));
 		assertEquals(0, countTotalAttackers(aset, PieceType.BISHOP, Player.WHITE, Square.H8));
-		
 		assertEquals(0, countTotalAttackers(aset, PieceType.BISHOP, Player.BLACK, Square.A7));
 		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.BLACK, Square.B6));
 		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.BLACK, Square.C5));
@@ -97,18 +95,53 @@ class PlayerAttackSetTest {
 		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.BLACK, Square.E3));
 		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.BLACK, Square.F2));
 		assertEquals(0, countTotalAttackers(aset, PieceType.BISHOP, Player.BLACK, Square.G1));
-		
 		assertEquals(0, countTotalAttackers(aset, PieceType.BISHOP, Player.BLACK, Square.A8));
 		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.BLACK, Square.B7));
 		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.BLACK, Square.C6));
-		
-
-		
-		
-//		private long bishopSet;//pc=0
-//		private long bishopPawnSet;//pc=1
-//		private long bishopQueenSet;//pc=9
-//		private long bishopQueenPawnSet;//pc=10
-//		private long bishopQueenQueenSet;//pc=18
+		aset.initialize(new Board("1b4k1/5ppp/3q1Q2/8/3Q4/6q1/PBP5/1K6 w - - 0 1"));
+		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.WHITE, Square.A1));
+		assertEquals(0, countTotalAttackers(aset, PieceType.BISHOP, Player.WHITE, Square.B2));
+		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.WHITE, Square.C3));
+		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.WHITE, Square.D4));
+		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.WHITE, Square.E5));
+		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.WHITE, Square.F6));
+		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.WHITE, Square.G7));
+		assertEquals(0, countTotalAttackers(aset, PieceType.BISHOP, Player.WHITE, Square.H8));
+		assertEquals(0, countTotalAttackers(aset, PieceType.BISHOP, Player.BLACK, Square.B8));
+		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.BLACK, Square.C7));
+		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.BLACK, Square.D6));
+		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.BLACK, Square.E5));
+		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.BLACK, Square.F4));
+		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.BLACK, Square.G3));
+		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.BLACK, Square.H2));
+		//rooks
+		aset.initialize(new Board("7k/6pp/1Q2r3/8/1R6/4q3/1R2r1PP/7K w - - 0 1"));
+		assertEquals(2, countTotalAttackers(aset, PieceType.ROOK, Player.WHITE, Square.B1));
+		assertEquals(1, countTotalAttackers(aset, PieceType.ROOK, Player.WHITE, Square.B2));
+		assertEquals(2, countTotalAttackers(aset, PieceType.ROOK, Player.WHITE, Square.B3));
+		assertEquals(1, countTotalAttackers(aset, PieceType.ROOK, Player.WHITE, Square.B4));
+		assertEquals(2, countTotalAttackers(aset, PieceType.ROOK, Player.WHITE, Square.B5));
+		assertEquals(2, countTotalAttackers(aset, PieceType.ROOK, Player.WHITE, Square.B6));
+		assertEquals(2, countTotalAttackers(aset, PieceType.ROOK, Player.WHITE, Square.B7));
+		assertEquals(2, countTotalAttackers(aset, PieceType.ROOK, Player.WHITE, Square.B8));
+		assertEquals(1, countTotalAttackers(aset, PieceType.ROOK, Player.WHITE, Square.A4));
+		assertEquals(0, countTotalAttackers(aset, PieceType.ROOK, Player.WHITE, Square.A5));
+		assertEquals(2, countTotalAttackers(aset, PieceType.ROOK, Player.BLACK, Square.E1));
+		assertEquals(1, countTotalAttackers(aset, PieceType.ROOK, Player.BLACK, Square.E2));
+		assertEquals(2, countTotalAttackers(aset, PieceType.ROOK, Player.BLACK, Square.E3));
+		assertEquals(2, countTotalAttackers(aset, PieceType.ROOK, Player.BLACK, Square.E4));
+		assertEquals(2, countTotalAttackers(aset, PieceType.ROOK, Player.BLACK, Square.E5));
+		assertEquals(1, countTotalAttackers(aset, PieceType.ROOK, Player.BLACK, Square.E6));
+		assertEquals(2, countTotalAttackers(aset, PieceType.ROOK, Player.BLACK, Square.E7));
+		assertEquals(2, countTotalAttackers(aset, PieceType.ROOK, Player.BLACK, Square.E8));
+		aset.initialize(new Board("7k/4q1pp/8/8/4q3/8/4r1PP/7K w - - 0 1"));
+		assertEquals(1, countTotalAttackers(aset, PieceType.ROOK, Player.BLACK, Square.E1));
+		assertEquals(0, countTotalAttackers(aset, PieceType.ROOK, Player.BLACK, Square.E2));
+		assertEquals(1, countTotalAttackers(aset, PieceType.ROOK, Player.BLACK, Square.E3));
+		assertEquals(1, countTotalAttackers(aset, PieceType.ROOK, Player.BLACK, Square.E4));
+		assertEquals(1, countTotalAttackers(aset, PieceType.ROOK, Player.BLACK, Square.E5));
+		assertEquals(1, countTotalAttackers(aset, PieceType.ROOK, Player.BLACK, Square.E6));
+		assertEquals(1, countTotalAttackers(aset, PieceType.ROOK, Player.BLACK, Square.E7));
+		assertEquals(1, countTotalAttackers(aset, PieceType.ROOK, Player.BLACK, Square.E8));
 	}
 }
