@@ -68,12 +68,49 @@ public class PlayerAttackSetGenerator {
 			}
 		}
 
-//		rookSet;--
-//		rookRookSet;--
-//		rookQueenSet;--
-//		rookQueenRookSet;--
-//		rookQueenQueenSet;--
-//		rookRookQueenSet;
+		{// queens
+			int bi = 0;
+			for (long zarg = brd.getPieces(player, PieceType.QUEEN), barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
+				bi = Bitboard.getLowSquareIndex(barg);
+				queen.populateAttacks(brd, bi, player);
+				attackSet.addAttackSet(player, queen.getQueenSet(), PieceType.QUEEN, bi, AttackSet.cost_queen, 0);
+				if (queen.getQueenPawnSet() != 0)
+					attackSet.addAttackSet(player, queen.getQueenPawnSet(), PieceType.QUEEN, bi, AttackSet.cost_queen, AttackSet.cost_pawn);
+				if (queen.getQueenBishopSet() != 0)
+					attackSet.addAttackSet(player, queen.getQueenBishopSet(), PieceType.QUEEN, bi, AttackSet.cost_queen, AttackSet.cost_bishop);
+				if (queen.getQueenBishopPawnSet() != 0)
+					attackSet.addAttackSet(player, queen.getQueenBishopPawnSet(), PieceType.QUEEN, bi, AttackSet.cost_queen, AttackSet.cost_bishop + AttackSet.cost_pawn);
+				if (queen.getQueenQueenSet() != 0)
+					attackSet.addAttackSet(player, queen.getQueenQueenSet(), PieceType.QUEEN, bi, AttackSet.cost_queen, AttackSet.cost_queen);
+				if (queen.getQueenQueenPawnSet() != 0)
+					attackSet.addAttackSet(player, queen.getQueenQueenPawnSet(), PieceType.QUEEN, bi, AttackSet.cost_queen, AttackSet.cost_queen + AttackSet.cost_pawn);
+				if (queen.getQueenQueenBishopSet() != 0)
+					attackSet.addAttackSet(player, queen.getQueenQueenBishopSet(), PieceType.QUEEN, bi, AttackSet.cost_queen, AttackSet.cost_queen + AttackSet.cost_bishop);
+				if (queen.getQueenBishopQueenSet() != 0)
+					attackSet.addAttackSet(player, queen.getQueenBishopQueenSet(), PieceType.QUEEN, bi, AttackSet.cost_queen, AttackSet.cost_bishop + AttackSet.cost_queen);
+				if (queen.getQueenRookSet() != 0)
+					attackSet.addAttackSet(player, queen.getQueenRookSet(), PieceType.QUEEN, bi, AttackSet.cost_queen, AttackSet.cost_rook);
+				if (queen.getQueenRookRookSet() != 0)
+					attackSet.addAttackSet(player, queen.getQueenRookRookSet(), PieceType.QUEEN, bi, AttackSet.cost_queen, AttackSet.cost_rook+AttackSet.cost_rook);
+				if (queen.getQueenQueenRookSet() != 0)
+					attackSet.addAttackSet(player, queen.getQueenQueenRookSet(), PieceType.QUEEN, bi, AttackSet.cost_queen, AttackSet.cost_queen + AttackSet.cost_rook);
+				if (queen.getQueenRookQueenSet() != 0)
+					attackSet.addAttackSet(player, queen.getQueenRookQueenSet(), PieceType.QUEEN, bi, AttackSet.cost_queen, AttackSet.cost_rook + AttackSet.cost_queen);
+			}
+		}
+
+//		queenSet;--
+//		queenPawnSet;--
+//		queenBishopSet;//
+//		queenBishopPawnSet;--
+//		queenQueenSet;--
+//		queenQueenPawnSet;--
+//		queenQueenBishopSet;--
+//		queenBishopQueenSet;--
+//		queenRookSet;--
+//		queenQueenRookSet;--
+//		queenRookQueenSet;--
+//		queenRookRookSet--
 
 		king.populateAttacks(brd, Bitboard.getLowSquareIndex(brd.getPieces(player, PieceType.KING)), player);
 		attackSet.addAttackSet(player, king.getKingSet(), PieceType.KING, king.getLocation(), AttackSet.cost_king, 0);// CONSIDER: should prevCost be zero here???

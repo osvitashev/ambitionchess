@@ -19,10 +19,19 @@ public class QueenAttackSet {
 	private long queenQueenBishopSet;
 	private long queenBishopQueenSet;
 	private long queenRookSet;
+	private long queenRookRookSet;
 	private long queenQueenRookSet;
 	private long queenRookQueenSet;
 
 	// package private for testing.
+	long getQueenRookRookSet() {
+		return queenRookRookSet;
+	}
+
+	void setQueenRookRookSet(long queenRookRookSet) {
+		this.queenRookRookSet = queenRookRookSet;
+	}
+
 	int getLocation() {
 		return location;
 	}
@@ -85,6 +94,8 @@ public class QueenAttackSet {
 		queenBishopQueenSet = BitboardGen.getBishopSet(bi, brd.getOccupied() & ~attackedBishops & ~attackedQueens2) & ~queenSet & ~queenBishopSet;
 		long attackedRooks = rookSet & brd.getPieces(player, PieceType.ROOK);
 		queenRookSet = BitboardGen.getRookSet(bi, brd.getOccupied() & ~attackedRooks) & ~queenSet;
+		long attackedRooks2 = queenRookSet & brd.getPieces(player, PieceType.ROOK);
+		queenRookRookSet = BitboardGen.getRookSet(bi, brd.getOccupied() & ~attackedRooks & ~attackedRooks2) & ~queenSet & ~queenRookSet;
 		attackedQueens2 = queenRookSet & brd.getPieces(player, PieceType.QUEEN);
 		queenRookQueenSet = BitboardGen.getRookSet(bi, brd.getOccupied() & ~attackedRooks & ~attackedQueens2) & ~queenSet & ~queenRookSet;
 		// treating blocker queen as bishop for now...
@@ -95,7 +106,7 @@ public class QueenAttackSet {
 		queenQueenBishopSet = BitboardGen.getBishopSet(bi, brd.getOccupied() & ~attackedQueens & ~attackedBishops2) & ~queenSet & ~queenQueenSet;
 		attackedQueens = rookSet & brd.getPieces(player, PieceType.QUEEN);
 		long temp = BitboardGen.getRookSet(bi, brd.getOccupied() & ~attackedQueens) & ~queenSet;// = QQ as rook
-		long attackedRooks2 = temp & brd.getPieces(player, PieceType.ROOK);
+		attackedRooks2 = temp & brd.getPieces(player, PieceType.ROOK);
 		queenQueenRookSet = BitboardGen.getRookSet(bi, brd.getOccupied() & ~attackedQueens & ~attackedRooks2) & ~queenSet & ~temp;
 		queenQueenSet = queenQueenSet | temp;
 	}

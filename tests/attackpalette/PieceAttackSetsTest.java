@@ -142,6 +142,11 @@ class PieceAttackSetsTest {
 		aset.populateAttacks(new Board("7k/5Ppp/6B1/7Q/6B1/8/4P3/6K1 w - - 0 1"), Square.H5, Player.WHITE);
 		assertEquals(0x20000000201000L, aset.getQueenBishopSet());
 		assertEquals(0x1000000000000000L, aset.getQueenBishopPawnSet());
+		//QRR
+		aset.populateAttacks(new Board("7k/6pp/8/8/8/1Q1R1R2/8/6K1 w - - 0 1"), Square.B3, Player.WHITE);
+		assertEquals(0x4222120a070d070aL, aset.getQueenSet());
+		assertEquals(0x300000L, aset.getQueenRookSet());
+		assertEquals(0xc00000L, aset.getQueenRookRookSet());
 	}
 	
 	@Test
