@@ -6,6 +6,7 @@ import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Square;
 
 public class PlayerAttackSetGenerator {
+	
 	private KingAttackSet king = new KingAttackSet();
 	private PawnsAttackSet pawns = new PawnsAttackSet();
 	// these are placeholders used to populate the attackset collection..
@@ -98,21 +99,10 @@ public class PlayerAttackSetGenerator {
 					attackSet.addAttackSet(player, queen.getQueenRookQueenSet(), PieceType.QUEEN, bi, AttackSet.cost_queen, AttackSet.cost_rook + AttackSet.cost_queen);
 			}
 		}
-
-//		queenSet;--
-//		queenPawnSet;--
-//		queenBishopSet;//
-//		queenBishopPawnSet;--
-//		queenQueenSet;--
-//		queenQueenPawnSet;--
-//		queenQueenBishopSet;--
-//		queenBishopQueenSet;--
-//		queenRookSet;--
-//		queenQueenRookSet;--
-//		queenRookQueenSet;--
-//		queenRookRookSet--
-
 		king.populateAttacks(brd, Bitboard.getLowSquareIndex(brd.getPieces(player, PieceType.KING)), player);
 		attackSet.addAttackSet(player, king.getKingSet(), PieceType.KING, king.getLocation(), AttackSet.cost_king, 0);// CONSIDER: should prevCost be zero here???
+		
+		
+		
 	}
 }

@@ -1,6 +1,27 @@
 package attackpalette;
 
-public class AttackSet {
+import java.util.Comparator;
+
+public class AttackSet implements Comparable<AttackSet> {
+	@Override
+	public int compareTo(AttackSet o) {
+		return Comparator.comparing(AttackSet::getTotalCommitment).thenComparing(AttackSet::getPrevCommitment).thenComparing(AttackSet::getCommitment).thenComparingInt(AttackSet::getType).thenComparingInt(AttackSet::getOrigin)
+				.compare(this, o);
+	}
+
+//	public static final Comparator<AttackSet> comparator = new Comparator<AttackSet>() {
+//
+//		public int compare(AttackSet a1, AttackSet a2) {
+//			if(a1.getPrevCommitment()<a2.prevCommitment)
+//				return -1;
+//			else if(a1.getCommitment() < a2.getCommitment())
+//				return -1;
+//			else if(a1.getCommitment() > a2.getCommitment())
+//				return 1; 
+//			return 0;
+//		}
+//	};
+
 	static final int cost_pawn = 1;
 	static final int cost_knight = 3;
 	static final int cost_bishop = 3;
@@ -13,6 +34,15 @@ public class AttackSet {
 	private int origin;// how to treat pawns???
 	private int commitment;// cost of attacking piece
 	private int prevCommitment;// precondition for this attackset being utilized
+	private int totalCommitment;
+
+	int getTotalCommitment() {
+		return totalCommitment;
+	}
+
+	void setTotalCommitment(int totalCommitment) {
+		this.totalCommitment = totalCommitment;
+	}
 
 	long getAttacks() {
 		return attacks;

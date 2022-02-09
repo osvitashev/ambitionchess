@@ -1,6 +1,7 @@
 package attackpalette;
 
 import static org.junit.jupiter.api.Assertions.*;
+import org.junit.Assert;
 
 import org.junit.jupiter.api.Test;
 
@@ -35,7 +36,7 @@ class PlayerAttackSetTest {
 	}
 
 	@Test
-	void test() {
+	void testTotalAttackCounts() {
 		PlayerAttackSet aset = new PlayerAttackSet();
 		// pawns
 		aset.initialize(new Board("6k1/8/8/4p3/7p/4P1P1/8/2K5 w - - 0 1"));
@@ -114,7 +115,7 @@ class PlayerAttackSetTest {
 		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.BLACK, Square.F4));
 		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.BLACK, Square.G3));
 		assertEquals(1, countTotalAttackers(aset, PieceType.BISHOP, Player.BLACK, Square.H2));
-		//rooks
+		// rooks
 		aset.initialize(new Board("7k/6pp/1Q2r3/8/1R6/4q3/1R2r1PP/7K w - - 0 1"));
 		assertEquals(2, countTotalAttackers(aset, PieceType.ROOK, Player.WHITE, Square.B1));
 		assertEquals(1, countTotalAttackers(aset, PieceType.ROOK, Player.WHITE, Square.B2));
@@ -143,7 +144,7 @@ class PlayerAttackSetTest {
 		assertEquals(1, countTotalAttackers(aset, PieceType.ROOK, Player.BLACK, Square.E6));
 		assertEquals(1, countTotalAttackers(aset, PieceType.ROOK, Player.BLACK, Square.E7));
 		assertEquals(1, countTotalAttackers(aset, PieceType.ROOK, Player.BLACK, Square.E8));
-		//queen
+		// queen
 		aset.initialize(new Board("6k1/5ppp/1q6/8/3q4/Q2R1R2/5bPP/7K w - - 0 1"));
 		assertEquals(0, countTotalAttackers(aset, PieceType.QUEEN, Player.WHITE, Square.A3));
 		assertEquals(1, countTotalAttackers(aset, PieceType.QUEEN, Player.WHITE, Square.B3));
@@ -217,7 +218,6 @@ class PlayerAttackSetTest {
 		assertEquals(2, countTotalAttackers(aset, PieceType.QUEEN, Player.WHITE, Square.F5));
 		assertEquals(2, countTotalAttackers(aset, PieceType.QUEEN, Player.WHITE, Square.G5));
 		assertEquals(2, countTotalAttackers(aset, PieceType.QUEEN, Player.WHITE, Square.H5));
-		
 		assertEquals(2, countTotalAttackers(aset, PieceType.QUEEN, Player.BLACK, Square.A4));
 		assertEquals(2, countTotalAttackers(aset, PieceType.QUEEN, Player.BLACK, Square.B4));
 		assertEquals(1, countTotalAttackers(aset, PieceType.QUEEN, Player.BLACK, Square.C4));
@@ -226,18 +226,61 @@ class PlayerAttackSetTest {
 		assertEquals(2, countTotalAttackers(aset, PieceType.QUEEN, Player.BLACK, Square.F4));
 		assertEquals(1, countTotalAttackers(aset, PieceType.QUEEN, Player.BLACK, Square.G4));
 		assertEquals(2, countTotalAttackers(aset, PieceType.QUEEN, Player.BLACK, Square.H4));
-		
-//		queenSet			--
-//		queenPawnSet		--
-//		queenBishopSet		--
-//		queenBishopPawnSet	--
-//		queenQueenSet		--
-//		queenQueenPawnSet	--
-//		queenQueenBishopSet	--
-//		queenBishopQueenSet	--
-//		queenRookSet		--
-//		queenRookRook		--
-//		queenQueenRookSet	
-//		queenRookQueenSet	
+	}
+
+	private int[] extractAttackerTypesInOrder(PlayerAttackSet aset, int player, int targetSquare) {
+		int num = 0;
+		int temp[] = new int[10];
+		for (int i = 0; i < aset.length(Player.WHITE); ++i) {
+			if ((aset.getAttackSet(Player.WHITE, i).getAttacks() & Bitboard.initFromSquare(Square.D4)) != 0L)
+				temp[num++] = aset.getAttackSet(Player.WHITE, i).getType();
+		}
+		int ret[] = new int[num];
+		for (int i = 0; i < num; ++i)
+			ret[i] = temp[i];
+		return ret;
+	}
+
+	private int[] extractAttackerLocationsInOrder(PlayerAttackSet aset, int player, int targetSquare) {
+		int num = 0;
+		int temp[] = new int[10];
+		for (int i = 0; i < aset.length(player); ++i) {
+			if ((aset.getAttackSet(player, i).getAttacks() & Bitboard.initFromSquare(targetSquare)) != 0L)
+				temp[num++] = aset.getAttackSet(player, i).getOrigin();
+		}
+		int ret[] = new int[num];
+		for (int i = 0; i < num; ++i)
+			ret[i] = temp[i];
+		return ret;
+	}
+	
+	private AttackSet[] extractAttackersInOrder(PlayerAttackSet aset, int player, int targetSquare) {
+		int num = 0;
+		AttackSet temp[] = new AttackSet[10];
+		for (int i = 0; i < aset.length(player); ++i) {
+			if ((aset.getAttackSet(player, i).getAttacks() & Bitboard.initFromSquare(targetSquare)) != 0L)
+				temp[num++] = aset.getAttackSet(player, i);
+		}
+		AttackSet ret[] = new AttackSet[num];
+		for (int i = 0; i < num; ++i)
+			ret[i] = temp[i];
+		return ret;
+	}
+
+	@Test
+	void testAttacOrdering() {
+		PlayerAttackSet aset = new PlayerAttackSet();
+		// pawns
+		aset.initialize(new Board("1k6/ppp5/8/2K5/3n2Q1/4P3/1B1RN1PP/8 w - - 0 1"));
+		assertArrayEquals(new int[] { PieceType.PAWN, PieceType.KNIGHT, PieceType.BISHOP, PieceType.ROOK, PieceType.QUEEN, PieceType.KING },
+				extractAttackerTypesInOrder(aset, Player.WHITE, Square.D4));
+		assertArrayEquals(new int[] { Square.SQUARE_NONE, Square.E2, Square.B2, Square.D2, Square.G4, Square.C5 }, extractAttackerLocationsInOrder(aset, Player.WHITE, Square.D4));
+
+		aset.initialize(new Board("1k6/pppR4/5Q2/5N2/3n4/2PKP3/1B4PP/8 w - - 0 1"));
+		assertArrayEquals(new int[] { Square.SQUARE_NONE, Square.SQUARE_NONE, Square.F5, Square.B2, Square.D7, Square.F6, Square.D3 },
+				extractAttackerLocationsInOrder(aset, Player.WHITE, Square.D4));
+
+		aset.initialize(new Board("1k6/ppp5/8/5N2/3n1Q1R/2PK4/1B4PP/Q7 w - - 0 1"));
+		assertArrayEquals(new int[] { Square.SQUARE_NONE, Square.F5, Square.B2, Square.F4, Square.H4, Square.A1, Square.D3 }, extractAttackerLocationsInOrder(aset, Player.WHITE, Square.D4));
 	}
 }
