@@ -1,6 +1,4 @@
-package util;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+package benchmark;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import perft.PerftTest;
@@ -8,7 +6,7 @@ import perft.PerftTest;
 
 public class BenchTest {
 	@Benchmark
-	public void init() {
+	public void benchmarkPerft() {
 		PerftTest.testPerft("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 4);//Kiwipete 
 		PerftTest.testPerft("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1", 6);
 		PerftTest.testPerft("r2q1rk1/pP1p2pp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R b KQ - 0 1 ", 4);
