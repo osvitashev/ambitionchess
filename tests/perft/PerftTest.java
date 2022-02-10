@@ -8,7 +8,7 @@ import gamestate.Board;
 import gamestate.MoveGen;
 import gamestate.MovePool;
 
-class PerftTest {
+public class PerftTest {
 
 	private static MovePool movepool = new MovePool();
 	private static Board test_board = new Board();
@@ -19,7 +19,7 @@ class PerftTest {
 		return perft(test_board, depth, 1);
 	}
 
-	private static long perft(Board board, int depth, int ply) {
+	public static long perft(Board board, int depth, int ply) {
 
 		if (depth == 0) {
 			return 1;
