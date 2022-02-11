@@ -1,4 +1,4 @@
-package gamestate;
+package slidingenerators;
 
 import static org.junit.jupiter.api.Assertions.*;
 
