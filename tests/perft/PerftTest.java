@@ -114,6 +114,11 @@ public class PerftTest {
 		assertEquals(374148198L, testPerft("1n1R4/5B2/3bn3/3k1pR1/3p4/1r6/Q2PP3/K2R4 b - - 0 1", 6));
 		assertEquals(87497228L, testPerft("nq1k4/pr5r/6pp/5p2/1B6/5Q2/PPP2BPP/R3K2R w KQ - 0 1", 5));
 		assertEquals(59469411L, testPerft("nq1k4/pr5r/6pp/5p2/1B6/5Q2/PPP2BPP/R3K2R b KQ - 0 1", 5));
+		//positions with emergent pins
+		assertEquals(69528368L, testPerft("1k3r2/8/8/4KB2/8/2P5/b2N4/8 w - - 0 1", 6));
+		assertEquals(1374435192L, testPerft("1k3r2/8/8/4KB2/8/2P5/b2N4/8 b - - 0 1", 7));
+		assertEquals(175769900L, testPerft("4n3/b2R4/7k/4p3/1N6/r7/3P2K1/2B5 w - - 0 1", 6));
+		assertEquals(215475897L, testPerft("4n3/b2R4/7k/4p3/1N6/r7/3P2K1/2B5 b - - 0 1", 6));
 	}
 
 }
