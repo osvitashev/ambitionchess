@@ -101,7 +101,7 @@ class UndoInfoTest {
 		assertEquals(true, UndoInfo.getCastlingBQ(info));
 	}
 
-	void assertBoardLocation(Board brd, int player, int piece, int sq) {
+	void assertBoardLocation(Gamestate brd, int player, int piece, int sq) {
 		assertEquals(player, brd.getPlayerAt(sq));
 		assertEquals(piece, brd.getPieceAt(sq));
 	}
@@ -109,7 +109,7 @@ class UndoInfoTest {
 	@Test
 	void testMakeUnmakeMove() {
 		String fen = "rb2k2r/2P2pP1/7Q/3Pp2P/6pn/5P2/PPP3P1/R3K2R w KQkq e6 11 23";
-		Board brd = new Board(fen);
+		Gamestate brd = new Gamestate(fen);
 
 		// assert initial board state
 		assertEquals(Player.WHITE, brd.getPlayerToMove());
@@ -270,7 +270,7 @@ class UndoInfoTest {
 		assertEquals(false, brd.isCheck());
 
 		fen = "r3k3/8/1N6/8/R7/8/8/R3K3 w Qq - 0 1";
-		brd = new Board(fen);
+		brd = new Gamestate(fen);
 		assertEquals(false, brd.isCheck());
 		move = Move.setCheck(Move.createCapture(Square.A4, Square.A8, PieceType.ROOK, PieceType.ROOK, Player.WHITE), true);
 		brd.makeMove(move);
@@ -282,7 +282,7 @@ class UndoInfoTest {
 
 		// king starts in check, which is blocked by en passant
 		fen = "2k5/8/8/b7/8/8/1P6/4K3 w - - 0 1";
-		brd = new Board(fen);
+		brd = new Gamestate(fen);
 		assertEquals(true, brd.isCheck());
 		move = Move.createDoublePush(Square.B2, Square.B4, Player.WHITE);
 		brd.makeMove(move);
@@ -294,7 +294,7 @@ class UndoInfoTest {
 
 		// king starts in check, which leads to another check
 		fen = "8/7b/8/1k6/8/3K4/8/5Q2 w - - 0 1";
-		brd = new Board(fen);
+		brd = new Gamestate(fen);
 		assertEquals(true, brd.isCheck());
 		move = Move.setCheck(Move.createNormal(Square.D3, Square.C3, PieceType.KING, Player.WHITE), true);
 		brd.makeMove(move);
@@ -313,7 +313,7 @@ class UndoInfoTest {
 		assertEquals(true, brd.isCheck());
 
 		fen = "8/8/2k5/3pP3/2K1P3/8/8/8 w - d6 0 15";
-		brd = new Board(fen);
+		brd = new Gamestate(fen);
 		assertEquals(true, brd.isCheck());
 		move = Move.setCheck(Move.createCapture(Square.E4, Square.D5, PieceType.PAWN, PieceType.PAWN, Player.WHITE), true);
 		brd.makeMove(move);
@@ -333,7 +333,7 @@ class UndoInfoTest {
 
 		// basic black position
 		fen = "r3k2r/1pq2pp1/2p5/8/3pPp2/8/1p4p1/R3KB1R b KQkq c3 11 14";
-		brd = new Board(fen);
+		brd = new Gamestate(fen);
 		assertEquals(false, brd.isCheck());
 		// capture promo
 		move = Move.setCheck(Move.createCapturePromo(Square.B2, Square.A1, PieceType.ROOK, PieceType.QUEEN, Player.BLACK), true);
@@ -464,7 +464,7 @@ class UndoInfoTest {
 
 		// black king starts in check
 		fen = "8/3K1p2/8/8/2P5/8/4p3/1k3R2 b - - 0 1";
-		brd = new Board(fen);
+		brd = new Gamestate(fen);
 		assertEquals(true, brd.isCheck());
 		move = Move.createCapturePromo(Square.E2, Square.F1, PieceType.ROOK, PieceType.KNIGHT, Player.BLACK);
 		brd.makeMove(move);
@@ -476,7 +476,7 @@ class UndoInfoTest {
 
 		// black king starts in check which leads to check
 		fen = "8/5p2/8/5K2/2P5/8/4p3/1k3R2 b - - 10 1";
-		brd = new Board(fen);
+		brd = new Gamestate(fen);
 		assertEquals(true, brd.isCheck());
 		move = Move.setCheck(Move.createCapturePromo(Square.E2, Square.F1, PieceType.ROOK, PieceType.QUEEN, Player.BLACK), true);
 		brd.makeMove(move);
@@ -487,7 +487,7 @@ class UndoInfoTest {
 		assertEquals(true, brd.isCheck());
 		
 		fen = "8/2b5/8/3k4/4Pp2/8/7K/8 b - e3 0 1";
-		brd = new Board(fen);
+		brd = new Gamestate(fen);
 		assertEquals(true, brd.isCheck());
 		move = Move.setCheck(Move.createEnpassant(Square.F4, Square.E3, Player.BLACK), true);
 		brd.makeMove(move);
@@ -499,7 +499,7 @@ class UndoInfoTest {
 		
 		//misc
 		fen = "8/8/8/6r1/8/3k4/8/R2K4 b - - 0 1";
-		brd = new Board(fen);
+		brd = new Gamestate(fen);
 		assertEquals(false, brd.isCheck());
 		move = Move.setCheck(Move.createNormal(Square.G5, Square.G1, PieceType.ROOK, Player.BLACK), true);
 		brd.makeMove(move);

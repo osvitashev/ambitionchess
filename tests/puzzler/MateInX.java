@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-import gamestate.Board;
+import gamestate.Gamestate;
 import gamestate.Move;
 class MateInX {
 
@@ -31,7 +31,7 @@ class MateInX {
 				{ "3r1n2/3q1Q2/pp2p1pk/4P3/3PN2b/P7/1B4K1/5R2 w - - 1 0", "b2c1" },
 		};
 		int move;
-		Board brd = new Board();
+		Gamestate brd = new Gamestate();
 		PuzzleSolver slv = new PuzzleSolver(3);
 
 		for (int t = 0; t < tests.length; ++t) {
@@ -70,7 +70,7 @@ class MateInX {
 				
 		};
 		int move;
-		Board brd = new Board();
+		Gamestate brd = new Gamestate();
 		PuzzleSolver slv = new PuzzleSolver();
 
 		for (int t = 0; t < tests.length; ++t) {

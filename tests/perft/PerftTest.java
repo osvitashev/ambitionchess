@@ -4,14 +4,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-import gamestate.Board;
+import gamestate.Gamestate;
 import gamestate.MoveGen;
 import gamestate.MovePool;
 
 public class PerftTest {
 
 	private static MovePool movepool = new MovePool();
-	private static Board test_board = new Board();
+	private static Gamestate test_board = new Gamestate();
 
 	public static long testPerft(String fen, int depth) {
 
@@ -19,7 +19,7 @@ public class PerftTest {
 		return perft(test_board, depth, 1);
 	}
 
-	public static long perft(Board board, int depth, int ply) {
+	public static long perft(Gamestate board, int depth, int ply) {
 
 		if (depth == 0) {
 			return 1;

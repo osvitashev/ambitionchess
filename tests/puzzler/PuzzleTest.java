@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-import gamestate.Board;
+import gamestate.Gamestate;
 import gamestate.Move;
 
 class PuzzleTest {
@@ -13,7 +13,7 @@ class PuzzleTest {
 	void test() {
 
 		String fen = "6k1/8/6K1/2P5/5B2/R4N2/7r/8 w - - 0 1";
-		Board brd = new Board(fen);
+		Gamestate brd = new Gamestate(fen);
 		PuzzleSolver slv = new PuzzleSolver();
 		int move = slv.toPlayAndWin(brd, 1);
 		assertEquals("a3a8", Move.toUCINotation(move));

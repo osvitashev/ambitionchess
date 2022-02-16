@@ -1,6 +1,6 @@
 package puzzler;
 
-import gamestate.Board;
+import gamestate.Gamestate;
 import gamestate.MoveGen;
 import gamestate.MovePool;
 
@@ -18,7 +18,7 @@ public class PuzzleSolver {
 	}
 
 	// returns true is black is checkmated
-	private boolean toPlayAndWin_opponentStep(Board brd, int depth) {
+	private boolean toPlayAndWin_opponentStep(Gamestate brd, int depth) {
 		boolean isWin = true;
 		int movelist_size_old = movepool.size();
 		MoveGen.generateLegalMoves(brd, movepool);
@@ -45,7 +45,7 @@ public class PuzzleSolver {
 		return isWin;
 	}
 
-	private boolean toPlayAndWin_step(Board brd, int depth) {
+	private boolean toPlayAndWin_step(Gamestate brd, int depth) {
 		boolean isWin = false;
 		int movelist_size_old = movepool.size();
 		MoveGen.generateLegalMoves(brd, movepool);
@@ -78,12 +78,12 @@ public class PuzzleSolver {
 	 * @param targetDepth - What the puzzle description typically says. 'Mate in 2' means 'us-them-us' when expanded.
 	 * @return
 	 */
-	public int toPlayAndWin(Board brd, int targetDepth) {
+	public int toPlayAndWin(Gamestate brd, int targetDepth) {
 		searchPlyDepth = 2*targetDepth-1;
 		return toPlayAndWin(brd);
 	}
 
-	public int toPlayAndWin(Board brd) {
+	public int toPlayAndWin(Gamestate brd) {
 		movepool.clear();
 		int movelist_size_old = 0;
 		MoveGen.generateLegalMoves(brd, movepool);

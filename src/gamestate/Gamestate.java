@@ -7,7 +7,12 @@ import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
 
-public class Board {
+/**
+ * Represents Board state. Essentially a wrapper around FEN notation with added denorms.
+ * 
+ *
+ */
+public class Gamestate {
 	private long[] playerBB = new long[Player.PLAYERS.length];
 	private long[] pieceBB = new long[PieceType.PIECE_TYPES.length];
 
@@ -515,11 +520,11 @@ public class Board {
 		undoStack_sze = 0;
 	}
 
-	public Board() {
+	public Gamestate() {
 		loadFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 	}
 
-	public Board(String fen) {
+	public Gamestate(String fen) {
 		loadFromFEN(fen);
 	}
 
@@ -528,7 +533,7 @@ public class Board {
 	 * 
 	 * @param String fen
 	 */
-	public Board loadFromFEN(String fen) {
+	public Gamestate loadFromFEN(String fen) {
 		clear();
 		if ("".equals(fen))
 			fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";

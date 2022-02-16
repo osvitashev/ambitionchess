@@ -173,14 +173,14 @@ class MoveTest {
 		assertEquals("e8c8", Move.toUCINotation(move));
 	}
 
-	void assertBoardLocation(Board brd, int player, int piece, int sq) {
+	void assertBoardLocation(Gamestate brd, int player, int piece, int sq) {
 		assertEquals(player, brd.getPlayerAt(sq));
 		assertEquals(piece, brd.getPieceAt(sq));
 	}
 
-	void makeDirtyMoveHelper(Board brd, int move) {
+	void makeDirtyMoveHelper(Gamestate brd, int move) {
 		try {
-			Method method = Board.class.getDeclaredMethod("makeDirtyMove", int.class);
+			Method method = Gamestate.class.getDeclaredMethod("makeDirtyMove", int.class);
 			method.setAccessible(true);
 			method.invoke(brd, move);
 		} catch (Exception e) {
@@ -188,9 +188,9 @@ class MoveTest {
 		}
 	}
 
-	void unmakeDirtyMoveHelper(Board brd, int move) {
+	void unmakeDirtyMoveHelper(Gamestate brd, int move) {
 		try {
-			Method method = Board.class.getDeclaredMethod("unmakeDirtyMove", int.class);
+			Method method = Gamestate.class.getDeclaredMethod("unmakeDirtyMove", int.class);
 			method.setAccessible(true);
 			method.invoke(brd, move);
 		} catch (Exception e) {
@@ -201,7 +201,7 @@ class MoveTest {
 	@Test
 	void testDirtyMove_whtie() {
 		// White
-		Board brd = new Board("r1b5/pPp1N1k1/3p1pqr/2pPpP1Q/4P3/2p1B2p/6P1/R3K2R w KQ e6 17 30");
+		Gamestate brd = new Gamestate("r1b5/pPp1N1k1/3p1pqr/2pPpP1Q/4P3/2p1B2p/6P1/R3K2R w KQ e6 17 30");
 		assertEquals(Player.WHITE, brd.getPlayerToMove());
 		assertBoardLocation(brd, Player.BLACK, PieceType.ROOK, Square.A8);
 		assertBoardLocation(brd, Player.WHITE, PieceType.PAWN, Square.B7);
@@ -350,7 +350,7 @@ class MoveTest {
 
 	@Test
 	void testDirtyMove_black() {
-		Board brd = new Board("r3k2r/pp3pp1/1np2q2/8/2P2Pp1/1KQP3P/4p3/5R2 b kq f3 5 11");
+		Gamestate brd = new Gamestate("r3k2r/pp3pp1/1np2q2/8/2P2Pp1/1KQP3P/4p3/5R2 b kq f3 5 11");
 		assertEquals(Player.BLACK, brd.getPlayerToMove());
 		assertBoardLocation(brd, Player.WHITE, PieceType.ROOK, Square.F1);
 		assertBoardLocation(brd, Player.BLACK, PieceType.PAWN, Square.E2);
