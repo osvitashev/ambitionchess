@@ -144,6 +144,8 @@ class BoardTest {
 		assertEquals(Square.SQUARE_NONE, brd.getEnpassantSquare());
 
 		brd = new Gamestate("8/1kr5/8/8/8/2K5/8/8 w - - 0 1");
+		assertEquals(Square.C3, brd.getKingSquare(Player.WHITE));
+		assertEquals(Square.B7, brd.getKingSquare(Player.BLACK));
 		assertEquals(true, brd.isCheck());
 		try {
 			Method method = Gamestate.class.getDeclaredMethod("clear");
@@ -153,6 +155,8 @@ class BoardTest {
 
 		}
 		assertEquals(false, brd.isCheck());
+		assertEquals(0, brd.getKingSquare(Player.WHITE));
+		assertEquals(0, brd.getKingSquare(Player.BLACK));
 	}
 
 	@Test
@@ -204,7 +208,9 @@ class BoardTest {
 
 		brd.loadFromFEN("r6r/4k1pp/1pp2p2/p7/1Q4P1/1P3P1P/P1PKP1B1/8 b - - 2 43");
 		assertEquals(true, brd.isCheck());
-
+		assertEquals(Square.D2, brd.getKingSquare(Player.WHITE));
+		assertEquals(Square.E7, brd.getKingSquare(Player.BLACK));
+		
 		brd.loadFromFEN("8/8/8/8/8/1k6/1pp5/1K6 w - - 0 76");
 		assertEquals(true, brd.isCheck());
 

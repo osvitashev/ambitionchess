@@ -8,13 +8,16 @@ import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
 
 /**
- * Represents Board state. Essentially a wrapper around FEN notation with added denorms.
+ * Represents Board state. Essentially a wrapper around FEN notation with added
+ * denorms.
  * 
  *
  */
 public class Gamestate {
 	private long[] playerBB = new long[Player.PLAYERS.length];
 	private long[] pieceBB = new long[PieceType.PIECE_TYPES.length];
+
+	private int[] kingSquare = new int[2];// position of respective kings
 
 	private int playerToMove = Player.NO_PLAYER;
 	// TODO: denorm opponent as well in order to avoid calling getOtherPlayer many
@@ -132,9 +135,10 @@ public class Gamestate {
 				return i;
 		return PieceType.NO_PIECE;
 	}
-	
+
 	/**
 	 * May return NO_PLAYER, so should be used with care.
+	 * 
 	 * @param sq
 	 * @return player
 	 */
@@ -169,13 +173,24 @@ public class Gamestate {
 	 * @return
 	 */
 	public boolean validateKingExposure() {
-	//	if (!Bitboard.hasOnly1Bit(pieceBB[PieceType.KING] & playerBB[Player.WHITE]))
-	//		return false;
-	//	if (!Bitboard.hasOnly1Bit(pieceBB[PieceType.KING] & playerBB[Player.BLACK]))
-	//		return false;
-	//	if (isPlayerInCheck(Player.getOtherPlayer(getPlayerToMove())))
-	//		return false;
+		// if (!Bitboard.hasOnly1Bit(pieceBB[PieceType.KING] & playerBB[Player.WHITE]))
+		// return false;
+		// if (!Bitboard.hasOnly1Bit(pieceBB[PieceType.KING] & playerBB[Player.BLACK]))
+		// return false;
+		// if (isPlayerInCheck(Player.getOtherPlayer(getPlayerToMove())))
+		// return false;
 		return !isPlayerInCheck(Player.getOtherPlayer(getPlayerToMove()));
+	}
+
+	private void setKingSquare(int sq, int pl) {
+		DebugLibrary.validatePlayer(pl);
+		DebugLibrary.validateSquare(sq);
+		kingSquare[pl] = sq;
+	}
+
+	public int getKingSquare(int pl) {
+		DebugLibrary.validatePlayer(pl);
+		return kingSquare[pl];
 	}
 
 	/**
@@ -214,7 +229,7 @@ public class Gamestate {
 	 */
 	public boolean isPlayerInCheck(int pl) {
 		DebugLibrary.validatePlayer(pl);
-		int sq = Bitboard.bitScanForward(getPieces(pl, PieceType.KING));// TODO: denorm king position
+		int sq = getKingSquare(pl);
 		return isSquareAttackedBy(sq, Player.getOtherPlayer(pl));
 	}
 
@@ -295,6 +310,9 @@ public class Gamestate {
 			break;
 		}
 		playerToMove = Player.getOtherPlayer(player);
+		// FIXME: better way to update king position!!!
+				kingSquare[Player.WHITE] = bitScanForward(getPieces(Player.WHITE, PieceType.KING));
+				kingSquare[Player.BLACK] = bitScanForward(getPieces(Player.BLACK, PieceType.KING));
 	}
 
 	void unmakeDirtyMove(int move) {
@@ -359,6 +377,9 @@ public class Gamestate {
 			break;
 		}
 		playerToMove = player;
+		// FIXME: better way to update king position!!!
+				kingSquare[Player.WHITE] = bitScanForward(getPieces(Player.WHITE, PieceType.KING));
+				kingSquare[Player.BLACK] = bitScanForward(getPieces(Player.BLACK, PieceType.KING));
 	}
 
 	/**
@@ -429,6 +450,8 @@ public class Gamestate {
 
 		gamePlyCount += 1;
 		isCheck = Move.getCheck(move);
+
+		
 	}
 
 	public void unmakeMove(int move) {
@@ -518,6 +541,9 @@ public class Gamestate {
 		for (int i = 0; i < undoStack.length; ++i)
 			undoStack[i] = 0;
 		undoStack_sze = 0;
+
+		kingSquare[0] = 0;
+		kingSquare[1] = 0;
 	}
 
 	public Gamestate() {
@@ -606,6 +632,9 @@ public class Gamestate {
 				}
 			}
 		}
+
+		kingSquare[0]=(getPieces(Player.WHITE, PieceType.KING) == 0) ? Square.SQUARE_NONE : Bitboard.bitScanForward(getPieces(Player.WHITE, PieceType.KING));
+		kingSquare[1]=(getPieces(Player.BLACK, PieceType.KING) == 0) ? Square.SQUARE_NONE : Bitboard.bitScanForward(getPieces(Player.BLACK, PieceType.KING));
 		validateState();
 		isCheck = isPlayerInCheck(playerToMove);
 
@@ -692,7 +721,6 @@ public class Gamestate {
 		fen += " " + movenum;
 		return fen;
 	}
-	
 
 	/**
 	 * heavy-handed validation of the game state. Is only meant to be used after
@@ -702,14 +730,14 @@ public class Gamestate {
 	 * @return
 	 */
 	public void validateState() {
-		//TODO: expand this to include en passant, castling and so on.
+		// TODO: expand this to include en passant, castling and so on.
 		boolean invalid = false;
 		invalid |= !Bitboard.hasOnly1Bit(pieceBB[PieceType.KING] & playerBB[Player.WHITE]);
 		invalid |= !Bitboard.hasOnly1Bit(pieceBB[PieceType.KING] & playerBB[Player.BLACK]);
-		if(! invalid)
+		if (!invalid)
 			invalid |= isPlayerInCheck(Player.getOtherPlayer(getPlayerToMove()));
 
-		if(invalid)
+		if (invalid)
 			throw new RuntimeException("Invalid Game State!");
 	}
 

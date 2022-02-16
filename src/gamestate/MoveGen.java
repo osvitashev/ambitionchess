@@ -266,7 +266,7 @@ public class MoveGen {
 	 * @return movelist_size Updated collection size
 	 */
 	public static int generateKingMoves(Gamestate brd, MovePool movepool) {
-		int sq_from = Bitboard.bitScanForward(brd.getPieces(brd.getPlayerToMove(), PieceType.KING));
+		int sq_from = brd.getKingSquare(brd.getPlayerToMove());
 		int move;
 		long targetBitboard = BitboardGen.getKingSet(sq_from) & brd.getEmpty();
 		{
@@ -293,7 +293,7 @@ public class MoveGen {
 	 * @return movelist_size Updated collection size
 	 */
 	public static int generateKingCaptures(Gamestate brd, MovePool movepool) {
-		int sq_from = Bitboard.bitScanForward(brd.getPieces(brd.getPlayerToMove(), PieceType.KING));
+		int sq_from = brd.getKingSquare(brd.getPlayerToMove());
 		int move;
 		long targetBitboard = BitboardGen.getKingSet(sq_from) & brd.getPlayerPieces(Player.getOtherPlayer(brd.getPlayerToMove()));
 		{
