@@ -1,5 +1,7 @@
 package gamestate;
 
+import static gamestate.Bitboard.bitScanForward;
+
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
@@ -74,51 +76,4 @@ public class DebugLibrary {
 		}
 		return mt;
 	}
-
-//	/**
-//	 * Checks that board is in valid state. No two pieces or players cooccupy same
-//	 * square. Enpassant square can only be rank 3 or 6. Casling availability
-//	 * implies king and rook having corresponding positions.
-//	 * 
-//	 * @param Board brd
-//	 * @return
-//	 */
-//	public static void validateBoardIntegrity(Board brd) {
-//		if (ENABLE_PRIMITIVE_TYPE_VALIDATION) {
-//			// validate that player bitboards are disjointed.
-//			if (Bitboard.popcount(brd.getPlayerPieces(Player.WHITE) & brd.getPlayerPieces(Player.BLACK)) != 0)
-//				throw new RuntimeException("Two players are cooccupying a square");
-//			// validate that piece types are disjointed.
-//			for (int sq : Square.SQUARES) {
-//				int temp = 0;
-//				for (int pt : PieceType.PIECE_TYPES) {
-//					if (Bitboard.testBit(brd.getPieces(pt), sq))
-//						temp++;
-//				}
-//				if (temp > 1)
-//					throw new RuntimeException("Two pieces are cooccupying a square " + Square.squareToAlgebraicString(sq));
-//			}
-//			// validate enpassant
-//			if (brd.getEnpassantSquare() != Square.SQUARE_NONE) {
-//				validateSquare(brd.getEnpassantSquare());
-//				if (brd.getPlayerToMove() == Player.WHITE && 2 != (brd.getEnpassantSquare() / 8))
-//					throw new RuntimeException("Invalid enpassant square");
-//				if (brd.getPlayerToMove() == Player.BLACK && 5 != (brd.getEnpassantSquare() / 8))
-//					throw new RuntimeException("Invalid enpassant square");
-//			}
-//			// validate castling availability
-//			// Notice that this only concerns positions of king and rooks, but not whether
-//			// king is on check or whether the squares between rook and king are free, as
-//			// these conditions are subject to change
-//			if (brd.getCastling_WK() && !(brd.testPieceAt(PieceType.KING, Player.WHITE, Square.E1) && brd.testPieceAt(PieceType.ROOK, Player.WHITE, Square.H1)))
-//				throw new RuntimeException("Invalid castling state!");
-//			if (brd.getCastling_WQ() && !(brd.testPieceAt(PieceType.KING, Player.WHITE, Square.E1) && brd.testPieceAt(PieceType.ROOK, Player.WHITE, Square.A1)))
-//				throw new RuntimeException("Invalid castling state!");
-//			if (brd.getCastling_BK() && !(brd.testPieceAt(PieceType.KING, Player.BLACK, Square.E8) && brd.testPieceAt(PieceType.ROOK, Player.BLACK, Square.H8)))
-//				throw new RuntimeException("Invalid castling state!");
-//			if (brd.getCastling_BQ() && !(brd.testPieceAt(PieceType.KING, Player.BLACK, Square.E8) && brd.testPieceAt(PieceType.ROOK, Player.BLACK, Square.A8)))
-//				throw new RuntimeException("Invalid castling state!");
-//		}
-//	}
-
 }

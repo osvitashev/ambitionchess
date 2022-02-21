@@ -179,7 +179,7 @@ public class Gamestate {
 		// return false;
 		// if (isPlayerInCheck(Player.getOtherPlayer(getPlayerToMove())))
 		// return false;
-		return !isPlayerInCheck(Player.getOtherPlayer(getPlayerToMove()));
+		return !calculateIsPlayerInCheck(Player.getOtherPlayer(getPlayerToMove()));
 	}
 
 	private void setKingSquare(int sq, int pl) {
@@ -227,14 +227,14 @@ public class Gamestate {
 	 * @param pl
 	 * @return boolean
 	 */
-	public boolean isPlayerInCheck(int pl) {
+	public boolean calculateIsPlayerInCheck(int pl) {
 		DebugLibrary.validatePlayer(pl);
 		int sq = getKingSquare(pl);
 		return isSquareAttackedBy(sq, Player.getOtherPlayer(pl));
 	}
 
 	/**
-	 * getter for the board's state variable.
+	 * getter for the board's state variable. => is the side-to-move in check?
 	 * 
 	 * @return
 	 */
@@ -309,10 +309,9 @@ public class Gamestate {
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareTo(move));
 			break;
 		}
-		playerToMove = Player.getOtherPlayer(player);
 		// FIXME: better way to update king position!!!
-				kingSquare[Player.WHITE] = bitScanForward(getPieces(Player.WHITE, PieceType.KING));
-				kingSquare[Player.BLACK] = bitScanForward(getPieces(Player.BLACK, PieceType.KING));
+		kingSquare[playerToMove] = bitScanForward(getPieces(playerToMove, PieceType.KING));
+		playerToMove = Player.getOtherPlayer(player);
 	}
 
 	void unmakeDirtyMove(int move) {
@@ -378,8 +377,7 @@ public class Gamestate {
 		}
 		playerToMove = player;
 		// FIXME: better way to update king position!!!
-				kingSquare[Player.WHITE] = bitScanForward(getPieces(Player.WHITE, PieceType.KING));
-				kingSquare[Player.BLACK] = bitScanForward(getPieces(Player.BLACK, PieceType.KING));
+		kingSquare[playerToMove] = bitScanForward(getPieces(playerToMove, PieceType.KING));
 	}
 
 	/**
@@ -451,7 +449,6 @@ public class Gamestate {
 		gamePlyCount += 1;
 		isCheck = Move.getCheck(move);
 
-		
 	}
 
 	public void unmakeMove(int move) {
@@ -632,12 +629,18 @@ public class Gamestate {
 				}
 			}
 		}
-
-		kingSquare[0]=(getPieces(Player.WHITE, PieceType.KING) == 0) ? Square.SQUARE_NONE : Bitboard.bitScanForward(getPieces(Player.WHITE, PieceType.KING));
-		kingSquare[1]=(getPieces(Player.BLACK, PieceType.KING) == 0) ? Square.SQUARE_NONE : Bitboard.bitScanForward(getPieces(Player.BLACK, PieceType.KING));
+		//needed in case board is in an invalid state which will lead to more errors
+		//this will be handled by the validation step.
+		try {
+			kingSquare[0] = (getPieces(Player.WHITE, PieceType.KING) == 0) ? Square.SQUARE_NONE : Bitboard.bitScanForward(getPieces(Player.WHITE, PieceType.KING));
+			kingSquare[1] = (getPieces(Player.BLACK, PieceType.KING) == 0) ? Square.SQUARE_NONE : Bitboard.bitScanForward(getPieces(Player.BLACK, PieceType.KING));
+			isCheck = calculateIsPlayerInCheck(playerToMove);
+		}
+		catch(Exception e) {
+			
+		}
+		
 		validateState();
-		isCheck = isPlayerInCheck(playerToMove);
-
 		return this;
 	}
 
@@ -724,21 +727,68 @@ public class Gamestate {
 
 	/**
 	 * heavy-handed validation of the game state. Is only meant to be used after
-	 * loading from FEN. Tests done on move making and generation are supposed to
-	 * ensure that all subsequent state transitions are valid.
+	 * loading from FEN and in tests. Tests done on move making and generation are
+	 * supposed to ensure that all subsequent state transitions are valid.
 	 * 
 	 * @return
 	 */
 	public void validateState() {
-		// TODO: expand this to include en passant, castling and so on.
-		boolean invalid = false;
-		invalid |= !Bitboard.hasOnly1Bit(pieceBB[PieceType.KING] & playerBB[Player.WHITE]);
-		invalid |= !Bitboard.hasOnly1Bit(pieceBB[PieceType.KING] & playerBB[Player.BLACK]);
-		if (!invalid)
-			invalid |= isPlayerInCheck(Player.getOtherPlayer(getPlayerToMove()));
-
-		if (invalid)
+		try {
+			// validate that player bitboards are disjointed.
+			if (Bitboard.popcount(getPlayerPieces(Player.WHITE) & getPlayerPieces(Player.BLACK)) != 0)
+				throw new RuntimeException("Two players are cooccupying a square");
+			// validate that piece types are disjointed.
+			for (int sq : Square.SQUARES) {
+				int temp = 0;
+				for (int pt : PieceType.PIECE_TYPES) {
+					if (Bitboard.testBit(getPieces(pt), sq))
+						temp++;
+				}
+				if (temp > 1)
+					throw new RuntimeException("Two pieces are cooccupying a square " + Square.squareToAlgebraicString(sq));
+			}
+			// validate enpassant
+			if (getEnpassantSquare() != Square.SQUARE_NONE) {
+				DebugLibrary.validateSquare(getEnpassantSquare());
+				if (getPlayerToMove() == Player.WHITE && 5 != (getEnpassantSquare() / 8))
+					throw new RuntimeException("Invalid enpassant square");
+				if (getPlayerToMove() == Player.BLACK && 2 != (getEnpassantSquare() / 8))
+					throw new RuntimeException("Invalid enpassant square");
+			}
+			// validate castling availability
+			// Notice that this only concerns positions of king and rooks, but not whether
+			// king is on check or whether the squares between rook and king are free, as
+			// these conditions are subject to change
+			if (getCastling_WK() && !(testPieceAt(PieceType.KING, Player.WHITE, Square.E1) && testPieceAt(PieceType.ROOK, Player.WHITE, Square.H1)))
+				throw new RuntimeException("Invalid castling state!");
+			if (getCastling_WQ() && !(testPieceAt(PieceType.KING, Player.WHITE, Square.E1) && testPieceAt(PieceType.ROOK, Player.WHITE, Square.A1)))
+				throw new RuntimeException("Invalid castling state!");
+			if (getCastling_BK() && !(testPieceAt(PieceType.KING, Player.BLACK, Square.E8) && testPieceAt(PieceType.ROOK, Player.BLACK, Square.H8)))
+				throw new RuntimeException("Invalid castling state!");
+			if (getCastling_BQ() && !(testPieceAt(PieceType.KING, Player.BLACK, Square.E8) && testPieceAt(PieceType.ROOK, Player.BLACK, Square.A8)))
+				throw new RuntimeException("Invalid castling state!");
+			// validate checks.
+			if (calculateIsPlayerInCheck(getPlayerToMove()) != isCheck())
+				throw new RuntimeException("Check flag mismatch!");
+			if (calculateIsPlayerInCheck(Player.getOtherPlayer(getPlayerToMove())))
+				throw new RuntimeException("King en prise!");
+			// validate pawns on first and last ranks
+			if (Bitboard.popcount(getPieces(PieceType.PAWN) & 0xff000000000000ffL) != 0)
+				throw new RuntimeException("Pawns on first or last rank!");
+			DebugLibrary.validatePlayer(getPlayerToMove());
+			// validate king denorm
+			if (Bitboard.popcount(getPieces(PieceType.KING)) != 2)
+				throw new RuntimeException("Something wrong with kings!");
+			if (getKingSquare(Player.WHITE) != bitScanForward(getPieces(Player.WHITE, PieceType.KING)))
+				throw new RuntimeException("Error in king denorm!");
+			if (getKingSquare(Player.BLACK) != bitScanForward(getPieces(Player.BLACK, PieceType.KING)))
+				throw new RuntimeException("Error in king denorm!");
+			DebugLibrary.validateSquare(getKingSquare(Player.WHITE));
+			DebugLibrary.validateSquare(getKingSquare(Player.BLACK));
+		} catch (Exception e) {
+			// uncomment when troubleshooting!
+			//e.printStackTrace();
 			throw new RuntimeException("Invalid Game State!");
+		}
 	}
-
 }

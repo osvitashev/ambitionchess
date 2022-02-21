@@ -43,7 +43,7 @@ public class MoveGen {
 	public static int addToMoveListIfValid(Gamestate brd, MovePool movepool, int move) {
 		brd.makeDirtyMove(move);
 		if (brd.validateKingExposure()) {
-			move = Move.setCheck(move, brd.isPlayerInCheck(brd.getPlayerToMove()));
+			move = Move.setCheck(move, brd.calculateIsPlayerInCheck(brd.getPlayerToMove()));
 			movepool.add(move);
 		}
 		brd.unmakeDirtyMove(move);

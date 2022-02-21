@@ -55,7 +55,7 @@ class BoardTest {
 
 	@Test
 	void testBitAccess() {
-		Gamestate brd = new Gamestate("2r1k2r/pbpnq2p/3p3n/1p2p1p1/4P3/1P1PQNP1/P1P3BP/1R1K2R1 w KQkq - 0 1");
+		Gamestate brd = new Gamestate("2r1k2r/pbpnq2p/3p3n/1p2p1p1/4P3/1P1PQNP1/P1P3BP/1R1K2R1 w k - 0 1");
 		assertEquals(Player.WHITE, brd.getPlayerAt(Square.D3));
 		assertEquals(Player.BLACK, brd.getPlayerAt(Square.H8));
 		assertEquals(Player.NO_PLAYER, brd.getPlayerAt(Square.E6));
@@ -115,7 +115,7 @@ class BoardTest {
 
 	@Test
 	void testClear() {
-		Gamestate brd = new Gamestate("2r1k2r/pbpnq2p/1p1p1p1n/4p1p1/4P3/3P1NP1/PPPBQPBP/1R1K2R1 w KQkq e3 5 3");
+		Gamestate brd = new Gamestate("2r1k2r/pbpnq2p/1p1p1p1n/4p1p1/4P3/3P1NP1/PPPBQPBP/1R1K2R1 w k g6 5 3");
 		try {
 			Method method = Gamestate.class.getDeclaredMethod("clear");
 			method.setAccessible(true);
@@ -195,13 +195,13 @@ class BoardTest {
 		assertEquals(1, brd.getGamePlyCount());
 		assertEquals(false, brd.isCheck());
 
-		brd.loadFromFEN("rnbq1rk1/ppp1b1pp/5p1n/3p4/8/3B1N2/PPPP1PPP/RNBQ1RK1 w - c3 11 32");
+		brd.loadFromFEN("rnbq1rk1/ppp1b1pp/5p1n/3p4/8/3B1N2/PPPP1PPP/RNBQ1RK1 w - d6 11 32");
 		assertEquals(Player.WHITE, brd.getPlayerToMove());
 		assertEquals(false, brd.getCastling_WK());
 		assertEquals(false, brd.getCastling_WQ());
 		assertEquals(false, brd.getCastling_BK());
 		assertEquals(false, brd.getCastling_BQ());
-		assertEquals(Square.C3, brd.getEnpassantSquare());
+		assertEquals(Square.D6, brd.getEnpassantSquare());
 		assertEquals(11, brd.getQuietHalfmoveClock());
 		assertEquals(62, brd.getGamePlyCount());
 		assertEquals(false, brd.isCheck());
@@ -232,7 +232,7 @@ class BoardTest {
 		brd = new Gamestate(fen);
 		assertEquals(fen, brd.toFEN());
 
-		fen = "rnbq1rk1/ppp1b1pp/5p1n/3p4/8/3B1N2/PPPP1PPP/RNBQ1RK1 w - c3 11 32";
+		fen = "rnbq1rk1/ppp1b1pp/5p1n/3p4/8/3B1N2/PPPP1PPP/RNBQ1RK1 w - d6 11 32";
 		brd = new Gamestate(fen);
 		assertEquals(fen, brd.toFEN());
 

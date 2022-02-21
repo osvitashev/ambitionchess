@@ -395,14 +395,14 @@ class MoveGenTest {
 	void testGenerateCastling() {
 		MovePool movepool = new MovePool();
 		// white
-		Gamestate brd = new Gamestate("8/8/8/4k3/1pPp4/4N3/8/R3K2R w KQ c3 0 1");
+		Gamestate brd = new Gamestate("8/8/8/4k3/1pPp4/4N3/8/R3K2R w KQ - 0 1");
 		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE), Move.createCastleQueen(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
 		movepool.clear();
-		brd = new Gamestate("8/8/8/4k3/1pPp4/4N3/8/R3K2R w - c3 0 1");
+		brd = new Gamestate("8/8/8/4k3/1pPp4/4N3/8/R3K2R w - - 0 1");
 		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateCastling(brd, movepool));
 		movepool.clear();
 
-		brd = new Gamestate("r3k2r/ppp2ppp/8/8/1pPp4/4N3/8/R3K2R w kq c3 0 1");
+		brd = new Gamestate("r3k2r/ppp2ppp/8/8/1pPp4/4N3/8/R3K2R w kq - 0 1");
 		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateCastling(brd, movepool));
 		movepool.clear();
 		
