@@ -168,11 +168,11 @@ public class Gamestate {
 	}
 
 	/**
-	 * Validates that no king is en prise, but side-to-move may be in check
+	 * Validates that other side's king is NOT en prise, but side-to-move may be in check
 	 * 
 	 * @return
 	 */
-	public boolean validateKingExposure() {
+	boolean validateKingExposure() {
 		// if (!Bitboard.hasOnly1Bit(pieceBB[PieceType.KING] & playerBB[Player.WHITE]))
 		// return false;
 		// if (!Bitboard.hasOnly1Bit(pieceBB[PieceType.KING] & playerBB[Player.BLACK]))
