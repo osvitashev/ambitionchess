@@ -40,7 +40,7 @@ public class MoveGen {
 	 * @param move
 	 * @return movelist_size Updated collection size
 	 */
-	public static int addToMovePoolAndSetCheckIfValid(Gamestate brd, MovePool movepool, int move) {
+	static int addToMovePoolAndSetCheckIfValid(Gamestate brd, MovePool movepool, int move) {
 		brd.makeDirtyMove(move);
 		if (brd.validateKingExposure()) {
 			move = Move.setCheck(move, brd.calculateIsPlayerInCheck(brd.getPlayerToMove()));
