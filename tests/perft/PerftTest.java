@@ -114,11 +114,27 @@ public class PerftTest {
 		assertEquals(374148198L, testPerft("1n1R4/5B2/3bn3/3k1pR1/3p4/1r6/Q2PP3/K2R4 b - - 0 1", 6));
 		assertEquals(87497228L, testPerft("nq1k4/pr5r/6pp/5p2/1B6/5Q2/PPP2BPP/R3K2R w KQ - 0 1", 5));
 		assertEquals(59469411L, testPerft("nq1k4/pr5r/6pp/5p2/1B6/5Q2/PPP2BPP/R3K2R b KQ - 0 1", 5));
-		//positions with emergent pins
+//		//positions with emergent pins
 		assertEquals(69528368L, testPerft("1k3r2/8/8/4KB2/8/2P5/b2N4/8 w - - 0 1", 6));
 		assertEquals(1374435192L, testPerft("1k3r2/8/8/4KB2/8/2P5/b2N4/8 b - - 0 1", 7));
 		assertEquals(175769900L, testPerft("4n3/b2R4/7k/4p3/1N6/r7/3P2K1/2B5 w - - 0 1", 6));
 		assertEquals(215475897L, testPerft("4n3/b2R4/7k/4p3/1N6/r7/3P2K1/2B5 b - - 0 1", 6));
+
+		assertEquals(7961114L, testPerft("8/8/2b1k3/8/8/3K4/8/3B4 w - - 0 1", 6));
+		assertEquals(8511245L, testPerft("8/8/2b1k3/8/8/3K4/8/3B4 b - - 0 1", 6));
+		assertEquals(8000133L, testPerft("8/kpb5/8/8/8/8/3BPK2/8 w - - 0 1", 6));
+		assertEquals(7819044L, testPerft("8/kpb5/8/8/8/8/3BPK2/8 b - - 0 1", 6));
+		assertEquals(5771045L, testPerft("8/2n5/2k5/8/4N3/8/4PKB1/8 w - - 0 1", 6));
+		assertEquals(6829670L, testPerft("8/2n5/2k5/8/4N3/8/4PKB1/8 b - - 0 1", 6));
+		assertEquals(78099677L, testPerft("8/3r2k1/8/4n3/3P4/R7/3K4/8 w - - 0 1", 6));
+		assertEquals(77163234L, testPerft("8/3r2k1/8/4n3/3P4/R7/3K4/8 b - - 0 1", 6));
+		assertEquals(166959286L, testPerft("8/b1Rp2k1/4B3/8/5r2/K7/8/8 w - - 0 1", 6));
+		assertEquals(159000702L, testPerft("8/b1Rp2k1/4B3/8/5r2/K7/8/8 b - - 0 1", 6));
+		assertEquals(1978612L, testPerft("k7/8/6b1/8/4p3/8/2KP2B1/8 w - - 0 1", 6));
+		assertEquals(1928450L, testPerft("k7/8/6b1/8/4p3/8/2KP2B1/8 b - - 0 1", 6));
+		assertEquals(26276289L, testPerft("8/4r3/8/8/R3p1k1/8/3P4/4K3 w - - 0 1", 6));
+		assertEquals(26159197L, testPerft("8/4r3/8/8/R3p1k1/8/3P4/4K3 b - - 0 1", 6));
+
 	}
 
 }

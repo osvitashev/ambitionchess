@@ -241,6 +241,11 @@ public class Gamestate {
 	public boolean isCheck() {
 		return isCheck;
 	}
+	
+	private void updateKingPosition(int player) {
+		DebugLibrary.validatePlayer(player);
+		kingSquare[playerToMove] = bitScanForward(getPieces(playerToMove, PieceType.KING));
+	}
 
 	/**
 	 * Only updates the board, but not the game state. Only suitable for move
@@ -310,7 +315,7 @@ public class Gamestate {
 			break;
 		}
 		// FIXME: better way to update king position!!!
-		kingSquare[playerToMove] = bitScanForward(getPieces(playerToMove, PieceType.KING));
+		updateKingPosition(playerToMove);
 		playerToMove = Player.getOtherPlayer(player);
 	}
 
@@ -377,7 +382,7 @@ public class Gamestate {
 		}
 		playerToMove = player;
 		// FIXME: better way to update king position!!!
-		kingSquare[playerToMove] = bitScanForward(getPieces(playerToMove, PieceType.KING));
+		updateKingPosition(playerToMove);
 	}
 
 	/**
