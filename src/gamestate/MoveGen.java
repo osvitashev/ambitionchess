@@ -90,17 +90,17 @@ public class MoveGen {
 		int otherPlayer = Player.getOtherPlayer(player);
 		switch (player) {
 		case Player.WHITE:
-			if (brd.getCastling_WK() && !brd.isCheck()) {
+			if (brd.getCastling_WK() && !brd.getIsCheck()) {
 				if (brd.getPieceAt(Square.F1) == PieceType.NO_PIECE && brd.getPieceAt(Square.G1) == PieceType.NO_PIECE) {
-					if (!brd.isSquareAttackedBy(Square.F1, otherPlayer) && !brd.isSquareAttackedBy(Square.G1, otherPlayer)) {
+					if (!brd.calculateIsSquareAttackedBy(Square.F1, otherPlayer) && !brd.calculateIsSquareAttackedBy(Square.G1, otherPlayer)) {
 						int move = Move.createCastleKing(Player.WHITE);
 						addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 					}
 				}
 			}
-			if (brd.getCastling_WQ() && !brd.isCheck()) {
+			if (brd.getCastling_WQ() && !brd.getIsCheck()) {
 				if (brd.getPieceAt(Square.B1) == PieceType.NO_PIECE && brd.getPieceAt(Square.C1) == PieceType.NO_PIECE && brd.getPieceAt(Square.D1) == PieceType.NO_PIECE) {
-					if (!brd.isSquareAttackedBy(Square.C1, otherPlayer) && !brd.isSquareAttackedBy(Square.D1, otherPlayer)) {
+					if (!brd.calculateIsSquareAttackedBy(Square.C1, otherPlayer) && !brd.calculateIsSquareAttackedBy(Square.D1, otherPlayer)) {
 						int move = Move.createCastleQueen(Player.WHITE);
 						addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 					}
@@ -108,17 +108,17 @@ public class MoveGen {
 			}
 			break;
 		default:// black player
-			if (brd.getCastling_BK() && !brd.isCheck()) {
+			if (brd.getCastling_BK() && !brd.getIsCheck()) {
 				if (brd.getPieceAt(Square.F8) == PieceType.NO_PIECE && brd.getPieceAt(Square.G8) == PieceType.NO_PIECE) {
-					if (!brd.isSquareAttackedBy(Square.F8, otherPlayer) && !brd.isSquareAttackedBy(Square.G8, otherPlayer)) {
+					if (!brd.calculateIsSquareAttackedBy(Square.F8, otherPlayer) && !brd.calculateIsSquareAttackedBy(Square.G8, otherPlayer)) {
 						int move = Move.createCastleKing(Player.BLACK);
 						addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 					}
 				}
 			}
-			if (brd.getCastling_BQ() && !brd.isCheck()) {
+			if (brd.getCastling_BQ() && !brd.getIsCheck()) {
 				if (brd.getPieceAt(Square.B8) == PieceType.NO_PIECE && brd.getPieceAt(Square.C8) == PieceType.NO_PIECE && brd.getPieceAt(Square.D8) == PieceType.NO_PIECE) {
-					if (!brd.isSquareAttackedBy(Square.C8, otherPlayer) && !brd.isSquareAttackedBy(Square.D8, otherPlayer)) {
+					if (!brd.calculateIsSquareAttackedBy(Square.C8, otherPlayer) && !brd.calculateIsSquareAttackedBy(Square.D8, otherPlayer)) {
 						int move = Move.createCastleQueen(Player.BLACK);
 						addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 					}

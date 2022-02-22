@@ -22,7 +22,7 @@ public class PuzzleSolver {
 		boolean isWin = true;
 		int movelist_size_old = movepool.size();
 		MoveGen.generateLegalMoves(brd, movepool);
-		if (movepool.size() == movelist_size_old && brd.isCheck()) {// checkmate
+		if (movepool.size() == movelist_size_old && brd.getIsCheck()) {// checkmate
 
 			isWin = true;
 		} else if (depth == searchPlyDepth) {

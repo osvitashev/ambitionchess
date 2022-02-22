@@ -153,22 +153,23 @@ public class Gamestate {
 	}
 
 	/**
-	 * Tests contents of a square gainst a given piece type and player.
+	 * Tests contents of a square against a given piece type and player.
 	 * 
-	 * @param piece
+	 * @param pieceType
 	 * @param player
 	 * @param sq
 	 * @return boolean
 	 */
-	public boolean testPieceAt(int piece, int player, int sq) {
-		DebugLibrary.validatePieceType(piece);
+	public boolean testPieceAt(int pieceType, int player, int sq) {
+		DebugLibrary.validatePieceType(pieceType);
 		DebugLibrary.validatePlayer(player);
 		DebugLibrary.validateSquare(sq);
-		return testBit(playerBB[player], sq) && testBit(pieceBB[piece], sq);
+		return testBit(playerBB[player], sq) && testBit(pieceBB[pieceType], sq);
 	}
 
 	/**
-	 * Validates that other side's king is NOT en prise, but side-to-move may be in check
+	 * Validates that other side's king is NOT en prise, but side-to-move may be in
+	 * check
 	 * 
 	 * @return
 	 */
@@ -201,7 +202,7 @@ public class Gamestate {
 	 * @param pl
 	 * @return boolean
 	 */
-	public boolean isSquareAttackedBy(int sq, int pl) {
+	public boolean calculateIsSquareAttackedBy(int sq, int pl) {
 		DebugLibrary.validatePlayer(pl);
 		DebugLibrary.validateSquare(sq);
 		// IDEA: this function can be a dynamic part of the game state. If there are no
@@ -230,7 +231,7 @@ public class Gamestate {
 	public boolean calculateIsPlayerInCheck(int pl) {
 		DebugLibrary.validatePlayer(pl);
 		int sq = getKingSquare(pl);
-		return isSquareAttackedBy(sq, Player.getOtherPlayer(pl));
+		return calculateIsSquareAttackedBy(sq, Player.getOtherPlayer(pl));
 	}
 
 	/**
@@ -238,13 +239,8 @@ public class Gamestate {
 	 * 
 	 * @return
 	 */
-	public boolean isCheck() {
+	public boolean getIsCheck() {
 		return isCheck;
-	}
-	
-	private void updateKingPosition(int player) {
-		DebugLibrary.validatePlayer(player);
-		kingSquare[playerToMove] = bitScanForward(getPieces(playerToMove, PieceType.KING));
 	}
 
 	/**
@@ -270,6 +266,8 @@ public class Gamestate {
 			clearPieceAt(Move.getPieceType(move), Move.getSquareFrom(move));
 			clearPieceAt(Move.getPieceCapturedType(move), Move.getSquareTo(move));
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareTo(move));
+			// TODO: add more distinction for the king update
+			setKingSquare(bitScanForward(getPieces(player, PieceType.KING)), player);
 			break;
 		case MoveType.ENPASSANT:
 			clearPieceAt(Move.getPieceType(move), Move.getSquareFrom(move));
@@ -281,11 +279,13 @@ public class Gamestate {
 			break;
 		case MoveType.CASTLE_KING:
 			if (player == Player.WHITE) {
+				setKingSquare(Square.G1, player);
 				clearPieceAt(PieceType.KING, Square.E1);
 				clearPieceAt(PieceType.ROOK, Square.H1);
 				putPieceAt(PieceType.KING, player, Square.G1);
 				putPieceAt(PieceType.ROOK, player, Square.F1);
 			} else {
+				setKingSquare(Square.G8, player);
 				clearPieceAt(PieceType.KING, Square.E8);
 				clearPieceAt(PieceType.ROOK, Square.H8);
 				putPieceAt(PieceType.KING, player, Square.G8);
@@ -294,11 +294,13 @@ public class Gamestate {
 			break;
 		case MoveType.CASTLE_QUEEN:
 			if (player == Player.WHITE) {
+				setKingSquare(Square.C1, player);
 				clearPieceAt(PieceType.KING, Square.E1);
 				clearPieceAt(PieceType.ROOK, Square.A1);
 				putPieceAt(PieceType.KING, player, Square.C1);
 				putPieceAt(PieceType.ROOK, player, Square.D1);
 			} else {
+				setKingSquare(Square.C8, player);
 				clearPieceAt(PieceType.KING, Square.E8);
 				clearPieceAt(PieceType.ROOK, Square.A8);
 				putPieceAt(PieceType.KING, player, Square.C8);
@@ -308,14 +310,14 @@ public class Gamestate {
 		case MoveType.NORMAL:
 			clearPieceAt(Move.getPieceType(move), Move.getSquareFrom(move));
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareTo(move));
+			// TODO: more detection before king update
+			setKingSquare(bitScanForward(getPieces(player, PieceType.KING)), player);
 			break;
 		case MoveType.DOUBLE_PUSH:
 			clearPieceAt(Move.getPieceType(move), Move.getSquareFrom(move));
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareTo(move));
 			break;
 		}
-		// FIXME: better way to update king position!!!
-		updateKingPosition(playerToMove);
 		playerToMove = Player.getOtherPlayer(player);
 	}
 
@@ -336,6 +338,8 @@ public class Gamestate {
 			clearPieceAt(Move.getPieceType(move), Move.getSquareTo(move));
 			putPieceAt(Move.getPieceCapturedType(move), otherPlayer, Move.getSquareTo(move));
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareFrom(move));
+			//TODO: add more distinction for the king update
+			setKingSquare(bitScanForward(getPieces(player, PieceType.KING)), player);
 			break;
 		case MoveType.ENPASSANT:
 			clearPieceAt(PieceType.PAWN, Move.getSquareTo(move));
@@ -347,11 +351,13 @@ public class Gamestate {
 			break;
 		case MoveType.CASTLE_KING:
 			if (player == Player.WHITE) {
+				setKingSquare(Square.E1, player);
 				clearPieceAt(PieceType.KING, Square.G1);
 				clearPieceAt(PieceType.ROOK, Square.F1);
 				putPieceAt(PieceType.KING, player, Square.E1);
 				putPieceAt(PieceType.ROOK, player, Square.H1);
 			} else {
+				setKingSquare(Square.E8, player);
 				clearPieceAt(PieceType.KING, Square.G8);
 				clearPieceAt(PieceType.ROOK, Square.F8);
 				putPieceAt(PieceType.KING, player, Square.E8);
@@ -360,11 +366,13 @@ public class Gamestate {
 			break;
 		case MoveType.CASTLE_QUEEN:
 			if (player == Player.WHITE) {
+				setKingSquare(Square.E1, player);
 				clearPieceAt(PieceType.KING, Square.C1);
 				clearPieceAt(PieceType.ROOK, Square.D1);
 				putPieceAt(PieceType.KING, player, Square.E1);
 				putPieceAt(PieceType.ROOK, player, Square.A1);
 			} else {
+				setKingSquare(Square.E8, player);
 				clearPieceAt(PieceType.KING, Square.C8);
 				clearPieceAt(PieceType.ROOK, Square.D8);
 				putPieceAt(PieceType.KING, player, Square.E8);
@@ -374,6 +382,8 @@ public class Gamestate {
 		case MoveType.NORMAL:
 			clearPieceAt(Move.getPieceType(move), Move.getSquareTo(move));
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareFrom(move));
+			//TODO: add more distinction for the king update
+			setKingSquare(bitScanForward(getPieces(player, PieceType.KING)), player);
 			break;
 		case MoveType.DOUBLE_PUSH:
 			clearPieceAt(PieceType.PAWN, Move.getSquareTo(move));
@@ -381,8 +391,6 @@ public class Gamestate {
 			break;
 		}
 		playerToMove = player;
-		// FIXME: better way to update king position!!!
-		updateKingPosition(playerToMove);
 	}
 
 	/**
@@ -634,17 +642,16 @@ public class Gamestate {
 				}
 			}
 		}
-		//needed in case board is in an invalid state which will lead to more errors
-		//this will be handled by the validation step.
+		// needed in case board is in an invalid state which will lead to more errors
+		// this will be handled by the validation step.
 		try {
 			kingSquare[0] = (getPieces(Player.WHITE, PieceType.KING) == 0) ? Square.SQUARE_NONE : Bitboard.bitScanForward(getPieces(Player.WHITE, PieceType.KING));
 			kingSquare[1] = (getPieces(Player.BLACK, PieceType.KING) == 0) ? Square.SQUARE_NONE : Bitboard.bitScanForward(getPieces(Player.BLACK, PieceType.KING));
 			isCheck = calculateIsPlayerInCheck(playerToMove);
+		} catch (Exception e) {
+
 		}
-		catch(Exception e) {
-			
-		}
-		
+
 		validateState();
 		return this;
 	}
@@ -773,7 +780,7 @@ public class Gamestate {
 			if (getCastling_BQ() && !(testPieceAt(PieceType.KING, Player.BLACK, Square.E8) && testPieceAt(PieceType.ROOK, Player.BLACK, Square.A8)))
 				throw new RuntimeException("Invalid castling state!");
 			// validate checks.
-			if (calculateIsPlayerInCheck(getPlayerToMove()) != isCheck())
+			if (calculateIsPlayerInCheck(getPlayerToMove()) != getIsCheck())
 				throw new RuntimeException("Check flag mismatch!");
 			if (calculateIsPlayerInCheck(Player.getOtherPlayer(getPlayerToMove())))
 				throw new RuntimeException("King en prise!");
@@ -792,7 +799,7 @@ public class Gamestate {
 			DebugLibrary.validateSquare(getKingSquare(Player.BLACK));
 		} catch (Exception e) {
 			// uncomment when troubleshooting!
-			//e.printStackTrace();
+			// e.printStackTrace();
 			throw new RuntimeException("Invalid Game State!");
 		}
 	}

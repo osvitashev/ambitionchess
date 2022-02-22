@@ -146,7 +146,7 @@ class BoardTest {
 		brd = new Gamestate("8/1kr5/8/8/8/2K5/8/8 w - - 0 1");
 		assertEquals(Square.C3, brd.getKingSquare(Player.WHITE));
 		assertEquals(Square.B7, brd.getKingSquare(Player.BLACK));
-		assertEquals(true, brd.isCheck());
+		assertEquals(true, brd.getIsCheck());
 		try {
 			Method method = Gamestate.class.getDeclaredMethod("clear");
 			method.setAccessible(true);
@@ -154,7 +154,7 @@ class BoardTest {
 		} catch (Exception e) {
 
 		}
-		assertEquals(false, brd.isCheck());
+		assertEquals(false, brd.getIsCheck());
 		assertEquals(0, brd.getKingSquare(Player.WHITE));
 		assertEquals(0, brd.getKingSquare(Player.BLACK));
 	}
@@ -182,7 +182,7 @@ class BoardTest {
 		assertEquals(Square.SQUARE_NONE, brd.getEnpassantSquare());
 		assertEquals(4, brd.getQuietHalfmoveClock());
 		assertEquals(0, brd.getGamePlyCount());
-		assertEquals(false, brd.isCheck());
+		assertEquals(false, brd.getIsCheck());
 
 		brd.loadFromFEN("rnbqk2r/ppp1b1pp/5p1n/3p4/8/3B1N2/PPPP1PPP/RNBQ1RK1 b kq - 5 1");
 		assertEquals(Player.BLACK, brd.getPlayerToMove());
@@ -193,7 +193,7 @@ class BoardTest {
 		assertEquals(Square.SQUARE_NONE, brd.getEnpassantSquare());
 		assertEquals(5, brd.getQuietHalfmoveClock());
 		assertEquals(1, brd.getGamePlyCount());
-		assertEquals(false, brd.isCheck());
+		assertEquals(false, brd.getIsCheck());
 
 		brd.loadFromFEN("rnbq1rk1/ppp1b1pp/5p1n/3p4/8/3B1N2/PPPP1PPP/RNBQ1RK1 w - d6 11 32");
 		assertEquals(Player.WHITE, brd.getPlayerToMove());
@@ -204,18 +204,18 @@ class BoardTest {
 		assertEquals(Square.D6, brd.getEnpassantSquare());
 		assertEquals(11, brd.getQuietHalfmoveClock());
 		assertEquals(62, brd.getGamePlyCount());
-		assertEquals(false, brd.isCheck());
+		assertEquals(false, brd.getIsCheck());
 
 		brd.loadFromFEN("r6r/4k1pp/1pp2p2/p7/1Q4P1/1P3P1P/P1PKP1B1/8 b - - 2 43");
-		assertEquals(true, brd.isCheck());
+		assertEquals(true, brd.getIsCheck());
 		assertEquals(Square.D2, brd.getKingSquare(Player.WHITE));
 		assertEquals(Square.E7, brd.getKingSquare(Player.BLACK));
 		
 		brd.loadFromFEN("8/8/8/8/8/1k6/1pp5/1K6 w - - 0 76");
-		assertEquals(true, brd.isCheck());
+		assertEquals(true, brd.getIsCheck());
 
 		brd.loadFromFEN("8/3k4/2P5/8/4K3/8/2R5/8 b - - 0 19");
-		assertEquals(true, brd.isCheck());
+		assertEquals(true, brd.getIsCheck());
 	}
 
 	@Test
@@ -288,49 +288,49 @@ class BoardTest {
 	@Test
 	void testIsSquareAttackedBy() {
 		// king
-		assertEquals(true, new Gamestate("8/1k6/5n2/4K3/8/3P4/8/8 w - - 0 1").isSquareAttackedBy(Square.F6, Player.WHITE));
-		assertEquals(true, new Gamestate("8/6K1/5n2/5k2/8/3P4/8/8 w - - 0 1").isSquareAttackedBy(Square.F6, Player.WHITE));
-		assertEquals(false, new Gamestate("8/8/2K2nk1/8/8/3P4/8/8 w - - 0 1").isSquareAttackedBy(Square.F6, Player.WHITE));
-		assertEquals(true, new Gamestate("8/8/2K2nk1/8/8/3P4/8/8 w - - 0 1").isSquareAttackedBy(Square.F6, Player.BLACK));
-		assertEquals(true, new Gamestate("8/4K3/5nk1/8/8/3P4/8/8 w - - 0 1").isSquareAttackedBy(Square.F6, Player.BLACK));
-		assertEquals(false, new Gamestate("8/4K3/5n2/8/7k/3P4/8/8 w - - 0 1").isSquareAttackedBy(Square.F6, Player.BLACK));
+		assertEquals(true, new Gamestate("8/1k6/5n2/4K3/8/3P4/8/8 w - - 0 1").calculateIsSquareAttackedBy(Square.F6, Player.WHITE));
+		assertEquals(true, new Gamestate("8/6K1/5n2/5k2/8/3P4/8/8 w - - 0 1").calculateIsSquareAttackedBy(Square.F6, Player.WHITE));
+		assertEquals(false, new Gamestate("8/8/2K2nk1/8/8/3P4/8/8 w - - 0 1").calculateIsSquareAttackedBy(Square.F6, Player.WHITE));
+		assertEquals(true, new Gamestate("8/8/2K2nk1/8/8/3P4/8/8 w - - 0 1").calculateIsSquareAttackedBy(Square.F6, Player.BLACK));
+		assertEquals(true, new Gamestate("8/4K3/5nk1/8/8/3P4/8/8 w - - 0 1").calculateIsSquareAttackedBy(Square.F6, Player.BLACK));
+		assertEquals(false, new Gamestate("8/4K3/5n2/8/7k/3P4/8/8 w - - 0 1").calculateIsSquareAttackedBy(Square.F6, Player.BLACK));
 		// pawns
-		assertEquals(false, new Gamestate("8/1k6/8/1P6/4K3/8/8/8 w - - 0 1").isSquareAttackedBy(Square.C4, Player.WHITE));
-		assertEquals(false, new Gamestate("8/1k6/8/3P4/4K3/8/8/8 w - - 0 1").isSquareAttackedBy(Square.C4, Player.WHITE));
-		assertEquals(true, new Gamestate("8/1k6/8/8/4K3/3P4/8/8 w - - 0 1").isSquareAttackedBy(Square.C4, Player.WHITE));
-		assertEquals(true, new Gamestate("8/1k6/8/8/4K3/1P6/8/8 w - - 0 1").isSquareAttackedBy(Square.C4, Player.WHITE));
-		assertEquals(true, new Gamestate("8/1k6/8/3pK3/8/8/8/8 w - - 0 1").isSquareAttackedBy(Square.C4, Player.BLACK));
-		assertEquals(true, new Gamestate("8/1k6/8/1p2K3/8/8/8/8 w - - 0 1").isSquareAttackedBy(Square.C4, Player.BLACK));
-		assertEquals(false, new Gamestate("8/1k6/8/3PK3/8/1p6/8/8 w - - 0 1").isSquareAttackedBy(Square.C4, Player.BLACK));
-		assertEquals(false, new Gamestate("8/1k6/8/1P2K3/8/3p4/8/8 w - - 0 1").isSquareAttackedBy(Square.C4, Player.BLACK));
+		assertEquals(false, new Gamestate("8/1k6/8/1P6/4K3/8/8/8 w - - 0 1").calculateIsSquareAttackedBy(Square.C4, Player.WHITE));
+		assertEquals(false, new Gamestate("8/1k6/8/3P4/4K3/8/8/8 w - - 0 1").calculateIsSquareAttackedBy(Square.C4, Player.WHITE));
+		assertEquals(true, new Gamestate("8/1k6/8/8/4K3/3P4/8/8 w - - 0 1").calculateIsSquareAttackedBy(Square.C4, Player.WHITE));
+		assertEquals(true, new Gamestate("8/1k6/8/8/4K3/1P6/8/8 w - - 0 1").calculateIsSquareAttackedBy(Square.C4, Player.WHITE));
+		assertEquals(true, new Gamestate("8/1k6/8/3pK3/8/8/8/8 w - - 0 1").calculateIsSquareAttackedBy(Square.C4, Player.BLACK));
+		assertEquals(true, new Gamestate("8/1k6/8/1p2K3/8/8/8/8 w - - 0 1").calculateIsSquareAttackedBy(Square.C4, Player.BLACK));
+		assertEquals(false, new Gamestate("8/1k6/8/3PK3/8/1p6/8/8 w - - 0 1").calculateIsSquareAttackedBy(Square.C4, Player.BLACK));
+		assertEquals(false, new Gamestate("8/1k6/8/1P2K3/8/3p4/8/8 w - - 0 1").calculateIsSquareAttackedBy(Square.C4, Player.BLACK));
 		// rook
-		assertEquals(true, new Gamestate("8/8/1R1N3k/8/8/8/1K6/8 w - - 0 1").isSquareAttackedBy(Square.D6, Player.WHITE));
-		assertEquals(true, new Gamestate("3R4/8/3N2rk/8/8/8/1K6/8 w - - 0 1").isSquareAttackedBy(Square.D6, Player.WHITE));
-		assertEquals(false, new Gamestate("4R3/8/3N2rk/8/8/8/1K6/8 w - - 0 1").isSquareAttackedBy(Square.D6, Player.WHITE));
-		assertEquals(true, new Gamestate("8/8/3N2rk/8/8/8/1K6/3R4 w - - 0 1").isSquareAttackedBy(Square.D6, Player.BLACK));
-		assertEquals(true, new Gamestate("8/8/3N2rk/8/8/8/1K2R3/8 w - - 0 1").isSquareAttackedBy(Square.D6, Player.BLACK));
-		assertEquals(false, new Gamestate("8/6r1/2RN3k/8/8/8/1K6/8 w - - 0 1").isSquareAttackedBy(Square.D6, Player.BLACK));
+		assertEquals(true, new Gamestate("8/8/1R1N3k/8/8/8/1K6/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.WHITE));
+		assertEquals(true, new Gamestate("3R4/8/3N2rk/8/8/8/1K6/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.WHITE));
+		assertEquals(false, new Gamestate("4R3/8/3N2rk/8/8/8/1K6/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.WHITE));
+		assertEquals(true, new Gamestate("8/8/3N2rk/8/8/8/1K6/3R4 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.BLACK));
+		assertEquals(true, new Gamestate("8/8/3N2rk/8/8/8/1K2R3/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.BLACK));
+		assertEquals(false, new Gamestate("8/6r1/2RN3k/8/8/8/1K6/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.BLACK));
 		// bishop
-		assertEquals(true, new Gamestate("8/8/3N3k/8/8/6B1/1K6/8 w - - 0 1").isSquareAttackedBy(Square.D6, Player.WHITE));
-		assertEquals(true, new Gamestate("8/4b3/3N3k/8/1B6/8/1K6/8 w - - 0 1").isSquareAttackedBy(Square.D6, Player.WHITE));
-		assertEquals(false, new Gamestate("1b6/8/3N3k/8/2B5/8/1K6/8 w - - 0 1").isSquareAttackedBy(Square.D6, Player.WHITE));
-		assertEquals(true, new Gamestate("1b6/8/3N3k/8/2B5/8/1K6/8 w - - 0 1").isSquareAttackedBy(Square.D6, Player.BLACK));
-		assertEquals(true, new Gamestate("8/4B3/3N3k/8/1b6/8/1K6/8 w - - 0 1").isSquareAttackedBy(Square.D6, Player.BLACK));
-		assertEquals(false, new Gamestate("8/2B5/3N3k/1b6/8/8/1K6/8 w - - 0 1").isSquareAttackedBy(Square.D6, Player.BLACK));
+		assertEquals(true, new Gamestate("8/8/3N3k/8/8/6B1/1K6/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.WHITE));
+		assertEquals(true, new Gamestate("8/4b3/3N3k/8/1B6/8/1K6/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.WHITE));
+		assertEquals(false, new Gamestate("1b6/8/3N3k/8/2B5/8/1K6/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.WHITE));
+		assertEquals(true, new Gamestate("1b6/8/3N3k/8/2B5/8/1K6/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.BLACK));
+		assertEquals(true, new Gamestate("8/4B3/3N3k/8/1b6/8/1K6/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.BLACK));
+		assertEquals(false, new Gamestate("8/2B5/3N3k/1b6/8/8/1K6/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.BLACK));
 		// queen
-		assertEquals(true, new Gamestate("8/7k/1Q1n4/8/8/7K/8/8 w - - 0 1").isSquareAttackedBy(Square.D6, Player.WHITE));
-		assertEquals(true, new Gamestate("8/7k/3n4/8/8/Q6K/8/8 w - - 0 1").isSquareAttackedBy(Square.D6, Player.WHITE));
-		assertEquals(false, new Gamestate("1q6/7k/3n4/8/Q7/7K/8/8 w - - 0 1").isSquareAttackedBy(Square.D6, Player.WHITE));
-		assertEquals(true, new Gamestate("1q6/7k/3n4/8/Q7/7K/8/8 w - - 0 1").isSquareAttackedBy(Square.D6, Player.BLACK));
-		assertEquals(true, new Gamestate("8/7k/3n1q2/8/Q7/7K/8/8 w - - 0 1").isSquareAttackedBy(Square.D6, Player.BLACK));
-		assertEquals(false, new Gamestate("6q1/7k/3n4/8/8/7K/8/3Q4 w - - 0 1").isSquareAttackedBy(Square.D6, Player.BLACK));
+		assertEquals(true, new Gamestate("8/7k/1Q1n4/8/8/7K/8/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.WHITE));
+		assertEquals(true, new Gamestate("8/7k/3n4/8/8/Q6K/8/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.WHITE));
+		assertEquals(false, new Gamestate("1q6/7k/3n4/8/Q7/7K/8/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.WHITE));
+		assertEquals(true, new Gamestate("1q6/7k/3n4/8/Q7/7K/8/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.BLACK));
+		assertEquals(true, new Gamestate("8/7k/3n1q2/8/Q7/7K/8/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.BLACK));
+		assertEquals(false, new Gamestate("6q1/7k/3n4/8/8/7K/8/3Q4 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.BLACK));
 		// knight
-		assertEquals(true, new Gamestate("6k1/8/3n4/8/4N3/8/6K1/8 w - - 0 1").isSquareAttackedBy(Square.D6, Player.WHITE));
-		assertEquals(true, new Gamestate("2n3k1/8/3n4/8/4N3/8/6K1/8 w - - 0 1").isSquareAttackedBy(Square.D6, Player.WHITE));
-		assertEquals(false, new Gamestate("2n3k1/8/3n4/4N3/8/8/6K1/8 w - - 0 1").isSquareAttackedBy(Square.D6, Player.WHITE));
-		assertEquals(true, new Gamestate("6k1/8/3n4/1n2N3/8/8/6K1/8 w - - 0 1").isSquareAttackedBy(Square.D6, Player.BLACK));
-		assertEquals(true, new Gamestate("6k1/8/3n4/1n6/2N5/8/6K1/8 w - - 0 1").isSquareAttackedBy(Square.D6, Player.BLACK));
-		assertEquals(false, new Gamestate("6k1/8/3n4/2n5/2N5/8/6K1/8 w - - 0 1").isSquareAttackedBy(Square.D6, Player.BLACK));
+		assertEquals(true, new Gamestate("6k1/8/3n4/8/4N3/8/6K1/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.WHITE));
+		assertEquals(true, new Gamestate("2n3k1/8/3n4/8/4N3/8/6K1/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.WHITE));
+		assertEquals(false, new Gamestate("2n3k1/8/3n4/4N3/8/8/6K1/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.WHITE));
+		assertEquals(true, new Gamestate("6k1/8/3n4/1n2N3/8/8/6K1/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.BLACK));
+		assertEquals(true, new Gamestate("6k1/8/3n4/1n6/2N5/8/6K1/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.BLACK));
+		assertEquals(false, new Gamestate("6k1/8/3n4/2n5/2N5/8/6K1/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.BLACK));
 	}
 
 	//TODO: rework test for isPlayerInCheck
