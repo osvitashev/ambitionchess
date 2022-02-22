@@ -193,15 +193,16 @@ public class Gamestate {
 		DebugLibrary.validatePlayer(pl);
 		return kingSquare[pl];
 	}
-	
+
 	/**
-	 * Returns a bitboard of attack sources for a given square
+	 * Returns a bitboard of attack sources for a given square by s given player.
+	 * 
 	 * @param sq
 	 * @param pl
 	 * @return
 	 */
 	public long calculateSquareAttackers(int sq, int pl) {
-		long ret=0;
+		long ret = 0;
 		DebugLibrary.validatePlayer(pl);
 		DebugLibrary.validateSquare(sq);
 		// IDEA: this function can be a dynamic part of the game state. If there are no
@@ -217,6 +218,38 @@ public class Gamestate {
 	}
 
 	/**
+	 * Returns a bitboard mask which represents pieces which would result in the
+	 * target square being attacked by the given player if those pieces were
+	 * removed. Color-agnostic with regards to blockers. The bitboard returned by
+	 * this function may need to be processed further in order to distinguish
+	 * between pins, skewers and potential discovered attacks.
+	 * 
+	 * @param sq - attack target
+	 * @param pl - attacker
+	 * @return
+	 */
+	public long calculatePinsSkewersAndDiscoveredAttacks(int sq, int pl) {
+		DebugLibrary.validatePlayer(pl);
+		DebugLibrary.validateSquare(sq);
+		long ret = 0;
+		long rookReverseSet = BitboardGen.getRookSet(sq, getOccupied());
+		long rookBlockers = rookReverseSet & ~getEmpty();
+		for (long zarg = rookBlockers, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBits
+			long rookIndirectAttackers = (getPieces(pl, PieceType.QUEEN) | getPieces(pl, PieceType.ROOK)) & BitboardGen.getRookSet(sq, getOccupied() & ~barg) & ~rookReverseSet;
+			if (rookIndirectAttackers != 0)
+				ret |= barg;
+		}
+		long bishopReverseSet = BitboardGen.getBishopSet(sq, getOccupied());
+		long bishopBlockers = bishopReverseSet & ~getEmpty();
+		for (long zarg = bishopBlockers, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBits
+			long bishopIndirectAttackers = (getPieces(pl, PieceType.QUEEN) | getPieces(pl, PieceType.BISHOP)) & BitboardGen.getBishopSet(sq, getOccupied() & ~barg) & ~bishopReverseSet;
+			if(bishopIndirectAttackers != 0)
+				ret |= barg;
+		}
+		return ret;
+	}
+
+	/**
 	 * Does reverse attack set generation for a given square. Intended to detect
 	 * checks and castling availability.
 	 * 
@@ -227,7 +260,7 @@ public class Gamestate {
 	public boolean calculateIsSquareAttackedBy(int sq, int pl) {
 		DebugLibrary.validatePlayer(pl);
 		DebugLibrary.validateSquare(sq);
-		if (!Bitboard.isEmpty(calculateSquareAttackers(sq,pl)))
+		if (!Bitboard.isEmpty(calculateSquareAttackers(sq, pl)))
 			return true;
 		return false;
 	}
@@ -256,7 +289,8 @@ public class Gamestate {
 	/**
 	 * Only updates the board, but not the game state. Only suitable for move
 	 * validation. Toggles side to move, but makes no other change except updating
-	 * piece position. No updates to castling rights, en passant, or move counters
+	 * piece position and king position denorm. No updates to castling rights, en
+	 * passant, or move counters
 	 * 
 	 * @param move
 	 */
@@ -348,7 +382,7 @@ public class Gamestate {
 			clearPieceAt(Move.getPieceType(move), Move.getSquareTo(move));
 			putPieceAt(Move.getPieceCapturedType(move), otherPlayer, Move.getSquareTo(move));
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareFrom(move));
-			//TODO: add more distinction for the king update
+			// TODO: add more distinction for the king update
 			setKingSquare(bitScanForward(getPieces(player, PieceType.KING)), player);
 			break;
 		case MoveType.ENPASSANT:
@@ -392,7 +426,7 @@ public class Gamestate {
 		case MoveType.NORMAL:
 			clearPieceAt(Move.getPieceType(move), Move.getSquareTo(move));
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareFrom(move));
-			//TODO: add more distinction for the king update
+			// TODO: add more distinction for the king update
 			setKingSquare(bitScanForward(getPieces(player, PieceType.KING)), player);
 			break;
 		case MoveType.DOUBLE_PUSH:

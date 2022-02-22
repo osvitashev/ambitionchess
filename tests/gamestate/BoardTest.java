@@ -334,29 +334,35 @@ class BoardTest {
 	}
 	
 	@Test
-	void testSquareAttackers() {
+	void testCalculateSquareAttackers() {
 		assertEquals(0x42020000L, new Gamestate("8/2q2k2/8/1P1p4/1Kn3R1/1P1p4/8/8 w - - 0 1").calculateSquareAttackers(Square.C4, Player.WHITE));
 		assertEquals(0x4000800000000L, new Gamestate("8/2q2k2/8/1P1p4/1Kn3R1/1P1p4/8/8 w - - 0 1").calculateSquareAttackers(Square.C4, Player.BLACK));
 		assertEquals(0x80000800400L, new Gamestate("5r2/7b/3N4/5pk1/7n/7B/2Q5/1K6 w - - 0 1").calculateSquareAttackers(Square.F5, Player.WHITE));
 		assertEquals(0x2080004080000000L, new Gamestate("5r2/7b/3N4/5pk1/7n/7B/2Q5/1K6 w - - 0 1").calculateSquareAttackers(Square.F5, Player.BLACK));
 	}
-
-	//TODO: rework test for isPlayerInCheck - this became problematic once i added validation on load
-//	@Test
-//	void testIsInCheck() {
-//	//	assertEquals(true, new Board("8/8/8/4k3/3K4/8/8/8 w - - 0 1").isPlayerInCheck(Player.WHITE));
-//		assertEquals(true, new Board("8/8/8/4k3/3K4/8/8/8 w - - 0 1").isPlayerInCheck(Player.BLACK));
-//		assertEquals(false, new Board("8/4k3/8/8/8/2K5/8/8 w - - 0 1").isPlayerInCheck(Player.WHITE));
-//		assertEquals(false, new Board("8/4k3/8/8/8/2K5/8/8 w - - 0 1").isPlayerInCheck(Player.BLACK));
-//		assertEquals(false, new Board("8/4k3/8/6B1/8/2K5/8/8 w - - 0 1").isPlayerInCheck(Player.WHITE));
-//		assertEquals(true, new Board("8/4k3/8/6B1/8/2K5/8/8 w - - 0 1").isPlayerInCheck(Player.BLACK));
-//		assertEquals(false, new Board("8/8/4k3/B2P4/8/2K5/3p4/8 w - - 0 1").isPlayerInCheck(Player.WHITE));
-//		assertEquals(true, new Board("8/8/4k3/B2P4/8/2K5/3p4/8 w - - 0 1").isPlayerInCheck(Player.BLACK));
-//		assertEquals(false, new Board("4Q3/8/4k3/B7/3n4/2K5/8/8 w - - 0 1").isPlayerInCheck(Player.WHITE));
-//		assertEquals(true, new Board("4Q3/8/4k3/B7/3n4/2K5/8/8 w - - 0 1").isPlayerInCheck(Player.BLACK));
-//		assertEquals(true, new Board("2r5/7R/5k2/4b3/4B3/2K5/8/8 w - - 0 1").isPlayerInCheck(Player.WHITE));
-//		assertEquals(false, new Board("2r5/7R/5k2/4b3/4B3/2K5/8/8 w - - 0 1").isPlayerInCheck(Player.BLACK));
-//		assertEquals(true, new Board("2r2R2/8/5k2/4b3/7B/2K5/8/8 w - - 0 1").isPlayerInCheck(Player.WHITE));
-//		assertEquals(true, new Board("2r2R2/8/5k2/4b3/7B/2K5/8/8 w - - 0 1").isPlayerInCheck(Player.BLACK));
-//	}
+	
+	@Test
+	void testCalculatePinsSkewersAndDiscoveredAttacks() {
+		//rooks
+		assertEquals(0x8000000L, new Gamestate("6r1/8/6n1/8/2RK2k1/8/8/8 w - - 0 1").calculatePinsSkewersAndDiscoveredAttacks(Square.G4, Player.WHITE));
+		assertEquals(0x4000000L, new Gamestate("k5r1/pp4R1/8/8/1Rr3n1/8/PP4Q1/K7 w - - 0 1").calculatePinsSkewersAndDiscoveredAttacks(Square.G4, Player.WHITE));
+		assertEquals(0x40000000400000L, new Gamestate("k5R1/pp4R1/8/8/q1r3n1/6P1/PP4Q1/K7 b - - 0 1").calculatePinsSkewersAndDiscoveredAttacks(Square.G4, Player.WHITE));
+		assertEquals(0x80000000800000L, new Gamestate("k6R/pp5R/8/8/q1r4n/7P/PP5Q/K7 b - - 0 1").calculatePinsSkewersAndDiscoveredAttacks(Square.H4, Player.WHITE));
+		assertEquals(0x12000000000L, new Gamestate("r6k/6pp/p7/P4bq1/8/N7/Q5PP/7K w - - 0 1").calculatePinsSkewersAndDiscoveredAttacks(Square.A5, Player.BLACK));
+		assertEquals(0x10000010000L, new Gamestate("7k/r5pp/P7/P4bQ1/8/N7/q5PP/7K w - - 0 1").calculatePinsSkewersAndDiscoveredAttacks(Square.A5, Player.BLACK));
+		assertEquals(0x800000000L, new Gamestate("7k/r5pp/8/P2rqbQ1/8/8/6PP/7K w - - 0 1").calculatePinsSkewersAndDiscoveredAttacks(Square.A5, Player.BLACK));
+		assertEquals(0x0L, new Gamestate("7k/r5pp/8/P4bQ1/8/8/6PP/7K w - - 0 1").calculatePinsSkewersAndDiscoveredAttacks(Square.A5, Player.BLACK));
+		//bishops
+		assertEquals(0x200000L, new Gamestate("7k/1q4pp/2b5/3n4/8/1B3N2/R5QP/7K w - - 0 1").calculatePinsSkewersAndDiscoveredAttacks(Square.D5, Player.WHITE));
+		assertEquals(0x4004000L, new Gamestate("7k/1q4pp/2b5/3n4/2b5/1B6/R5KP/7Q w - - 0 1").calculatePinsSkewersAndDiscoveredAttacks(Square.D5, Player.WHITE));
+		assertEquals(0x2000000000000L, new Gamestate("Q5qk/1B4pp/4b3/3n4/2b5/1R6/K6P/8 w - - 0 1").calculatePinsSkewersAndDiscoveredAttacks(Square.D5, Player.WHITE));
+		assertEquals(0x0L, new Gamestate("b5qk/1B4pp/4b3/3n4/2b5/1R6/K6P/8 w - - 0 1").calculatePinsSkewersAndDiscoveredAttacks(Square.D5, Player.WHITE));
+		assertEquals(0x200000000000L, new Gamestate("1k5q/pp6/5b2/8/3n4/1PQ5/PBP5/1K6 w - - 0 1").calculatePinsSkewersAndDiscoveredAttacks(Square.D4, Player.BLACK));
+		assertEquals(0x40000000040000L, new Gamestate("1k5q/pp4B1/8/8/3n4/1PQ5/PbP5/1K6 w - - 0 1").calculatePinsSkewersAndDiscoveredAttacks(Square.D4, Player.BLACK));
+		assertEquals(0x20000000200000L, new Gamestate("1k2q3/pp3B2/8/7n/8/1PQ2R2/P1P1b3/1K6 w - - 0 1").calculatePinsSkewersAndDiscoveredAttacks(Square.H5, Player.BLACK));
+		assertEquals(0x400000000000L, new Gamestate("1k2q3/pp2R3/6b1/7n/8/1P3B2/P1P1Q3/1K6 w - - 0 1").calculatePinsSkewersAndDiscoveredAttacks(Square.H5, Player.BLACK));
+		//add pinned 7th rank pawns
+		assertEquals(0x1c000000000000L, new Gamestate("8/2PPP2k/8/Q7/7B/8/3R4/2K5 w - - 0 1").calculatePinsSkewersAndDiscoveredAttacks(Square.D8, Player.WHITE));
+		assertEquals(0x1c000000000000L, new Gamestate("8/2ppp2k/8/Q7/7B/8/3R4/2K5 w - - 0 1").calculatePinsSkewersAndDiscoveredAttacks(Square.D8, Player.WHITE));
+	}
 }
