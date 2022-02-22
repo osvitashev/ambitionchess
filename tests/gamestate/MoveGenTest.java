@@ -30,7 +30,7 @@ class MoveGenTest {
 		MovePool mp = new MovePool();
 		for (int i = 0; i < candidateMoves_size; ++i) {
 			int move = candidateMoves[i];
-			MoveGen.addToMoveListIfValid(brd, mp, move);
+			MoveGen.addToMovePoolAndSetCheckIfValid(brd, mp, move);
 		}
 		
 		for(int i=0;i<mp.size();++i)

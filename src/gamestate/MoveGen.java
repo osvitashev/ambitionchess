@@ -40,7 +40,7 @@ public class MoveGen {
 	 * @param move
 	 * @return movelist_size Updated collection size
 	 */
-	public static int addToMoveListIfValid(Gamestate brd, MovePool movepool, int move) {
+	public static int addToMovePoolAndSetCheckIfValid(Gamestate brd, MovePool movepool, int move) {
 		brd.makeDirtyMove(move);
 		if (brd.validateKingExposure()) {
 			move = Move.setCheck(move, brd.calculateIsPlayerInCheck(brd.getPlayerToMove()));
@@ -69,7 +69,7 @@ public class MoveGen {
 				for (long zarg = attackersBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 					bi = Bitboard.bitScanForward(barg);
 					int move = Move.createEnpassant(bi, enpassantSquare, player);
-					addToMoveListIfValid(brd, movepool, move);
+					addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 				}
 			}
 
@@ -100,12 +100,12 @@ public class MoveGen {
 				// single
 				if (0 == (brd.getOccupied() & Bitboard.shiftNorth(barg))) {// use shiftNorth to check is the target square is empty
 					move = Move.createNormal(bi, bi + 8, PieceType.PAWN, player);
-					addToMoveListIfValid(brd, movepool, move);
+					addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 					// double
 					if (0L != (barg & 0x000000000000FF00L)) {// bi is in [a2-h2]
 						if (0 == (brd.getOccupied() & Bitboard.shiftNorth(Bitboard.shiftNorth(barg)))) {
 							move = Move.createDoublePush(bi, bi + 16, player);
-							addToMoveListIfValid(brd, movepool, move);
+							addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 						}
 					}
 				}
@@ -121,12 +121,12 @@ public class MoveGen {
 				// single
 				if (0 == (brd.getOccupied() & Bitboard.shiftSouth(barg))) {// use shiftSouth to check is the target square is empty
 					move = Move.createNormal(bi, bi - 8, PieceType.PAWN, player);
-					addToMoveListIfValid(brd, movepool, move);
+					addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 					// double
 					if (0L != (barg & 0x00FF000000000000L)) {// bi is in [a7-h7]
 						if (0 == (brd.getOccupied() & Bitboard.shiftSouth(Bitboard.shiftSouth(barg)))) {
 							move = Move.createDoublePush(bi, bi - 16, player);
-							addToMoveListIfValid(brd, movepool, move);
+							addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 						}
 					}
 				}
@@ -173,7 +173,7 @@ public class MoveGen {
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 				bi = Bitboard.bitScanForward(barg);
 				move = Move.createCapture(sqFrom, bi, PieceType.PAWN, brd.getPieceAt(bi), brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 			}
 		}
 		return movepool.size();
@@ -217,38 +217,38 @@ public class MoveGen {
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 				bi = Bitboard.bitScanForward(barg);
 				move = Move.createCapturePromo(sqFrom, bi, brd.getPieceAt(bi), PieceType.ROOK, brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 				move = Move.createCapturePromo(sqFrom, bi, brd.getPieceAt(bi), PieceType.KNIGHT, brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 				move = Move.createCapturePromo(sqFrom, bi, brd.getPieceAt(bi), PieceType.BISHOP, brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 				move = Move.createCapturePromo(sqFrom, bi, brd.getPieceAt(bi), PieceType.QUEEN, brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 			}
 		}
 		switch (brd.getPlayerToMove()) {
 		case Player.WHITE:
 			if (0 == (brd.getOccupied() & Bitboard.shiftNorth(Bitboard.setBit(0L, sqFrom)))) {// use shiftNorth to check is the target square is empty
 				move = Move.createPromo(sqFrom, sqFrom + 8, PieceType.ROOK, brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 				move = Move.createPromo(sqFrom, sqFrom + 8, PieceType.KNIGHT, brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 				move = Move.createPromo(sqFrom, sqFrom + 8, PieceType.BISHOP, brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 				move = Move.createPromo(sqFrom, sqFrom + 8, PieceType.QUEEN, brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 			}
 			break;
 		default:// black player
 			if (0 == (brd.getOccupied() & Bitboard.shiftSouth(Bitboard.setBit(0L, sqFrom)))) {// use shiftNorth to check is the target square is empty
 				move = Move.createPromo(sqFrom, sqFrom - 8, PieceType.ROOK, brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 				move = Move.createPromo(sqFrom, sqFrom - 8, PieceType.KNIGHT, brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 				move = Move.createPromo(sqFrom, sqFrom - 8, PieceType.BISHOP, brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 				move = Move.createPromo(sqFrom, sqFrom - 8, PieceType.QUEEN, brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 			}
 		}
 		return movepool.size();
@@ -274,7 +274,7 @@ public class MoveGen {
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 				bi = Bitboard.bitScanForward(barg);
 				move = Move.createNormal(sq_from, bi, PieceType.KING, brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 			}
 		}
 		return movepool.size();
@@ -301,7 +301,7 @@ public class MoveGen {
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 				bi = Bitboard.bitScanForward(barg);
 				move = Move.createCapture(sq_from, bi, PieceType.KING, brd.getPieceAt(bi), brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 			}
 		}
 		return movepool.size();
@@ -328,7 +328,7 @@ public class MoveGen {
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 				bi = Bitboard.bitScanForward(barg);
 				move = Move.createNormal(sqFrom, bi, PieceType.KNIGHT, brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 			}
 		}
 		return movepool.size();
@@ -355,7 +355,7 @@ public class MoveGen {
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 				bi = Bitboard.bitScanForward(barg);
 				move = Move.createCapture(sqFrom, bi, PieceType.KNIGHT, brd.getPieceAt(bi), brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 			}
 		}
 		return movepool.size();
@@ -382,7 +382,7 @@ public class MoveGen {
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 				bi = Bitboard.bitScanForward(barg);
 				move = Move.createNormal(sqFrom, bi, PieceType.ROOK, brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 			}
 		}
 		return movepool.size();
@@ -409,7 +409,7 @@ public class MoveGen {
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 				bi = Bitboard.bitScanForward(barg);
 				move = Move.createCapture(sqFrom, bi, PieceType.ROOK, brd.getPieceAt(bi), brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 			}
 		}
 		return movepool.size();
@@ -436,7 +436,7 @@ public class MoveGen {
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 				bi = Bitboard.bitScanForward(barg);
 				move = Move.createNormal(sqFrom, bi, PieceType.BISHOP, brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 			}
 		}
 		return movepool.size();
@@ -463,7 +463,7 @@ public class MoveGen {
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 				bi = Bitboard.bitScanForward(barg);
 				move = Move.createCapture(sqFrom, bi, PieceType.BISHOP, brd.getPieceAt(bi), brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 			}
 		}
 		return movepool.size();
@@ -490,7 +490,7 @@ public class MoveGen {
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 				bi = Bitboard.bitScanForward(barg);
 				move = Move.createNormal(sqFrom, bi, PieceType.QUEEN, brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 			}
 		}
 		return movepool.size();
@@ -517,7 +517,7 @@ public class MoveGen {
 			for (long zarg = targetBitboard, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 				bi = Bitboard.bitScanForward(barg);
 				move = Move.createCapture(sqFrom, bi, PieceType.QUEEN, brd.getPieceAt(bi), brd.getPlayerToMove());
-				addToMoveListIfValid(brd, movepool, move);
+				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 			}
 		}
 		return movepool.size();
@@ -543,7 +543,7 @@ public class MoveGen {
 				if (brd.getPieceAt(Square.F1) == PieceType.NO_PIECE && brd.getPieceAt(Square.G1) == PieceType.NO_PIECE) {
 					if (!brd.isSquareAttackedBy(Square.F1, otherPlayer) && !brd.isSquareAttackedBy(Square.G1, otherPlayer)) {
 						int move = Move.createCastleKing(Player.WHITE);
-						addToMoveListIfValid(brd, movepool, move);
+						addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 					}
 				}
 			}
@@ -551,7 +551,7 @@ public class MoveGen {
 				if (brd.getPieceAt(Square.B1) == PieceType.NO_PIECE && brd.getPieceAt(Square.C1) == PieceType.NO_PIECE && brd.getPieceAt(Square.D1) == PieceType.NO_PIECE) {
 					if (!brd.isSquareAttackedBy(Square.C1, otherPlayer) && !brd.isSquareAttackedBy(Square.D1, otherPlayer)) {
 						int move = Move.createCastleQueen(Player.WHITE);
-						addToMoveListIfValid(brd, movepool, move);
+						addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 					}
 				}
 			}
@@ -561,7 +561,7 @@ public class MoveGen {
 				if (brd.getPieceAt(Square.F8) == PieceType.NO_PIECE && brd.getPieceAt(Square.G8) == PieceType.NO_PIECE) {
 					if (!brd.isSquareAttackedBy(Square.F8, otherPlayer) && !brd.isSquareAttackedBy(Square.G8, otherPlayer)) {
 						int move = Move.createCastleKing(Player.BLACK);
-						addToMoveListIfValid(brd, movepool, move);
+						addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 					}
 				}
 			}
@@ -569,7 +569,7 @@ public class MoveGen {
 				if (brd.getPieceAt(Square.B8) == PieceType.NO_PIECE && brd.getPieceAt(Square.C8) == PieceType.NO_PIECE && brd.getPieceAt(Square.D8) == PieceType.NO_PIECE) {
 					if (!brd.isSquareAttackedBy(Square.C8, otherPlayer) && !brd.isSquareAttackedBy(Square.D8, otherPlayer)) {
 						int move = Move.createCastleQueen(Player.BLACK);
-						addToMoveListIfValid(brd, movepool, move);
+						addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 					}
 				}
 			}
