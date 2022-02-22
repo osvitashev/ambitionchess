@@ -193,6 +193,28 @@ public class Gamestate {
 		DebugLibrary.validatePlayer(pl);
 		return kingSquare[pl];
 	}
+	
+	/**
+	 * Returns a bitboard of attack sources for a given square
+	 * @param sq
+	 * @param pl
+	 * @return
+	 */
+	public long calculateSquareAttackers(int sq, int pl) {
+		long ret=0;
+		DebugLibrary.validatePlayer(pl);
+		DebugLibrary.validateSquare(sq);
+		// IDEA: this function can be a dynamic part of the game state. If there are no
+		// more knights on the board, there is no point in checking for knight attacks.
+		// Most moves do not modify such conditions.
+		int otherPlayer = Player.getOtherPlayer(pl);
+		ret |= getPieces(pl, PieceType.PAWN) & BitboardGen.getPawnAttackSet(sq, otherPlayer);
+		ret |= (getPieces(pl, PieceType.QUEEN) | getPieces(pl, PieceType.ROOK)) & BitboardGen.getRookSet(sq, getOccupied());
+		ret |= (getPieces(pl, PieceType.QUEEN) | getPieces(pl, PieceType.BISHOP)) & BitboardGen.getBishopSet(sq, getOccupied());
+		ret |= getPieces(pl, PieceType.KNIGHT) & BitboardGen.getKnightSet(sq);
+		ret |= getPieces(pl, PieceType.KING) & BitboardGen.getKingSet(sq);
+		return ret;
+	}
 
 	/**
 	 * Does reverse attack set generation for a given square. Intended to detect
@@ -205,19 +227,7 @@ public class Gamestate {
 	public boolean calculateIsSquareAttackedBy(int sq, int pl) {
 		DebugLibrary.validatePlayer(pl);
 		DebugLibrary.validateSquare(sq);
-		// IDEA: this function can be a dynamic part of the game state. If there are no
-		// more knights on the board, there is no point in checking for knight attacks.
-		// Most moves do not modify such conditions.
-		int otherPlayer = Player.getOtherPlayer(pl);
-		if (!Bitboard.isEmpty(getPieces(pl, PieceType.PAWN) & BitboardGen.getPawnAttackSet(sq, otherPlayer)))
-			return true;
-		if (!Bitboard.isEmpty((getPieces(pl, PieceType.QUEEN) | getPieces(pl, PieceType.ROOK)) & BitboardGen.getRookSet(sq, getOccupied())))
-			return true;
-		if (!Bitboard.isEmpty((getPieces(pl, PieceType.QUEEN) | getPieces(pl, PieceType.BISHOP)) & BitboardGen.getBishopSet(sq, getOccupied())))
-			return true;
-		if (!Bitboard.isEmpty(getPieces(pl, PieceType.KNIGHT) & BitboardGen.getKnightSet(sq)))
-			return true;
-		if (!Bitboard.isEmpty(getPieces(pl, PieceType.KING) & BitboardGen.getKingSet(sq)))
+		if (!Bitboard.isEmpty(calculateSquareAttackers(sq,pl)))
 			return true;
 		return false;
 	}

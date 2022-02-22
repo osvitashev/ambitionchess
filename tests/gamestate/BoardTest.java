@@ -332,8 +332,16 @@ class BoardTest {
 		assertEquals(true, new Gamestate("6k1/8/3n4/1n6/2N5/8/6K1/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.BLACK));
 		assertEquals(false, new Gamestate("6k1/8/3n4/2n5/2N5/8/6K1/8 w - - 0 1").calculateIsSquareAttackedBy(Square.D6, Player.BLACK));
 	}
+	
+	@Test
+	void testSquareAttackers() {
+		assertEquals(0x42020000L, new Gamestate("8/2q2k2/8/1P1p4/1Kn3R1/1P1p4/8/8 w - - 0 1").calculateSquareAttackers(Square.C4, Player.WHITE));
+		assertEquals(0x4000800000000L, new Gamestate("8/2q2k2/8/1P1p4/1Kn3R1/1P1p4/8/8 w - - 0 1").calculateSquareAttackers(Square.C4, Player.BLACK));
+		assertEquals(0x80000800400L, new Gamestate("5r2/7b/3N4/5pk1/7n/7B/2Q5/1K6 w - - 0 1").calculateSquareAttackers(Square.F5, Player.WHITE));
+		assertEquals(0x2080004080000000L, new Gamestate("5r2/7b/3N4/5pk1/7n/7B/2Q5/1K6 w - - 0 1").calculateSquareAttackers(Square.F5, Player.BLACK));
+	}
 
-	//TODO: rework test for isPlayerInCheck
+	//TODO: rework test for isPlayerInCheck - this became problematic once i added validation on load
 //	@Test
 //	void testIsInCheck() {
 //	//	assertEquals(true, new Board("8/8/8/4k3/3K4/8/8/8 w - - 0 1").isPlayerInCheck(Player.WHITE));
