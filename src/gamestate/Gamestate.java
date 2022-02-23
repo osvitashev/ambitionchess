@@ -17,22 +17,33 @@ public class Gamestate {
 	private long[] playerBB = new long[Player.PLAYERS.length];
 	private long[] pieceBB = new long[PieceType.PIECE_TYPES.length];
 
-	private int[] kingSquare = new int[2];// position of respective kings
+	/**
+	 * position of respective kings updated on load and makeDirtyMove()
+	 */
+	private int[] kingSquare = new int[2];
 
 	private int playerToMove = Player.NO_PLAYER;
 	// TODO: denorm opponent as well in order to avoid calling getOtherPlayer many
 	// times.
 
-	private int quietHalfmoveClock = 0;// used for 50 more rule. FEN already specifies it as a number of half-moves.
+	/**
+	 * used for 50 more rule. FEN already specifies it as a number of half-moves.
+	 */
+	private int quietHalfmoveClock = 0;
 	private int gamePlyCount = 0;
 
 	private boolean castling_WQ = false, castling_WK = false, castling_BQ = false, castling_BK = false;
 	private int enpassantSq = Square.SQUARE_NONE;
 
-	private boolean isCheck = false; // true if the current player to move is in check.
+	/**
+	 * true if the current player to move is in check updated on load and makeMove()
+	 */
+	private boolean isCheck = false;
+	
+	
 	private int[] undoStack = new int[200];
 	private int undoStack_sze = 0;
-	// TOTO: there should be a stack of historical moves, zorbist codes to0
+	// TODO: there should be a stack of historical moves, zorbist codes too
 
 	public int getPlayerToMove() {
 		return playerToMove;
@@ -243,7 +254,7 @@ public class Gamestate {
 		long bishopBlockers = bishopReverseSet & ~getEmpty();
 		for (long zarg = bishopBlockers, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBits
 			long bishopIndirectAttackers = (getPieces(pl, PieceType.QUEEN) | getPieces(pl, PieceType.BISHOP)) & BitboardGen.getBishopSet(sq, getOccupied() & ~barg) & ~bishopReverseSet;
-			if(bishopIndirectAttackers != 0)
+			if (bishopIndirectAttackers != 0)
 				ret |= barg;
 		}
 		return ret;
@@ -268,7 +279,7 @@ public class Gamestate {
 	/**
 	 * Does reverse attack set generation for a king position.
 	 * 
-	 * @param pl
+	 * @param pl - attacker
 	 * @return boolean
 	 */
 	public boolean calculateIsPlayerInCheck(int pl) {
@@ -280,6 +291,7 @@ public class Gamestate {
 	/**
 	 * getter for the board's state variable. => is the side-to-move in check?
 	 * 
+	 * updated on load and makeMove()
 	 * @return
 	 */
 	public boolean getIsCheck() {

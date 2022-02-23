@@ -359,7 +359,7 @@ public class MoveGen {
 			int bi = 0;
 			for (long zarg = pawnBB, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 				bi = Bitboard.bitScanForward(barg);
-				generatePawnPromotions_helper(brd, bi, movepool);
+				generatePawnPromotionsAndCapturePromotions_helper(brd, bi, movepool);
 			}
 		}
 			break;
@@ -369,7 +369,7 @@ public class MoveGen {
 			int bi = 0;
 			for (long zarg = pawnBB, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 				bi = Bitboard.bitScanForward(barg);
-				generatePawnPromotions_helper(brd, bi, movepool);
+				generatePawnPromotionsAndCapturePromotions_helper(brd, bi, movepool);
 			}
 		}
 		}
@@ -499,7 +499,7 @@ public class MoveGen {
 		return movepool.size();
 	}
 
-	private static int generatePawnPromotions_helper(Gamestate brd, int sqFrom, MovePool movepool) {
+	private static int generatePawnPromotionsAndCapturePromotions_helper(Gamestate brd, int sqFrom, MovePool movepool) {
 		// sqFrom is guaranteed to be rank to be either 2 or 7
 		DebugLibrary.validateSquare(sqFrom);
 		int move;
