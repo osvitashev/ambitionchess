@@ -18,6 +18,14 @@ import gamestate.GlobalConstants.Square;
  */
 public class MoveGen {
 	/**
+	 * Populates internal fields needed for correct move generation in a given position.
+	 * @param brd
+	 * @return
+	 */
+	public MoveGen initialize(Gamestate brd) {
+		return this;
+	}
+	/**
 	 * An abstract representation of a method which generates legal moves and
 	 * appends them to a move list returning the new move list size. For now used to
 	 * simplify move generation tests.
