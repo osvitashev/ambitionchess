@@ -34,8 +34,10 @@ import perft.PerftTest;
 public class BenchPerft {
 	
 	
-//	Benchmark                   Mode  Cnt  Score   Error  Units
-//	BenchPerft.benchmarkPerft  thrpt   20  0.604 ± 0.035  ops/s
+//	Result "benchmark.BenchPerft.benchmarkPerft":
+//	0.604 ±(99.9%) 0.035 ops/s [Average]
+//	(min, avg, max) = (0.556, 0.604, 0.674), stdev = 0.041
+//	CI (99.9%): [0.568, 0.639] (assumes normal distribution)
 	@Benchmark
 	public void benchmarkPerft(Blackhole blackhole) {
 		PerftTest.enableLogging = false;
