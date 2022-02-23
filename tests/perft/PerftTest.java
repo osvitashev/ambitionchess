@@ -15,12 +15,12 @@ public class PerftTest {
 	private static MoveGen test_move_generator = new MoveGen();
 
 	public static long testPerft(String fen, int depth) {
-
 		test_board.loadFromFEN(fen);
 		return perft(test_board, depth, 1);
 	}
+	
 
-	public static long perft(Gamestate board, int depth, int ply) {
+	private static long perft(Gamestate board, int depth, int ply) {
 
 		if (depth == 0) {
 			return 1;
