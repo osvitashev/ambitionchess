@@ -13,6 +13,8 @@ public class PerftTest {
 	private static MovePool movepool = new MovePool();
 	private static Gamestate test_board = new Gamestate();
 	private static MoveGen test_move_generator = new MoveGen();
+	
+	public static boolean enableLogging = true;
 
 	public static long testPerft(String fen, int depth) {
 		test_board.loadFromFEN(fen);
@@ -54,7 +56,7 @@ public class PerftTest {
 
 		}
 		movepool.resize(test_movelist_size_old);
-		if (ply == 1) {
+		if (enableLogging && ply == 1) {
 			// System.out.println("Node count: " + nodes);
 			// System.out.println("Time: " + (System.currentTimeMillis() - time) + "
 			// milliseconds");

@@ -1,7 +1,20 @@
 package benchmark;
 
+import java.util.concurrent.TimeUnit;
+
 import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Measurement;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
+import org.openjdk.jmh.runner.Runner;
+import org.openjdk.jmh.runner.RunnerException;
+import org.openjdk.jmh.runner.options.Options;
+import org.openjdk.jmh.runner.options.OptionsBuilder;
+
 import perft.PerftTest;
 
 /**
@@ -10,10 +23,22 @@ import perft.PerftTest;
  * 
  *
  */
+
+@Warmup(iterations = 5, time = 20, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 20, time = 20, timeUnit = TimeUnit.SECONDS)
+//@Fork(value = 3, jvmArgsAppend = {"-XX:+UseParallelGC", "-Xms1g", "-Xmx1g"})
+@Fork(value = 1)
+@BenchmarkMode(org.openjdk.jmh.annotations.Mode.Throughput)
+@OutputTimeUnit(TimeUnit.SECONDS)
+@State(org.openjdk.jmh.annotations.Scope.Benchmark)
 public class BenchPerft {
 	
+	
+//	Benchmark                   Mode  Cnt  Score   Error  Units
+//	BenchPerft.benchmarkPerft  thrpt   20  0.604 ± 0.035  ops/s
 	@Benchmark
 	public void benchmarkPerft(Blackhole blackhole) {
+		PerftTest.enableLogging = false;
 		long ret=0;
 		ret+=PerftTest.testPerft("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 4);//Kiwipete 
 		ret+=PerftTest.testPerft("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1", 4);
@@ -29,5 +54,12 @@ public class BenchPerft {
 		ret+=PerftTest.testPerft("3rr3/2N1PPpp/5Nk1/PpPq4/1bQ2b2/2B3P1/5P1P/R3K2R w KQ b6 0 1", 4);
 		blackhole.consume(ret);
 	}
+	
+	public static void main(String[] args) throws RunnerException {
+		//https://www.vogella.com/tutorials/JavaMicrobenchmarking/article.html
+        Options opt = new OptionsBuilder().include(BenchPerft.class.getSimpleName()).build();
+
+        new Runner(opt).run();
+    }
 
 }
