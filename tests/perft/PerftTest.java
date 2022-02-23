@@ -12,6 +12,7 @@ public class PerftTest {
 
 	private static MovePool movepool = new MovePool();
 	private static Gamestate test_board = new Gamestate();
+	private static MoveGen test_move_generator = new MoveGen();
 
 	public static long testPerft(String fen, int depth) {
 
@@ -32,7 +33,7 @@ public class PerftTest {
 		long partialNodes;
 
 		int test_movelist_size_old = movepool.size();
-		MoveGen.generateLegalMoves(test_board, movepool);
+		test_move_generator.generateLegalMoves(test_board, movepool);
 
 		if (depth == 1) {
 			int ret = movepool.size() - test_movelist_size_old;

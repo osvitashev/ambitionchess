@@ -4,9 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 
-import javax.swing.text.Position.Bias;
-
-import org.javatuples.Pair;
 import org.javatuples.Quartet;
 import org.junit.jupiter.api.Test;
 

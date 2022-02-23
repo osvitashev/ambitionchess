@@ -24,6 +24,7 @@ public class ExpensiveExchangeEvaluator {
 
 	private MovePool movepool = new MovePool();// main move pool used in the search
 	private MovePool bufferpool = new MovePool();// temporary , used to do move filtering.
+	private MoveGen move_generator = new MoveGen();
 	private int square;// square the evaluation is for.
 	private boolean generateCaptures;
 	
@@ -44,13 +45,13 @@ public class ExpensiveExchangeEvaluator {
 	 */
 	private int generateExchangeCaptureMoves(Gamestate brd) {
 		bufferpool.clear();
-		MoveGen.generatePawnCaptures(brd, bufferpool);
-		MoveGen.generatePawnPromotionsAndCapturePromotions(brd, bufferpool);
-		MoveGen.generateRookCaptures(brd, bufferpool);
-		MoveGen.generateKnightCaptures(brd, bufferpool);
-		MoveGen.generateBishopCaptures(brd, bufferpool);
-		MoveGen.generateQueenCaptures(brd, bufferpool);
-		MoveGen.generateKingCaptures(brd, bufferpool);
+		move_generator.generatePawnCaptures(brd, bufferpool);
+		move_generator.generatePawnPromotionsAndCapturePromotions(brd, bufferpool);
+		move_generator.generateRookCaptures(brd, bufferpool);
+		move_generator.generateKnightCaptures(brd, bufferpool);
+		move_generator.generateBishopCaptures(brd, bufferpool);
+		move_generator.generateQueenCaptures(brd, bufferpool);
+		move_generator.generateKingCaptures(brd, bufferpool);
 		for (int i = 0; i < bufferpool.size(); ++i) {
 			int move = bufferpool.get(i);
 			if ((Move.getMoveType(move) == MoveType.CAPTURE || Move.getMoveType(move) == MoveType.PROMO_CAPTURE) && square == Move.getSquareTo(move)) {
@@ -69,13 +70,13 @@ public class ExpensiveExchangeEvaluator {
 	 */
 	private int generateExchangeNonCaptureMoves(Gamestate brd) {
 		bufferpool.clear();
-		MoveGen.generatePawnMoves(brd, bufferpool);
-		MoveGen.generatePawnPromotionsAndCapturePromotions(brd, bufferpool);
-		MoveGen.generateRookMoves(brd, bufferpool);
-		MoveGen.generateKnightMoves(brd, bufferpool);
-		MoveGen.generateBishopMoves(brd, bufferpool);
-		MoveGen.generateQueenMoves(brd, bufferpool);
-		MoveGen.generateKingMoves(brd, bufferpool);
+		move_generator.generatePawnMoves(brd, bufferpool);
+		move_generator.generatePawnPromotionsAndCapturePromotions(brd, bufferpool);
+		move_generator.generateRookMoves(brd, bufferpool);
+		move_generator.generateKnightMoves(brd, bufferpool);
+		move_generator.generateBishopMoves(brd, bufferpool);
+		move_generator.generateQueenMoves(brd, bufferpool);
+		move_generator.generateKingMoves(brd, bufferpool);
 		for (int i = 0; i < bufferpool.size(); ++i) {
 			int move = bufferpool.get(i);
 			if ((Move.getMoveType(move) == MoveType.PROMO || Move.getMoveType(move) == MoveType.NORMAL || Move.getMoveType(move) == MoveType.DOUBLE_PUSH)

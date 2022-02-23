@@ -15,6 +15,10 @@ import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
 
 class MoveGenTest {
+	private static MovePool assertMovePool = new MovePool();
+	private static Gamestate assertMovelist_brd = new Gamestate();
+	private static MoveGen test_move_generator = new MoveGen();
+	
 	/**
 	 * TODO: refactor this away. A legacy Performs dirty move make/unmake. Checks if
 	 * either king is in check after performing a given move.
@@ -30,7 +34,7 @@ class MoveGenTest {
 		MovePool mp = new MovePool();
 		for (int i = 0; i < candidateMoves_size; ++i) {
 			int move = candidateMoves[i];
-			MoveGen.addToMovePoolAndSetCheckIfValid(brd, mp, move);
+			test_move_generator.addToMovePoolAndSetCheckIfValid(brd, mp, move);
 		}
 		
 		for(int i=0;i<mp.size();++i)
@@ -279,116 +283,116 @@ class MoveGenTest {
 
 		brd = new Gamestate("8/1k6/8/3PpP2/8/8/1K6/8 w - e6 0 1");
 		assertMoveListsEqual(new int[] { Move.createEnpassant(Square.D5, Square.E6, Player.WHITE), Move.createEnpassant(Square.F5, Square.E6, Player.WHITE) }, movepool,
-				MoveGen.generateEnpassant(brd, movepool));
+				test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 
 		brd = new Gamestate("8/1k6/8/3PpP2/8/8/1K6/8 w - - 0 1");
-		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		assertMoveListsEqual(new int[] {}, movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 
 		brd = new Gamestate("4R3/8/7B/4PpP1/8/1K2k3/8/8 w - f6 0 1");
 		assertMoveListsEqual(new int[] { Move.setCheck(Move.createEnpassant(Square.E5, Square.F6, Player.WHITE)), Move.setCheck(Move.createEnpassant(Square.G5, Square.F6, Player.WHITE)) },
-				movepool, MoveGen.generateEnpassant(brd, movepool));
+				movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("8/1k6/3P4/4pP2/8/8/1K6/8 w - e6 0 1");
-		assertMoveListsEqual(new int[] { Move.createEnpassant(Square.F5, Square.E6, Player.WHITE) }, movepool, MoveGen.generateEnpassant(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createEnpassant(Square.F5, Square.E6, Player.WHITE) }, movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("8/1k6/8/3ppP2/3P4/5p2/1K6/8 w - e6 0 1");
-		assertMoveListsEqual(new int[] { Move.createEnpassant(Square.F5, Square.E6, Player.WHITE) }, movepool, MoveGen.generateEnpassant(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createEnpassant(Square.F5, Square.E6, Player.WHITE) }, movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("8/1k1P1P2/3p4/3ppP2/8/4P3/1K6/8 w - e6 0 1");
-		assertMoveListsEqual(new int[] { Move.createEnpassant(Square.F5, Square.E6, Player.WHITE) }, movepool, MoveGen.generateEnpassant(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createEnpassant(Square.F5, Square.E6, Player.WHITE) }, movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("8/k7/8/Pp6/2K5/8/8/8 w - b6 0 1");
-		assertMoveListsEqual(new int[] { Move.setCheck(Move.createEnpassant(Square.A5, Square.B6, Player.WHITE)) }, movepool, MoveGen.generateEnpassant(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.setCheck(Move.createEnpassant(Square.A5, Square.B6, Player.WHITE)) }, movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 		// open checks preventing en passant
 		brd = new Gamestate("8/b7/7k/2Pp4/3K4/8/8/8 w - d6 0 1");
-		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		assertMoveListsEqual(new int[] {}, movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("8/b7/7k/2Pp4/2K5/8/8/8 w - d6 0 1");
-		assertMoveListsEqual(new int[] { (Move.createEnpassant(Square.C5, Square.D6, Player.WHITE)) }, movepool, MoveGen.generateEnpassant(brd, movepool));
+		assertMoveListsEqual(new int[] { (Move.createEnpassant(Square.C5, Square.D6, Player.WHITE)) }, movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("2r5/b7/7k/2Pp4/2K5/8/8/8 w - d6 0 1");
-		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		assertMoveListsEqual(new int[] {}, movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("2r5/b7/7k/2Pp4/4K3/8/8/8 w - d6 0 1");
-		assertMoveListsEqual(new int[] { (Move.createEnpassant(Square.C5, Square.D6, Player.WHITE)) }, movepool, MoveGen.generateEnpassant(brd, movepool));
+		assertMoveListsEqual(new int[] { (Move.createEnpassant(Square.C5, Square.D6, Player.WHITE)) }, movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("2r5/1b6/7k/2Pp4/4K3/8/8/8 w - d6 0 1");
-		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		assertMoveListsEqual(new int[] {}, movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("2r5/1b6/7k/2PpP3/4K3/8/8/8 w - d6 0 1");
-		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		assertMoveListsEqual(new int[] {}, movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("4r2k/8/8/3pP3/8/8/4K3/8 w - d6 0 1");
-		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		assertMoveListsEqual(new int[] {}, movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 		// starts in check
 		brd = new Gamestate("2k5/8/8/5PpP/3n4/1K6/8/8 w - g6 0 1");
-		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		assertMoveListsEqual(new int[] {}, movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 		/// black
 		brd = new Gamestate("8/8/6K1/8/1pPp4/6k1/8/8 b - c3 0 1");
 		assertMoveListsEqual(new int[] { Move.createEnpassant(Square.B4, Square.C3, Player.BLACK), Move.createEnpassant(Square.D4, Square.C3, Player.BLACK) }, movepool,
-				MoveGen.generateEnpassant(brd, movepool));
+				test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("8/8/6K1/8/1pPp4/6k1/8/8 b - - 0 1");
-		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		assertMoveListsEqual(new int[] {}, movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("8/8/6K1/8/p1P1p3/6k1/1p1p4/8 b - c3 0 1");
-		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		assertMoveListsEqual(new int[] {}, movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("8/8/8/3K4/1pPp4/6k1/b7/3r4 b - c3 0 1");
 		assertMoveListsEqual(new int[] { Move.setCheck(Move.createEnpassant(Square.B4, Square.C3, Player.BLACK)), Move.setCheck(Move.createEnpassant(Square.D4, Square.C3, Player.BLACK)) },
-				movepool, MoveGen.generateEnpassant(brd, movepool));
+				movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("6k1/3K4/8/8/1pPp4/8/Q7/3r4 b - c3 0 1");
-		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		assertMoveListsEqual(new int[] {}, movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("8/1k1K4/8/8/1pPp4/8/1Q6/3r4 b - c3 0 1");
-		assertMoveListsEqual(new int[] { Move.setCheck(Move.createEnpassant(Square.D4, Square.C3, Player.BLACK)) }, movepool, MoveGen.generateEnpassant(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.setCheck(Move.createEnpassant(Square.D4, Square.C3, Player.BLACK)) }, movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("8/8/8/8/1pPp4/1k6/3K4/4r3 b - c3 0 1");
 		assertMoveListsEqual(new int[] { Move.setCheck(Move.createEnpassant(Square.B4, Square.C3, Player.BLACK)), Move.setCheck(Move.createEnpassant(Square.D4, Square.C3, Player.BLACK)) },
-				movepool, MoveGen.generateEnpassant(brd, movepool));
+				movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 		// open checks
 		brd = new Gamestate("8/8/5K2/2k5/1pPp4/Q7/8/4r1B1 b - c3 0 1");
-		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		assertMoveListsEqual(new int[] {}, movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("4k3/8/2K3Q1/8/1pPp4/8/8/4r1B1 b - c3 0 1");
-		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		assertMoveListsEqual(new int[] {}, movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("8/8/8/3k4/1pPp4/4N3/8/1K6 b - c3 0 1");
-		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateEnpassant(brd, movepool));
+		assertMoveListsEqual(new int[] {}, movepool, test_move_generator.generateEnpassant(brd, movepool));
 		movepool.clear();
 		
 //		brd = new Board("");
 //		assertMoveListsEqual(new int[] { Move.createEnpassant(Square.G5, Square.H6, Player.WHITE) },
-//				movepool, MoveGen.generateEnpassant(brd, movepool));
+//				movepool, test_move_generator.generateEnpassant(brd, movepool));
 	}
 
 	@Test
@@ -396,160 +400,157 @@ class MoveGenTest {
 		MovePool movepool = new MovePool();
 		// white
 		Gamestate brd = new Gamestate("8/8/8/4k3/1pPp4/4N3/8/R3K2R w KQ - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE), Move.createCastleQueen(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE), Move.createCastleQueen(Player.WHITE) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		brd = new Gamestate("8/8/8/4k3/1pPp4/4N3/8/R3K2R w - - 0 1");
-		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] {}, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 
 		brd = new Gamestate("r3k2r/ppp2ppp/8/8/1pPp4/4N3/8/R3K2R w kq - 0 1");
-		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] {}, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k2r/ppp2ppp/6Q1/8/8/8/8/R3K2R w Qkq - 0 1");// fen condition
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k2r/ppp2ppp/6Q1/r7/8/8/8/R3K2R w KQkq - 0 1");// castling is allowed even rook is attacked
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE), Move.createCastleQueen(WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE), Move.createCastleQueen(WHITE) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k2r/ppp2ppp/6Q1/1r6/8/8/8/R3K2R w KQkq - 0 1");//castling when square passed by rook is attacked
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE), Move.createCastleQueen(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE), Move.createCastleQueen(Player.WHITE) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k2r/ppp2ppp/6Q1/2r5/8/8/8/R3K2R w KQkq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k2r/ppp2ppp/6Q1/3r4/8/8/8/R3K2R w KQkq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k2r/ppp2ppp/6Q1/4r3/8/8/8/R3K2R w KQkq - 0 1");// check!
-		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] {}, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k2r/ppp2ppp/6Q1/5r2/8/8/8/R3K2R w KQkq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k2r/ppp2ppp/6Q1/6r1/8/8/8/R3K2R w KQkq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k2r/ppp2ppp/6Q1/7r/8/8/8/R3K2R w KQkq - 0 1");// can castle even when rook is attacked
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE), Move.createCastleKing(WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE), Move.createCastleKing(WHITE) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k1nr/ppp2ppp/6Q1/8/8/8/8/RN2K2R w KQkq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k1nr/ppp2ppp/6Q1/8/8/8/8/R1N1K2R w KQkq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k1nr/ppp2ppp/6Q1/8/8/8/8/R2NK2R w KQkq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.WHITE) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k1nr/ppp2ppp/6Q1/8/8/8/8/R3KN1R w KQkq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k1nr/ppp2ppp/6Q1/8/8/8/8/R3K1NR w KQkq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.WHITE) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		// castling leads to check
 		brd = new Gamestate("8/5k2/8/8/8/8/1q4PP/4K2R w K - 0 1");
-		assertMoveListsEqual(new int[] { Move.setCheck(Move.createCastleKing(Player.WHITE)) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.setCheck(Move.createCastleKing(Player.WHITE)) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("8/8/3k4/8/q7/8/PPP3PP/R3K3 w Q - 0 1");
-		assertMoveListsEqual(new int[] { Move.setCheck(Move.createCastleQueen(Player.WHITE)) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.setCheck(Move.createCastleQueen(Player.WHITE)) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		//////// BLACK
 		brd = new Gamestate("r3k2r/8/8/8/8/8/8/4K3 b kq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK), Move.createCastleQueen(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK), Move.createCastleQueen(Player.BLACK) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k2r/8/8/8/8/8/8/4K3 b q - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k2r/8/8/8/8/8/8/4K3 b - - 0 1");
-		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] {}, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("4k3/8/8/8/8/8/8/R3K2R b KQ - 0 1");
-		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] {}, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		// attacked square
 		brd = new Gamestate("r3k2r/8/8/8/8/7R/8/4K3 b kq - 0 1");// can castle even when rook is attacked
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK), Move.createCastleKing(BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK), Move.createCastleKing(BLACK) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k2r/8/8/8/8/6R1/8/4K3 b kq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k2r/8/8/8/8/5R2/8/4K3 b kq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k2r/8/8/8/8/4R3/8/4K3 b kq - 0 1");
-		assertMoveListsEqual(new int[] {}, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] {}, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k2r/8/8/8/8/3R4/8/4K3 b kq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k2r/8/8/8/8/2R5/8/4K3 b kq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k2r/8/8/8/8/1R6/8/4K3 b kq - 0 1");//castling when rook has to pass through an attacked square
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK), Move.createCastleQueen(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK), Move.createCastleQueen(Player.BLACK) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k2r/8/8/8/8/R7/8/4K3 b kq - 0 1");// can castle even when rook is attacked;
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK), Move.createCastleQueen(BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK), Move.createCastleQueen(BLACK) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		// blocked square
 		brd = new Gamestate("r3k1nr/8/8/8/8/8/8/4K3 b kq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3kn1r/8/8/8/8/8/8/4K3 b kq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleQueen(Player.BLACK) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r2nk2r/8/8/8/8/8/8/4K3 b kq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r1n1k2r/8/8/8/8/8/8/4K3 b kq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("rn2k2r/8/8/8/8/8/8/4K3 b kq - 0 1");
-		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.createCastleKing(Player.BLACK) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		// check from castling
 		brd = new Gamestate("4k2r/ppp3pp/8/8/8/8/5K2/8 b k - 0 1");
-		assertMoveListsEqual(new int[] { Move.setCheck(Move.createCastleKing(Player.BLACK)) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.setCheck(Move.createCastleKing(Player.BLACK)) }, movepool, test_move_generator.generateCastling(brd, movepool));
 		movepool.clear();
 		
 		brd = new Gamestate("r3k3/ppp3pp/8/8/8/8/3K4/8 b q - 0 1");
-		assertMoveListsEqual(new int[] { Move.setCheck(Move.createCastleQueen(Player.BLACK)) }, movepool, MoveGen.generateCastling(brd, movepool));
+		assertMoveListsEqual(new int[] { Move.setCheck(Move.createCastleQueen(Player.BLACK)) }, movepool, test_move_generator.generateCastling(brd, movepool));
 	}
-
-	private static MovePool assertMovePool = new MovePool();
-	private static Gamestate assertMovelist_brd = new Gamestate();
 
 	private void assertMovelist(String fen, MoveGen.LegalMoveGenerator generator, int[] expectedMoves) {
 		assertMovePool.clear();
@@ -561,7 +562,7 @@ class MoveGenTest {
 	private void assertMovelistLength(String fen, int expectedMoves) {
 		assertMovePool.clear();
 		assertMovelist_brd.loadFromFEN(fen);
-		int nummoves = MoveGen.generateLegalMoves(assertMovelist_brd, assertMovePool);
+		int nummoves = test_move_generator.generateLegalMoves(assertMovelist_brd, assertMovePool);
 		StringBuilder b = new StringBuilder();
 		b.append("Expected: (#");
 		b.append(expectedMoves);
@@ -584,303 +585,303 @@ class MoveGenTest {
 	@Test
 	void testGenerateKingMoves() {
 		// White
-		assertMovelist("8/5k2/8/8/1K6/8/8/8 w - - 0 1", MoveGen::generateKingMoves,
+		assertMovelist("8/5k2/8/8/1K6/8/8/8 w - - 0 1", test_move_generator::generateKingMoves,
 				new int[] { Move.createNormal(B4, B5, KING, WHITE), Move.createNormal(B4, C5, KING, WHITE), Move.createNormal(B4, C4, KING, WHITE), Move.createNormal(B4, C3, KING, WHITE),
 						Move.createNormal(B4, B3, KING, WHITE), Move.createNormal(B4, A3, KING, WHITE), Move.createNormal(B4, A4, KING, WHITE), Move.createNormal(B4, A5, KING, WHITE) });
 
-		assertMovelist("7k/8/7K/8/8/7R/8/8 w - - 0 1", MoveGen::generateKingMoves,
+		assertMovelist("7k/8/7K/8/8/7R/8/8 w - - 0 1", test_move_generator::generateKingMoves,
 				new int[] { Move.setCheck(Move.createNormal(H6, G6, KING, WHITE)), Move.setCheck(Move.createNormal(H6, G5, KING, WHITE)), Move.createNormal(H6, H5, KING, WHITE), });
 
-		assertMovelist("1k6/2p5/4p3/3K4/2r5/8/8/8 w - - 0 1", MoveGen::generateKingMoves, new int[] { Move.createNormal(D5, E5, KING, WHITE), });
+		assertMovelist("1k6/2p5/4p3/3K4/2r5/8/8/8 w - - 0 1", test_move_generator::generateKingMoves, new int[] { Move.createNormal(D5, E5, KING, WHITE), });
 
-		assertMovelist("8/5k2/8/8/8/8/6PP/3r2K1 w - - 0 1", MoveGen::generateKingMoves, new int[] { Move.createNormal(G1, F2, KING, WHITE), });
+		assertMovelist("8/5k2/8/8/8/8/6PP/3r2K1 w - - 0 1", test_move_generator::generateKingMoves, new int[] { Move.createNormal(G1, F2, KING, WHITE), });
 
-		assertMovelist("8/b5k1/4p3/8/2PK4/8/8/B7 w - - 0 1", MoveGen::generateKingMoves, new int[] { Move.createNormal(D4, E5, KING, WHITE),
+		assertMovelist("8/b5k1/4p3/8/2PK4/8/8/B7 w - - 0 1", test_move_generator::generateKingMoves, new int[] { Move.createNormal(D4, E5, KING, WHITE),
 				Move.setCheck(Move.createNormal(D4, E4, KING, WHITE)), Move.setCheck(Move.createNormal(D4, D3, KING, WHITE)), Move.createNormal(D4, C3, KING, WHITE), });
 
 		// Black
-		assertMovelist("r3k2r/8/8/8/1b6/8/2K5/8 b kq - 0 1", MoveGen::generateKingMoves, new int[] { Move.createNormal(E8, D8, KING, BLACK), Move.createNormal(E8, D7, KING, BLACK),
+		assertMovelist("r3k2r/8/8/8/1b6/8/2K5/8 b kq - 0 1", test_move_generator::generateKingMoves, new int[] { Move.createNormal(E8, D8, KING, BLACK), Move.createNormal(E8, D7, KING, BLACK),
 				Move.createNormal(E8, E7, KING, BLACK), Move.createNormal(E8, F7, KING, BLACK), Move.createNormal(E8, F8, KING, BLACK), });
 
-		assertMovelist("8/4q3/5R2/3pk3/8/2P5/4K2B/8 b - - 0 1", MoveGen::generateKingMoves, new int[] { Move.createNormal(E5, E4, KING, BLACK), });
+		assertMovelist("8/4q3/5R2/3pk3/8/2P5/4K2B/8 b - - 0 1", test_move_generator::generateKingMoves, new int[] { Move.createNormal(E5, E4, KING, BLACK), });
 
-		assertMovelist("8/4q3/5R2/3pk3/8/3P4/4K2B/8 b - - 0 1", MoveGen::generateKingMoves, new int[] { Move.setCheck(Move.createNormal(E5, D4, KING, BLACK)), });
+		assertMovelist("8/4q3/5R2/3pk3/8/3P4/4K2B/8 b - - 0 1", test_move_generator::generateKingMoves, new int[] { Move.setCheck(Move.createNormal(E5, D4, KING, BLACK)), });
 	}
 
 	@Test
 	void testGenerateKingCaptures() {
-		assertMovelist("8/6k1/2p5/2Np4/3K4/2np4/3P4/2R5 w - - 0 1", MoveGen::generateKingCaptures,
+		assertMovelist("8/6k1/2p5/2Np4/3K4/2np4/3P4/2R5 w - - 0 1", test_move_generator::generateKingCaptures,
 				new int[] { Move.createCapture(D4, C3, KING, KNIGHT, WHITE), Move.createCapture(D4, D3, KING, PAWN, WHITE) });
 
-		assertMovelist("8/8/3k4/8/7n/6Kr/6nB/8 w - - 0 1", MoveGen::generateKingCaptures, new int[] { Move.setCheck(Move.createCapture(G3, H3, KING, ROOK, WHITE)), });
+		assertMovelist("8/8/3k4/8/7n/6Kr/6nB/8 w - - 0 1", test_move_generator::generateKingCaptures, new int[] { Move.setCheck(Move.createCapture(G3, H3, KING, ROOK, WHITE)), });
 
-		assertMovelist("8/8/8/8/5k2/2pKp3/8/8 w - - 0 1", MoveGen::generateKingCaptures, new int[] { Move.createCapture(D3, C3, KING, PAWN, WHITE), });
+		assertMovelist("8/8/8/8/5k2/2pKp3/8/8 w - - 0 1", test_move_generator::generateKingCaptures, new int[] { Move.createCapture(D3, C3, KING, PAWN, WHITE), });
 
-		assertMovelist("8/5k2/8/3n4/2nK4/2b5/8/3r4 w - - 0 1", MoveGen::generateKingCaptures, new int[] { Move.createCapture(D4, C4, KING, KNIGHT, WHITE), });
+		assertMovelist("8/5k2/8/3n4/2nK4/2b5/8/3r4 w - - 0 1", test_move_generator::generateKingCaptures, new int[] { Move.createCapture(D4, C4, KING, KNIGHT, WHITE), });
 
-		assertMovelist("8/6k1/3q4/2rKR3/2p1b3/3r4/8/8 w - - 0 1", MoveGen::generateKingCaptures, new int[] { Move.createCapture(D5, E4, KING, BISHOP, WHITE) });
+		assertMovelist("8/6k1/3q4/2rKR3/2p1b3/3r4/8/8 w - - 0 1", test_move_generator::generateKingCaptures, new int[] { Move.createCapture(D5, E4, KING, BISHOP, WHITE) });
 
-		assertMovelist("2N5/pk6/1PB5/P7/8/6K1/8/8 b - - 0 1", MoveGen::generateKingCaptures,
+		assertMovelist("2N5/pk6/1PB5/P7/8/6K1/8/8 b - - 0 1", test_move_generator::generateKingCaptures,
 				new int[] { Move.createCapture(B7, C6, KING, BISHOP, BLACK), Move.createCapture(B7, C8, KING, KNIGHT, BLACK) });
 
-		assertMovelist("8/7q/4Q3/5k2/6R1/8/8/1K6 b - - 0 1", MoveGen::generateKingCaptures, new int[] { Move.setCheck(Move.createCapture(F5, E6, KING, QUEEN, BLACK)), });
+		assertMovelist("8/7q/4Q3/5k2/6R1/8/8/1K6 b - - 0 1", test_move_generator::generateKingCaptures, new int[] { Move.setCheck(Move.createCapture(F5, E6, KING, QUEEN, BLACK)), });
 
-		assertMovelist("8/6k1/8/8/8/8/5K2/8 b - - 0 1", MoveGen::generateKingCaptures, new int[] {});
+		assertMovelist("8/6k1/8/8/8/8/5K2/8 b - - 0 1", test_move_generator::generateKingCaptures, new int[] {});
 	}
 
 	@Test
 	void testGenerateKnightMoves() {
-		assertMovelist("8/4k3/8/2n1p3/5p2/3N4/1K3P2/4R3 w - - 0 1", MoveGen::generateKnightMoves, // basic
+		assertMovelist("8/4k3/8/2n1p3/5p2/3N4/1K3P2/4R3 w - - 0 1", test_move_generator::generateKnightMoves, // basic
 				new int[] { Move.createNormal(D3, B4, KNIGHT, WHITE), Move.createNormal(D3, C1, KNIGHT, WHITE) });
 
-		assertMovelist("8/2k2b2/8/8/8/1K2N3/4B3/8 w - - 0 1", MoveGen::generateKnightMoves, // checks
+		assertMovelist("8/2k2b2/8/8/8/1K2N3/4B3/8 w - - 0 1", test_move_generator::generateKnightMoves, // checks
 				new int[] { Move.createNormal(E3, C4, KNIGHT, WHITE), Move.setCheck(Move.createNormal(E3, D5, KNIGHT, WHITE)) });
 
-		assertMovelist("8/2k2b2/8/8/8/1K6/4B3/8 w - - 0 1", MoveGen::generateKnightMoves, // no knight
+		assertMovelist("8/2k2b2/8/8/8/1K6/4B3/8 w - - 0 1", test_move_generator::generateKnightMoves, // no knight
 				new int[] {});
 
-		assertMovelist("5k2/5N2/8/8/8/K4r2/8/8 w - - 0 1", MoveGen::generateKnightMoves, // in check which cannot be blocked
+		assertMovelist("5k2/5N2/8/8/8/K4r2/8/8 w - - 0 1", test_move_generator::generateKnightMoves, // in check which cannot be blocked
 				new int[] {});
 
-		assertMovelist("5k2/8/8/8/8/K1N2r2/8/8 w - - 0 1", MoveGen::generateKnightMoves, // pinned knight
+		assertMovelist("5k2/8/8/8/8/K1N2r2/8/8 w - - 0 1", test_move_generator::generateKnightMoves, // pinned knight
 				new int[] {});
 
-		assertMovelist("N7/6k1/1r6/8/8/8/5P1q/1r1NK2N w - - 0 1", MoveGen::generateKnightMoves, // multiple knights
+		assertMovelist("N7/6k1/1r6/8/8/8/5P1q/1r1NK2N w - - 0 1", test_move_generator::generateKnightMoves, // multiple knights
 				new int[] { Move.createNormal(A8, C7, KNIGHT, WHITE), Move.createNormal(H1, G3, KNIGHT, WHITE) });
 		// black
-		assertMovelist("2r1r3/1k3b2/3n4/5P2/4P3/8/1K6/8 b - - 0 1", MoveGen::generateKnightMoves, // basic + check
+		assertMovelist("2r1r3/1k3b2/3n4/5P2/4P3/8/1K6/8 b - - 0 1", test_move_generator::generateKnightMoves, // basic + check
 				new int[] { Move.createNormal(D6, B5, KNIGHT, BLACK), Move.setCheck(Move.createNormal(D6, C4, KNIGHT, BLACK)) });
 
-		assertMovelist("8/5k2/8/6n1/5n2/8/B7/2n2R1K b - - 0 1", MoveGen::generateKnightMoves, // multiple knights, king in check and a pin
+		assertMovelist("8/5k2/8/6n1/5n2/8/B7/2n2R1K b - - 0 1", test_move_generator::generateKnightMoves, // multiple knights, king in check and a pin
 				new int[] { Move.createNormal(C1, B3, KNIGHT, BLACK), Move.createNormal(G5, E6, KNIGHT, BLACK) });
 	}
 
 	@Test
 	void testGenerateKnightCaptures() {
-		assertMovelist("8/8/6k1/3p4/4p3/2N5/K7/8 w - - 0 1", MoveGen::generateKnightCaptures, // basic
+		assertMovelist("8/8/6k1/3p4/4p3/2N5/K7/8 w - - 0 1", test_move_generator::generateKnightCaptures, // basic
 				new int[] { Move.createCapture(C3, D5, KNIGHT, PAWN, WHITE), Move.createCapture(C3, E4, KNIGHT, PAWN, WHITE) });
 
-		assertMovelist("3r2bk/2r3p1/4N3/2p3B1/5p2/8/K7/8 w - - 0 1", MoveGen::generateKnightCaptures, // pinned knight
+		assertMovelist("3r2bk/2r3p1/4N3/2p3B1/5p2/8/K7/8 w - - 0 1", test_move_generator::generateKnightCaptures, // pinned knight
 				new int[] {});
 
-		assertMovelist("5r2/5qn1/4k3/1Q6/5P2/5B2/3K4/5R2 w - - 0 1", MoveGen::generateKnightCaptures, // no knight
+		assertMovelist("5r2/5qn1/4k3/1Q6/5P2/5B2/3K4/5R2 w - - 0 1", test_move_generator::generateKnightCaptures, // no knight
 				new int[] {});
 
-		assertMovelist("5k2/3q4/2n5/4N3/8/5P2/6PP/7K w - - 0 1", MoveGen::generateKnightCaptures, // check
+		assertMovelist("5k2/3q4/2n5/4N3/8/5P2/6PP/7K w - - 0 1", test_move_generator::generateKnightCaptures, // check
 				new int[] { Move.setCheck(Move.createCapture(E5, D7, KNIGHT, QUEEN, WHITE)), Move.createCapture(E5, C6, KNIGHT, KNIGHT, WHITE) });
 
-		assertMovelist("5k2/5r2/1n4q1/4N3/2N5/4bP2/6PP/7K w - - 0 1", MoveGen::generateKnightCaptures, // two knights
+		assertMovelist("5k2/5r2/1n4q1/4N3/2N5/4bP2/6PP/7K w - - 0 1", test_move_generator::generateKnightCaptures, // two knights
 				new int[] { Move.setCheck(Move.createCapture(E5, G6, KNIGHT, QUEEN, WHITE)), Move.createCapture(E5, F7, KNIGHT, ROOK, WHITE),
 						Move.createCapture(C4, B6, KNIGHT, KNIGHT, WHITE), Move.createCapture(C4, E3, KNIGHT, BISHOP, WHITE), });
 		// black
-		assertMovelist("3k4/1n6/3r4/N1P5/3P1N2/8/PPP5/1K6 b - - 0 1", MoveGen::generateKnightCaptures, // basic
+		assertMovelist("3k4/1n6/3r4/N1P5/3P1N2/8/PPP5/1K6 b - - 0 1", test_move_generator::generateKnightCaptures, // basic
 				new int[] { Move.createCapture(B7, A5, KNIGHT, KNIGHT, BLACK), Move.createCapture(B7, C5, KNIGHT, PAWN, BLACK) });
 
-		assertMovelist("6k1/2R5/4n3/8/5P2/4N1N1/B7/1K6 b - - 0 1", MoveGen::generateKnightCaptures, // pinned knight
+		assertMovelist("6k1/2R5/4n3/8/5P2/4N1N1/B7/1K6 b - - 0 1", test_move_generator::generateKnightCaptures, // pinned knight
 				new int[] {});
 
-		assertMovelist("5r2/5q2/4k3/1Q6/5P2/1N3B2/3K4/5R2 b - - 0 1", MoveGen::generateKnightCaptures, // no knight
+		assertMovelist("5r2/5q2/4k3/1Q6/5P2/1N3B2/3K4/5R2 b - - 0 1", test_move_generator::generateKnightCaptures, // no knight
 				new int[] {});
 
-		assertMovelist("2r5/4k2p/5ppb/8/2n5/4R3/2KQ4/8 b - - 0 1", MoveGen::generateKnightCaptures, // check and open check
+		assertMovelist("2r5/4k2p/5ppb/8/2n5/4R3/2KQ4/8 b - - 0 1", test_move_generator::generateKnightCaptures, // check and open check
 				new int[] { Move.setCheck(Move.createCapture(C4, E3, KNIGHT, ROOK, BLACK)) });
 
-		assertMovelist("2r5/6kp/5ppb/8/2n5/4R3/2KQ4/8 b - - 0 1", MoveGen::generateKnightCaptures, // check and open check
+		assertMovelist("2r5/6kp/5ppb/8/2n5/4R3/2KQ4/8 b - - 0 1", test_move_generator::generateKnightCaptures, // check and open check
 				new int[] { Move.setCheck(Move.createCapture(C4, D2, KNIGHT, QUEEN, BLACK)), Move.setCheck(Move.createCapture(C4, E3, KNIGHT, ROOK, BLACK)) });
 
-		assertMovelist("8/2kr4/8/3n1B2/5pb1/2P1N3/6n1/1K6 b - - 0 1", MoveGen::generateKnightCaptures, // two knights
+		assertMovelist("8/2kr4/8/3n1B2/5pb1/2P1N3/6n1/1K6 b - - 0 1", test_move_generator::generateKnightCaptures, // two knights
 				new int[] { Move.setCheck(Move.createCapture(D5, C3, KNIGHT, PAWN, BLACK)), Move.createCapture(D5, E3, KNIGHT, KNIGHT, BLACK),
 						Move.createCapture(G2, E3, KNIGHT, KNIGHT, BLACK), });
 	}
 
 	@Test
 	void testGenerateRookMoves() {
-		assertMovelist("8/6n1/3K2R1/8/k7/8/6r1/8 w - - 0 1", MoveGen::generateRookMoves, // basic with possibility of check
+		assertMovelist("8/6n1/3K2R1/8/k7/8/6r1/8 w - - 0 1", test_move_generator::generateRookMoves, // basic with possibility of check
 				new int[] { Move.createNormal(G6, F6, ROOK, WHITE), Move.createNormal(G6, E6, ROOK, WHITE), Move.createNormal(G6, H6, ROOK, WHITE), Move.createNormal(G6, G5, ROOK, WHITE),
 						Move.setCheck(Move.createNormal(G6, G4, ROOK, WHITE)), Move.createNormal(G6, G3, ROOK, WHITE), });
 
-		assertMovelist("1k6/8/4K3/4R3/8/8/8/4q3 w - - 0 1", MoveGen::generateRookMoves, // pinned
+		assertMovelist("1k6/8/4K3/4R3/8/8/8/4q3 w - - 0 1", test_move_generator::generateRookMoves, // pinned
 				new int[] { Move.createNormal(E5, E4, ROOK, WHITE), Move.createNormal(E5, E3, ROOK, WHITE), Move.createNormal(E5, E2, ROOK, WHITE), });
 
-		assertMovelist("1k6/8/4K3/3R4/8/8/b7/8 w - - 0 1", MoveGen::generateRookMoves, // pinned
+		assertMovelist("1k6/8/4K3/3R4/8/8/b7/8 w - - 0 1", test_move_generator::generateRookMoves, // pinned
 				new int[] {});
 
-		assertMovelist("1k6/2n4R/4K3/8/7R/8/2R5/3R4 w - - 0 1", MoveGen::generateRookMoves, // knight check
+		assertMovelist("1k6/2n4R/4K3/8/7R/8/2R5/3R4 w - - 0 1", test_move_generator::generateRookMoves, // knight check
 				new int[] {});
 
-		assertMovelist("1k6/2n5/4K3/8/2Q5/8/8/8 w - - 0 1", MoveGen::generateRookMoves, // no rooks
+		assertMovelist("1k6/2n5/4K3/8/2Q5/8/8/8 w - - 0 1", test_move_generator::generateRookMoves, // no rooks
 				new int[] {});
 
-		assertMovelist("3r3b/4n3/q7/6k1/8/8/PP2P1PP/2K1R2R w - - 0 1", MoveGen::generateRookMoves, // multiple rooks
+		assertMovelist("3r3b/4n3/q7/6k1/8/8/PP2P1PP/2K1R2R w - - 0 1", test_move_generator::generateRookMoves, // multiple rooks
 				new int[] { Move.createNormal(H1, G1, ROOK, WHITE), Move.createNormal(H1, F1, ROOK, WHITE), Move.createNormal(E1, D1, ROOK, WHITE), Move.createNormal(E1, F1, ROOK, WHITE),
 						Move.createNormal(E1, G1, ROOK, WHITE), });
 		// black
-		assertMovelist("8/8/4k3/2r5/8/6K1/B7/1r6 b - - 0 1", MoveGen::generateRookMoves, // check with multiple rooks
+		assertMovelist("8/8/4k3/2r5/8/6K1/B7/1r6 b - - 0 1", test_move_generator::generateRookMoves, // check with multiple rooks
 				new int[] { Move.setCheck(Move.createNormal(B1, B3, ROOK, BLACK)), Move.createNormal(C5, C4, ROOK, BLACK), Move.createNormal(C5, D5, ROOK, BLACK), });
 	}
 
 	@Test
 	void testGenerateRookCaptures() {
-		assertMovelist("2B1r1n1/8/6k1/8/7n/4R1p1/1K6/7R w - - 0 1", MoveGen::generateRookCaptures, // basic with two rooks
+		assertMovelist("2B1r1n1/8/6k1/8/7n/4R1p1/1K6/7R w - - 0 1", test_move_generator::generateRookCaptures, // basic with two rooks
 				new int[] { Move.createCapture(E3, E8, ROOK, ROOK, WHITE), Move.setCheck(Move.createCapture(E3, G3, ROOK, PAWN, WHITE)), Move.createCapture(H1, H4, ROOK, KNIGHT, WHITE), });
 
-		assertMovelist("6q1/k6n/8/2R5/3B4/2p1R3/1K2N1R1/6r1 w - - 0 1", MoveGen::generateRookCaptures, // two rooks, and check
+		assertMovelist("6q1/k6n/8/2R5/3B4/2p1R3/1K2N1R1/6r1 w - - 0 1", test_move_generator::generateRookCaptures, // two rooks, and check
 				new int[] { Move.createCapture(E3, C3, ROOK, PAWN, WHITE), Move.setCheck(Move.createCapture(C5, C3, ROOK, PAWN, WHITE)), });
 
-		assertMovelist("6q1/k6n/8/2R5/3B4/p1n1R3/1K2N1R1/6r1 w - - 0 1", MoveGen::generateRookCaptures, // Inescapable check
+		assertMovelist("6q1/k6n/8/2R5/3B4/p1n1R3/1K2N1R1/6r1 w - - 0 1", test_move_generator::generateRookCaptures, // Inescapable check
 				new int[] {});
 
 		// black
-		assertMovelist("3R4/6r1/8/8/Q2r2P1/Br6/1P4K1/3k4 b - - 0 1", MoveGen::generateRookCaptures, // two rooks, and check
+		assertMovelist("3R4/6r1/8/8/Q2r2P1/Br6/1P4K1/3k4 b - - 0 1", test_move_generator::generateRookCaptures, // two rooks, and check
 				new int[] { Move.createCapture(D4, D8, ROOK, ROOK, BLACK), Move.setCheck(Move.createCapture(G7, G4, ROOK, PAWN, BLACK)), });
 
-		assertMovelist("4b2q/p7/4p1k1/5p2/1P6/1KP3N1/4B1R1/8 b - - 0 1", MoveGen::generateRookCaptures, // no rooks
+		assertMovelist("4b2q/p7/4p1k1/5p2/1P6/1KP3N1/4B1R1/8 b - - 0 1", test_move_generator::generateRookCaptures, // no rooks
 				new int[] {});
 	}
 
 	@Test
 	void testGenerateBishopMoves() {
-		assertMovelist("8/6k1/8/2R5/8/6n1/5B2/1K6 w - - 0 1", MoveGen::generateBishopMoves, // basic
+		assertMovelist("8/6k1/8/2R5/8/6n1/5B2/1K6 w - - 0 1", test_move_generator::generateBishopMoves, // basic
 				new int[] { Move.createNormal(F2, E1, BISHOP, WHITE), Move.createNormal(F2, G1, BISHOP, WHITE), Move.createNormal(F2, E3, BISHOP, WHITE),
 						Move.setCheck(Move.createNormal(F2, D4, BISHOP, WHITE)), });
 
-		assertMovelist("8/4r3/8/6B1/k1B5/8/8/4K3 w - - 0 1", MoveGen::generateBishopMoves, // king in check
+		assertMovelist("8/4r3/8/6B1/k1B5/8/8/4K3 w - - 0 1", test_move_generator::generateBishopMoves, // king in check
 				new int[] { Move.createNormal(C4, E6, BISHOP, WHITE), Move.createNormal(C4, E2, BISHOP, WHITE), Move.createNormal(G5, E3, BISHOP, WHITE), });
 
-		assertMovelist("1q6/k7/8/4B3/r1B2K2/8/8/8 w - - 0 1", MoveGen::generateBishopMoves, // pins
+		assertMovelist("1q6/k7/8/4B3/r1B2K2/8/8/8 w - - 0 1", test_move_generator::generateBishopMoves, // pins
 				new int[] { Move.createNormal(E5, D6, BISHOP, WHITE), Move.createNormal(E5, C7, BISHOP, WHITE), });
 
 		// black
-		assertMovelist("2r2b1K/1b2p3/2p5/8/2k5/6P1/4PP2/8 b - - 0 1", MoveGen::generateBishopMoves, // open check
+		assertMovelist("2r2b1K/1b2p3/2p5/8/2k5/6P1/4PP2/8 b - - 0 1", test_move_generator::generateBishopMoves, // open check
 				new int[] { Move.createNormal(B7, A8, BISHOP, BLACK), Move.createNormal(B7, A6, BISHOP, BLACK), Move.setCheck(Move.createNormal(F8, G7, BISHOP, BLACK)),
 						Move.setCheck(Move.createNormal(F8, H6, BISHOP, BLACK)), });
 
-		assertMovelist("7r/4bppp/5k2/5Q2/8/1P3b2/1KP5/R7 b - - 0 1", MoveGen::generateBishopMoves, // inescapable check
+		assertMovelist("7r/4bppp/5k2/5Q2/8/1P3b2/1KP5/R7 b - - 0 1", test_move_generator::generateBishopMoves, // inescapable check
 				new int[] {});
 	}
 
 	@Test
 	void testGenerateGenerateBishopCaptures() {
-		assertMovelist("7k/n7/6K1/1pB5/1R6/3B4/2q1rn2/8 w - - 0 1", MoveGen::generateBishopCaptures, // basic and open check
+		assertMovelist("7k/n7/6K1/1pB5/1R6/3B4/2q1rn2/8 w - - 0 1", test_move_generator::generateBishopCaptures, // basic and open check
 				new int[] { Move.createCapture(C5, A7, BISHOP, KNIGHT, WHITE), Move.createCapture(C5, F2, BISHOP, KNIGHT, WHITE), Move.createCapture(D3, C2, BISHOP, QUEEN, WHITE), });
 
-		assertMovelist("7r/3p1p2/1B2B2k/8/8/1r2q3/5K2/8 w - - 0 1", MoveGen::generateBishopCaptures, // king in check leading to check
+		assertMovelist("7r/3p1p2/1B2B2k/8/8/1r2q3/5K2/8 w - - 0 1", test_move_generator::generateBishopCaptures, // king in check leading to check
 				new int[] { Move.setCheck(Move.createCapture(B6, E3, BISHOP, QUEEN, WHITE)), });
 		// black
-		assertMovelist("6r1/2k2b2/3p4/4b3/8/1PP4K/P2P2p1/8 w - - 0 1", MoveGen::generateBishopCaptures, // inescapable check
+		assertMovelist("6r1/2k2b2/3p4/4b3/8/1PP4K/P2P2p1/8 w - - 0 1", test_move_generator::generateBishopCaptures, // inescapable check
 				new int[] {});
 	}
 
 	@Test
 	void testGenerageQueenMoves() {
-		assertMovelist("7k/8/1Q2r3/8/8/4n3/1b6/7K w - - 0 1", MoveGen::generateQueenMoves, // basic and check
+		assertMovelist("7k/8/1Q2r3/8/8/4n3/1b6/7K w - - 0 1", test_move_generator::generateQueenMoves, // basic and check
 				new int[] { Move.createNormal(B6, A7, QUEEN, WHITE), Move.createNormal(B6, A6, QUEEN, WHITE), Move.createNormal(B6, A5, QUEEN, WHITE),
 						Move.setCheck(Move.createNormal(B6, B8, QUEEN, WHITE)), Move.createNormal(B6, B7, QUEEN, WHITE), Move.createNormal(B6, B5, QUEEN, WHITE),
 						Move.createNormal(B6, B4, QUEEN, WHITE), Move.createNormal(B6, B3, QUEEN, WHITE), Move.createNormal(B6, C7, QUEEN, WHITE),
 						Move.setCheck(Move.createNormal(B6, D8, QUEEN, WHITE)), Move.createNormal(B6, C6, QUEEN, WHITE), Move.createNormal(B6, D6, QUEEN, WHITE),
 						Move.createNormal(B6, C5, QUEEN, WHITE), Move.setCheck(Move.createNormal(B6, D4, QUEEN, WHITE)), });
 
-		assertMovelist("7k/5ppp/2Q5/8/r5K1/8/4Q3/8 w - - 0 1", MoveGen::generateQueenMoves, // two queens and king in check
+		assertMovelist("7k/5ppp/2Q5/8/r5K1/8/4Q3/8 w - - 0 1", test_move_generator::generateQueenMoves, // two queens and king in check
 				new int[] { Move.createNormal(C6, C4, QUEEN, WHITE), Move.createNormal(C6, E4, QUEEN, WHITE), Move.createNormal(E2, E4, QUEEN, WHITE),
 						Move.createNormal(E2, C4, QUEEN, WHITE), });
 		// black
-		assertMovelist("8/8/R3qk2/8/3q4/8/1Q6/K7 b - - 0 1", MoveGen::generateQueenMoves, // pins
+		assertMovelist("8/8/R3qk2/8/3q4/8/1Q6/K7 b - - 0 1", test_move_generator::generateQueenMoves, // pins
 				new int[] { Move.createNormal(E6, D6, QUEEN, BLACK), Move.createNormal(E6, C6, QUEEN, BLACK), Move.createNormal(E6, B6, QUEEN, BLACK),
 						Move.createNormal(D4, E5, QUEEN, BLACK), Move.createNormal(D4, C3, QUEEN, BLACK), });
 	}
 
 	@Test
 	void testGenerageQueenCaptures() {
-		assertMovelist("1kq1n2Q/p6b/8/2Q5/3p4/3Q4/2K5/8 w - - 0 1", MoveGen::generateQueenCaptures, // multiple queens and pins
+		assertMovelist("1kq1n2Q/p6b/8/2Q5/3p4/3Q4/2K5/8 w - - 0 1", test_move_generator::generateQueenCaptures, // multiple queens and pins
 				new int[] { Move.setCheck(Move.createCapture(C5, C8, QUEEN, QUEEN, WHITE)), Move.createCapture(D3, H7, QUEEN, BISHOP, WHITE),
 						Move.createCapture(H8, E8, QUEEN, KNIGHT, WHITE), Move.createCapture(H8, D4, QUEEN, PAWN, WHITE), Move.createCapture(H8, H7, QUEEN, BISHOP, WHITE), });
 		// black
-		assertMovelist("K1R5/1P6/Pq5p/8/N2P4/3N4/2q2k2/8 b - - 0 1", MoveGen::generateQueenCaptures, // king in check
+		assertMovelist("K1R5/1P6/Pq5p/8/N2P4/3N4/2q2k2/8 b - - 0 1", test_move_generator::generateQueenCaptures, // king in check
 				new int[] { Move.createCapture(C2, D3, QUEEN, KNIGHT, BLACK), });
 	}
 
 	@Test
 	void testPawnMoves() {
-		assertMovelist("1k5b/6P1/3r1P2/3P4/4p3/2p5/KPPPP3/8 w - - 0 1", MoveGen::generatePawnMoves, // basic
+		assertMovelist("1k5b/6P1/3r1P2/3P4/4p3/2p5/KPPPP3/8 w - - 0 1", test_move_generator::generatePawnMoves, // basic
 				new int[] { Move.createDoublePush(B2, B4, WHITE), Move.createDoublePush(D2, D4, WHITE), Move.createNormal(F6, F7, PAWN, WHITE), Move.createNormal(E2, E3, PAWN, WHITE),
 						Move.createNormal(D2, D3, PAWN, WHITE), Move.createNormal(B2, B3, PAWN, WHITE), });
 
-		assertMovelist("8/8/8/6k1/8/7P/2K2P2/8 w - - 0 1", MoveGen::generatePawnMoves, // declares check
+		assertMovelist("8/8/8/6k1/8/7P/2K2P2/8 w - - 0 1", test_move_generator::generatePawnMoves, // declares check
 				new int[] { Move.setCheck(Move.createDoublePush(F2, F4, WHITE)), Move.setCheck(Move.createNormal(H3, H4, PAWN, WHITE)), Move.createNormal(F2, F3, PAWN, WHITE), });
 
-		assertMovelist("5n1k/4P3/8/2P5/1K4r1/3P4/PP3P1P/8 w - - 0 1", MoveGen::generatePawnMoves, // in check - rook
+		assertMovelist("5n1k/4P3/8/2P5/1K4r1/3P4/PP3P1P/8 w - - 0 1", test_move_generator::generatePawnMoves, // in check - rook
 				new int[] { Move.createDoublePush(F2, F4, WHITE), Move.createNormal(D3, D4, PAWN, WHITE), });
 
-		assertMovelist("6k1/b2P4/4P3/5P2/2P5/1P4P1/3P1K2/8 w - - 0 1", MoveGen::generatePawnMoves, // in check - bishop
+		assertMovelist("6k1/b2P4/4P3/5P2/2P5/1P4P1/3P1K2/8 w - - 0 1", test_move_generator::generatePawnMoves, // in check - bishop
 				new int[] { Move.createDoublePush(D2, D4, WHITE), Move.createNormal(C4, C5, PAWN, WHITE), });
 
-		assertMovelist("k7/5p2/P4P1b/8/p4P2/P6p/r1PK2PP/8 w - - 0 1", MoveGen::generatePawnMoves, // pins
+		assertMovelist("k7/5p2/P4P1b/8/p4P2/P6p/r1PK2PP/8 w - - 0 1", test_move_generator::generatePawnMoves, // pins
 				new int[] { Move.createDoublePush(G2, G4, WHITE), Move.createNormal(G2, G3, PAWN, WHITE), Move.createNormal(A6, A7, PAWN, WHITE), });
 
-		assertMovelist("8/1P6/1P2p2B/3p2P1/2p5/6Pp/Q1Pk1PRP/7K w - - 0 1", MoveGen::generatePawnMoves, // open checks
+		assertMovelist("8/1P6/1P2p2B/3p2P1/2p5/6Pp/Q1Pk1PRP/7K w - - 0 1", test_move_generator::generatePawnMoves, // open checks
 				new int[] { Move.setCheck(Move.createDoublePush(F2, F4, WHITE)), Move.createNormal(G3, G4, PAWN, WHITE), Move.setCheck(Move.createNormal(C2, C3, PAWN, WHITE)),
 						Move.setCheck(Move.createNormal(F2, F3, PAWN, WHITE)), Move.setCheck(Move.createNormal(G5, G6, PAWN, WHITE)), });
 		// black
-		assertMovelist("8/1pk2p1p/2p2P2/6pP/6K1/p4p2/5p2/8 b - - 0 1", MoveGen::generatePawnMoves, // basic
+		assertMovelist("8/1pk2p1p/2p2P2/6pP/6K1/p4p2/5p2/8 b - - 0 1", test_move_generator::generatePawnMoves, // basic
 				new int[] { Move.createDoublePush(B7, B5, BLACK), Move.createNormal(B7, B6, PAWN, BLACK), Move.createNormal(C6, C5, PAWN, BLACK), Move.createNormal(H7, H6, PAWN, BLACK),
 						Move.createNormal(A3, A2, PAWN, BLACK), });
 
-		assertMovelist("1k6/3p4/5p2/8/1rp1K3/8/8/8 b - - 0 1", MoveGen::generatePawnMoves, // declares check
+		assertMovelist("1k6/3p4/5p2/8/1rp1K3/8/8/8 b - - 0 1", test_move_generator::generatePawnMoves, // declares check
 				new int[] { Move.setCheck(Move.createDoublePush(D7, D5, BLACK)), Move.setCheck(Move.createNormal(F6, F5, PAWN, BLACK)), Move.createNormal(D7, D6, PAWN, BLACK),
 						Move.setCheck(Move.createNormal(C4, C3, PAWN, BLACK)), });
 
-		assertMovelist("8/6p1/5p2/1p2k2R/2p5/3p4/4p3/6K1 b - - 0 1", MoveGen::generatePawnMoves, // in check - rook
+		assertMovelist("8/6p1/5p2/1p2k2R/2p5/3p4/4p3/6K1 b - - 0 1", test_move_generator::generatePawnMoves, // in check - rook
 				new int[] { Move.createDoublePush(G7, G5, BLACK), Move.createNormal(F6, F5, PAWN, BLACK), });
 
-		assertMovelist("8/4ppQ1/2p5/1p6/p7/2k3p1/8/6K1 b - - 0 1", MoveGen::generatePawnMoves, // in check - bishop
+		assertMovelist("8/4ppQ1/2p5/1p6/p7/2k3p1/8/6K1 b - - 0 1", test_move_generator::generatePawnMoves, // in check - bishop
 				new int[] { Move.createDoublePush(E7, E5, BLACK), Move.createNormal(F7, F6, PAWN, BLACK), });
 
-		assertMovelist("8/5kpR/8/3p4/8/1Q3p2/8/2K2Q2 b - - 0 1", MoveGen::generatePawnMoves, // pins
+		assertMovelist("8/5kpR/8/3p4/8/1Q3p2/8/2K2Q2 b - - 0 1", test_move_generator::generatePawnMoves, // pins
 				new int[] { Move.createNormal(F3, F2, PAWN, BLACK), });
 
-		assertMovelist("b7/1p6/5P2/8/q1p1K3/8/6k1/8 b - - 0 1", MoveGen::generatePawnMoves, // open checks
+		assertMovelist("b7/1p6/5P2/8/q1p1K3/8/6k1/8 b - - 0 1", test_move_generator::generatePawnMoves, // open checks
 				new int[] { Move.setCheck(Move.createDoublePush(B7, B5, BLACK)), Move.setCheck(Move.createNormal(B7, B6, PAWN, BLACK)),
 						Move.setCheck(Move.createNormal(C4, C3, PAWN, BLACK)), });
 	}
 
 	@Test
 	void testGeneratePawnCaptures() {
-		assertMovelist("2r5/1P5p/6p1/5k2/R1n3r1/1P1P1p1P/K1Q1P3/8 w - - 0 1", MoveGen::generatePawnCaptures, // basic
+		assertMovelist("2r5/1P5p/6p1/5k2/R1n3r1/1P1P1p1P/K1Q1P3/8 w - - 0 1", test_move_generator::generatePawnCaptures, // basic
 				new int[] { Move.setCheck(Move.createCapture(D3, C4, PAWN, KNIGHT, WHITE)), Move.setCheck(Move.createCapture(H3, G4, PAWN, ROOK, WHITE)),
 						Move.createCapture(B3, C4, PAWN, KNIGHT, WHITE), Move.createCapture(E2, F3, PAWN, PAWN, WHITE), });
 
-		assertMovelist("6n1/1q3P2/R1Pk4/n3p3/1P1P4/B7/PP6/K7 w - - 0 1", MoveGen::generatePawnCaptures, // declares check
+		assertMovelist("6n1/1q3P2/R1Pk4/n3p3/1P1P4/B7/PP6/K7 w - - 0 1", test_move_generator::generatePawnCaptures, // declares check
 				new int[] { Move.setCheck(Move.createCapture(C6, B7, PAWN, QUEEN, WHITE)), Move.setCheck(Move.createCapture(B4, A5, PAWN, KNIGHT, WHITE)),
 						Move.setCheck(Move.createCapture(D4, E5, PAWN, PAWN, WHITE)), });
 
-		assertMovelist("k7/8/1b6/P7/8/8/5K2/R7 w - - 0 1", MoveGen::generatePawnCaptures, // starts in check
+		assertMovelist("k7/8/1b6/P7/8/8/5K2/R7 w - - 0 1", test_move_generator::generatePawnCaptures, // starts in check
 				new int[] { Move.setCheck(Move.createCapture(A5, B6, PAWN, BISHOP, WHITE)), });
 
-		assertMovelist("1k1r4/7q/4n1b1/3P1P2/8/1p1K4/2P5/1q6 w - - 0 1", MoveGen::generatePawnCaptures, // pins
+		assertMovelist("1k1r4/7q/4n1b1/3P1P2/8/1p1K4/2P5/1q6 w - - 0 1", test_move_generator::generatePawnCaptures, // pins
 				new int[] { Move.createCapture(F5, G6, PAWN, BISHOP, WHITE), });
 		// black
-		assertMovelist("8/2kpR1p1/1p2B1pB/Q1P5/3p4/4N3/5pK1/2R3N1 b - - 0 1", MoveGen::generatePawnCaptures, // pins
+		assertMovelist("8/2kpR1p1/1p2B1pB/Q1P5/3p4/4N3/5pK1/2R3N1 b - - 0 1", test_move_generator::generatePawnCaptures, // pins
 				new int[] { Move.createCapture(B6, A5, PAWN, QUEEN, BLACK), Move.createCapture(G7, H6, PAWN, BISHOP, BLACK), Move.createCapture(D4, E3, PAWN, KNIGHT, BLACK), });
 
-		assertMovelist("8/8/5k2/1pp3p1/Q2B3N/2K5/8/8 b - - 0 1", MoveGen::generatePawnCaptures, // starts in check
+		assertMovelist("8/8/5k2/1pp3p1/Q2B3N/2K5/8/8 b - - 0 1", test_move_generator::generatePawnCaptures, // starts in check
 				new int[] { Move.setCheck(Move.createCapture(C5, D4, PAWN, BISHOP, BLACK)), });
 	}
 
 	@Test
 	void testGeneratePawnPromotions() {
-		assertMovelist("1nn5/1P4P1/8/8/5k2/1K6/8/8 w - - 0 1", MoveGen::generatePawnPromotionsAndCapturePromotions, // basic
+		assertMovelist("1nn5/1P4P1/8/8/5k2/1K6/8/8 w - - 0 1", test_move_generator::generatePawnPromotionsAndCapturePromotions, // basic
 				new int[] { Move.createPromo(G7, G8, ROOK, WHITE), Move.createPromo(G7, G8, KNIGHT, WHITE), Move.createPromo(G7, G8, BISHOP, WHITE), Move.createPromo(G7, G8, QUEEN, WHITE),
 						Move.createCapturePromo(B7, C8, KNIGHT, ROOK, WHITE), Move.createCapturePromo(B7, C8, KNIGHT, KNIGHT, WHITE), Move.createCapturePromo(B7, C8, KNIGHT, BISHOP, WHITE),
 						Move.createCapturePromo(B7, C8, KNIGHT, QUEEN, WHITE), });
 
-		assertMovelist("2n1b3/3P2k1/8/1K6/8/1P1p3r/P1P3P1/8 w - - 0 1", MoveGen::generatePawnPromotionsAndCapturePromotions, // pin and check
+		assertMovelist("2n1b3/3P2k1/8/1K6/8/1P1p3r/P1P3P1/8 w - - 0 1", test_move_generator::generatePawnPromotionsAndCapturePromotions, // pin and check
 				new int[] { Move.createCapturePromo(D7, E8, BISHOP, ROOK, WHITE), Move.setCheck(Move.createCapturePromo(D7, E8, BISHOP, KNIGHT, WHITE)),
 						Move.createCapturePromo(D7, E8, BISHOP, BISHOP, WHITE), Move.createCapturePromo(D7, E8, BISHOP, QUEEN, WHITE), });
 
-		assertMovelist("1brq4/2P5/8/7k/4P3/2K2P2/1p6/8 w - - 0 1", MoveGen::generatePawnPromotionsAndCapturePromotions, // blocked and pinned
+		assertMovelist("1brq4/2P5/8/7k/4P3/2K2P2/1p6/8 w - - 0 1", test_move_generator::generatePawnPromotionsAndCapturePromotions, // blocked and pinned
 				new int[] {});
 		// black
-		assertMovelist("8/1p4pK/2B5/7p/8/8/kpRp2p1/N1n1bQQ1 b - - 0 1", MoveGen::generatePawnPromotionsAndCapturePromotions, // mixed
+		assertMovelist("8/1p4pK/2B5/7p/8/8/kpRp2p1/N1n1bQQ1 b - - 0 1", test_move_generator::generatePawnPromotionsAndCapturePromotions, // mixed
 				new int[] { Move.createPromo(D2, D1, ROOK, BLACK), Move.createPromo(D2, D1, KNIGHT, BLACK), Move.createPromo(D2, D1, BISHOP, BLACK), Move.createPromo(D2, D1, QUEEN, BLACK),
 						Move.createCapturePromo(G2, F1, QUEEN, ROOK, BLACK), Move.createCapturePromo(G2, F1, QUEEN, KNIGHT, BLACK), Move.createCapturePromo(G2, F1, QUEEN, BISHOP, BLACK),
 						Move.createCapturePromo(G2, F1, QUEEN, QUEEN, BLACK), });

@@ -1,7 +1,5 @@
 package gamestate;
 
-import static gamestate.Bitboard.bitScanForward;
-
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;

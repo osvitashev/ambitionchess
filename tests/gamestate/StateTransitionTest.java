@@ -10,6 +10,7 @@ class StateTransitionTest {
 	
 	private static MovePool test_movepool = new MovePool();
 	private static Gamestate test_board = new Gamestate();
+	private static MoveGen test_move_generator = new MoveGen();
 
 	public static void runTest(String fen, String correctFen, String... uci_moves) {
 		test_board.loadFromFEN(fen);
@@ -24,7 +25,7 @@ class StateTransitionTest {
 			return;
 		}
 		int test_movelist_size_old = test_movepool.size();
-		MoveGen.generateLegalMoves(test_board, test_movepool);
+		test_move_generator.generateLegalMoves(test_board, test_movepool);
 		
 		
 
