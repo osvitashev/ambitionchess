@@ -45,13 +45,7 @@ public class ExpensiveExchangeEvaluator {
 	 */
 	private int generateExchangeCaptureMoves(Gamestate brd) {
 		bufferpool.clear();
-		move_generator.generatePawnCaptures(brd, bufferpool);
-		move_generator.generatePawnPromotionsAndCapturePromotions(brd, bufferpool);
-		move_generator.generateRookCaptures(brd, bufferpool);
-		move_generator.generateKnightCaptures(brd, bufferpool);
-		move_generator.generateBishopCaptures(brd, bufferpool);
-		move_generator.generateQueenCaptures(brd, bufferpool);
-		move_generator.generateKingCaptures(brd, bufferpool);
+		move_generator.generateLegalMoves(brd, bufferpool);
 		for (int i = 0; i < bufferpool.size(); ++i) {
 			int move = bufferpool.get(i);
 			if ((Move.getMoveType(move) == MoveType.CAPTURE || Move.getMoveType(move) == MoveType.PROMO_CAPTURE) && square == Move.getSquareTo(move)) {
@@ -70,13 +64,7 @@ public class ExpensiveExchangeEvaluator {
 	 */
 	private int generateExchangeNonCaptureMoves(Gamestate brd) {
 		bufferpool.clear();
-		move_generator.generatePawnMoves(brd, bufferpool);
-		move_generator.generatePawnPromotionsAndCapturePromotions(brd, bufferpool);
-		move_generator.generateRookMoves(brd, bufferpool);
-		move_generator.generateKnightMoves(brd, bufferpool);
-		move_generator.generateBishopMoves(brd, bufferpool);
-		move_generator.generateQueenMoves(brd, bufferpool);
-		move_generator.generateKingMoves(brd, bufferpool);
+		move_generator.generateLegalMoves(brd, bufferpool);
 		for (int i = 0; i < bufferpool.size(); ++i) {
 			int move = bufferpool.get(i);
 			if ((Move.getMoveType(move) == MoveType.PROMO || Move.getMoveType(move) == MoveType.NORMAL || Move.getMoveType(move) == MoveType.DOUBLE_PUSH)

@@ -22,8 +22,8 @@ public class MoveGen {
 	 * @param brd
 	 * @return
 	 */
-	public MoveGen initialize(Gamestate brd) {
-		return this;
+	public void initialize(Gamestate brd) {
+		
 	}
 	/**
 	 * An abstract representation of a method which generates legal moves and
@@ -58,7 +58,7 @@ public class MoveGen {
 		return movepool.size();
 	}
 
-	public int generateBishopCaptures(Gamestate brd, MovePool movepool) {
+	int generateBishopCaptures(Gamestate brd, MovePool movepool) {
 		{
 			int bi = 0;
 			for (long zarg = brd.getPieces(brd.getPlayerToMove(), PieceType.BISHOP),
@@ -70,7 +70,7 @@ public class MoveGen {
 		return movepool.size();
 	}
 
-	public int generateBishopMoves(Gamestate brd, MovePool movepool) {
+	int generateBishopMoves(Gamestate brd, MovePool movepool) {
 		{
 			int bi = 0;
 			for (long zarg = brd.getPieces(brd.getPlayerToMove(), PieceType.BISHOP),
@@ -92,7 +92,7 @@ public class MoveGen {
 	 *                      first insertion.
 	 * @return movelist_size Updated collection size
 	 */
-	public int generateCastling(Gamestate brd, MovePool movepool) {
+	int generateCastling(Gamestate brd, MovePool movepool) {
 		// OPTIMIZE: For castling addToMoveListIfValid is redundant move validation
 		int player = brd.getPlayerToMove();
 		int otherPlayer = Player.getOtherPlayer(player);
@@ -144,7 +144,7 @@ public class MoveGen {
 	 * @param MovePool
 	 * @return movelist_size Updated collection size
 	 */
-	public int generateEnpassant(Gamestate brd, MovePool movepool) {
+	int generateEnpassant(Gamestate brd, MovePool movepool) {
 		int enpassantSquare = brd.getEnpassantSquare();
 		int player = brd.getPlayerToMove();
 		int otherPlayer = Player.getOtherPlayer(player);
@@ -174,7 +174,7 @@ public class MoveGen {
 	 *                      first insertion.
 	 * @return movelist_size Updated collection size
 	 */
-	public int generateKingCaptures(Gamestate brd, MovePool movepool) {
+	int generateKingCaptures(Gamestate brd, MovePool movepool) {
 		int sq_from = brd.getKingSquare(brd.getPlayerToMove());
 		int move;
 		long targetBitboard = BitboardGen.getKingSet(sq_from) & brd.getPlayerPieces(Player.getOtherPlayer(brd.getPlayerToMove()));
@@ -200,7 +200,7 @@ public class MoveGen {
 	 *                      first insertion.
 	 * @return movelist_size Updated collection size
 	 */
-	public int generateKingMoves(Gamestate brd, MovePool movepool) {
+	int generateKingMoves(Gamestate brd, MovePool movepool) {
 		int sq_from = brd.getKingSquare(brd.getPlayerToMove());
 		int move;
 		long targetBitboard = BitboardGen.getKingSet(sq_from) & brd.getEmpty();
@@ -216,7 +216,7 @@ public class MoveGen {
 
 	}
 
-	public int generateKnightCaptures(Gamestate brd, MovePool movepool) {
+	int generateKnightCaptures(Gamestate brd, MovePool movepool) {
 		{
 			int bi = 0;
 			for (long zarg = brd.getPieces(brd.getPlayerToMove(), PieceType.KNIGHT),
@@ -228,7 +228,7 @@ public class MoveGen {
 		return movepool.size();
 	}
 
-	public int generateKnightMoves(Gamestate brd, MovePool movepool) {
+	int generateKnightMoves(Gamestate brd, MovePool movepool) {
 		{
 			int bi = 0;
 			for (long zarg = brd.getPieces(brd.getPlayerToMove(), PieceType.KNIGHT),
@@ -269,7 +269,7 @@ public class MoveGen {
 
 	}
 
-	public int generatePawnCaptures(Gamestate brd, MovePool movepool) {
+	int generatePawnCaptures(Gamestate brd, MovePool movepool) {
 		// TODO: THIS IS INEFFECIENT...
 		int player = brd.getPlayerToMove();
 		long pawnBB;
@@ -306,7 +306,7 @@ public class MoveGen {
 	 * @param movepool
 	 * @return movelist_size Updated collection size
 	 */
-	public int generatePawnMoves(Gamestate brd, MovePool movepool) {
+	int generatePawnMoves(Gamestate brd, MovePool movepool) {
 		int player = brd.getPlayerToMove();
 		int move;
 		long pawnBB;
@@ -356,7 +356,7 @@ public class MoveGen {
 		return movepool.size();
 	}
 
-	public int generatePawnPromotionsAndCapturePromotions(Gamestate brd, MovePool movepool) {
+	int generatePawnPromotionsAndCapturePromotions(Gamestate brd, MovePool movepool) {
 		// TODO: THIS IS STUPIDLY INEFFECIENT...
 		int player = brd.getPlayerToMove();
 		long pawnBB;
@@ -384,7 +384,7 @@ public class MoveGen {
 		return movepool.size();
 	}
 
-	public int generateQueenCaptures(Gamestate brd, MovePool movepool) {
+	int generateQueenCaptures(Gamestate brd, MovePool movepool) {
 		{
 			int bi = 0;
 			for (long zarg = brd.getPieces(brd.getPlayerToMove(), PieceType.QUEEN),
@@ -396,7 +396,7 @@ public class MoveGen {
 		return movepool.size();
 	}
 
-	public int generateQueenMoves(Gamestate brd, MovePool movepool) {
+	int generateQueenMoves(Gamestate brd, MovePool movepool) {
 		{
 			int bi = 0;
 			for (long zarg = brd.getPieces(brd.getPlayerToMove(), PieceType.QUEEN),
@@ -408,7 +408,7 @@ public class MoveGen {
 		return movepool.size();
 	}
 
-	public int generateRookCaptures(Gamestate brd, MovePool movepool) {
+	int generateRookCaptures(Gamestate brd, MovePool movepool) {
 		{
 			int bi = 0;
 			for (long zarg = brd.getPieces(brd.getPlayerToMove(), PieceType.ROOK),
@@ -420,7 +420,7 @@ public class MoveGen {
 		return movepool.size();
 	}
 
-	public int generateRookMoves(Gamestate brd, MovePool movepool) {
+	int generateRookMoves(Gamestate brd, MovePool movepool) {
 		{
 			int bi = 0;
 			for (long zarg = brd.getPieces(brd.getPlayerToMove(), PieceType.ROOK),
