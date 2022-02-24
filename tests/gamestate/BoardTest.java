@@ -339,6 +339,7 @@ class BoardTest {
 		assertEquals(0x4000800000000L, new Gamestate("8/2q2k2/8/1P1p4/1Kn3R1/1P1p4/8/8 w - - 0 1").calculateSquareAttackers(Square.C4, Player.BLACK));
 		assertEquals(0x80000800400L, new Gamestate("5r2/7b/3N4/5pk1/7n/7B/2Q5/1K6 w - - 0 1").calculateSquareAttackers(Square.F5, Player.WHITE));
 		assertEquals(0x2080004080000000L, new Gamestate("5r2/7b/3N4/5pk1/7n/7B/2Q5/1K6 w - - 0 1").calculateSquareAttackers(Square.F5, Player.BLACK));
+		assertEquals(0x0L, new Gamestate("8/1K6/8/4k3/4nn2/6Q1/8/4R3 b - - 0 1").calculateSquareAttackers(Square.C4, Player.WHITE));
 	}
 	
 	@Test

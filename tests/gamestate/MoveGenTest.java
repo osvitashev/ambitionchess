@@ -906,5 +906,7 @@ class MoveGenTest {
 		
 		assertMovelistLength("r3k2r/pppN2pp/8/8/8/8/PPP2PPP/R3K2R b KQkq - 0 1", 20);//queen side castling condition
 		
+		assertMovelistLength("8/1K6/8/4k3/4nn2/6Q1/8/4R3 b - - 0 1", 6);//pinned knights
+		
 	}
 }

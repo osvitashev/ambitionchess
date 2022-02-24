@@ -201,5 +201,25 @@ class BitboardTest {
 		assertEquals(0x4080000000000000L, Bitboard.getAntiDiagMask(Square.G8));
 		assertEquals(0x8000000000000000L, Bitboard.getAntiDiagMask(Square.H8));
 	}
+	
+	@Test
+	void testSquaresBetween() {
+		assertEquals(0x80400L, Bitboard.getSquaresBetween(Square.B1, Square.E4));
+		assertEquals(0x80400L, Bitboard.getSquaresBetween(Square.E4, Square.B1));
+		assertEquals(0x8102040000000L, Bitboard.getSquaresBetween(Square.C8, Square.H3));
+		assertEquals(0x8102040000000L, Bitboard.getSquaresBetween(Square.H3, Square.C8));
+		assertEquals(0x7e00000000000000L, Bitboard.getSquaresBetween(Square.A8, Square.H8));
+		assertEquals(0x7e00000000000000L, Bitboard.getSquaresBetween(Square.H8, Square.A8));
+		assertEquals(0x40404040404000L, Bitboard.getSquaresBetween(Square.G1, Square.G8));
+		assertEquals(0x40404040404000L, Bitboard.getSquaresBetween(Square.G8, Square.G1));
+		
+		assertEquals(0x0L, Bitboard.getSquaresBetween(Square.G8, Square.G7));
+		assertEquals(0x0L, Bitboard.getSquaresBetween(Square.A1, Square.A2));
+		assertEquals(0x0L, Bitboard.getSquaresBetween(Square.B4, Square.C4));
+		
+		assertEquals(0x0L, Bitboard.getSquaresBetween(Square.F5, Square.D4));
+		assertEquals(0x0L, Bitboard.getSquaresBetween(Square.B3, Square.H5));
+		
+	}
 
 }

@@ -139,6 +139,7 @@ public final class Bitboard {
 	private final static long files_64[] = new long[64];
 	private final static long diagonals_64[] = new long[64];
 	private final static long anti_diagonals_64[] = new long[64];
+	private final static long masks_in_between[][] = new long[64][64];
 	static {
 		for (int i = 0; i < 64; i += 8)
 			ranks_64[i] = (long) (0b11111111) << (i);
@@ -202,6 +203,36 @@ public final class Bitboard {
 				tmp = tmp & ~(1L << index);
 			}
 		}
+		
+	    for (int i = 0; i < 64; ++i) {
+	        for (int j = 0; j < 64; ++j) {
+	            long sq1 = Bitboard.initFromSquare(i);
+	            long sq2 = Bitboard.initFromSquare(j);
+
+	            int dx = (j % 8) - (i % 8)  ;//(sq2.file() - sq1.file());
+	            int dy = (j / 8) - (i / 8);//(sq2.rank() - sq1.rank());
+	            int adx = dx > 0 ? dx : -dx;
+	            int ady = dy > 0 ? dy : -dy;
+
+	            if (dx == 0 || dy == 0 || adx == ady) {
+	                long mask=0;
+	                while (sq1 != sq2) {
+	                    if (dx > 0) {
+	                        sq1 = Bitboard.shiftEast(sq1);
+	                    } else if (dx < 0) {
+	                        sq1 = Bitboard.shiftWest(sq1);
+	                    }
+	                    if (dy > 0) {
+	                        sq1 = Bitboard.shiftNorth(sq1);
+	                    } else if (dy < 0) {
+	                        sq1 = Bitboard.shiftSouth(sq1);
+	                    }
+	                    mask |= sq1;
+	                }
+	                masks_in_between[i][j] = mask & ~ sq2;
+	            }
+	        }
+	    }
 	}
 
 	public static long getRankMask(int sq) {
@@ -222,6 +253,12 @@ public final class Bitboard {
 	public static long getAntiDiagMask(int sq) {
 		DebugLibrary.validateSquare(sq);
 		return anti_diagonals_64[sq];
+	}
+	
+	public static long getSquaresBetween(int sq1, int sq2) {
+		DebugLibrary.validateSquare(sq1);
+		DebugLibrary.validateSquare(sq2);
+		return masks_in_between[sq1][sq2];
 	}
 
 	private Bitboard() {
