@@ -1,6 +1,6 @@
 package exchangeval;
 
-import gamestate.Board;
+import gamestate.Gamestate;
 import gamestate.DebugLibrary;
 import gamestate.Move;
 import gamestate.MoveGen;
@@ -24,6 +24,7 @@ public class ExpensiveExchangeEvaluator {
 
 	private MovePool movepool = new MovePool();// main move pool used in the search
 	private MovePool bufferpool = new MovePool();// temporary , used to do move filtering.
+	private MoveGen move_generator = new MoveGen();
 	private int square;// square the evaluation is for.
 	private boolean generateCaptures;
 	
@@ -42,15 +43,9 @@ public class ExpensiveExchangeEvaluator {
 	 * @param brd
 	 * @return
 	 */
-	private int generateExchangeCaptureMoves(Board brd) {
+	private int generateExchangeCaptureMoves(Gamestate brd) {
 		bufferpool.clear();
-		MoveGen.generatePawnCaptures(brd, bufferpool);
-		MoveGen.generatePawnPromotionsAndCapturePromotions(brd, bufferpool);
-		MoveGen.generateRookCaptures(brd, bufferpool);
-		MoveGen.generateKnightCaptures(brd, bufferpool);
-		MoveGen.generateBishopCaptures(brd, bufferpool);
-		MoveGen.generateQueenCaptures(brd, bufferpool);
-		MoveGen.generateKingCaptures(brd, bufferpool);
+		move_generator.generateLegalMoves(brd, bufferpool);
 		for (int i = 0; i < bufferpool.size(); ++i) {
 			int move = bufferpool.get(i);
 			if ((Move.getMoveType(move) == MoveType.CAPTURE || Move.getMoveType(move) == MoveType.PROMO_CAPTURE) && square == Move.getSquareTo(move)) {
@@ -67,15 +62,9 @@ public class ExpensiveExchangeEvaluator {
 	 * @param brd
 	 * @return
 	 */
-	private int generateExchangeNonCaptureMoves(Board brd) {
+	private int generateExchangeNonCaptureMoves(Gamestate brd) {
 		bufferpool.clear();
-		MoveGen.generatePawnMoves(brd, bufferpool);
-		MoveGen.generatePawnPromotionsAndCapturePromotions(brd, bufferpool);
-		MoveGen.generateRookMoves(brd, bufferpool);
-		MoveGen.generateKnightMoves(brd, bufferpool);
-		MoveGen.generateBishopMoves(brd, bufferpool);
-		MoveGen.generateQueenMoves(brd, bufferpool);
-		MoveGen.generateKingMoves(brd, bufferpool);
+		move_generator.generateLegalMoves(brd, bufferpool);
 		for (int i = 0; i < bufferpool.size(); ++i) {
 			int move = bufferpool.get(i);
 			if ((Move.getMoveType(move) == MoveType.PROMO || Move.getMoveType(move) == MoveType.NORMAL || Move.getMoveType(move) == MoveType.DOUBLE_PUSH)
@@ -93,7 +82,7 @@ public class ExpensiveExchangeEvaluator {
 	 * @param isOpponent - determines whether we are minimizing or maximizing.
 	 * @return
 	 */
-	private boolean toCaptureAndOccupy_step(Board brd, boolean isOpponent) {
+	private boolean toCaptureAndOccupy_step(Gamestate brd, boolean isOpponent) {
 		boolean isDone = isOpponent;
 		int movelist_size_old = movepool.size();
 		generateExchangeCaptureMoves(brd);
@@ -116,7 +105,7 @@ public class ExpensiveExchangeEvaluator {
 	 * @param isOpponent - determines whether we are minimizing or maximizing.
 	 * @return
 	 */
-	private boolean toMoveAndOccupy_step(Board brd, boolean isOpponent) {
+	private boolean toMoveAndOccupy_step(Gamestate brd, boolean isOpponent) {
 		boolean isDone = isOpponent;
 		int movelist_size_old = movepool.size();
 		generateExchangeNonCaptureMoves(brd);
@@ -144,7 +133,7 @@ public class ExpensiveExchangeEvaluator {
 	 * @param player
 	 * @return
 	 */
-	public boolean toOccupy(Board brd, int square, int player) {
+	public boolean toOccupy(Gamestate brd, int square, int player) {
 		DebugLibrary.validatePlayer(player);
 		DebugLibrary.validateSquare(square);
 		if (brd.getPlayerAt(square) == player)
@@ -155,7 +144,7 @@ public class ExpensiveExchangeEvaluator {
 		if (brd.getPlayerToMove() != player) {
 			String fen = brd.toFEN();
 			fen = fen.replace((player == Player.WHITE) ? " b " : " w ", (player == Player.BLACK) ? " b " : " w ");
-			brd = new Board(fen);
+			brd = new Gamestate(fen);
 		}
 		if (brd.getPlayerAt(square) == Player.NO_PLAYER)
 			return toMoveAndOccupy_step(brd, false);
@@ -176,14 +165,14 @@ public class ExpensiveExchangeEvaluator {
 		return retVal;
 	}
 	
-	private int evaluateSquareInPosition(Board brd, int currentAccumulation, boolean maximizingPlayer) {
+	private int evaluateSquareInPosition(Gamestate brd, int currentAccumulation, boolean maximizingPlayer) {
 		return currentAccumulation;
 	}
 
 	// current implementation does not leave an option of rejecting a capture -
 	// effectively this is the Occupy At All Costs version of exchanger.
 	// ACTUALLY, NO! the current version returns material loss even of it does not lead to successful occupation.
-	private int toExchange_step(Board brd, int alpha, int beta, int currentValue, boolean maximizingPlayer) {
+	private int toExchange_step(Gamestate brd, int alpha, int beta, int currentValue, boolean maximizingPlayer) {
 		int retVal = evaluateSquareInPosition(brd, currentValue,maximizingPlayer);
 		int movelist_size_old = movepool.size();
 		if(generateCaptures)
@@ -225,7 +214,7 @@ public class ExpensiveExchangeEvaluator {
 		return retVal;
 	}
 
-	public int toWinMaterial(Board brd, int square) {
+	public int toWinMaterial(Gamestate brd, int square) {
 		DebugLibrary.validateSquare(square);		
 		generateCaptures = brd.getPlayerAt(square) != Player.NO_PLAYER;
 		

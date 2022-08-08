@@ -8,6 +8,8 @@ import java.util.ArrayList;
 
 import org.junit.jupiter.api.Test;
 
+import gamestate.GlobalConstants.Square;
+
 
 class BitboardTest {
 
@@ -172,6 +174,52 @@ class BitboardTest {
 		long v = 0xc3811c141c1481c3L;
 		assertEquals(0x811c141c1481c300L, Bitboard.shiftNorth(v));
 		assertEquals(0xc3811c141c1481L, Bitboard.shiftSouth(v));
+		assertEquals(0x8602382838280286L, Bitboard.shiftEast(v));
+		assertEquals(0x61400e0a0e0a4061L, Bitboard.shiftWest(v));
+	}
+	
+	@Test
+	void testMasks() {
+		assertEquals(0xffL, Bitboard.getRankMask(Square.A1));
+		assertEquals(0xffL, Bitboard.getRankMask(Square.C1));
+		assertEquals(0xff000000000000L, Bitboard.getRankMask(Square.B7));
+		assertEquals(0xff00000000000000L, Bitboard.getRankMask(Square.H8));
+		
+		assertEquals(0x101010101010101L, Bitboard.getFileMask(Square.A1));
+		assertEquals(0x404040404040404L, Bitboard.getFileMask(Square.C1));
+		assertEquals(0x202020202020202L, Bitboard.getFileMask(Square.B7));
+		assertEquals(0x8080808080808080L, Bitboard.getFileMask(Square.H8));
+		
+		assertEquals(0x8040201008040201L, Bitboard.getDiagMask(Square.A1));
+		assertEquals(0x804020100804L, Bitboard.getDiagMask(Square.C1));
+		assertEquals(0x402010000000000L, Bitboard.getDiagMask(Square.B7));
+		assertEquals(0x8040201008040201L, Bitboard.getDiagMask(Square.H8));
+		
+		assertEquals(0x1L, Bitboard.getAntiDiagMask(Square.A1));
+		assertEquals(0x10204L, Bitboard.getAntiDiagMask(Square.C1));
+		assertEquals(0x102040810204080L, Bitboard.getAntiDiagMask(Square.B7));
+		assertEquals(0x4080000000000000L, Bitboard.getAntiDiagMask(Square.G8));
+		assertEquals(0x8000000000000000L, Bitboard.getAntiDiagMask(Square.H8));
+	}
+	
+	@Test
+	void testSquaresBetween() {
+		assertEquals(0x80400L, Bitboard.getSquaresBetween(Square.B1, Square.E4));
+		assertEquals(0x80400L, Bitboard.getSquaresBetween(Square.E4, Square.B1));
+		assertEquals(0x8102040000000L, Bitboard.getSquaresBetween(Square.C8, Square.H3));
+		assertEquals(0x8102040000000L, Bitboard.getSquaresBetween(Square.H3, Square.C8));
+		assertEquals(0x7e00000000000000L, Bitboard.getSquaresBetween(Square.A8, Square.H8));
+		assertEquals(0x7e00000000000000L, Bitboard.getSquaresBetween(Square.H8, Square.A8));
+		assertEquals(0x40404040404000L, Bitboard.getSquaresBetween(Square.G1, Square.G8));
+		assertEquals(0x40404040404000L, Bitboard.getSquaresBetween(Square.G8, Square.G1));
+		
+		assertEquals(0x0L, Bitboard.getSquaresBetween(Square.G8, Square.G7));
+		assertEquals(0x0L, Bitboard.getSquaresBetween(Square.A1, Square.A2));
+		assertEquals(0x0L, Bitboard.getSquaresBetween(Square.B4, Square.C4));
+		
+		assertEquals(0x0L, Bitboard.getSquaresBetween(Square.F5, Square.D4));
+		assertEquals(0x0L, Bitboard.getSquaresBetween(Square.B3, Square.H5));
+		
 	}
 
 }

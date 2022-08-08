@@ -1,11 +1,11 @@
 package puzzler;
 
-import gamestate.Board;
+import gamestate.Gamestate;
 import gamestate.MoveGen;
 import gamestate.MovePool;
 
 public class PuzzleSolver {
-
+	private MoveGen move_generator = new MoveGen();
 	private MovePool movepool = new MovePool();
 	private int searchPlyDepth = 1;// value in halfmoves. Can only be an odd number.
 
@@ -18,11 +18,11 @@ public class PuzzleSolver {
 	}
 
 	// returns true is black is checkmated
-	private boolean toPlayAndWin_opponentStep(Board brd, int depth) {
+	private boolean toPlayAndWin_opponentStep(Gamestate brd, int depth) {
 		boolean isWin = true;
 		int movelist_size_old = movepool.size();
-		MoveGen.generateLegalMoves(brd, movepool);
-		if (movepool.size() == movelist_size_old && brd.isCheck()) {// checkmate
+		move_generator.generateLegalMoves(brd, movepool);
+		if (movepool.size() == movelist_size_old && brd.getIsCheck()) {// checkmate
 
 			isWin = true;
 		} else if (depth == searchPlyDepth) {
@@ -45,10 +45,10 @@ public class PuzzleSolver {
 		return isWin;
 	}
 
-	private boolean toPlayAndWin_step(Board brd, int depth) {
+	private boolean toPlayAndWin_step(Gamestate brd, int depth) {
 		boolean isWin = false;
 		int movelist_size_old = movepool.size();
-		MoveGen.generateLegalMoves(brd, movepool);
+		move_generator.generateLegalMoves(brd, movepool);
 		if (movepool.size() == movelist_size_old) {
 
 			isWin = false;
@@ -78,15 +78,15 @@ public class PuzzleSolver {
 	 * @param targetDepth - What the puzzle description typically says. 'Mate in 2' means 'us-them-us' when expanded.
 	 * @return
 	 */
-	public int toPlayAndWin(Board brd, int targetDepth) {
+	public int toPlayAndWin(Gamestate brd, int targetDepth) {
 		searchPlyDepth = 2*targetDepth-1;
 		return toPlayAndWin(brd);
 	}
 
-	public int toPlayAndWin(Board brd) {
+	public int toPlayAndWin(Gamestate brd) {
 		movepool.clear();
 		int movelist_size_old = 0;
-		MoveGen.generateLegalMoves(brd, movepool);
+		move_generator.generateLegalMoves(brd, movepool);
 		for (int i = movelist_size_old; i < movepool.size(); ++i) {
 			int move = movepool.get(i);
 

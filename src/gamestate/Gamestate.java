@@ -7,24 +7,43 @@ import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
 
-public class Board {
+/**
+ * Represents Board state. Essentially a wrapper around FEN notation with added
+ * denorms.
+ * 
+ *
+ */
+public class Gamestate {
 	private long[] playerBB = new long[Player.PLAYERS.length];
 	private long[] pieceBB = new long[PieceType.PIECE_TYPES.length];
+
+	/**
+	 * position of respective kings updated on load and makeDirtyMove()
+	 */
+	private int[] kingSquare = new int[2];
 
 	private int playerToMove = Player.NO_PLAYER;
 	// TODO: denorm opponent as well in order to avoid calling getOtherPlayer many
 	// times.
 
-	private int quietHalfmoveClock = 0;// used for 50 more rule. FEN already specifies it as a number of half-moves.
+	/**
+	 * used for 50 more rule. FEN already specifies it as a number of half-moves.
+	 */
+	private int quietHalfmoveClock = 0;
 	private int gamePlyCount = 0;
 
 	private boolean castling_WQ = false, castling_WK = false, castling_BQ = false, castling_BK = false;
 	private int enpassantSq = Square.SQUARE_NONE;
 
-	private boolean isCheck = false; // true if the current player to move is in check.
+	/**
+	 * true if the current player to move is in check updated on load and makeMove()
+	 */
+	private boolean isCheck = false;
+	
+	
 	private int[] undoStack = new int[200];
 	private int undoStack_sze = 0;
-	// TOTO: there should be a stack of historical moves, zorbist codes to0
+	// TODO: there should be a stack of historical moves, zorbist codes too
 
 	public int getPlayerToMove() {
 		return playerToMove;
@@ -127,9 +146,10 @@ public class Board {
 				return i;
 		return PieceType.NO_PIECE;
 	}
-	
+
 	/**
 	 * May return NO_PLAYER, so should be used with care.
+	 * 
 	 * @param sq
 	 * @return player
 	 */
@@ -144,33 +164,100 @@ public class Board {
 	}
 
 	/**
-	 * Tests contents of a square gainst a given piece type and player.
+	 * Tests contents of a square against a given piece type and player.
 	 * 
-	 * @param piece
+	 * @param pieceType
 	 * @param player
 	 * @param sq
 	 * @return boolean
 	 */
-	public boolean testPieceAt(int piece, int player, int sq) {
-		DebugLibrary.validatePieceType(piece);
+	public boolean testPieceAt(int pieceType, int player, int sq) {
+		DebugLibrary.validatePieceType(pieceType);
 		DebugLibrary.validatePlayer(player);
 		DebugLibrary.validateSquare(sq);
-		return testBit(playerBB[player], sq) && testBit(pieceBB[piece], sq);
+		return testBit(playerBB[player], sq) && testBit(pieceBB[pieceType], sq);
 	}
 
 	/**
-	 * Validates that no king is en prise, but side-to-move may be in check
+	 * Validates that other side's king is NOT en prise, but side-to-move may be in
+	 * check
 	 * 
 	 * @return
 	 */
-	public boolean validateKingExposure() {
-	//	if (!Bitboard.hasOnly1Bit(pieceBB[PieceType.KING] & playerBB[Player.WHITE]))
-	//		return false;
-	//	if (!Bitboard.hasOnly1Bit(pieceBB[PieceType.KING] & playerBB[Player.BLACK]))
-	//		return false;
-	//	if (isPlayerInCheck(Player.getOtherPlayer(getPlayerToMove())))
-	//		return false;
-		return !isPlayerInCheck(Player.getOtherPlayer(getPlayerToMove()));
+	boolean validateKingExposure() {
+		// if (!Bitboard.hasOnly1Bit(pieceBB[PieceType.KING] & playerBB[Player.WHITE]))
+		// return false;
+		// if (!Bitboard.hasOnly1Bit(pieceBB[PieceType.KING] & playerBB[Player.BLACK]))
+		// return false;
+		// if (isPlayerInCheck(Player.getOtherPlayer(getPlayerToMove())))
+		// return false;
+		return !calculateIsPlayerInCheck(Player.getOtherPlayer(getPlayerToMove()));
+	}
+
+	private void setKingSquare(int sq, int pl) {
+		DebugLibrary.validatePlayer(pl);
+		DebugLibrary.validateSquare(sq);
+		kingSquare[pl] = sq;
+	}
+
+	public int getKingSquare(int pl) {
+		DebugLibrary.validatePlayer(pl);
+		return kingSquare[pl];
+	}
+
+	/**
+	 * Returns a bitboard of attack sources for a given square by s given player.
+	 * 
+	 * @param sq
+	 * @param pl
+	 * @return
+	 */
+	public long calculateSquareAttackers(int sq, int pl) {
+		long ret = 0;
+		DebugLibrary.validatePlayer(pl);
+		DebugLibrary.validateSquare(sq);
+		// IDEA: this function can be a dynamic part of the game state. If there are no
+		// more knights on the board, there is no point in checking for knight attacks.
+		// Most moves do not modify such conditions.
+		int otherPlayer = Player.getOtherPlayer(pl);
+		ret |= getPieces(pl, PieceType.PAWN) & BitboardGen.getPawnAttackSet(sq, otherPlayer);
+		ret |= (getPieces(pl, PieceType.QUEEN) | getPieces(pl, PieceType.ROOK)) & BitboardGen.getRookSet(sq, getOccupied());
+		ret |= (getPieces(pl, PieceType.QUEEN) | getPieces(pl, PieceType.BISHOP)) & BitboardGen.getBishopSet(sq, getOccupied());
+		ret |= getPieces(pl, PieceType.KNIGHT) & BitboardGen.getKnightSet(sq);
+		ret |= getPieces(pl, PieceType.KING) & BitboardGen.getKingSet(sq);
+		return ret;
+	}
+
+	/**
+	 * Returns a bitboard mask which represents pieces which would result in the
+	 * target square being attacked by the given player if those pieces were
+	 * removed. Color-agnostic with regards to blockers. The bitboard returned by
+	 * this function may need to be processed further in order to distinguish
+	 * between pins, skewers and potential discovered attacks.
+	 * 
+	 * @param sq - attack target
+	 * @param pl - attacker
+	 * @return
+	 */
+	public long calculatePinsSkewersAndDiscoveredAttacks(int sq, int pl) {
+		DebugLibrary.validatePlayer(pl);
+		DebugLibrary.validateSquare(sq);
+		long ret = 0;
+		long rookReverseSet = BitboardGen.getRookSet(sq, getOccupied());
+		long rookBlockers = rookReverseSet & ~getEmpty();
+		for (long zarg = rookBlockers, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBits
+			long rookIndirectAttackers = (getPieces(pl, PieceType.QUEEN) | getPieces(pl, PieceType.ROOK)) & BitboardGen.getRookSet(sq, getOccupied() & ~barg) & ~rookReverseSet;
+			if (rookIndirectAttackers != 0)
+				ret |= barg;
+		}
+		long bishopReverseSet = BitboardGen.getBishopSet(sq, getOccupied());
+		long bishopBlockers = bishopReverseSet & ~getEmpty();
+		for (long zarg = bishopBlockers, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBits
+			long bishopIndirectAttackers = (getPieces(pl, PieceType.QUEEN) | getPieces(pl, PieceType.BISHOP)) & BitboardGen.getBishopSet(sq, getOccupied() & ~barg) & ~bishopReverseSet;
+			if (bishopIndirectAttackers != 0)
+				ret |= barg;
+		}
+		return ret;
 	}
 
 	/**
@@ -181,22 +268,10 @@ public class Board {
 	 * @param pl
 	 * @return boolean
 	 */
-	public boolean isSquareAttackedBy(int sq, int pl) {
+	public boolean calculateIsSquareAttackedBy(int sq, int pl) {
 		DebugLibrary.validatePlayer(pl);
 		DebugLibrary.validateSquare(sq);
-		// IDEA: this function can be a dynamic part of the game state. If there are no
-		// more knights on the board, there is no point in checking for knight attacks.
-		// Most moves do not modify such conditions.
-		int otherPlayer = Player.getOtherPlayer(pl);
-		if (!Bitboard.isEmpty(getPieces(pl, PieceType.PAWN) & BitboardGen.getPawnAttackSet(sq, otherPlayer)))
-			return true;
-		if (!Bitboard.isEmpty((getPieces(pl, PieceType.QUEEN) | getPieces(pl, PieceType.ROOK)) & BitboardGen.getRookSet(sq, getOccupied())))
-			return true;
-		if (!Bitboard.isEmpty((getPieces(pl, PieceType.QUEEN) | getPieces(pl, PieceType.BISHOP)) & BitboardGen.getBishopSet(sq, getOccupied())))
-			return true;
-		if (!Bitboard.isEmpty(getPieces(pl, PieceType.KNIGHT) & BitboardGen.getKnightSet(sq)))
-			return true;
-		if (!Bitboard.isEmpty(getPieces(pl, PieceType.KING) & BitboardGen.getKingSet(sq)))
+		if (!Bitboard.isEmpty(calculateSquareAttackers(sq, pl)))
 			return true;
 		return false;
 	}
@@ -204,28 +279,30 @@ public class Board {
 	/**
 	 * Does reverse attack set generation for a king position.
 	 * 
-	 * @param pl
+	 * @param pl - attacker
 	 * @return boolean
 	 */
-	public boolean isPlayerInCheck(int pl) {
+	public boolean calculateIsPlayerInCheck(int pl) {
 		DebugLibrary.validatePlayer(pl);
-		int sq = Bitboard.bitScanForward(getPieces(pl, PieceType.KING));// TODO: denorm king position
-		return isSquareAttackedBy(sq, Player.getOtherPlayer(pl));
+		int sq = getKingSquare(pl);
+		return calculateIsSquareAttackedBy(sq, Player.getOtherPlayer(pl));
 	}
 
 	/**
-	 * getter for the board's state variable.
+	 * getter for the board's state variable. => is the side-to-move in check?
 	 * 
+	 * updated on load and makeMove()
 	 * @return
 	 */
-	public boolean isCheck() {
+	public boolean getIsCheck() {
 		return isCheck;
 	}
 
 	/**
 	 * Only updates the board, but not the game state. Only suitable for move
 	 * validation. Toggles side to move, but makes no other change except updating
-	 * piece position. No updates to castling rights, en passant, or move counters
+	 * piece position and king position denorm. No updates to castling rights, en
+	 * passant, or move counters
 	 * 
 	 * @param move
 	 */
@@ -245,6 +322,8 @@ public class Board {
 			clearPieceAt(Move.getPieceType(move), Move.getSquareFrom(move));
 			clearPieceAt(Move.getPieceCapturedType(move), Move.getSquareTo(move));
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareTo(move));
+			// TODO: add more distinction for the king update
+			setKingSquare(bitScanForward(getPieces(player, PieceType.KING)), player);
 			break;
 		case MoveType.ENPASSANT:
 			clearPieceAt(Move.getPieceType(move), Move.getSquareFrom(move));
@@ -256,11 +335,13 @@ public class Board {
 			break;
 		case MoveType.CASTLE_KING:
 			if (player == Player.WHITE) {
+				setKingSquare(Square.G1, player);
 				clearPieceAt(PieceType.KING, Square.E1);
 				clearPieceAt(PieceType.ROOK, Square.H1);
 				putPieceAt(PieceType.KING, player, Square.G1);
 				putPieceAt(PieceType.ROOK, player, Square.F1);
 			} else {
+				setKingSquare(Square.G8, player);
 				clearPieceAt(PieceType.KING, Square.E8);
 				clearPieceAt(PieceType.ROOK, Square.H8);
 				putPieceAt(PieceType.KING, player, Square.G8);
@@ -269,11 +350,13 @@ public class Board {
 			break;
 		case MoveType.CASTLE_QUEEN:
 			if (player == Player.WHITE) {
+				setKingSquare(Square.C1, player);
 				clearPieceAt(PieceType.KING, Square.E1);
 				clearPieceAt(PieceType.ROOK, Square.A1);
 				putPieceAt(PieceType.KING, player, Square.C1);
 				putPieceAt(PieceType.ROOK, player, Square.D1);
 			} else {
+				setKingSquare(Square.C8, player);
 				clearPieceAt(PieceType.KING, Square.E8);
 				clearPieceAt(PieceType.ROOK, Square.A8);
 				putPieceAt(PieceType.KING, player, Square.C8);
@@ -283,6 +366,8 @@ public class Board {
 		case MoveType.NORMAL:
 			clearPieceAt(Move.getPieceType(move), Move.getSquareFrom(move));
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareTo(move));
+			// TODO: more detection before king update
+			setKingSquare(bitScanForward(getPieces(player, PieceType.KING)), player);
 			break;
 		case MoveType.DOUBLE_PUSH:
 			clearPieceAt(Move.getPieceType(move), Move.getSquareFrom(move));
@@ -309,6 +394,8 @@ public class Board {
 			clearPieceAt(Move.getPieceType(move), Move.getSquareTo(move));
 			putPieceAt(Move.getPieceCapturedType(move), otherPlayer, Move.getSquareTo(move));
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareFrom(move));
+			// TODO: add more distinction for the king update
+			setKingSquare(bitScanForward(getPieces(player, PieceType.KING)), player);
 			break;
 		case MoveType.ENPASSANT:
 			clearPieceAt(PieceType.PAWN, Move.getSquareTo(move));
@@ -320,11 +407,13 @@ public class Board {
 			break;
 		case MoveType.CASTLE_KING:
 			if (player == Player.WHITE) {
+				setKingSquare(Square.E1, player);
 				clearPieceAt(PieceType.KING, Square.G1);
 				clearPieceAt(PieceType.ROOK, Square.F1);
 				putPieceAt(PieceType.KING, player, Square.E1);
 				putPieceAt(PieceType.ROOK, player, Square.H1);
 			} else {
+				setKingSquare(Square.E8, player);
 				clearPieceAt(PieceType.KING, Square.G8);
 				clearPieceAt(PieceType.ROOK, Square.F8);
 				putPieceAt(PieceType.KING, player, Square.E8);
@@ -333,11 +422,13 @@ public class Board {
 			break;
 		case MoveType.CASTLE_QUEEN:
 			if (player == Player.WHITE) {
+				setKingSquare(Square.E1, player);
 				clearPieceAt(PieceType.KING, Square.C1);
 				clearPieceAt(PieceType.ROOK, Square.D1);
 				putPieceAt(PieceType.KING, player, Square.E1);
 				putPieceAt(PieceType.ROOK, player, Square.A1);
 			} else {
+				setKingSquare(Square.E8, player);
 				clearPieceAt(PieceType.KING, Square.C8);
 				clearPieceAt(PieceType.ROOK, Square.D8);
 				putPieceAt(PieceType.KING, player, Square.E8);
@@ -347,6 +438,8 @@ public class Board {
 		case MoveType.NORMAL:
 			clearPieceAt(Move.getPieceType(move), Move.getSquareTo(move));
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareFrom(move));
+			// TODO: add more distinction for the king update
+			setKingSquare(bitScanForward(getPieces(player, PieceType.KING)), player);
 			break;
 		case MoveType.DOUBLE_PUSH:
 			clearPieceAt(PieceType.PAWN, Move.getSquareTo(move));
@@ -424,6 +517,7 @@ public class Board {
 
 		gamePlyCount += 1;
 		isCheck = Move.getCheck(move);
+
 	}
 
 	public void unmakeMove(int move) {
@@ -513,13 +607,16 @@ public class Board {
 		for (int i = 0; i < undoStack.length; ++i)
 			undoStack[i] = 0;
 		undoStack_sze = 0;
+
+		kingSquare[0] = 0;
+		kingSquare[1] = 0;
 	}
 
-	public Board() {
+	public Gamestate() {
 		loadFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 	}
 
-	public Board(String fen) {
+	public Gamestate(String fen) {
 		loadFromFEN(fen);
 	}
 
@@ -528,7 +625,7 @@ public class Board {
 	 * 
 	 * @param String fen
 	 */
-	public Board loadFromFEN(String fen) {
+	public Gamestate loadFromFEN(String fen) {
 		clear();
 		if ("".equals(fen))
 			fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -601,9 +698,17 @@ public class Board {
 				}
 			}
 		}
-		validateState();
-		isCheck = isPlayerInCheck(playerToMove);
+		// needed in case board is in an invalid state which will lead to more errors
+		// this will be handled by the validation step.
+		try {
+			kingSquare[0] = (getPieces(Player.WHITE, PieceType.KING) == 0) ? Square.SQUARE_NONE : Bitboard.bitScanForward(getPieces(Player.WHITE, PieceType.KING));
+			kingSquare[1] = (getPieces(Player.BLACK, PieceType.KING) == 0) ? Square.SQUARE_NONE : Bitboard.bitScanForward(getPieces(Player.BLACK, PieceType.KING));
+			isCheck = calculateIsPlayerInCheck(playerToMove);
+		} catch (Exception e) {
 
+		}
+
+		validateState();
 		return this;
 	}
 
@@ -687,25 +792,71 @@ public class Board {
 		fen += " " + movenum;
 		return fen;
 	}
-	
 
 	/**
 	 * heavy-handed validation of the game state. Is only meant to be used after
-	 * loading from FEN. Tests done on move making and generation are supposed to
-	 * ensure that all subsequent state transitions are valid.
+	 * loading from FEN and in tests. Tests done on move making and generation are
+	 * supposed to ensure that all subsequent state transitions are valid.
 	 * 
 	 * @return
 	 */
 	public void validateState() {
-		//TODO: expand this to include en passant, castling and so on.
-		boolean invalid = false;
-		invalid |= !Bitboard.hasOnly1Bit(pieceBB[PieceType.KING] & playerBB[Player.WHITE]);
-		invalid |= !Bitboard.hasOnly1Bit(pieceBB[PieceType.KING] & playerBB[Player.BLACK]);
-		if(! invalid)
-			invalid |= isPlayerInCheck(Player.getOtherPlayer(getPlayerToMove()));
-
-		if(invalid)
+		try {
+			// validate that player bitboards are disjointed.
+			if (Bitboard.popcount(getPlayerPieces(Player.WHITE) & getPlayerPieces(Player.BLACK)) != 0)
+				throw new RuntimeException("Two players are cooccupying a square");
+			// validate that piece types are disjointed.
+			for (int sq : Square.SQUARES) {
+				int temp = 0;
+				for (int pt : PieceType.PIECE_TYPES) {
+					if (Bitboard.testBit(getPieces(pt), sq))
+						temp++;
+				}
+				if (temp > 1)
+					throw new RuntimeException("Two pieces are cooccupying a square " + Square.squareToAlgebraicString(sq));
+			}
+			// validate enpassant
+			if (getEnpassantSquare() != Square.SQUARE_NONE) {
+				DebugLibrary.validateSquare(getEnpassantSquare());
+				if (getPlayerToMove() == Player.WHITE && 5 != (getEnpassantSquare() / 8))
+					throw new RuntimeException("Invalid enpassant square");
+				if (getPlayerToMove() == Player.BLACK && 2 != (getEnpassantSquare() / 8))
+					throw new RuntimeException("Invalid enpassant square");
+			}
+			// validate castling availability
+			// Notice that this only concerns positions of king and rooks, but not whether
+			// king is on check or whether the squares between rook and king are free, as
+			// these conditions are subject to change
+			if (getCastling_WK() && !(testPieceAt(PieceType.KING, Player.WHITE, Square.E1) && testPieceAt(PieceType.ROOK, Player.WHITE, Square.H1)))
+				throw new RuntimeException("Invalid castling state!");
+			if (getCastling_WQ() && !(testPieceAt(PieceType.KING, Player.WHITE, Square.E1) && testPieceAt(PieceType.ROOK, Player.WHITE, Square.A1)))
+				throw new RuntimeException("Invalid castling state!");
+			if (getCastling_BK() && !(testPieceAt(PieceType.KING, Player.BLACK, Square.E8) && testPieceAt(PieceType.ROOK, Player.BLACK, Square.H8)))
+				throw new RuntimeException("Invalid castling state!");
+			if (getCastling_BQ() && !(testPieceAt(PieceType.KING, Player.BLACK, Square.E8) && testPieceAt(PieceType.ROOK, Player.BLACK, Square.A8)))
+				throw new RuntimeException("Invalid castling state!");
+			// validate checks.
+			if (calculateIsPlayerInCheck(getPlayerToMove()) != getIsCheck())
+				throw new RuntimeException("Check flag mismatch!");
+			if (calculateIsPlayerInCheck(Player.getOtherPlayer(getPlayerToMove())))
+				throw new RuntimeException("King en prise!");
+			// validate pawns on first and last ranks
+			if (Bitboard.popcount(getPieces(PieceType.PAWN) & 0xff000000000000ffL) != 0)
+				throw new RuntimeException("Pawns on first or last rank!");
+			DebugLibrary.validatePlayer(getPlayerToMove());
+			// validate king denorm
+			if (Bitboard.popcount(getPieces(PieceType.KING)) != 2)
+				throw new RuntimeException("Something wrong with kings!");
+			if (getKingSquare(Player.WHITE) != bitScanForward(getPieces(Player.WHITE, PieceType.KING)))
+				throw new RuntimeException("Error in king denorm!");
+			if (getKingSquare(Player.BLACK) != bitScanForward(getPieces(Player.BLACK, PieceType.KING)))
+				throw new RuntimeException("Error in king denorm!");
+			DebugLibrary.validateSquare(getKingSquare(Player.WHITE));
+			DebugLibrary.validateSquare(getKingSquare(Player.BLACK));
+		} catch (Exception e) {
+			// uncomment when troubleshooting!
+			// e.printStackTrace();
 			throw new RuntimeException("Invalid Game State!");
+		}
 	}
-
 }

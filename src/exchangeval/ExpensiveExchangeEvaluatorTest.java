@@ -4,13 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 
-import javax.swing.text.Position.Bias;
-
-import org.javatuples.Pair;
 import org.javatuples.Quartet;
 import org.junit.jupiter.api.Test;
 
-import gamestate.Board;
+import gamestate.Gamestate;
 import static gamestate.GlobalConstants.PieceType.*;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
@@ -19,7 +16,7 @@ class ExpensiveExchangeEvaluatorTest {
 
 	@Test
 	void testCaptureAndOccupyWithNoKing() {
-		Board brd = new Board();
+		Gamestate brd = new Gamestate();
 		ExpensiveExchangeEvaluator eval = new ExpensiveExchangeEvaluator();
 		// sanity check: no target
 		assertEquals(false, eval.toOccupy(brd.loadFromFEN("8/6pk/6pp/8/8/6PP/6PK/8 w - - 0 1"), Square.B3, Player.WHITE));
@@ -107,7 +104,7 @@ class ExpensiveExchangeEvaluatorTest {
 
 	@Test
 	void testToMoveAndOccupyWithNoKing() {
-		Board brd = new Board();
+		Gamestate brd = new Gamestate();
 		ExpensiveExchangeEvaluator eval = new ExpensiveExchangeEvaluator();
 		// sanity check: blockaded pawns
 		assertEquals(false, eval.toOccupy(brd.loadFromFEN("8/6pk/1p4pp/1P6/8/6PP/6PK/8 w - - 0 1"), Square.B6, Player.WHITE));
@@ -262,7 +259,7 @@ class ExpensiveExchangeEvaluatorTest {
 		//first move - non-capture
 		//Moving to an empty square is not going to win material, because the opponent is not going to perform a losing capture.
 
-		Board brd = new Board();
+		Gamestate brd = new Gamestate();
 		ExpensiveExchangeEvaluator eval = new ExpensiveExchangeEvaluator();
 		for (Quartet<int[], int[], String, Integer> test : tests) {
 			int[] given = test.getValue0();
