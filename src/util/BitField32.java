@@ -6,6 +6,7 @@ package util;
  *
  */
 
+// TODO: make sure the signed integer logic works for all bits!!!!
 public class BitField32 {
 	private static final long[] BIT_EXTRACTION_MASK = { 0, 0x1, 0x3, 0x7, 0xF, 0x1F, 0x3F, 0x7F, 0xFF };
 

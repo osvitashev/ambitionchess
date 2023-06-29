@@ -22,10 +22,8 @@ import gamestate.GlobalConstants.Square;
 	15		3		piece_captured
 	18		3		piece_promoted
 	21		3		move_type
-	24		1		castling_queenside
-	25		1		castling_kingside
- 	26		1		player
- 	27		1		check = is set by move validation
+ 	24		1		player
+ 	25		1		check = is set by move validation
 	
 	IDEA: Zobriest hashing can be implemented for moves in order to implement Killer move heuristic
 	
@@ -96,41 +94,25 @@ public class Move {
 		return setBits(move, type, 21, 3);
 	}
 
-	public static boolean getCastlingKingside(int move) {
-		return getBoolean(move, 24);
-	}
-
-	public static int setCastlingKingside(int move, boolean val) {
-		return setBoolean(move, true, 24);
-	}
-
-	public static boolean getCastlingQueenside(int move) {
-		return getBoolean(move, 25);
-	}
-
-	public static int setCastlingQueenside(int move, boolean val) {
-		return setBoolean(move, true, 25);
-	}
-
 	public static int getPlayer(int move) {
-		return getBits(move, 26, 1);
+		return getBits(move, 24, 1);
 	}
 
 	public static int setPlayer(int move, int pl) {
 		DebugLibrary.validatePlayer(pl);
-		return setBits(move, pl, 26, 1);
+		return setBits(move, pl, 24, 1);
 	}
 
 	public static boolean getCheck(int move) {
-		return getBoolean(move, 27);
+		return getBoolean(move, 25);
 	}
 
 	public static int setCheck(int move, boolean val) {
-		return setBoolean(move, val, 27);
+		return setBoolean(move, val, 25);
 	}
 
 	public static int setCheck(int move) {
-		return setBoolean(move, true, 27);
+		return setBoolean(move, true, 25);
 	}
 
 	public static String moveToString(int move) {

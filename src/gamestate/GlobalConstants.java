@@ -24,6 +24,7 @@ public class GlobalConstants {
 
 	}
 
+	// TODO: All Enum classes should be interface-based and prvide a validation function.
 	public static final class PieceType {
 // IMPORTANT: NO_PIECE is not in the collection!
 		public static final int[] PIECE_TYPES = { PieceType.PAWN, PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP, PieceType.QUEEN, PieceType.KING };
