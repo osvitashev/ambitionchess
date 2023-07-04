@@ -17,6 +17,10 @@ import gamestate.DebugLibrary;
  * The pproach is to have an attack bitboard for every piece (except pawns)
  * and additionally two boards for left and right pawn attacks and one for pawn pushes.
  * 
+ * ***for mixed-player batteries, we are only supporting one color change.
+ * ***evaluation is greedy: we are assuming that evaluation is short-sighted and does not have a lokahead. The least valuable attacker is used first;
+ * 		even if this is detrimental to the exchange overall.
+ * 
  //@formatter:off
   * 
   	memory packing: 
@@ -26,7 +30,12 @@ import gamestate.DebugLibrary;
 	5		6		Square origin - is not meaningful for pawn attacks and pushes
 	11		1		bool - isBatteryWithPawnPush - set for queen/rook attacking on a vertical line. Needed for correct exchange evaluation.
 	12		8		int sunken cost	- cumulative cost of previous sliding pieces in the battery. This can be a value in the range of [0, 255]. For direct attacks it is 0.
-
+	20		8		int opponent sunken cost - cumulative cost of previous sliding pieces of the opposite color in the battery. Is blank most of the time...
+	28		1		bool - player flag
+	
+	***It might be pretty straight forward to extend this to cover batteries with exactly one color change: xpQB or xxQrr;
+	* Cases with more than one color change are too rare to consider...
+	* if we add 'opponentSunkenCost', then we can also handle cases such as xpqB and xxQRr.
  	
  //@formatter:on
  */
@@ -81,6 +90,23 @@ public class AttackSetData {
 	public static int setSunkenCost(int asData, int val) {
 		// TODO: add parameter validation
 		return setBits(asData, val, 12, 8);
+	}
+	
+	public static int getOpponentSunkenCost(int asData) {
+		return getBits(asData, 20, 8);
+	}
+
+	public static int setOppontntSunkenCost(int asData, int val) {
+		// TODO: add parameter validation
+		return setBits(asData, val, 20, 8);
+	}
+	
+	public static boolean getPlayer(int asData) {
+		return getBoolean(asData, 28);
+	}
+
+	public static int setPlayer(int asData) {
+		return setBoolean(asData, true, 28);
 	}
 
 }
