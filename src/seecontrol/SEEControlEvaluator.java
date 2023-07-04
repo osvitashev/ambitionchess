@@ -55,16 +55,36 @@ public class SEEControlEvaluator {
 			int sq_from = brd.getKingSquare(player);
 			long targetBitboard = BitboardGen.getKingSet(sq_from);
 			int asData = 0;
-			
 			asData = AttackSetData.setAttackSetType(asData, AttackSetType.DIRECT);
 			asData = AttackSetData.setPieceType(asData, PieceType.KING);
 			asData = AttackSetData.setSquare(asData, sq_from);
 			if(!Player.isWhite(player))
 				asData = AttackSetData.setPlayer(asData);
-			
 			attackSets[player][attackSet_size[player]] = targetBitboard;
 			attackSetData[player][attackSet_size[player]] = asData;
 			attackSet_size[player]+=1;
+		}
+	}
+	
+	void populateKnightAttacks(Gamestate brd) {
+		for(int player : Player.PLAYERS) {
+			{
+				int bi = 0;
+				for (long zarg = brd.getPieces(player, PieceType.KNIGHT),
+						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
+					bi = Bitboard.bitScanForward(barg);
+					long targetBitboard = BitboardGen.getKnightSet(bi);
+					int asData = 0;
+					asData = AttackSetData.setAttackSetType(asData, AttackSetType.DIRECT);
+					asData = AttackSetData.setPieceType(asData, PieceType.KNIGHT);
+					asData = AttackSetData.setSquare(asData, bi);
+					if(!Player.isWhite(player))
+						asData = AttackSetData.setPlayer(asData);
+					attackSets[player][attackSet_size[player]] = targetBitboard;
+					attackSetData[player][attackSet_size[player]] = asData;
+					attackSet_size[player]+=1;
+				}
+			}
 		}
 	}
 
