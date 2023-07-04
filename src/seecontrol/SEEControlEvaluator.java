@@ -7,6 +7,7 @@ import gamestate.Gamestate;
 import gamestate.Move;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
+import gamestate.GlobalConstants.Square;
 import seecontrol.AttackSetData.AttackSetType;
 
 public class SEEControlEvaluator {
@@ -87,5 +88,38 @@ public class SEEControlEvaluator {
 			}
 		}
 	}
+	
+	void populatePawnAtacks(Gamestate brd) {
+		//adds up to two sets
+	}
+	
+	void populatePawnPushes(Gamestate brd) {
+		//adds one set for both single and double pawn push
+		for(int player : Player.PLAYERS) {
+			long pawns = brd.getPieces(player, PieceType.PAWN);
+			long temp =0;
+			if(Player.isWhite(player)) {
+				temp = Bitboard.shiftNorth(pawns) & brd.getEmpty();
+				temp |= Bitboard.shiftNorth(temp & Bitboard.getRankMask(Square.A3)) & brd.getEmpty();
+			}
+			else {
+				temp = Bitboard.shiftSouth(pawns) & brd.getEmpty();
+				temp |= Bitboard.shiftSouth(temp& Bitboard.getRankMask(Square.A6)) & brd.getEmpty();
+			}
+			
+			if(!Bitboard.isEmpty(temp)) {
+				int asData = 0;
+				asData = AttackSetData.setAttackSetType(asData, AttackSetType.PAWN_PUSH);
+				asData = AttackSetData.setPieceType(asData, PieceType.PAWN);
+				if(!Player.isWhite(player))
+					asData = AttackSetData.setPlayer(asData);
+				attackSets[player][attackSet_size[player]] = temp;
+				attackSetData[player][attackSet_size[player]] = asData;
+				attackSet_size[player]+=1;
+			}
+		}
+	}
+	
+	/// for sliding piece batteries we can probably revert to iterative generation of slide-by-one
 
 }

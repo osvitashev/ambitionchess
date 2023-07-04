@@ -106,6 +106,80 @@ public class SEEControlEvaluatorTest {
 	}
 	
 	@Test
+	void testPopulatePawnPushes() {
+		Gamestate brd;
+		SEEControlEvaluator seval = new SEEControlEvaluator();
+		
+		//case mostly blocked by friendly pieces. no doubled pawns
+		brd = new Gamestate("3q3r/p2pp2p/2p1kp2/b1P3p1/N2PP3/2N1QPB1/PPK3P1/4R3 w - - 0 1");
+		seval.initialize();
+		seval.populatePawnPushes(brd);
+		assertEquals(1, seval.getSetSize(Player.WHITE));
+		assertEquals(1, seval.getSetSize(Player.BLACK));
+		
+		int asData = 0;
+		asData = AttackSetData.setAttackSetType(asData, AttackSetType.PAWN_PUSH);
+		asData = AttackSetData.setPieceType(asData, PieceType.PAWN);
+		assertEquals(asData, seval.getSetData(Player.WHITE, 0));
+		assertEquals(0x1822030000L, seval.getSet(Player.WHITE, 0));
+		
+		asData = 0;
+		asData = AttackSetData.setAttackSetType(asData, AttackSetType.PAWN_PUSH);
+		asData = AttackSetData.setPieceType(asData, PieceType.PAWN);
+		asData = AttackSetData.setPlayer(asData);//black
+		assertEquals(asData, seval.getSetData(Player.BLACK, 0));
+		assertEquals(151355721252864L, seval.getSet(Player.BLACK, 0));
+		
+		//white has no pawn pushes
+		brd = new Gamestate("5rk1/5pbp/3p1p2/7p/N2p4/P7/PRN5/K7 w - - 0 1");
+		seval.initialize();
+		seval.populatePawnPushes(brd);
+		assertEquals(0, seval.getSetSize(Player.WHITE));
+		assertEquals(1, seval.getSetSize(Player.BLACK));
+		
+		asData = 0;
+		asData = AttackSetData.setAttackSetType(asData, AttackSetType.PAWN_PUSH);
+		asData = AttackSetData.setPieceType(asData, PieceType.PAWN);
+		asData = AttackSetData.setPlayer(asData);//black
+		assertEquals(asData, seval.getSetData(Player.BLACK, 0));
+		assertEquals(0x802880080000L, seval.getSet(Player.BLACK, 0));
+		
+		//no pawn pushes for either side
+		brd = new Gamestate("8/1p4p1/1n1p2p1/3k2b1/4R3/2RNP3/3K4/8 w - - 0 1");
+		seval.initialize();
+		seval.populatePawnPushes(brd);
+		assertEquals(0, seval.getSetSize(Player.WHITE));
+		assertEquals(0, seval.getSetSize(Player.BLACK));
+		
+		//no pawns for either side
+		brd = new Gamestate("8/3k4/8/8/8/8/1K6/8 w - - 0 1");
+		seval.initialize();
+		seval.populatePawnPushes(brd);
+		assertEquals(0, seval.getSetSize(Player.WHITE));
+		assertEquals(0, seval.getSetSize(Player.BLACK));
+		
+		//pawns pushing for last rank
+		brd = new Gamestate("4rq2/3p3P/1np2p2/3k3p/p2P1P1P/1PK2P1N/P1P2Qp1/2R5 w - - 0 1");
+		seval.initialize();
+		seval.populatePawnPushes(brd);
+		assertEquals(1, seval.getSetSize(Player.WHITE));
+		assertEquals(1, seval.getSetSize(Player.BLACK));
+		
+		asData = 0;
+		asData = AttackSetData.setAttackSetType(asData, AttackSetType.PAWN_PUSH);
+		asData = AttackSetData.setPieceType(asData, PieceType.PAWN);
+		assertEquals(asData, seval.getSetData(Player.WHITE, 0));
+		assertEquals(0x8000002002010000L, seval.getSet(Player.WHITE, 0));
+		
+		asData = 0;
+		asData = AttackSetData.setAttackSetType(asData, AttackSetType.PAWN_PUSH);
+		asData = AttackSetData.setPieceType(asData, PieceType.PAWN);
+		asData = AttackSetData.setPlayer(asData);//black
+		assertEquals(asData, seval.getSetData(Player.BLACK, 0));
+		assertEquals(0x82400010040L, seval.getSet(Player.BLACK, 0));
+	}
+	
+	@Test
 	/**
 	 * tests that every piece and every attack set type is represented in the evaluator
 	 */

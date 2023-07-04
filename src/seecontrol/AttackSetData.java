@@ -40,6 +40,8 @@ import gamestate.DebugLibrary;
  //@formatter:on
  */
 
+//TODO: isBatteryWithPawnPush is redundant: was supposed to be used in order to dintinguish between queen-pawn attack and queen-pawn push, but that is evident from the target square occupancy
+
 public class AttackSetData {
 	public static final class AttackSetType {
 		public static final int DIRECT = 0; // sliding pieces, knight, king
