@@ -73,7 +73,7 @@ public class SEEControlEvaluator {
 				int bi = 0;
 				for (long zarg = brd.getPieces(player, PieceType.KNIGHT),
 						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-					bi = Bitboard.bitScanForward(barg);
+					bi = Bitboard.getFirstSquareIndex(barg);
 					long targetBitboard = BitboardGen.getKnightSet(bi);
 					int asData = 0;
 					asData = AttackSetData.setAttackSetType(asData, AttackSetType.DIRECT);
