@@ -29,6 +29,7 @@ import gamestate.GlobalConstants.Square;
  *
  */
 public final class Bitboard {
+	
 	/**
 	 * aka bitScanForward
 	 * The order is: A1, B1, C1 ...
@@ -81,21 +82,58 @@ public final class Bitboard {
 	public static int popcount(long bb) {
 		return Long.bitCount(bb);
 	}
-
-	public static long shiftEast(long bb) {
-		return (bb<<1) & ~0x101010101010101L;
+	
+	public final static class ShiftDirection {
+		public static final int NORTH = 0;
+		public static final int NORTH_EAST = 1;
+		public static final int EAST = 2;
+		public static final int SOUTH_EAST = 3;
+		public static final int SOUTH = 4;
+		public static final int SOUTH_WEST = 5;
+		public static final int WEST = 6;
+		public static final int NORTH_WEST = 7;
+		
+		public static final int [] DIRECTIONS_ALL = {NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORTH_WEST};
+		public static final int [] DIRECTIONS_BISH = {NORTH_EAST, SOUTH_EAST, SOUTH_WEST, NORTH_WEST};
+		public static final int [] DIRECTIONS_ROOK = {NORTH, EAST, SOUTH, WEST};
 	}
 	
-	public static long shiftWest(long bb) {
-		return (bb>>>1) & ~0x8080808080808080L;// unsigned shift pads the argument with zeros.
-	}
-	
-	public static long shiftNorth(long bb) {
-		return bb << 8;
-	}
-
-	public static long shiftSouth(long bb) {
-		return bb >>> 8;// unsigned shift pads the argument with zeros.
+	/**
+	 *		long arg = ...;
+	 * 		for(int dir : DIRECTIONS_ROOK){
+	 * 			long arg2 = shift(dir, arg);
+	 * 			...
+	 * 		}
+	 */
+	public static long shift(int direction, long bb) {
+		//TODO: add validation for Direction
+		switch(direction) {
+		case ShiftDirection.NORTH:
+			bb = bb << 8;
+			break;
+		case ShiftDirection.NORTH_EAST:
+			bb = shift(ShiftDirection.NORTH, shift(ShiftDirection.EAST, bb));
+			break;
+		case ShiftDirection.EAST:
+			bb = (bb<<1) & ~0x101010101010101L;
+			break;
+		case ShiftDirection.SOUTH_EAST:
+			bb = shift(ShiftDirection.SOUTH, shift(ShiftDirection.EAST, bb));
+			break;
+		case ShiftDirection.SOUTH:
+			bb = bb >>> 8;// unsigned shift pads the argument with zeros.
+			break;
+		case ShiftDirection.SOUTH_WEST:
+			bb = shift(ShiftDirection.SOUTH, shift(ShiftDirection.WEST, bb));
+			break;
+		case ShiftDirection.WEST:
+			bb = (bb>>>1) & ~0x8080808080808080L;// unsigned shift pads the argument with zeros.
+			break;
+		case ShiftDirection.NORTH_WEST:
+			bb = shift(ShiftDirection.NORTH, shift(ShiftDirection.WEST, bb));
+			break;
+		}
+		return bb;
 	}
 
 	/**
@@ -222,14 +260,14 @@ public final class Bitboard {
 	                long mask=0;
 	                while (sq1 != sq2) {
 	                    if (dx > 0) {
-	                        sq1 = Bitboard.shiftEast(sq1);
+	                        sq1 = Bitboard.shift(ShiftDirection.EAST, sq1);
 	                    } else if (dx < 0) {
-	                        sq1 = Bitboard.shiftWest(sq1);
+	                        sq1 = Bitboard.shift(ShiftDirection.WEST, sq1);
 	                    }
 	                    if (dy > 0) {
-	                        sq1 = Bitboard.shiftNorth(sq1);
+	                        sq1 = Bitboard.shift(ShiftDirection.NORTH, sq1);
 	                    } else if (dy < 0) {
-	                        sq1 = Bitboard.shiftSouth(sq1);
+	                        sq1 = Bitboard.shift(ShiftDirection.SOUTH, sq1);
 	                    }
 	                    mask |= sq1;
 	                }

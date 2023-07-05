@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import org.junit.jupiter.api.Test;
 
+import gamestate.Bitboard.ShiftDirection;
 import gamestate.GlobalConstants.Square;
 
 
@@ -172,10 +173,15 @@ class BitboardTest {
 	@Test
 	void testBitShifts() {
 		long v = 0xc3811c141c1481c3L;
-		assertEquals(0x811c141c1481c300L, Bitboard.shiftNorth(v));
-		assertEquals(0xc3811c141c1481L, Bitboard.shiftSouth(v));
-		assertEquals(0x8602382838280286L, Bitboard.shiftEast(v));
-		assertEquals(0x61400e0a0e0a4061L, Bitboard.shiftWest(v));
+		assertEquals(0x811c141c1481c300L, Bitboard.shift(ShiftDirection.NORTH, v));
+		assertEquals(0xc3811c141c1481L, Bitboard.shift(ShiftDirection.SOUTH, v));
+		assertEquals(0x8602382838280286L, Bitboard.shift(ShiftDirection.EAST, v));
+		assertEquals(0x61400e0a0e0a4061L, Bitboard.shift(ShiftDirection.WEST, v));
+		v = 0x2c21c141c144340L;
+		assertEquals(0x610e0a0e0a212000L, Bitboard.shift(ShiftDirection.NORTH_WEST, v));
+		assertEquals(0x8438283828868000L, Bitboard.shift(ShiftDirection.NORTH_EAST, v));
+		assertEquals(0x1610e0a0e0a21L, Bitboard.shift(ShiftDirection.SOUTH_WEST, v));
+		assertEquals(0x4843828382886L, Bitboard.shift(ShiftDirection.SOUTH_EAST, v));
 	}
 	
 	@Test

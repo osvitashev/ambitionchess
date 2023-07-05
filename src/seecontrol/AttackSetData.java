@@ -103,12 +103,13 @@ public class AttackSetData {
 		return setBits(asData, val, 20, 8);
 	}
 	
-	public static boolean getPlayer(int asData) {
-		return getBoolean(asData, 28);
+	public static int getPlayer(int asData) {
+		return getBits(asData, 28, 1);
 	}
 
-	public static int setPlayer(int asData) {
-		return setBoolean(asData, true, 28);
+	public static int setPlayer(int asData, int player) {
+		DebugLibrary.validatePlayer(player);
+		return setBits(asData, player, 28, 1);
 	}
 
 }

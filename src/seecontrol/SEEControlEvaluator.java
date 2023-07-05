@@ -5,6 +5,7 @@ import gamestate.BitboardGen;
 import gamestate.DebugLibrary;
 import gamestate.Gamestate;
 import gamestate.Move;
+import gamestate.Bitboard.ShiftDirection;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
@@ -59,8 +60,7 @@ public class SEEControlEvaluator {
 			asData = AttackSetData.setAttackSetType(asData, AttackSetType.DIRECT);
 			asData = AttackSetData.setPieceType(asData, PieceType.KING);
 			asData = AttackSetData.setSquare(asData, sq_from);
-			if(!Player.isWhite(player))
-				asData = AttackSetData.setPlayer(asData);
+			asData = AttackSetData.setPlayer(asData, player);
 			attackSets[player][attackSet_size[player]] = targetBitboard;
 			attackSetData[player][attackSet_size[player]] = asData;
 			attackSet_size[player]+=1;
@@ -79,8 +79,7 @@ public class SEEControlEvaluator {
 					asData = AttackSetData.setAttackSetType(asData, AttackSetType.DIRECT);
 					asData = AttackSetData.setPieceType(asData, PieceType.KNIGHT);
 					asData = AttackSetData.setSquare(asData, bi);
-					if(!Player.isWhite(player))
-						asData = AttackSetData.setPlayer(asData);
+					asData = AttackSetData.setPlayer(asData, player);
 					attackSets[player][attackSet_size[player]] = targetBitboard;
 					attackSetData[player][attackSet_size[player]] = asData;
 					attackSet_size[player]+=1;
@@ -90,7 +89,53 @@ public class SEEControlEvaluator {
 	}
 	
 	void populatePawnAtacks(Gamestate brd) {
-		//adds up to two sets
+		//adds up to two sets per side
+		for(int player : Player.PLAYERS) {
+			long pawns = brd.getPieces(player, PieceType.PAWN);
+			long temp;
+			if(Player.isWhite(player)) {
+				temp = Bitboard.shift(ShiftDirection.NORTH_EAST, pawns);
+				if(!Bitboard.isEmpty(temp)) {
+					int asData = 0;
+					asData = AttackSetData.setAttackSetType(asData, AttackSetType.PAWN_ATTACK);
+					asData = AttackSetData.setPieceType(asData, PieceType.PAWN);
+					attackSets[player][attackSet_size[player]] = temp;
+					attackSetData[player][attackSet_size[player]] = asData;
+					attackSet_size[player]+=1;
+				}
+				temp = Bitboard.shift(ShiftDirection.NORTH_WEST, pawns);
+				if(!Bitboard.isEmpty(temp)) {
+					int asData = 0;
+					asData = AttackSetData.setAttackSetType(asData, AttackSetType.PAWN_ATTACK);
+					asData = AttackSetData.setPieceType(asData, PieceType.PAWN);
+					attackSets[player][attackSet_size[player]] = temp;
+					attackSetData[player][attackSet_size[player]] = asData;
+					attackSet_size[player]+=1;
+				}
+			}
+			else {
+				temp = Bitboard.shift(ShiftDirection.SOUTH_EAST, pawns);
+				if(!Bitboard.isEmpty(temp)) {
+					int asData = 0;
+					asData = AttackSetData.setAttackSetType(asData, AttackSetType.PAWN_ATTACK);
+					asData = AttackSetData.setPieceType(asData, PieceType.PAWN);
+					asData = AttackSetData.setPlayer(asData, Player.BLACK);
+					attackSets[player][attackSet_size[player]] = temp;
+					attackSetData[player][attackSet_size[player]] = asData;
+					attackSet_size[player]+=1;
+				}
+				temp = Bitboard.shift(ShiftDirection.SOUTH_WEST, pawns);
+				if(!Bitboard.isEmpty(temp)) {
+					int asData = 0;
+					asData = AttackSetData.setAttackSetType(asData, AttackSetType.PAWN_ATTACK);
+					asData = AttackSetData.setPieceType(asData, PieceType.PAWN);
+					asData = AttackSetData.setPlayer(asData, Player.BLACK);
+					attackSets[player][attackSet_size[player]] = temp;
+					attackSetData[player][attackSet_size[player]] = asData;
+					attackSet_size[player]+=1;
+				}
+			}
+		}
 	}
 	
 	void populatePawnPushes(Gamestate brd) {
@@ -99,20 +144,19 @@ public class SEEControlEvaluator {
 			long pawns = brd.getPieces(player, PieceType.PAWN);
 			long temp =0;
 			if(Player.isWhite(player)) {
-				temp = Bitboard.shiftNorth(pawns) & brd.getEmpty();
-				temp |= Bitboard.shiftNorth(temp & Bitboard.getRankMask(Square.A3)) & brd.getEmpty();
+				temp = Bitboard.shift(ShiftDirection.NORTH, pawns) & brd.getEmpty();
+				temp |= Bitboard.shift(ShiftDirection.NORTH, temp & Bitboard.getRankMask(Square.A3)) & brd.getEmpty();
 			}
 			else {
-				temp = Bitboard.shiftSouth(pawns) & brd.getEmpty();
-				temp |= Bitboard.shiftSouth(temp& Bitboard.getRankMask(Square.A6)) & brd.getEmpty();
+				temp = Bitboard.shift(ShiftDirection.SOUTH, pawns) & brd.getEmpty();
+				temp |= Bitboard.shift(ShiftDirection.SOUTH, temp& Bitboard.getRankMask(Square.A6)) & brd.getEmpty();
 			}
 			
 			if(!Bitboard.isEmpty(temp)) {
 				int asData = 0;
 				asData = AttackSetData.setAttackSetType(asData, AttackSetType.PAWN_PUSH);
 				asData = AttackSetData.setPieceType(asData, PieceType.PAWN);
-				if(!Player.isWhite(player))
-					asData = AttackSetData.setPlayer(asData);
+				asData = AttackSetData.setPlayer(asData, player);
 				attackSets[player][attackSet_size[player]] = temp;
 				attackSetData[player][attackSet_size[player]] = asData;
 				attackSet_size[player]+=1;

@@ -1,5 +1,6 @@
 package gamestate;
 
+import gamestate.Bitboard.ShiftDirection;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
@@ -331,12 +332,12 @@ public class MoveGen {
 			for (long zarg = pawnBB, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 				bi = Bitboard.getFirstSquareIndex(barg);
 				// single
-				if (0 == (brd.getOccupied() & Bitboard.shiftNorth(barg))) {// use shiftNorth to check is the target square is empty
+				if (0 == (brd.getOccupied() & Bitboard.shift(ShiftDirection.NORTH, barg))) {// use shiftNorth to check is the target square is empty
 					move = Move.createNormal(bi, bi + 8, PieceType.PAWN, player);
 					addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 					// double
 					if (0L != (barg & 0x000000000000FF00L)) {// bi is in [a2-h2]
-						if (0 == (brd.getOccupied() & Bitboard.shiftNorth(Bitboard.shiftNorth(barg)))) {
+						if (0 == (brd.getOccupied() & Bitboard.shift(ShiftDirection.NORTH, Bitboard.shift(ShiftDirection.NORTH, barg)))) {
 							move = Move.createDoublePush(bi, bi + 16, player);
 							addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 						}
@@ -352,12 +353,12 @@ public class MoveGen {
 			for (long zarg = pawnBB, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 				bi = Bitboard.getFirstSquareIndex(barg);
 				// single
-				if (0 == (brd.getOccupied() & Bitboard.shiftSouth(barg))) {// use shiftSouth to check is the target square is empty
+				if (0 == (brd.getOccupied() & Bitboard.shift(ShiftDirection.SOUTH, barg))) {// use shiftSouth to check is the target square is empty
 					move = Move.createNormal(bi, bi - 8, PieceType.PAWN, player);
 					addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 					// double
 					if (0L != (barg & 0x00FF000000000000L)) {// bi is in [a7-h7]
-						if (0 == (brd.getOccupied() & Bitboard.shiftSouth(Bitboard.shiftSouth(barg)))) {
+						if (0 == (brd.getOccupied() & Bitboard.shift(ShiftDirection.SOUTH, Bitboard.shift(ShiftDirection.SOUTH, barg)))) {
 							move = Move.createDoublePush(bi, bi - 16, player);
 							addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 						}
@@ -541,7 +542,7 @@ public class MoveGen {
 		}
 		switch (brd.getPlayerToMove()) {
 		case Player.WHITE:
-			if (0 == (brd.getOccupied() & Bitboard.shiftNorth(Bitboard.setBit(0L, sqFrom)))) {// use shiftNorth to check is the target square is empty
+			if (0 == (brd.getOccupied() & Bitboard.shift(ShiftDirection.NORTH, Bitboard.setBit(0L, sqFrom)))) {// use shiftNorth to check is the target square is empty
 				move = Move.createPromo(sqFrom, sqFrom + 8, PieceType.ROOK, brd.getPlayerToMove());
 				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 				move = Move.createPromo(sqFrom, sqFrom + 8, PieceType.KNIGHT, brd.getPlayerToMove());
@@ -553,7 +554,7 @@ public class MoveGen {
 			}
 			break;
 		default:// black player
-			if (0 == (brd.getOccupied() & Bitboard.shiftSouth(Bitboard.setBit(0L, sqFrom)))) {// use shiftNorth to check is the target square is empty
+			if (0 == (brd.getOccupied() & Bitboard.shift(ShiftDirection.SOUTH, Bitboard.setBit(0L, sqFrom)))) {// use shiftNorth to check is the target square is empty
 				move = Move.createPromo(sqFrom, sqFrom - 8, PieceType.ROOK, brd.getPlayerToMove());
 				addToMovePoolAndSetCheckIfValid(brd, movepool, move);
 				move = Move.createPromo(sqFrom, sqFrom - 8, PieceType.KNIGHT, brd.getPlayerToMove());
