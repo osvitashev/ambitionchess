@@ -6,6 +6,9 @@ import static util.BitField32.setBits;
 import static util.BitField32.setBoolean;
 
 import gamestate.DebugLibrary;
+import gamestate.GlobalConstants.PieceType;
+import gamestate.GlobalConstants.Player;
+import gamestate.GlobalConstants.Square;
 
 /**
  * Used for static exchange evaluation. Contains data regarding a given attack bit board.
@@ -48,6 +51,55 @@ public class AttackSetData {
 		public static final int INDIRECT = 1; //used for sliding piece batteries
 		public static final int PAWN_ATTACK = 2;
 		public static final int PAWN_PUSH = 3;
+		
+		public static String toString(int asType) {
+			switch(asType) {
+			case DIRECT:
+				return "DIRECT";
+			case INDIRECT:
+				return "INDIRECT";
+			case PAWN_ATTACK:
+				return "PAWN_ATTACK";
+			}
+			return "PAWN_PUSH";
+		}
+	}
+	
+	public static String toString(int asData) {
+		String ret = "";
+		ret += AttackSetType.toString(AttackSetData.getAttackSetType(asData)) + " ";
+		if(Player.isWhite(AttackSetData.getPlayer(asData)))
+			ret += "w";
+		else
+			ret += "b";
+		ret += PieceType.toString(AttackSetData.getPieceType(asData)) + " ";
+		ret += Square.toString(AttackSetData.getSquare(asData)) + " ";
+		
+		int temp = AttackSetData.getSunkenCost(asData);
+		if(temp != 0)
+			ret+="getSunkenCost = " + Integer.toString(temp) + " ";
+		temp = AttackSetData.getOpponentSunkenCost(asData);
+		if(temp != 0)
+			ret+="getOpponentSunkenCost = " + Integer.toString(temp) + " ";
+		if(AttackSetData.getIsBatteryWithPawnPush(asData))
+			ret += "isBatteryWithPawnPush";
+		return ret;
+	}
+	
+	//only used for ordering. Does not represent exchange evaluation cost!
+	public static final class OrderingPieceWeights {
+		private static final int[] COSTS = { 1, 3, 3, 5, 10};
+		
+		/**
+		 * Only used for ordering. Does not represent exchange evaluation cost!
+		 * Notice that King does not have an assigned value!!!!
+		 * @param pieceType
+		 * @return
+		 */
+		public static int getValue(int pieceType) {
+			DebugLibrary.validatePieceType(pieceType);
+			return COSTS[pieceType];
+		}
 	}
 	
 	public static int getAttackSetType(int asData) {
@@ -81,8 +133,8 @@ public class AttackSetData {
 		return getBoolean(asData, 11);
 	}
 
-	public static int setIsBatteryWithPawnPush(int asData) {
-		return setBoolean(asData, true, 11);
+	public static int setIsBatteryWithPawnPush(int asData, boolean value) {
+		return setBoolean(asData, value, 11);
 	}
 	
 	public static int getSunkenCost(int asData) {

@@ -165,5 +165,68 @@ public class SEEControlEvaluator {
 	}
 	
 	/// for sliding piece batteries we can probably revert to iterative generation of slide-by-one
+	
+	/**
+	 * Used for sliding pieces
+	 */
+	private void addAttackSet(long as, int asData, int player) {
+		attackSets[player][attackSet_size[player]] = as;
+		attackSetData[player][attackSet_size[player]] = asData;
+		attackSet_size[player]+=1;
+	}
+	
+	//when invoking the next level, only mask one blocker type at a time
+	private void populateRookAttacksRecoursively(Gamestate brd, int currentASData, long cumulativeAS, boolean didColorChange) {
+		int player = AttackSetData.getPlayer(currentASData);
+		int otherPlayer = Player.getOtherPlayer(player);
+		long attackSet = BitboardGen.getRookSet(AttackSetData.getSquare(currentASData), brd.getOccupied() & ~cumulativeAS);
+		long blockers = attackSet & brd.getOccupied();
+		
+		if(! Bitboard.isEmpty(attackSet)) {
+			//add sunken cost, and pawnPushBattery flag
+			addAttackSet(attackSet, currentASData, player);
+			long friednly_R		= attackSet & brd.getPieces(player, PieceType.ROOK);
+			long enemy_R		= attackSet & brd.getPieces(otherPlayer, PieceType.ROOK);
+			long friednly_Q		= attackSet & brd.getPieces(player, PieceType.QUEEN);
+			long enemy_Q		= attackSet & brd.getPieces(otherPlayer, PieceType.QUEEN);
+			long friednly_P		= attackSet & brd.getPieces(player, PieceType.PAWN);
+			long enemy_P		= attackSet & brd.getPieces(otherPlayer, PieceType.PAWN);
+			
+			if (!Bitboard.isEmpty(friednly_R) && !didColorChange) {
+				int newASData = currentASData;
+				newASData = AttackSetData.setSunkenCost(newASData,
+						AttackSetData.getSunkenCost(newASData) + AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK));
+				populateRookAttacksRecoursively(brd, newASData, cumulativeAS | attackSet, false);
+			}
+			
+			//pawn cases will not make a recrsive call
+		}
+		
+	}
+	
+	///TODO: rename the package to quantitativeanalysis!!!!!!!!!!!!!!!!
+	 
+	
+	void populateRookAttacks(Gamestate brd) {
+		for(int player : Player.PLAYERS) {
+			{
+				int bi = 0;
+				for (long zarg = brd.getPieces(player, PieceType.ROOK),
+						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
+					bi = Bitboard.getFirstSquareIndex(barg);
+					
+					int asData = 0;
+					asData = AttackSetData.setPlayer(asData, player);
+					asData = AttackSetData.setAttackSetType(asData, AttackSetType.DIRECT);
+					asData = AttackSetData.setPieceType(asData, PieceType.ROOK);
+					asData = AttackSetData.setSquare(asData, bi);
+					//asData = AttackSetData.setSunkenCost(asData, AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK));
+					
+					populateRookAttacksRecoursively(brd, asData, 0L, false);
+
+				}
+			}
+		}
+	}
 
 }

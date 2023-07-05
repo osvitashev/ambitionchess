@@ -53,7 +53,7 @@ public class AttackSetDataTest {
 		assertEquals(Player.WHITE, AttackSetData.getPlayer(asData));
 
 		asData = 0;
-		asData = AttackSetData.setIsBatteryWithPawnPush(asData);
+		asData = AttackSetData.setIsBatteryWithPawnPush(asData, true);
 		assertEquals(0, AttackSetData.getAttackSetType(asData));
 		assertEquals(0, AttackSetData.getPieceType(asData));
 		assertEquals(0, AttackSetData.getSquare(asData));

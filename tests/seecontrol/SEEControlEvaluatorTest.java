@@ -179,7 +179,7 @@ public class SEEControlEvaluatorTest {
 		assertEquals(0x82400010040L, seval.getSet(Player.BLACK, 0));
 	}
 
-	int createPawnAttackSetData_TypePlayer(int type, int player) {
+	private int createPawnAttackSetData_TypePlayer(int type, int player) {
 		int asData = 0;
 		asData = AttackSetData.setPieceType(asData, PieceType.PAWN);
 		asData = AttackSetData.setAttackSetType(asData, type);
@@ -232,6 +232,133 @@ public class SEEControlEvaluatorTest {
 		assertEquals(createPawnAttackSetData_TypePlayer(AttackSetType.PAWN_ATTACK, Player.BLACK), seval.getSetData(Player.BLACK, 1));
 		assertEquals(0x700a05000000L, seval.getSet(Player.BLACK, 1));
 
+	}
+	
+	/**
+	 * does not work for pawn attacks, which do not have a unique asData identifier.
+	 */
+	private long getAttackSetByData(SEEControlEvaluator seeval, int asData) {
+		int player = AttackSetData.getPlayer(asData);
+		for(int i=0; i<seeval.getSetSize(player); ++i)
+			if(asData == seeval.getAttackSetData(player, i))
+				return seeval.getAttackSet(player, i);
+		throw new RuntimeException("Failed to locate AttackSet: " + AttackSetData.toString(asData));
+	}
+	
+	private int createASData(int asType, int pieceType, int square, int player, int sunkenCost, int oppSunkenCost) {
+		int asData = 0;
+		asData = AttackSetData.setAttackSetType(asData, asType);
+		asData = AttackSetData.setPieceType(asData, pieceType);
+		asData = AttackSetData.setSquare(asData, square);
+		asData = AttackSetData.setPlayer(asData, player);
+		asData = AttackSetData.setSunkenCost(asData, sunkenCost);
+		asData = AttackSetData.setOppontntSunkenCost(asData, oppSunkenCost);
+		return asData;
+	}
+	
+	@Test
+	void testPopulateRookAttacks() {
+		Gamestate brd;
+		SEEControlEvaluator seval = new SEEControlEvaluator();
+		
+		brd = new Gamestate("8/2pp4/3k4/8/8/5P2/1K2P3/8 w - - 0 1");
+		seval.initialize();
+		seval.populateRookAttacks(brd);
+		assertEquals(0, seval.getSetSize(Player.WHITE));
+		assertEquals(0, seval.getSetSize(Player.BLACK));
+		//direct attacks; no batteries
+		brd = new Gamestate("8/2pp4/2rk4/8/6R1/5P2/1K2P3/8 w - - 0 1");
+		seval.initialize();
+		seval.populateRookAttacks(brd);
+		assertEquals(1, seval.getSetSize(Player.WHITE));
+		assertEquals(1, seval.getSetSize(Player.BLACK));
+		assertEquals(0x40404040bf404040L,
+				getAttackSetByData(seval,
+						createASData(
+								AttackSetType.DIRECT,
+								PieceType.ROOK,
+								Square.G4,
+								Player.WHITE,
+								0, //sunkenCost
+								0)));//opponent sunken cost
+		assertEquals(0x40b0404040404L,
+				getAttackSetByData(seval,
+						createASData(
+								AttackSetType.DIRECT,
+								PieceType.ROOK,
+								Square.C6,
+								Player.BLACK,
+								0, //sunkenCost
+								0)));//opponent sunken cost
+		
+		brd = new Gamestate("8/2n1Pk2/8/1pr1B3/8/3nR1K1/4P3/8 w - - 0 1");
+		seval.initialize();
+		seval.populateRookAttacks(brd);
+		assertEquals(1, seval.getSetSize(Player.WHITE));
+		assertEquals(1, seval.getSetSize(Player.BLACK));
+		assertEquals(0x1010681000L,
+				getAttackSetByData(seval,
+						createASData(
+								AttackSetType.DIRECT,
+								PieceType.ROOK,
+								Square.E3,
+								Player.WHITE,
+								0, //sunkenCost
+								0)));//opponent sunken cost
+		assertEquals(0x4041a04040404L,
+				getAttackSetByData(seval,
+						createASData(
+								AttackSetType.DIRECT,
+								PieceType.ROOK,
+								Square.C5,
+								Player.BLACK,
+								0, //sunkenCost
+								0)));//opponent sunken cost
+		
+		//two rooks per side, no batteries
+		brd = new Gamestate("4q1r1/1Qpp1p2/1nrk4/8/5R2/2PQNP2/1K2P2R/8 b - - 0 1");
+		seval.initialize();
+		seval.populateRookAttacks(brd);
+		assertEquals(2, seval.getSetSize(Player.WHITE));
+		assertEquals(2, seval.getSetSize(Player.BLACK));
+		assertEquals(0x8080808080807080L,
+				getAttackSetByData(seval,
+						createASData(
+								AttackSetType.DIRECT,
+								PieceType.ROOK,
+								Square.H2,
+								Player.WHITE,
+								0, //sunkenCost
+								0)));//opponent sunken cost
+		assertEquals(0x202020df200000L,
+				getAttackSetByData(seval,
+						createASData(
+								AttackSetType.DIRECT,
+								PieceType.ROOK,
+								Square.F4,
+								Player.WHITE,
+								0, //sunkenCost
+								0)));//opponent sunken cost
+		
+		assertEquals(0x40a0404040000L,
+				getAttackSetByData(seval,
+						createASData(
+								AttackSetType.DIRECT,
+								PieceType.ROOK,
+								Square.C6,
+								Player.BLACK,
+								0, //sunkenCost
+								0)));//opponent sunken cost
+		assertEquals(0xb040404040404040L,
+				getAttackSetByData(seval,
+						createASData(
+								AttackSetType.DIRECT,
+								PieceType.ROOK,
+								Square.G8,
+								Player.BLACK,
+								0, //sunkenCost
+								0)));//opponent sunken cost
+		
 	}
 
 	@Test

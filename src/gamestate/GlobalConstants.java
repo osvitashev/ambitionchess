@@ -142,6 +142,10 @@ public class GlobalConstants {
 		public static String squareToAlgebraicString(int sq) {
 			return ALGEBRAIC_SQUARE_STRINGS[sq];
 		}
+		
+		public static String toString(int sq) {
+			return ALGEBRAIC_SQUARE_STRINGS[sq];
+		}
 
 		public static final int SQUARE_NONE = -1;
 
@@ -164,7 +168,26 @@ public class GlobalConstants {
 		public static final int NORMAL = 6;
 		public static final int DOUBLE_PUSH = 7;
 		public static final int[] MOVE_TYPES = { PROMO_CAPTURE, PROMO, CAPTURE, ENPASSANT, CASTLE_KING, CASTLE_QUEEN, NORMAL, DOUBLE_PUSH };
-
+		
+		public static String toString(int mType) {
+			switch(mType) {
+			case PROMO_CAPTURE:
+				return "PROMO_CAPTURE";
+			case PROMO:
+				return "PROMO";
+			case CAPTURE:
+				return "CAPTURE";
+			case ENPASSANT:
+				return "ENPASSANT";
+			case CASTLE_KING:
+				return "CASTLE_KING";
+			case CASTLE_QUEEN:
+				return "CASTLE_QUEEN";
+			case NORMAL:
+				return "NORMAL";
+			}
+			return "DOUBLE_PUSH";
+		}
 	}
 
 	private GlobalConstants() {
