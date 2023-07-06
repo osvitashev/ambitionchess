@@ -1,7 +1,11 @@
 package seecontrol;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.stream.Collectors;
@@ -261,26 +265,153 @@ public class SEEControlEvaluatorTest {
 		return asData;
 	}
 	
+	private RuntimeException comparePairwise(ArrayList<Pair<Integer, Long>> expected, ArrayList<Pair<Integer, Long>> actual) {
+		for(Pair<Integer, Long> val : actual) {
+			if(!expected.contains(val))
+				return new RuntimeException("Unmatched element in the actual collection: {" + AttackSetData.toString(val.getValue0()) + " -> "
+			+ Long.toHexString(val.getValue1()) + "}");
+		}
+		
+		for(Pair<Integer, Long> val : expected) {
+			if(!actual.contains(val))
+				return new RuntimeException("Unmatched element in the expected collection: {" + AttackSetData.toString(val.getValue0()) + " -> " 
+			+ Long.toHexString(val.getValue1()) + "}");
+		}
+		
+		HashMap<Pair<Integer, Long>, Integer> expectedFrequency = new HashMap<>();
+        for (Pair<Integer, Long> element : expected)
+        	expectedFrequency.put(element, expectedFrequency.getOrDefault(element, 0) + 1);
+        
+        HashMap<Pair<Integer, Long>, Integer> actualFrequency = new HashMap<>();
+        for (Pair<Integer, Long> element : actual)
+        	actualFrequency.put(element, actualFrequency.getOrDefault(element, 0) + 1);
+        
+        if(!expectedFrequency.equals(actualFrequency))
+        	return new RuntimeException("Unmatched element frequencies...");
+		
+		return null;
+	}
+	
+	@SuppressWarnings("unchecked")//needed for Pair<Integer, Long> initialization
+	@Test
+	void testComparePairwise() {
+		ArrayList<Pair<Integer, Long>> expected=new ArrayList<Pair<Integer, Long>>();
+		ArrayList<Pair<Integer, Long>> actual=new ArrayList<Pair<Integer, Long>>();
+		
+		expected.clear();
+		actual.clear();
+		expected.add(new Pair<Integer, Long>(1, 1L));
+		expected.add(new Pair<Integer, Long>(2, 2L));
+		expected.add(new Pair<Integer, Long>(3, 3L));
+		actual.add(new Pair<Integer, Long>(3, 3L));
+		actual.add(new Pair<Integer, Long>(2, 2L));
+		actual.add(new Pair<Integer, Long>(1, 1L));
+		assertNull(comparePairwise(expected, actual));
+		
+		expected.clear();
+		actual.clear();
+		expected.add(new Pair<Integer, Long>(1, 1L));
+		expected.add(new Pair<Integer, Long>(2, 2L));
+		expected.add(new Pair<Integer, Long>(3, 3L));
+		actual.add(new Pair<Integer, Long>(3, 3L));
+		actual.add(new Pair<Integer, Long>(2, 2L));
+		assertNotNull(comparePairwise(expected, actual));
+		
+		expected.clear();
+		actual.clear();
+		expected.add(new Pair<Integer, Long>(1, 1L));
+		expected.add(new Pair<Integer, Long>(3, 3L));
+		actual.add(new Pair<Integer, Long>(3, 3L));
+		actual.add(new Pair<Integer, Long>(2, 2L));
+		actual.add(new Pair<Integer, Long>(1, 1L));
+		assertNotNull(comparePairwise(expected, actual));
+		
+		expected.clear();
+		actual.clear();
+		expected.add(new Pair<Integer, Long>(1, 1L));
+		expected.add(new Pair<Integer, Long>(2, 2L));
+		expected.add(new Pair<Integer, Long>(3, 1L));
+		actual.add(new Pair<Integer, Long>(3, 3L));
+		actual.add(new Pair<Integer, Long>(2, 2L));
+		actual.add(new Pair<Integer, Long>(1, 1L));
+		assertNotNull(comparePairwise(expected, actual));
+		
+		expected.clear();
+		actual.clear();
+		expected.add(new Pair<Integer, Long>(1, 1L));
+		expected.add(new Pair<Integer, Long>(2, 2L));
+		expected.add(new Pair<Integer, Long>(3, 3L));
+		actual.add(new Pair<Integer, Long>(3, 3L));
+		actual.add(new Pair<Integer, Long>(2, 2L));
+		actual.add(new Pair<Integer, Long>(1, 2L));
+		assertNotNull(comparePairwise(expected, actual));
+		
+		expected.clear();
+		actual.clear();
+		expected.add(new Pair<Integer, Long>(1, 1L));
+		expected.add(new Pair<Integer, Long>(5, 2L));
+		expected.add(new Pair<Integer, Long>(3, 3L));
+		actual.add(new Pair<Integer, Long>(3, 3L));
+		actual.add(new Pair<Integer, Long>(2, 2L));
+		actual.add(new Pair<Integer, Long>(1, 1L));
+		assertNotNull(comparePairwise(expected, actual));
+		
+		expected.clear();
+		actual.clear();
+		expected.add(new Pair<Integer, Long>(1, 1L));
+		expected.add(new Pair<Integer, Long>(2, 2L));
+		expected.add(new Pair<Integer, Long>(3, 3L));
+		actual.add(new Pair<Integer, Long>(3, 3L));
+		actual.add(new Pair<Integer, Long>(5, 2L));
+		actual.add(new Pair<Integer, Long>(1, 1L));
+		assertNotNull(comparePairwise(expected, actual));
+		
+		
+		// {1, 2, 1} =? {1, 2, 2}
+		expected.clear();
+		actual.clear();
+		expected.add(new Pair<Integer, Long>(1, 1L));
+		expected.add(new Pair<Integer, Long>(2, 2L));
+		expected.add(new Pair<Integer, Long>(1, 1L));
+		actual.add(new Pair<Integer, Long>(1, 1L));
+		actual.add(new Pair<Integer, Long>(2, 2L));
+		actual.add(new Pair<Integer, Long>(2, 2L));
+		assertNotNull(comparePairwise(expected, actual));
+	}
+	
 	/**
 	 * THIS DOES NOT WORK FOR PAWN ATTACKS AND PAWN PUSHES, BECAUSE THE SQUARE_FROM IS MEANINGLESS!
 	 */
-	private void assertAttackSets(SEEControlEvaluator seeval, int square, int player, Pair<Integer, Long>[] attacks) {
-		int countAttacksFrom =0;
+	private void assertAttackSets(SEEControlEvaluator seeval, int square, int player, Pair<Integer, Long>[] expectedArray) {
+		//rework this: construct another Pair<Integer, Long>[] from seeval object and perform a two way comparios with attacks.
+		
+		ArrayList<Pair<Integer, Long>> actual = new ArrayList<Pair<Integer, Long>>();
+		ArrayList<Pair<Integer, Long>> expected = new ArrayList<Pair<Integer, Long>>(Arrays.asList(expectedArray));
 		for(int i=0;i<seeval.getSetSize(player); ++i)
 			if(AttackSetData.getSquare(seeval.getAttackSetData(player, i)) == square &&
 					AttackSetData.getPieceType(seeval.getAttackSetData(player, i)) != PieceType.PAWN)//needed to prevent incorrect behavior of A1 aka Square(0)
-				countAttacksFrom++;
-		assertEquals(attacks.length, countAttacksFrom);
-		for (Pair<Integer, Long> entry : attacks) {
-			long attackSet = getAttackSetByData(seeval, entry.getValue0().intValue());
-			//TODO: this is a hack. need to think of a better way to propagate info about the origin of mismatched bitboard.
-			if(entry.getValue1().longValue() != attackSet)
-				System.out.println("Failing assertion for: " + AttackSetData.toString(entry.getValue0().intValue()));
-			assertEquals(entry.getValue1().longValue(), attackSet);
-		}
+				actual.add(new Pair<Integer, Long>(seeval.getAttackSetData(player, i), seeval.getAttackSet(player, i)));
+		
+		RuntimeException re = comparePairwise(expected, actual);
+		if(re != null)
+			throw re;
+		
+//		int countAttacksFrom =0;
+//		for(int i=0;i<seeval.getSetSize(player); ++i)
+//			if(AttackSetData.getSquare(seeval.getAttackSetData(player, i)) == square &&
+//					AttackSetData.getPieceType(seeval.getAttackSetData(player, i)) != PieceType.PAWN)//needed to prevent incorrect behavior of A1 aka Square(0)
+//				countAttacksFrom++;
+//		assertEquals(expected.length, countAttacksFrom);
+//		for (Pair<Integer, Long> entry : expected) {
+//			long attackSet = getAttackSetByData(seeval, entry.getValue0().intValue());
+//			//TODO: this is a hack. need to think of a better way to propagate info about the origin of mismatched bitboard.
+//			if(entry.getValue1().longValue() != attackSet)
+//				System.out.println("Failing assertion for: " + AttackSetData.toString(entry.getValue0().intValue()));
+//			assertEquals(entry.getValue1().longValue(), attackSet);
+//		}
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")//needed for Pair<Integer, Long> initialization
 	@Test
 	void testPopulateRookAttacks() {
 		Gamestate brd;
@@ -341,7 +472,7 @@ public class SEEControlEvaluatorTest {
 								0)));//opponent sunken cost
 		
 		//two rooks per side, no batteries
-		brd = new Gamestate("4q1r1/1Qpp1p2/1nrk4/8/5R2/2PQNP2/1K2P2R/8 b - - 0 1");
+		brd = new Gamestate("4b1r1/1Qpp1p2/1nrk4/8/5R2/2PQNP2/1K2P2R/8 b - - 0 1");
 		seval.initialize();
 		seval.populateRookAttacks(brd);
 		assertEquals(2, seval.getSetSize(Player.WHITE));
@@ -615,7 +746,122 @@ public class SEEControlEvaluatorTest {
 						Player.WHITE,
 						0, /*sunkenCost */
 						0 /*opponentSunkenCost */), 0x20202020202fd02L),
-
+				});
+		//rooks with queens
+		brd = new Gamestate("7k/1q4pp/r1Q1Q3/8/q1Q5/8/q5PP/7K w - - 0 1");//RQQ Rqq
+		seval.initialize();
+		seval.populateRookAttacks(brd);
+		assertAttackSets(seval, Square.A6, Player.BLACK, new Pair[] {
+				Pair.with(createASData(
+						AttackSetType.DIRECT,
+						PieceType.ROOK,
+						Square.A6,
+						Player.BLACK,
+						0, /*sunkenCost */
+						0 /*opponentSunkenCost */), 0x101060101000000L),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.A6,
+						Player.BLACK,
+						0, /*sunkenCost */
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.QUEEN) /*opponentSunkenCost */), 0x180000000000l),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.A6,
+						Player.BLACK,
+						0, /*sunkenCost */
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.QUEEN)+AttackSetData.OrderingPieceWeights.getValue(PieceType.QUEEN) /*opponentSunkenCost */), 0xe00000000000l),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.A6,
+						Player.BLACK,
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.QUEEN), /*sunkenCost */
+						0/*opponentSunkenCost */), 0x10100l),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.A6,
+						Player.BLACK,
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.QUEEN)+AttackSetData.OrderingPieceWeights.getValue(PieceType.QUEEN), /*sunkenCost */
+						0/*opponentSunkenCost */), 0x1l),
+				});
+		
+		brd = new Gamestate("7k/1q4pp/r1q1Q3/8/Q1Q5/8/q5PP/7K w - - 0 1");//RqQ RQq
+		seval.initialize();
+		seval.populateRookAttacks(brd);
+		assertAttackSets(seval, Square.A6, Player.BLACK, new Pair[] {
+				Pair.with(createASData(
+						AttackSetType.DIRECT,
+						PieceType.ROOK,
+						Square.A6,
+						Player.BLACK,
+						0, /*sunkenCost */
+						0 /*opponentSunkenCost */), 0x101060101000000L),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.A6,
+						Player.BLACK,
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.QUEEN), /*sunkenCost */
+						0 /*opponentSunkenCost */), 0x180000000000l),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.A6,
+						Player.BLACK,
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.QUEEN), /*sunkenCost */
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.QUEEN) /*opponentSunkenCost */), 0xe00000000000l),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.A6,
+						Player.BLACK,
+						0, /*sunkenCost */
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.QUEEN)/*opponentSunkenCost */), 0x10100l),
+				});
+		
+		brd = new Gamestate("7k/6pp/8/2R5/2Q5/2rRQ3/6PP/7K w - - 0 1");//Rrq Rqr
+		seval.initialize();
+		seval.populateRookAttacks(brd);
+		assertAttackSets(seval, Square.C3, Player.BLACK, new Pair[] {
+				Pair.with(createASData(
+						AttackSetType.DIRECT,
+						PieceType.ROOK,
+						Square.C3,
+						Player.BLACK,
+						0, /*sunkenCost */
+						0 /*opponentSunkenCost */), 0x40b0404L),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.C3,
+						Player.BLACK,
+						0, /*sunkenCost */
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.QUEEN) /*opponentSunkenCost */), 0x400000000L),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.C3,
+						Player.BLACK,
+						0, /*sunkenCost */
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.QUEEN) +AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK) /*opponentSunkenCost */), 0x404040000000000L),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.C3,
+						Player.BLACK,
+						0, /*sunkenCost */
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK) /*opponentSunkenCost */), 0x100000L),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.C3,
+						Player.BLACK,
+						0, /*sunkenCost */
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.QUEEN) +AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK) /*opponentSunkenCost */), 0xe00000L)
 				});
 
 		//use Black as the perspective for attacks through queen/pawns

@@ -13,6 +13,12 @@ import seecontrol.AttackSetData.AttackSetType;
 public class SEEControlEvaluator {
 	private static final int SET_MAX_SIZE = 100;
 
+	
+	/**
+	 * IMPORTANT: values in attackSetData are non-unique because:
+	 * 1. There are pawn attacks
+	 * 2. There might be multiple batteries with identical cumulative weight (ex. Rrq and Rqr): 7k/6pp/8/2R5/2Q5/2rRQ3/6PP/7K w - - 0 1
+	 */
 	private int[][] attackSetData = new int[2][SET_MAX_SIZE];
 	private long[][] attackSets = new long[2][SET_MAX_SIZE];
 	private int[] attackSet_size = new int[2];
@@ -51,7 +57,7 @@ public class SEEControlEvaluator {
 		return attackSets[player][i];
 	}
 	
-	void populateKingAttacks(Gamestate brd) {
+	void populateKingAttacks(final Gamestate brd) {
 		for(int player : Player.PLAYERS) {
 			int sq_from = brd.getKingSquare(player);
 			long targetBitboard = BitboardGen.getKingSet(sq_from);
@@ -66,7 +72,7 @@ public class SEEControlEvaluator {
 		}
 	}
 	
-	void populateKnightAttacks(Gamestate brd) {
+	void populateKnightAttacks(final Gamestate brd) {
 		for(int player : Player.PLAYERS) {
 			{
 				int bi = 0;
@@ -87,7 +93,7 @@ public class SEEControlEvaluator {
 		}
 	}
 	
-	void populatePawnAtacks(Gamestate brd) {
+	void populatePawnAtacks(final Gamestate brd) {
 		//adds up to two sets per side
 		for(int player : Player.PLAYERS) {
 			long pawns = brd.getPieces(player, PieceType.PAWN);
@@ -137,7 +143,7 @@ public class SEEControlEvaluator {
 		}
 	}
 	
-	void populatePawnPushes(Gamestate brd) {
+	void populatePawnPushes(final Gamestate brd) {
 		//adds one set for both single and double pawn push
 		for(int player : Player.PLAYERS) {
 			long pawns = brd.getPieces(player, PieceType.PAWN);
@@ -175,8 +181,10 @@ public class SEEControlEvaluator {
 	}
 	
 	//when invoking the next level, only mask one blocker type at a time
-	void populateRookAttacksRecoursively(Gamestate brd, int currentASData, long cumulativeAS, long liftedBlockers, boolean didColorSwitch) {
+	private void populateRookAttacksRecoursively(Gamestate brd, int currentASData, long cumulativeAS, long liftedBlockers, boolean didColorSwitch) {
+		//TODO: add some kind of max depth condition to prevent from generating extremely long sequences. This should help with consistency when it comes to game tree evaluation. 
 		long attackSet = BitboardGen.getRookSet(AttackSetData.getSquare(currentASData), brd.getOccupied() & ~liftedBlockers) & ~cumulativeAS;
+		//OPTIMIZE: The use of BitBoardGen is a massive overkill here. is probably better to use directional shifts to produce all indirect attacks. Would still need to be a recursive call, though.  
 		if(! Bitboard.isEmpty(attackSet)) {
 			int player = AttackSetData.getPlayer(currentASData);
 			int otherPlayer = Player.getOtherPlayer(player);
@@ -187,7 +195,8 @@ public class SEEControlEvaluator {
 			long enemy_Q		= attackSet & brd.getPieces(otherPlayer, PieceType.QUEEN);
 			long friednly_P		= attackSet & brd.getPieces(player, PieceType.PAWN);
 			long enemy_P		= attackSet & brd.getPieces(otherPlayer, PieceType.PAWN);
-			currentASData = AttackSetData.setAttackSetType(currentASData, AttackSetType.INDIRECT);//OPTIMIZE: this is set only once during the recursive call!!!
+			//OPTIMIZE: this is set only once during the recursive call!!!
+			currentASData = AttackSetData.setAttackSetType(currentASData, AttackSetType.INDIRECT);
 			
 			if (!Bitboard.isEmpty(friednly_R) && !didColorSwitch) {
 				int newASData = currentASData;
@@ -202,6 +211,19 @@ public class SEEControlEvaluator {
 				populateRookAttacksRecoursively(brd, newASData, cumulativeAS | attackSet, liftedBlockers | enemy_R, true);
 			}
 			
+			if (!Bitboard.isEmpty(friednly_Q) && !didColorSwitch) {
+				int newASData = currentASData;
+				newASData = AttackSetData.setSunkenCost(newASData,
+						AttackSetData.getSunkenCost(newASData) + AttackSetData.OrderingPieceWeights.getValue(PieceType.QUEEN));
+				populateRookAttacksRecoursively(brd, newASData, cumulativeAS | attackSet, liftedBlockers | friednly_Q, false);
+			}
+			if (!Bitboard.isEmpty(enemy_Q)) {
+				int newASData = currentASData;
+				newASData = AttackSetData.setOppontntSunkenCost(newASData,
+						AttackSetData.getOpponentSunkenCost(newASData) + AttackSetData.OrderingPieceWeights.getValue(PieceType.QUEEN));
+				populateRookAttacksRecoursively(brd, newASData, cumulativeAS | attackSet, liftedBlockers | enemy_Q, true);
+			}
+			
 			//pawn cases will not make a recrsive call
 		}
 		
@@ -210,7 +232,7 @@ public class SEEControlEvaluator {
 	///TODO: rename the package to quantitativeanalysis!!!!!!!!!!!!!!!!
 	 
 	
-	void populateRookAttacks(Gamestate brd) {
+	void populateRookAttacks(final Gamestate brd) {
 		for(int player : Player.PLAYERS) {
 			{
 				int bi = 0;
