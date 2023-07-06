@@ -383,32 +383,15 @@ public class SEEControlEvaluatorTest {
 	 * THIS DOES NOT WORK FOR PAWN ATTACKS AND PAWN PUSHES, BECAUSE THE SQUARE_FROM IS MEANINGLESS!
 	 */
 	private void assertAttackSets(SEEControlEvaluator seeval, int square, int player, Pair<Integer, Long>[] expectedArray) {
-		//rework this: construct another Pair<Integer, Long>[] from seeval object and perform a two way comparios with attacks.
-		
 		ArrayList<Pair<Integer, Long>> actual = new ArrayList<Pair<Integer, Long>>();
 		ArrayList<Pair<Integer, Long>> expected = new ArrayList<Pair<Integer, Long>>(Arrays.asList(expectedArray));
 		for(int i=0;i<seeval.getSetSize(player); ++i)
 			if(AttackSetData.getSquare(seeval.getAttackSetData(player, i)) == square &&
 					AttackSetData.getPieceType(seeval.getAttackSetData(player, i)) != PieceType.PAWN)//needed to prevent incorrect behavior of A1 aka Square(0)
 				actual.add(new Pair<Integer, Long>(seeval.getAttackSetData(player, i), seeval.getAttackSet(player, i)));
-		
 		RuntimeException re = comparePairwise(expected, actual);
 		if(re != null)
 			throw re;
-		
-//		int countAttacksFrom =0;
-//		for(int i=0;i<seeval.getSetSize(player); ++i)
-//			if(AttackSetData.getSquare(seeval.getAttackSetData(player, i)) == square &&
-//					AttackSetData.getPieceType(seeval.getAttackSetData(player, i)) != PieceType.PAWN)//needed to prevent incorrect behavior of A1 aka Square(0)
-//				countAttacksFrom++;
-//		assertEquals(expected.length, countAttacksFrom);
-//		for (Pair<Integer, Long> entry : expected) {
-//			long attackSet = getAttackSetByData(seeval, entry.getValue0().intValue());
-//			//TODO: this is a hack. need to think of a better way to propagate info about the origin of mismatched bitboard.
-//			if(entry.getValue1().longValue() != attackSet)
-//				System.out.println("Failing assertion for: " + AttackSetData.toString(entry.getValue0().intValue()));
-//			assertEquals(entry.getValue1().longValue(), attackSet);
-//		}
 	}
 	
 	@SuppressWarnings("unchecked")//needed for Pair<Integer, Long> initialization
@@ -862,6 +845,41 @@ public class SEEControlEvaluatorTest {
 						Player.BLACK,
 						0, /*sunkenCost */
 						AttackSetData.OrderingPieceWeights.getValue(PieceType.QUEEN) +AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK) /*opponentSunkenCost */), 0xe00000L)
+				});
+		
+		///next
+		brd = new Gamestate("7k/r1qR3p/8/8/Q7/8/r5PP/7K w - - 0 1");//RrR RQr
+		seval.initialize();
+		seval.populateRookAttacks(brd);
+		assertAttackSets(seval, Square.A7, Player.BLACK, new Pair[] {
+				Pair.with(createASData(
+						AttackSetType.DIRECT,
+						PieceType.ROOK,
+						Square.A7,
+						Player.BLACK,
+						0, /*sunkenCost */
+						0 /*opponentSunkenCost */), 0x106010101000000L),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.A7,
+						Player.BLACK,
+						0, /*sunkenCost */
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.QUEEN) /*opponentSunkenCost */), 0x10100L),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.A7,
+						Player.BLACK,
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.QUEEN), /*sunkenCost */
+						0 /*opponentSunkenCost */), 0x8000000000000L),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.A7,
+						Player.BLACK,
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.QUEEN), /*sunkenCost */
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK) /*opponentSunkenCost */), 0xf0000000000000L),
 				});
 
 		//use Black as the perspective for attacks through queen/pawns
