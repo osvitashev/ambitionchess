@@ -175,7 +175,7 @@ public class SEEControlEvaluator {
 	}
 	
 	//when invoking the next level, only mask one blocker type at a time
-	private void populateRookAttacksRecoursively(Gamestate brd, int currentASData, long cumulativeAS, long liftedBlockers, boolean isBatteryPlayer, boolean isBatteryOpponent) {
+	void populateRookAttacksRecoursively(Gamestate brd, int currentASData, long cumulativeAS, long liftedBlockers, boolean didColorSwitch) {
 		long attackSet = BitboardGen.getRookSet(AttackSetData.getSquare(currentASData), brd.getOccupied() & ~liftedBlockers) & ~cumulativeAS;
 		if(! Bitboard.isEmpty(attackSet)) {
 			int player = AttackSetData.getPlayer(currentASData);
@@ -189,17 +189,17 @@ public class SEEControlEvaluator {
 			long enemy_P		= attackSet & brd.getPieces(otherPlayer, PieceType.PAWN);
 			currentASData = AttackSetData.setAttackSetType(currentASData, AttackSetType.INDIRECT);//OPTIMIZE: this is set only once during the recursive call!!!
 			
-			if (!Bitboard.isEmpty(friednly_R) && !(isBatteryOpponent && isBatteryPlayer)) {
+			if (!Bitboard.isEmpty(friednly_R) && !didColorSwitch) {
 				int newASData = currentASData;
 				newASData = AttackSetData.setSunkenCost(newASData,
 						AttackSetData.getSunkenCost(newASData) + AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK));
-				populateRookAttacksRecoursively(brd, newASData, cumulativeAS | attackSet, friednly_R, true, false);
+				populateRookAttacksRecoursively(brd, newASData, cumulativeAS | attackSet, liftedBlockers | friednly_R, false);
 			}
-			if (!Bitboard.isEmpty(enemy_R) && !(isBatteryOpponent && isBatteryPlayer)) {
+			if (!Bitboard.isEmpty(enemy_R)) {
 				int newASData = currentASData;
 				newASData = AttackSetData.setOppontntSunkenCost(newASData,
 						AttackSetData.getOpponentSunkenCost(newASData) + AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK));
-				populateRookAttacksRecoursively(brd, newASData, cumulativeAS | attackSet, enemy_R, false, true);
+				populateRookAttacksRecoursively(brd, newASData, cumulativeAS | attackSet, liftedBlockers | enemy_R, true);
 			}
 			
 			//pawn cases will not make a recrsive call
@@ -225,7 +225,7 @@ public class SEEControlEvaluator {
 					asData = AttackSetData.setSquare(asData, bi);
 					//asData = AttackSetData.setSunkenCost(asData, AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK));
 					
-					populateRookAttacksRecoursively(brd, asData, 0L, 0L, false, false);
+					populateRookAttacksRecoursively(brd, asData, 0L, 0L, false);
 
 				}
 			}

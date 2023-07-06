@@ -2,6 +2,12 @@ package seecontrol;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.javatuples.Pair;
 import org.junit.jupiter.api.Test;
 
 import gamestate.Gamestate;
@@ -255,6 +261,26 @@ public class SEEControlEvaluatorTest {
 		return asData;
 	}
 	
+	/**
+	 * THIS DOES NOT WORK FOR PAWN ATTACKS AND PAWN PUSHES, BECAUSE THE SQUARE_FROM IS MEANINGLESS!
+	 */
+	private void assertAttackSets(SEEControlEvaluator seeval, int square, int player, Pair<Integer, Long>[] attacks) {
+		int countAttacksFrom =0;
+		for(int i=0;i<seeval.getSetSize(player); ++i)
+			if(AttackSetData.getSquare(seeval.getAttackSetData(player, i)) == square &&
+					AttackSetData.getPieceType(seeval.getAttackSetData(player, i)) != PieceType.PAWN)//needed to prevent incorrect behavior of A1 aka Square(0)
+				countAttacksFrom++;
+		assertEquals(attacks.length, countAttacksFrom);
+		for (Pair<Integer, Long> entry : attacks) {
+			long attackSet = getAttackSetByData(seeval, entry.getValue0().intValue());
+			//TODO: this is a hack. need to think of a better way to propagate info about the origin of mismatched bitboard.
+			if(entry.getValue1().longValue() != attackSet)
+				System.out.println("Failing assertion for: " + AttackSetData.toString(entry.getValue0().intValue()));
+			assertEquals(entry.getValue1().longValue(), attackSet);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
 	@Test
 	void testPopulateRookAttacks() {
 		Gamestate brd;
@@ -427,10 +453,175 @@ public class SEEControlEvaluatorTest {
 								AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK), //sunkenCost
 								0)));//opponent sunken cost
 		
+		//better assertion pattern
+		brd = new Gamestate("6r1/2k1pp2/3p2pp/1P3r2/2P2P2/3PP3/1K6/3R4 w - - 0 1");
+		seval.initialize();
+		seval.populateRookAttacks(brd);
+		assertAttackSets(seval, Square.F5, Player.BLACK, new Pair[] {
+				Pair.with(createASData(
+						AttackSetType.DIRECT,
+						PieceType.ROOK,
+						Square.F5,
+						Player.BLACK,
+						0, /*sunkenCost */
+						0 /*opponentSunkenCost */), 0x2020de20000000L)
+				});
 		
+		brd = new Gamestate("8/2k5/8/8/8/8/KR1r1r2/8 w - - 0 1");//Rrr
+		seval.initialize();
+		seval.populateRookAttacks(brd);
+		assertAttackSets(seval, Square.B2, Player.WHITE, new Pair[] {
+				Pair.with(createASData(
+						AttackSetType.DIRECT,
+						PieceType.ROOK,
+						Square.B2,
+						Player.WHITE,
+						0, /*sunkenCost */
+						0 /*opponentSunkenCost */), 0x202020202020d02L),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.B2,
+						Player.WHITE,
+						0, /*sunkenCost */
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK) /*opponentSunkenCost */),
+						0x3000L),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.B2,
+						Player.WHITE,
+						0, /*sunkenCost */
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK)+AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK) /*opponentSunkenCost */),
+						0xc000L),
+				});
 		
-		///next: create a set comparison function for assertions!!!
+		brd = new Gamestate("8/2k5/8/8/8/8/KR1R1r2/8 w - - 0 1");//RRr
+		seval.initialize();
+		seval.populateRookAttacks(brd);
+		assertAttackSets(seval, Square.B2, Player.WHITE, new Pair[] {
+				Pair.with(createASData(
+						AttackSetType.DIRECT,
+						PieceType.ROOK,
+						Square.B2,
+						Player.WHITE,
+						0, /*sunkenCost */
+						0 /*opponentSunkenCost */), 0x202020202020d02L),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.B2,
+						Player.WHITE,
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK), /*sunkenCost */
+						0 /*opponentSunkenCost */),
+						0x3000L),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.B2,
+						Player.WHITE,
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK), /*sunkenCost */
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK) /*opponentSunkenCost */),
+						0xc000L),
+				});
+		
+		brd = new Gamestate("8/2k5/8/8/8/8/KR1R1R2/8 w - - 0 1");//RRR
+		seval.initialize();
+		seval.populateRookAttacks(brd);
+		assertAttackSets(seval, Square.B2, Player.WHITE, new Pair[] {
+				Pair.with(createASData(
+						AttackSetType.DIRECT,
+						PieceType.ROOK,
+						Square.B2,
+						Player.WHITE,
+						0, /*sunkenCost */
+						0 /*opponentSunkenCost */), 0x202020202020d02L),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.B2,
+						Player.WHITE,
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK), /*sunkenCost */
+						0 /*opponentSunkenCost */),
+						0x3000L),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.B2,
+						Player.WHITE,
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK)+AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK), /*sunkenCost */
+						0 /*opponentSunkenCost */),
+						0xc000L),
+				});
+
+		brd = new Gamestate("8/2k5/8/8/8/8/KR1r1R2/8 w - - 0 1");//RrR - special case
+		seval.initialize();
+		seval.populateRookAttacks(brd);
+		assertAttackSets(seval, Square.B2, Player.WHITE, new Pair[] {
+				Pair.with(createASData(
+						AttackSetType.DIRECT,
+						PieceType.ROOK,
+						Square.B2,
+						Player.WHITE,
+						0, /*sunkenCost */
+						0 /*opponentSunkenCost */), 0x202020202020d02L),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.B2,
+						Player.WHITE,
+						0, /*sunkenCost */
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK) /*opponentSunkenCost */),
+						0x3000L),
+				});
+				
+		brd = new Gamestate("8/2k5/8/8/8/8/KR1r1r2/8 w - - 0 1");//Rrr
+		seval.initialize();
+		seval.populateRookAttacks(brd);
+		assertAttackSets(seval, Square.B2, Player.WHITE, new Pair[] {
+				Pair.with(createASData(
+						AttackSetType.DIRECT,
+						PieceType.ROOK,
+						Square.B2,
+						Player.WHITE,
+						0, /*sunkenCost */
+						0 /*opponentSunkenCost */), 0x202020202020d02L),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.B2,
+						Player.WHITE,
+						0, /*sunkenCost */
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK) /*opponentSunkenCost */),
+						0x3000L),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.B2,
+						Player.WHITE,
+						0, /*sunkenCost */
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK)+AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK) /*opponentSunkenCost */),
+						0xc000L),
+				});
+		
+		brd = new Gamestate("8/2k5/8/8/8/8/KR5r/8 w - - 0 1");//blocker on the edge of the board
+		seval.initialize();
+		seval.populateRookAttacks(brd);
+		assertAttackSets(seval, Square.B2, Player.WHITE, new Pair[] {
+				Pair.with(createASData(
+						AttackSetType.DIRECT,
+						PieceType.ROOK,
+						Square.B2,
+						Player.WHITE,
+						0, /*sunkenCost */
+						0 /*opponentSunkenCost */), 0x20202020202fd02L),
+
+				});
+
+		//use Black as the perspective for attacks through queen/pawns
+		
 	}
+	
 
 	@Test
 	/**
