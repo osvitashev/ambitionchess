@@ -18,26 +18,6 @@ import gamestate.GlobalConstants.Square;
  *
  */
 public class MoveGen {
-	private long pinnedPieces;
-
-	private long getPinnedPieces() {
-		return pinnedPieces;
-	}
-
-	private void setPinnedPieces(long pinnedPieces) {
-		this.pinnedPieces = pinnedPieces;
-	}
-
-	/**
-	 * Populates internal fields needed for correct move generation in a given
-	 * position.
-	 * 
-	 * @param brd
-	 * @return
-	 */
-	public void initialize(Gamestate brd) {
-		setPinnedPieces(brd.getPlayerPieces(brd.getPlayerToMove()) & brd.calculatePinsSkewersAndDiscoveredAttacks(brd.getKingSquare(brd.getPlayerToMove()), brd.getPlayerToMove()));
-	}
 
 	/**
 	 * An abstract representation of a method which generates legal moves and

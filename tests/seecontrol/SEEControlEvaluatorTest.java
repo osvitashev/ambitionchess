@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import gamestate.Gamestate;
-import gamestate.MovePool;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
@@ -358,7 +357,79 @@ public class SEEControlEvaluatorTest {
 								Player.BLACK,
 								0, //sunkenCost
 								0)));//opponent sunken cost
+		//two rooks
+		brd = new Gamestate("k7/pp6/2b2rR1/8/8/5rN1/PP6/K7 w - - 0 1");
+		seval.initialize();
+		seval.populateRookAttacks(brd);
+		assertEquals(2, seval.getSetSize(Player.WHITE));
+		assertEquals(5, seval.getSetSize(Player.BLACK));
+		assertEquals(0x4040a04040400000L,
+				getAttackSetByData(seval,
+						createASData(
+								AttackSetType.DIRECT,
+								PieceType.ROOK,
+								Square.G6,
+								Player.WHITE,
+								0, //sunkenCost
+								0)));//opponent sunken cost
+		assertEquals(0x1c0000000000L,
+				getAttackSetByData(seval,
+						createASData(
+								AttackSetType.INDIRECT,
+								PieceType.ROOK,
+								Square.G6,
+								Player.WHITE,
+								0, //sunkenCost
+								AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK))));//opponent sunken cost
+		assertEquals(0x20205c2020200000L,
+				getAttackSetByData(seval,
+						createASData(
+								AttackSetType.DIRECT,
+								PieceType.ROOK,
+								Square.F6,
+								Player.BLACK,
+								0, //sunkenCost
+								0)));//opponent sunken cost
+		assertEquals(0x2020205f2020L,
+				getAttackSetByData(seval,
+						createASData(
+								AttackSetType.DIRECT,
+								PieceType.ROOK,
+								Square.F3,
+								Player.BLACK,
+								0, //sunkenCost
+								0)));//opponent sunken cost
+		assertEquals(0x800000000000L,
+				getAttackSetByData(seval,
+						createASData(
+								AttackSetType.INDIRECT,
+								PieceType.ROOK,
+								Square.F6,
+								Player.BLACK,
+								0, //sunkenCost
+								AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK))));//opponent sunken cost
+		assertEquals(0x2020L,
+				getAttackSetByData(seval,
+						createASData(
+								AttackSetType.INDIRECT,
+								PieceType.ROOK,
+								Square.F6,
+								Player.BLACK,
+								AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK), //sunkenCost
+								0)));//opponent sunken cost
+		assertEquals(0x2020000000000000L,
+				getAttackSetByData(seval,
+						createASData(
+								AttackSetType.INDIRECT,
+								PieceType.ROOK,
+								Square.F3,
+								Player.BLACK,
+								AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK), //sunkenCost
+								0)));//opponent sunken cost
 		
+		
+		
+		///next: create a set comparison function for assertions!!!
 	}
 
 	@Test

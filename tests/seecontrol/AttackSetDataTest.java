@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import gamestate.GlobalConstants;
-import gamestate.Move;
 import seecontrol.AttackSetData.AttackSetType;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
