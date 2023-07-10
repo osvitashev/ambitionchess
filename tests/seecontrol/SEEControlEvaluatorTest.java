@@ -847,7 +847,6 @@ public class SEEControlEvaluatorTest {
 						AttackSetData.OrderingPieceWeights.getValue(PieceType.QUEEN) +AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK) /*opponentSunkenCost */), 0xe00000L)
 				});
 		
-		///next
 		brd = new Gamestate("7k/r1qR3p/8/8/Q7/8/r5PP/7K w - - 0 1");//RrR RQr
 		seval.initialize();
 		seval.populateRookAttacks(brd);
@@ -881,8 +880,28 @@ public class SEEControlEvaluatorTest {
 						AttackSetData.OrderingPieceWeights.getValue(PieceType.QUEEN), /*sunkenCost */
 						AttackSetData.OrderingPieceWeights.getValue(PieceType.ROOK) /*opponentSunkenCost */), 0xf0000000000000L),
 				});
+		//rooks with pawns
+		brd = new Gamestate("8/7k/2P5/1P1P4/P1r1P3/1P1P4/2P5/6K1 w - - 0 1");
+		seval.initialize();
+		seval.populateRookAttacks(brd);
+		assertAttackSets(seval, Square.C4, Player.BLACK, new Pair[] {
+				Pair.with(createASData(
+						AttackSetType.DIRECT,
+						PieceType.ROOK,
+						Square.C4,
+						Player.BLACK,
+						0, /*sunkenCost */
+						0 /*opponentSunkenCost */), 0x4041b040400L),
+				Pair.with(createASData(
+						AttackSetType.INDIRECT,
+						PieceType.ROOK,
+						Square.C4,
+						Player.BLACK,
+						0, /*sunkenCost */
+						AttackSetData.OrderingPieceWeights.getValue(PieceType.PAWN) /*opponentSunkenCost */), 0x4000000000000L),
+				
+				});
 
-		//use Black as the perspective for attacks through queen/pawns
 		
 	}
 	

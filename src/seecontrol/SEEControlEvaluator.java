@@ -4,6 +4,7 @@ import gamestate.Bitboard;
 import gamestate.BitboardGen;
 import gamestate.DebugLibrary;
 import gamestate.Gamestate;
+import gamestate.GlobalConstants;
 import gamestate.Bitboard.ShiftDirection;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
@@ -223,10 +224,49 @@ public class SEEControlEvaluator {
 						AttackSetData.getOpponentSunkenCost(newASData) + AttackSetData.OrderingPieceWeights.getValue(PieceType.QUEEN));
 				populateRookAttacksRecoursively(brd, newASData, cumulativeAS | attackSet, liftedBlockers | enemy_Q, true);
 			}
+			//pawns
+			if (!Bitboard.isEmpty(friednly_P) && !didColorSwitch) {
+				int newASData = currentASData;
+				newASData = AttackSetData.setSunkenCost(newASData,
+						AttackSetData.getSunkenCost(newASData) + AttackSetData.OrderingPieceWeights.getValue(PieceType.PAWN));
+				populateRookPawnBatteries(brd, newASData, attackSet, friednly_P);
+			}
+			if (!Bitboard.isEmpty(enemy_P)) {
+				int newASData = currentASData;
+				newASData = AttackSetData.setOppontntSunkenCost(newASData,
+						AttackSetData.getOpponentSunkenCost(newASData) + AttackSetData.OrderingPieceWeights.getValue(PieceType.PAWN));
+				populateRookPawnBatteries(brd, newASData, attackSet, enemy_P);
+			}
 			
 			//pawn cases will not make a recrsive call
 		}
 		
+	}
+	
+	/**
+	 * Pawns bb contains only one player and can have up to 4 bits set.
+	 * This method adds exactly one attackset which would have exactly one bit set.
+	 * The logical check as to whether we need to add the AttackSet is done up in populateRookAttacksRecoursively;
+	 * This method is only tasked with figuring out which set to add.
+	 */
+	private void populateRookPawnBatteries(Gamestate brd, int currentASData, long attackSet, long pawns) {
+		int player = AttackSetData.getPlayer(currentASData);
+		int sqFrom = AttackSetData.getSquare(currentASData);
+		long fileMask = Bitboard.getFileMask(sqFrom);
+		long pawnPush=0;
+		//this actually depends on the color of the pawns, rather than the rook starting the attack!
+		if(!Bitboard.isEmpty(pawns & brd.getPlayerPieces(Player.WHITE))){//isWhite{
+			pawnPush = Bitboard.shift(ShiftDirection.NORTH, pawns) & ~attackSet & brd.getEmpty();//this gives correct value for single push
+			pawnPush |= Bitboard.shift(ShiftDirection.NORTH, pawns) & Bitboard.getFileMask(Square.A3) & brd.getEmpty();//this adds the double-pushes
+			if(!Bitboard.isEmpty(pawnPush))
+				addAttackSet(pawnPush, currentASData, player);
+		}
+		else {
+			pawnPush = Bitboard.shift(ShiftDirection.SOUTH, pawns) & ~attackSet & brd.getEmpty();//this gives correct value for single push
+			pawnPush |= Bitboard.shift(ShiftDirection.SOUTH, pawns) & Bitboard.getFileMask(Square.A6) & brd.getEmpty();//this adds the double-pushes
+			if(!Bitboard.isEmpty(pawnPush))
+				addAttackSet(pawnPush, currentASData, player);
+		}
 	}
 	
 	///TODO: rename the package to quantitativeanalysis!!!!!!!!!!!!!!!!
