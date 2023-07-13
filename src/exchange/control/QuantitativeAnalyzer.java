@@ -170,6 +170,11 @@ public class QuantitativeAnalyzer {
 		return ret;
 	}
 	
+	void populateAttackSets() {
+		
+		
+	}
+	
 	/*
 	 * Should be the first thing called when analyzing a new position.
 	 * 
@@ -177,7 +182,8 @@ public class QuantitativeAnalyzer {
 	public void initializeBoardState(final Gamestate brd) {
 		this.brd = brd;
 		length_attackSets[Player.WHITE]=0;
-		length_attackSets[Player.WHITE]=0;
+		length_attackSets[Player.BLACK]=0;
+		populateAttackSets();
 	}
 	
 	
