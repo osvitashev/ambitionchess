@@ -7,6 +7,16 @@ public class GlobalConstants {
 		public static final int BLACK = 1;
 		public static final int NO_PLAYER = 2;
 		public static final int[] PLAYERS = { WHITE, BLACK };
+		
+		public static String toString(int pl) {
+			//TODO: add validaition
+			String ret = "";
+			if (pl == WHITE)
+				ret = "White";
+			else if (pl == BLACK)
+				ret = "Black";
+			return ret;
+		}
 
 		public static boolean isWhite(int player) {
 			return player == WHITE;
@@ -36,7 +46,7 @@ public class GlobalConstants {
 		public static final int BISHOP = 2;
 		public static final int QUEEN = 4;
 		public static final int KING = 5;
-		public static final int NO_PIECE = 6;
+		public static final int NO_PIECE = 7; //0xff
 
 		public static String toString(int pt) {
 			DebugLibrary.validatePieceType(pt);

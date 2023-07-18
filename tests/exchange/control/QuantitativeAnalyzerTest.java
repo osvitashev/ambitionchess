@@ -85,107 +85,107 @@ class QuantitativeAnalyzerTest {
 	 * 
 	 */
 	
-	@Test
-	void reinitializeGainLossToPieceValuesTest() {
-		Gamestate brd;
-		QuantitativeAnalyzer qa = new QuantitativeAnalyzer();
-		brd = new Gamestate("rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1");
-		qa.initializeBoardState(brd);
-		qa.reinitializeGainLossToPieceValues();
-		
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.A1));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.B1));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.C1));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.QUEEN), qa.getTemp_exchangeGainLoss(Square.D1));
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E1));//king
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.F1));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.G1));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.H1));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.A2));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.B2));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.C2));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.D2));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.E4));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.F2));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.G2));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.H2));
-		
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.A8));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.B8));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.C8));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.QUEEN), qa.getTemp_exchangeGainLoss(Square.D8));
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E8));//king
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.F8));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.G8));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.H8));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.A7));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.B7));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.C7));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.D7));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.E5));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.F7));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.G7));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.H7));
-		//empty
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E2));
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E7));
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.B3));
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.C4));
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.D6));
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E6));
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E3));
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.H6));
-		
-		brd = new Gamestate("3r1rk1/pb1q1pbp/1pnp1np1/2p1p1B1/4P3/2NP1N2/PPPQBPPP/2KR3R w - - 0 1");
-		qa.initializeBoardState(brd);
-		qa.reinitializeGainLossToPieceValues();
-		
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.D1));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.C3));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.E2));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.QUEEN), qa.getTemp_exchangeGainLoss(Square.D2));
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.C1));//king
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.G5));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.F3));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.H1));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.A2));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.B2));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.C2));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.D3));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.E4));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.F2));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.G2));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.H2));
-		
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.D8));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.C6));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.B7));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.QUEEN), qa.getTemp_exchangeGainLoss(Square.D7));
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E8));//king
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.G7));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.F6));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.F8));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.A7));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.B6));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.C5));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.D6));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.E5));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.F7));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.G6));
-		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.H7));
-		
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.A1));
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.B1));
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E1));
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.F1));
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.G1));
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.A8));
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.B8));
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.C8));
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E8));
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.H8));
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.C7));
-		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E7));
-	}
+//	@Test
+//	void reinitializeGainLossToPieceValuesTest() {
+//		Gamestate brd;
+//		QuantitativeAnalyzer qa = new QuantitativeAnalyzer();
+//		brd = new Gamestate("rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1");
+//		qa.initializeBoardState(brd);
+//		qa.reinitializeGainLossToPieceValues();
+//		
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.A1));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.B1));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.C1));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.QUEEN), qa.getTemp_exchangeGainLoss(Square.D1));
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E1));//king
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.F1));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.G1));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.H1));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.A2));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.B2));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.C2));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.D2));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.E4));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.F2));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.G2));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.H2));
+//		
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.A8));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.B8));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.C8));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.QUEEN), qa.getTemp_exchangeGainLoss(Square.D8));
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E8));//king
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.F8));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.G8));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.H8));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.A7));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.B7));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.C7));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.D7));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.E5));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.F7));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.G7));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.H7));
+//		//empty
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E2));
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E7));
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.B3));
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.C4));
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.D6));
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E6));
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E3));
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.H6));
+//		
+//		brd = new Gamestate("3r1rk1/pb1q1pbp/1pnp1np1/2p1p1B1/4P3/2NP1N2/PPPQBPPP/2KR3R w - - 0 1");
+//		qa.initializeBoardState(brd);
+//		qa.reinitializeGainLossToPieceValues();
+//		
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.D1));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.C3));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.E2));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.QUEEN), qa.getTemp_exchangeGainLoss(Square.D2));
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.C1));//king
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.G5));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.F3));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.H1));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.A2));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.B2));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.C2));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.D3));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.E4));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.F2));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.G2));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.H2));
+//		
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.D8));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.C6));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.B7));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.QUEEN), qa.getTemp_exchangeGainLoss(Square.D7));
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E8));//king
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.G7));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.F6));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.F8));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.A7));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.B6));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.C5));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.D6));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.E5));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.F7));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.G6));
+//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.H7));
+//		
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.A1));
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.B1));
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E1));
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.F1));
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.G1));
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.A8));
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.B8));
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.C8));
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E8));
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.H8));
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.C7));
+//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E7));
+//	}
 
 }

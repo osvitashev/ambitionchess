@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import gamestate.Bitboard;
 import gamestate.GlobalConstants.Square;
 
-class BitvectorTransposeTest {
+class ArithmeticVectorTransposeTest {
 
 	@Test
 	void testAddAndCompare() {
@@ -17,7 +17,7 @@ class BitvectorTransposeTest {
 		long mask_c = Bitboard.initFromSquare(c);
 		
 		
-		BitvectorTranspose bvt = new BitvectorTranspose();
+		ArithmeticVectorTranspose bvt = new ArithmeticVectorTranspose();
 		assertEquals(0,bvt.indexToScalar(a));
 		assertEquals(0,bvt.indexToScalar(b));
 		assertEquals(0,bvt.indexToScalar(c));

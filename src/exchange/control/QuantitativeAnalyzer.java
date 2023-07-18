@@ -11,7 +11,9 @@ import gamestate.Gamestate;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
-import util.BitvectorTranspose;
+import util.ArithmeticVectorTranspose;
+import util.BitwiseVectorTranspose;
+import util.ResettableArray32;
 
 
 /**
@@ -84,6 +86,10 @@ public class QuantitativeAnalyzer {
 			ret+="}";
 			return ret;
 		}
+		
+		private long getAttacks() {
+			return attacks;
+		}
 	}
 	
 	void sortSets() {
@@ -94,59 +100,158 @@ public class QuantitativeAnalyzer {
 	private Gamestate brd;
 	private AttackSet attackSets[][] = new AttackSet[2][30];
 	private int length_attackSets[] = new int[2];
-	private BitvectorTranspose temp_exchangeGainLoss = new BitvectorTranspose();
 	
 	int size_attackSet(int player) {
 		return length_attackSets[player];
 	}
 	
-	/**
-	 * A getter. Is only meant to be used for testing/debigging.
-	 * @param sq
-	 * @return
-	 */
-	int getTemp_exchangeGainLoss(int sq) {
-		return temp_exchangeGainLoss.indexToScalar(sq);
+	private BitwiseVectorTranspose[] initialize_parallelAttackSetStacks() {
+		BitwiseVectorTranspose[] temp = new BitwiseVectorTranspose[2];
+		temp[0]=new BitwiseVectorTranspose(30);//10 attackers with 3-bit encoding!
+		temp[1]=new BitwiseVectorTranspose(30);
+		return temp;
 	}
 	
-	
-	/**
-	 * Populates Exchange gain/loss parallel scalar with the weights of pieces currently on the board.
-	 * Positive values for both players.
-	 */
-	void reinitializeGainLossToPieceValues() {
-		temp_exchangeGainLoss.clear();
+	///captures only. no pawn pushes and resulting batteries!
+	private BitwiseVectorTranspose[] temp_parallelCaptureSets = initialize_parallelAttackSetStacks();
+	/// when evaluating quiet moves in the future, we can reuse the temp_parallelCaptureSets for the second player!
+	void populate_temp_parallelCaptureSets() {
+		temp_parallelCaptureSets[0].resetTo1s();
+		temp_parallelCaptureSets[1].resetTo1s();
 		
-		long mask = brd.getPieces(PieceType.ROOK);
-		temp_exchangeGainLoss.addScalar(mask, getPieceValue(PieceType.ROOK) );
-		
-		mask = brd.getPieces(PieceType.KNIGHT);
-		temp_exchangeGainLoss.addScalar(mask, getPieceValue(PieceType.KNIGHT));
-		
-		mask = brd.getPieces(PieceType.BISHOP);
-		temp_exchangeGainLoss.addScalar(mask, getPieceValue(PieceType.BISHOP));
-		
-		mask = brd.getPieces(PieceType.QUEEN);
-		temp_exchangeGainLoss.addScalar(mask, getPieceValue(PieceType.QUEEN));
-		
-		mask = brd.getPieces(PieceType.PAWN);
-		temp_exchangeGainLoss.addScalar(mask, getPieceValue(PieceType.PAWN));
+		int pt;//piecetype
+		long mask;
+		for(int player : Player.PLAYERS)
+			for(int i=0; i<length_attackSets[player];++i) {
+				mask=attackSets[player][i].getAttacks();
+				temp_parallelCaptureSets[player].leftShiftWhere(mask, 3);
+				pt = attackSets[player][i].getPieceType();
+				if((pt & 1) !=0)
+					temp_parallelCaptureSets[player].setWhere(0, ~0l, mask);
+				if((pt & 2) !=0)
+					temp_parallelCaptureSets[player].setWhere(1, ~0l, mask);
+				if((pt & 4) !=0)
+					temp_parallelCaptureSets[player].setWhere(2, ~0l, mask);
+			}
 	}
 	
+	String toString_temp_parallelCaptureSets() {
+		String[] temp;
+		String ret = "";
+		for(int player: Player.PLAYERS) {
+			temp = new String[64];
+			for(int i=0;i<64;++i)
+				temp[i]="";
+			for(int i=temp_parallelCaptureSets[player].size()-1; i>=0; i-=3) {
+				long b0=temp_parallelCaptureSets[player].get(i-2);//4
+				long b1=temp_parallelCaptureSets[player].get(i-1);//2
+				long b2=temp_parallelCaptureSets[player].get(i);//1
+				
+				long pawns = ~b0 & ~b1 & ~b2;
+				long rooks = b0 & b1 & ~b2;
+				long bishops = ~b0 & b1 & ~b2;
+				long knights = b0 & ~b1 & ~b2;
+				long queens = ~b0 & ~b1 & b2;
+				long kings = b0 & ~b1 & b2;
+//				public static final int PAWN = 0;
+//				public static final int ROOK = 3;
+//				public static final int KNIGHT = 1;
+//				public static final int BISHOP = 2;
+//				public static final int QUEEN = 4;
+//				public static final int KING = 5;
+//				public static final int NO_PIECE = 7; //0xff
+				
+				{
+					int bi = 0;
+					for (long zarg = pawns,
+							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
+						bi = Bitboard.getFirstSquareIndex(barg);
+						temp[bi]+="P";
+					}
+				}
+				
+				{
+					int bi = 0;
+					for (long zarg = rooks,
+							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
+						bi = Bitboard.getFirstSquareIndex(barg);
+						temp[bi]+="R";
+					}
+				}
+				
+				{
+					int bi = 0;
+					for (long zarg = knights,
+							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
+						bi = Bitboard.getFirstSquareIndex(barg);
+						temp[bi]+="N";
+					}
+				}
+				
+				{
+					int bi = 0;
+					for (long zarg = bishops,
+							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
+						bi = Bitboard.getFirstSquareIndex(barg);
+						temp[bi]+="B";
+					}
+				}
+				
+				{
+					int bi = 0;
+					for (long zarg = queens,
+							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
+						bi = Bitboard.getFirstSquareIndex(barg);
+						temp[bi]+="Q";
+					}
+				}
+				
+				{
+					int bi = 0;
+					for (long zarg = kings,
+							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
+						bi = Bitboard.getFirstSquareIndex(barg);
+						temp[bi]+="K";
+					}
+				}
+				
+			}
+			ret+=Player.toString(player) + ":\n";
+			for(int i=0;i<64;++i) {
+				if(!temp[i].isEmpty()) {
+					ret+=Square.toString(i) + ": " + temp[i]+"\n";
+				}
+			}
+		}
+		
+		return ret;
+	}
 
 	
 	private long output_winningCaptures;//target squares where a safe/winning capture can be made. Shared by both players
 	private long output_neutralCaptures;//target squares where a break-even capture can be made. Shared by both players
 	private long output_badCaptures;
-	public void populateCapturesBothPlayers() {
-		long temp_captureHappened=0;//used to distinguish between 'White Knight at f4' and 'White Knight at f4 is taken'. Needed for after the exchange calculation.
-		
-		
-		
-	}
+	///TODO: question: should it be possible to get the good/bad capture map for just one player?
+	//=> Yes! which the square-centric approach the additional cost is marginal.
+	//or, NO. Precicely bacause it is marginal and when doing move ordering we will only care for captures of one side.
 	
+	
+	/**
+	 * PREREQUISITE: attacksSets are generated and sorted.
+	 * performs a forward scan of attackSets[player]
+	 */
+//	AttackSet getNextAttacker(int sq, int player, int startingIndex) {
+//		long targerBB = Bitboard.initFromSquare(sq);
+//		for(int i=startingIndex; i<size_attackSet(player); ++i)
+//			if((attackSets[player][i].getAttacks() & targerBB) != 0l)
+//				return attackSets[player][i];
+//		return null;
+//	}
+	
+
 	
 	void addAttackSetPieceTypeSquare(int pt, int sq, int player, long attacks) {
+		assert attacks !=0l;
 		////TODO =>>>>>>>> This is VERY wrong. We do not want to be creating objects on-demand. EVER!!!!!
 		// THOUUGH, this will be refactored to not have this class anyways...
 		AttackSet as = new AttackSet(attacks);
@@ -156,6 +261,7 @@ public class QuantitativeAnalyzer {
 	}
 	
 	void addAttackSetPawn( int player, long attacks) {
+		assert attacks !=0l;
 		addAttackSetPieceTypeSquare(PieceType.PAWN, Square.A1, player, attacks);
 	}
 	

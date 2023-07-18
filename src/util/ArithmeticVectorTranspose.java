@@ -2,7 +2,7 @@ package util;
 
 import gamestate.Bitboard;
 
-public class BitvectorTranspose {
+public class ArithmeticVectorTranspose {
 	private static final int length = 6;
 	private long[] data = new long[length];
 	private int[] powersOf2 = new int[] {1, 2, 4, 8, 16, -32};
