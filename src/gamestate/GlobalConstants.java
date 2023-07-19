@@ -2,6 +2,9 @@ package gamestate;
 
 public class GlobalConstants {
 	public static final class Player {
+		public static void validate(int pl) {
+			assert pl==0 || pl==1;
+		}
 
 		public static final int WHITE = 0;
 		public static final int BLACK = 1;
@@ -36,6 +39,9 @@ public class GlobalConstants {
 
 	// TODO: All Enum classes should be interface-based and prvide a validation function.
 	public static final class PieceType {
+		public static void validate(int pt) {
+			assert pt>=PAWN && pt<=KING;
+		}
 // IMPORTANT: NO_PIECE is not in the collection!
 		public static final int[] PIECE_TYPES = { PieceType.PAWN, PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP, PieceType.QUEEN, PieceType.KING };
 		// it may be useful to have piece codes roughly approximating the order of value
@@ -68,7 +74,9 @@ public class GlobalConstants {
 	}
 
 	public static final class Square {
-
+		public static void validate(int sq) {
+			assert sq>=0 && sq<=63;
+		}
 		public static final int A1 = 0;
 		public static final int[] SQUARES = { A1, Square.B1, Square.C1, Square.D1, Square.E1, Square.F1, Square.G1, Square.H1, Square.A2, Square.B2, Square.C2, Square.D2, Square.E2,
 				Square.F2, Square.G2, Square.H2, Square.A3, Square.B3, Square.C3, Square.D3, Square.E3, Square.F3, Square.G3, Square.H3, Square.A4, Square.B4, Square.C4, Square.D4,
@@ -175,6 +183,9 @@ public class GlobalConstants {
 	 * field
 	 */
 	public static final class MoveType {
+		public static void validate(int pt) {
+			assert pt>=0 && pt<=7;
+		}
 		// NOTICE: assigned value roughly indicate the desired move ordering.
 		public static final int PROMO_CAPTURE = 0;
 		public static final int PROMO = 1;

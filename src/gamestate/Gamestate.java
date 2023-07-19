@@ -457,6 +457,8 @@ public class Gamestate {
 	 */
 	public void makeMove(int move) {
 		// OPTIMIZE: streamline tested conditions in this method
+		
+		//TODO: when i implement a denorm for king pins and skewers, it woudl need to be updated here.
 		makeDirtyMove(move);
 		int undoinfo = 0;
 		undoinfo = UndoInfo.setHalfmoveCounter(undoinfo, quietHalfmoveClock);

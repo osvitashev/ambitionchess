@@ -5,6 +5,8 @@ import static util.BitField32.setBits;
 
 import java.util.Arrays;
 
+import javax.swing.text.MaskFormatter;
+
 import gamestate.Bitboard;
 import gamestate.DebugLibrary;
 import gamestate.Gamestate;
@@ -25,15 +27,15 @@ import util.ResettableArray32;
 //This should have a reference to const board state. and separate initializer for permanent and non-permannet member data
 
 public class StaticExchangeEvaluator {
-	private static final int[] COSTS = { 1, 3, 3, 5, 9};
+	private static final int[] COSTS = { 1, 3, 3, 5, 9, 15};
 	
 	/**
 	 * Only used for ordering. Does not represent exchange evaluation cost!
-	 * Notice that King does not have an assigned value!!!!
+	 * Notice King is given a value for consistency, but it should not be used except for comparison.
 	 * @param pieceType
 	 * @return
 	 */
-	public static int getPieceValue(int pieceType) {
+	public static int getPieceCost(int pieceType) {
 		DebugLibrary.validatePieceType(pieceType);
 		return COSTS[pieceType];
 	}
@@ -105,107 +107,105 @@ public class StaticExchangeEvaluator {
 		return length_attackSets[player];
 	}
 	
-	private BitwiseVectorTranspose[] initialize_parallelAttackSetStacks() {
+	/**
+	 * is only used when a new object is created!
+	 */
+	private BitwiseVectorTranspose[] initialize_temp_serializedCaptureSets_pieceCosts() {
+		///REFACTOR: this might as well be 10 b-bit vectors, but it would make equivalent of shoftLwftWhere more messy
 		BitwiseVectorTranspose[] temp = new BitwiseVectorTranspose[2];
-		temp[0]=new BitwiseVectorTranspose(30);//10 attackers with 3-bit encoding!
-		temp[1]=new BitwiseVectorTranspose(30);
+		temp[0]=new BitwiseVectorTranspose(40);//10 attackers with 4-bit encoding!
+		temp[1]=new BitwiseVectorTranspose(40);
 		return temp;
 	}
 	
 	///captures only. no quiet pawn pushes and resulting batteries!
-	private BitwiseVectorTranspose[] temp_parallelCaptureSets = initialize_parallelAttackSetStacks();
+	//TODO: this variable is redundant and can be replaced with temp_parallelCaptureSets_pieceCosts
+	private BitwiseVectorTranspose[] temp_serializedCaptureSets_pieceCosts = initialize_temp_serializedCaptureSets_pieceCosts();
+	
 	/// when evaluating quiet moves in the future, we can reuse the temp_parallelCaptureSets for the second player!
-	void populate_temp_parallelCaptureSets(int player) {
-		//TODO: validation
-		temp_parallelCaptureSets[player].resetTo1s();
-		int pt;//piecetype
+	
+	//TODO: add a convention for METHOD_TEMP_*** variables which should only used in the method body or as a return value.
+	
+	//REFACTOR: this is a map of an attack set to a serialized attack set!
+	void populate_temp_serializedCaptureSets_pieceCosts(int player) {
+		Player.validate(player);
+		temp_serializedCaptureSets_pieceCosts[player].resetTo0s();
+		int pt;//piece type
+		int pc;//piece cost
 		long mask;
 		for(int i=0; i<length_attackSets[player];++i) {
 			mask=attackSets[player][i].getAttacks();
-			temp_parallelCaptureSets[player].leftShiftWhere(mask, 3);
+			temp_serializedCaptureSets_pieceCosts[player].leftShiftWhere(mask, 4);//this injects 0s to the end
 			pt = attackSets[player][i].getPieceType();
-			if((pt & 1) !=0)
-				temp_parallelCaptureSets[player].setWhere(0, ~0l, mask);
-			if((pt & 2) !=0)
-				temp_parallelCaptureSets[player].setWhere(1, ~0l, mask);
-			if((pt & 4) !=0)
-				temp_parallelCaptureSets[player].setWhere(2, ~0l, mask);
+			pc= getPieceCost(pt);
+			if((pc & 1) !=0)
+				temp_serializedCaptureSets_pieceCosts[player].setWhere(0, ~0l, mask);
+			if((pc & 2) !=0)
+				temp_serializedCaptureSets_pieceCosts[player].setWhere(1, ~0l, mask);
+			if((pc & 4) !=0)
+				temp_serializedCaptureSets_pieceCosts[player].setWhere(2, ~0l, mask);
+			if((pc & 8) !=0)
+				temp_serializedCaptureSets_pieceCosts[player].setWhere(3, ~0l, mask);
 		}
 	}
 	
-	String toString_temp_parallelCaptureSets() {
+	String toString_temp_serializedCaptureSets_pieceCosts() {
 		String[][] temp = new String[2][];
 		String ret = "";
+		long[] cost = new long[4];
 		
 		for(int player: Player.PLAYERS) {
 			temp[player] = new String[64];
 			for(int i=0;i<64;++i)
-				temp[player][i]="";
-			for(int i=temp_parallelCaptureSets[player].size()-1; i>=0; i-=3) {
-				long b0=temp_parallelCaptureSets[player].get(i-2);//4
-				long b1=temp_parallelCaptureSets[player].get(i-1);//2
-				long b2=temp_parallelCaptureSets[player].get(i);//1
+				temp[player][i]=new String("");;
+			
+			for(int i=temp_serializedCaptureSets_pieceCosts[player].size()-1; i>=0; i-=4) {
 				
-				long pawns = ~b0 & ~b1 & ~b2;
-				long rooks = b0 & b1 & ~b2;
-				long bishops = ~b0 & b1 & ~b2;
-				long knights = b0 & ~b1 & ~b2;
-				long queens = ~b0 & ~b1 & b2;
-				long kings = b0 & ~b1 & b2;
+				cost[0]=temp_serializedCaptureSets_pieceCosts[player].get(i-3);//1
+				cost[1]=temp_serializedCaptureSets_pieceCosts[player].get(i-2);//2
+				cost[2]=temp_serializedCaptureSets_pieceCosts[player].get(i-1);//4
+				cost[3]=temp_serializedCaptureSets_pieceCosts[player].get(i);//8
 				
-				{
-					int bi = 0;
-					for (long zarg = pawns,
-							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
-						bi = Bitboard.getFirstSquareIndex(barg);
-						temp[player][bi]+="P";
+
+					
+					
+					//long maskWhere = ~cost[3] & cost[2] & ~cost[1] & cost[0];
+					long maskWhere;
+					for(int possibleCost=1; possibleCost<16; ++possibleCost){
+						maskWhere = ~0l;
+						if((possibleCost & 1)!=0)
+							maskWhere &= cost[0];
+						else
+							maskWhere &= ~cost[0];
+						
+						if((possibleCost & 2)!=0)
+							maskWhere &= cost[1];
+						else
+							maskWhere &= ~cost[1];
+						
+						if((possibleCost & 4)!=0)
+							maskWhere &= cost[2];
+						else
+							maskWhere &= ~cost[2];
+						
+						if((possibleCost & 8)!=0)
+							maskWhere &= cost[3];
+						else
+							maskWhere &= ~cost[3];
+						
+						//here: if costOption==5 it means that maskWhere is the bitmap of locations where the cumulative cost is 5
+						{
+							int bi = 0;
+							for (long zarg = maskWhere, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard
+									.isolateLsb(zarg)) {//iterateOnBitIndices
+								bi = Bitboard.getFirstSquareIndex(barg);
+								temp[player][bi] += Integer.toString(possibleCost) + " ";
+							}
+						}
 					}
-				}
+
 				
-				{
-					int bi = 0;
-					for (long zarg = rooks,
-							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
-						bi = Bitboard.getFirstSquareIndex(barg);
-						temp[player][bi]+="R";
-					}
-				}
-				
-				{
-					int bi = 0;
-					for (long zarg = knights,
-							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
-						bi = Bitboard.getFirstSquareIndex(barg);
-						temp[player][bi]+="N";
-					}
-				}
-				
-				{
-					int bi = 0;
-					for (long zarg = bishops,
-							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
-						bi = Bitboard.getFirstSquareIndex(barg);
-						temp[player][bi]+="B";
-					}
-				}
-				
-				{
-					int bi = 0;
-					for (long zarg = queens,
-							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
-						bi = Bitboard.getFirstSquareIndex(barg);
-						temp[player][bi]+="Q";
-					}
-				}
-				
-				{
-					int bi = 0;
-					for (long zarg = kings,
-							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
-						bi = Bitboard.getFirstSquareIndex(barg);
-						temp[player][bi]+="K";
-					}
-				}
+
 				
 			}
 		}
