@@ -112,7 +112,7 @@ public class QuantitativeAnalyzer {
 		return temp;
 	}
 	
-	///captures only. no pawn pushes and resulting batteries!
+	///captures only. no quiet pawn pushes and resulting batteries!
 	private BitwiseVectorTranspose[] temp_parallelCaptureSets = initialize_parallelAttackSetStacks();
 	/// when evaluating quiet moves in the future, we can reuse the temp_parallelCaptureSets for the second player!
 	void populate_temp_parallelCaptureSets() {
@@ -136,12 +136,13 @@ public class QuantitativeAnalyzer {
 	}
 	
 	String toString_temp_parallelCaptureSets() {
-		String[] temp;
+		String[][] temp = new String[2][];
 		String ret = "";
+		
 		for(int player: Player.PLAYERS) {
-			temp = new String[64];
+			temp[player] = new String[64];
 			for(int i=0;i<64;++i)
-				temp[i]="";
+				temp[player][i]="";
 			for(int i=temp_parallelCaptureSets[player].size()-1; i>=0; i-=3) {
 				long b0=temp_parallelCaptureSets[player].get(i-2);//4
 				long b1=temp_parallelCaptureSets[player].get(i-1);//2
@@ -153,20 +154,13 @@ public class QuantitativeAnalyzer {
 				long knights = b0 & ~b1 & ~b2;
 				long queens = ~b0 & ~b1 & b2;
 				long kings = b0 & ~b1 & b2;
-//				public static final int PAWN = 0;
-//				public static final int ROOK = 3;
-//				public static final int KNIGHT = 1;
-//				public static final int BISHOP = 2;
-//				public static final int QUEEN = 4;
-//				public static final int KING = 5;
-//				public static final int NO_PIECE = 7; //0xff
 				
 				{
 					int bi = 0;
 					for (long zarg = pawns,
 							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
 						bi = Bitboard.getFirstSquareIndex(barg);
-						temp[bi]+="P";
+						temp[player][bi]+="P";
 					}
 				}
 				
@@ -175,7 +169,7 @@ public class QuantitativeAnalyzer {
 					for (long zarg = rooks,
 							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
 						bi = Bitboard.getFirstSquareIndex(barg);
-						temp[bi]+="R";
+						temp[player][bi]+="R";
 					}
 				}
 				
@@ -184,7 +178,7 @@ public class QuantitativeAnalyzer {
 					for (long zarg = knights,
 							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
 						bi = Bitboard.getFirstSquareIndex(barg);
-						temp[bi]+="N";
+						temp[player][bi]+="N";
 					}
 				}
 				
@@ -193,7 +187,7 @@ public class QuantitativeAnalyzer {
 					for (long zarg = bishops,
 							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
 						bi = Bitboard.getFirstSquareIndex(barg);
-						temp[bi]+="B";
+						temp[player][bi]+="B";
 					}
 				}
 				
@@ -202,7 +196,7 @@ public class QuantitativeAnalyzer {
 					for (long zarg = queens,
 							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
 						bi = Bitboard.getFirstSquareIndex(barg);
-						temp[bi]+="Q";
+						temp[player][bi]+="Q";
 					}
 				}
 				
@@ -211,19 +205,16 @@ public class QuantitativeAnalyzer {
 					for (long zarg = kings,
 							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
 						bi = Bitboard.getFirstSquareIndex(barg);
-						temp[bi]+="K";
+						temp[player][bi]+="K";
 					}
 				}
 				
 			}
-			ret+=Player.toString(player) + ":\n";
-			for(int i=0;i<64;++i) {
-				if(!temp[i].isEmpty()) {
-					ret+=Square.toString(i) + ": " + temp[i]+"\n";
-				}
-			}
 		}
 		
+		for(int i=0; i<64; ++i) {
+			ret+=Square.toString(i) + ": White: " + temp[0][i] + " | Black: "+ temp[1][i] +"\n";
+		}
 		return ret;
 	}
 
