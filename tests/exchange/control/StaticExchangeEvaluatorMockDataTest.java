@@ -17,13 +17,13 @@ import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
 
-class QuantitativeAnalyzerMockDataTest {
+class StaticExchangeEvaluatorMockDataTest {
 
 	// QuantitativeAnalyzer qa = new QuantitativeAnalyzer();
 
 	@Test
 	void testMockDataInjection() {
-		QuantitativeAnalyzer myspy = Mockito.spy(new QuantitativeAnalyzer());
+		StaticExchangeEvaluator myspy = Mockito.spy(new StaticExchangeEvaluator());
 
 		doAnswer(new Answer<Void>() {
 			public Void answer(InvocationOnMock invocation) {
@@ -51,7 +51,7 @@ class QuantitativeAnalyzerMockDataTest {
 	
 	@Test
 	void testParallelCaptureSets() {
-		QuantitativeAnalyzer myspy = Mockito.spy(new QuantitativeAnalyzer());
+		StaticExchangeEvaluator myspy = Mockito.spy(new StaticExchangeEvaluator());
 		Gamestate brd;
 
 		doAnswer(new Answer<Void>() {
@@ -73,7 +73,8 @@ class QuantitativeAnalyzerMockDataTest {
 		}).when(myspy).populateAttackSets();
 		myspy.initializeBoardState(new Gamestate("8/5kp1/2Kbppn1/7P/P4B2/1P1R4/8/8 w - - 0 1"));
 		
-		myspy.populate_temp_parallelCaptureSets();
+		myspy.populate_temp_parallelCaptureSets(Player.WHITE);
+		myspy.populate_temp_parallelCaptureSets(Player.BLACK);
 				
 		assertEquals("a1: White:  | Black: \r\n"
 				+ "b1: White:  | Black: \r\n"
@@ -176,7 +177,8 @@ class QuantitativeAnalyzerMockDataTest {
 		}).when(myspy).populateAttackSets();
 		myspy.initializeBoardState(brd);
 		
-		myspy.populate_temp_parallelCaptureSets();
+		myspy.populate_temp_parallelCaptureSets(Player.WHITE);
+		myspy.populate_temp_parallelCaptureSets(Player.BLACK);
 		
 		System.out.println(myspy.toString_temp_parallelCaptureSets());
 		

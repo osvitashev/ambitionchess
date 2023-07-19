@@ -9,11 +9,11 @@ import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
 
-class QuantitativeAnalyzerTest {
+class StaticExchangeEvaluatorTest {
 
 	@Test
 	void basicInitializationTest() {
-		QuantitativeAnalyzer qa = new QuantitativeAnalyzer();
+		StaticExchangeEvaluator qa = new StaticExchangeEvaluator();
 		qa.addAttackSetPieceTypeSquare(PieceType.KING, Square.A2, Player.WHITE, 0x33);
 		qa.addAttackSetPieceTypeSquare(PieceType.KING, Square.G7, Player.BLACK, 0x787878);
 		qa.addAttackSetPieceTypeSquare(PieceType.KNIGHT, Square.A3, Player.WHITE, 0x65);

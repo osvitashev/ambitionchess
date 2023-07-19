@@ -24,7 +24,7 @@ import util.ResettableArray32;
 
 //This should have a reference to const board state. and separate initializer for permanent and non-permannet member data
 
-public class QuantitativeAnalyzer {
+public class StaticExchangeEvaluator {
 	private static final int[] COSTS = { 1, 3, 3, 5, 9};
 	
 	/**
@@ -115,24 +115,22 @@ public class QuantitativeAnalyzer {
 	///captures only. no quiet pawn pushes and resulting batteries!
 	private BitwiseVectorTranspose[] temp_parallelCaptureSets = initialize_parallelAttackSetStacks();
 	/// when evaluating quiet moves in the future, we can reuse the temp_parallelCaptureSets for the second player!
-	void populate_temp_parallelCaptureSets() {
-		temp_parallelCaptureSets[0].resetTo1s();
-		temp_parallelCaptureSets[1].resetTo1s();
-		
+	void populate_temp_parallelCaptureSets(int player) {
+		//TODO: validation
+		temp_parallelCaptureSets[player].resetTo1s();
 		int pt;//piecetype
 		long mask;
-		for(int player : Player.PLAYERS)
-			for(int i=0; i<length_attackSets[player];++i) {
-				mask=attackSets[player][i].getAttacks();
-				temp_parallelCaptureSets[player].leftShiftWhere(mask, 3);
-				pt = attackSets[player][i].getPieceType();
-				if((pt & 1) !=0)
-					temp_parallelCaptureSets[player].setWhere(0, ~0l, mask);
-				if((pt & 2) !=0)
-					temp_parallelCaptureSets[player].setWhere(1, ~0l, mask);
-				if((pt & 4) !=0)
-					temp_parallelCaptureSets[player].setWhere(2, ~0l, mask);
-			}
+		for(int i=0; i<length_attackSets[player];++i) {
+			mask=attackSets[player][i].getAttacks();
+			temp_parallelCaptureSets[player].leftShiftWhere(mask, 3);
+			pt = attackSets[player][i].getPieceType();
+			if((pt & 1) !=0)
+				temp_parallelCaptureSets[player].setWhere(0, ~0l, mask);
+			if((pt & 2) !=0)
+				temp_parallelCaptureSets[player].setWhere(1, ~0l, mask);
+			if((pt & 4) !=0)
+				temp_parallelCaptureSets[player].setWhere(2, ~0l, mask);
+		}
 	}
 	
 	String toString_temp_parallelCaptureSets() {
