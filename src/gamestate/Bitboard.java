@@ -84,6 +84,10 @@ public final class Bitboard {
 	}
 	
 	public final static class ShiftDirection {
+		public static boolean validate(int dir) {
+			return dir>=0 && dir<=7;
+		}
+		
 		public static final int NORTH = 0;
 		public static final int NORTH_EAST = 1;
 		public static final int EAST = 2;
@@ -106,7 +110,7 @@ public final class Bitboard {
 	 * 		}
 	 */
 	public static long shift(int direction, long bb) {
-		//TODO: add validation for Direction
+		assert ShiftDirection.validate(direction);
 		switch(direction) {
 		case ShiftDirection.NORTH:
 			bb = bb << 8;

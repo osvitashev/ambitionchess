@@ -25,13 +25,11 @@ public class SEEControlEvaluator {
 	private int[] attackSet_size = new int[2];
 	
 	int getSetData(int player, int index) {
-		// TODO: ADD validation
 		assert Player.validate(player);
 		return attackSetData[player][index];
 	}
 	
 	long getSet(int player, int index) {
-		// TODO: add validation
 		assert Player.validate(player);
 		return attackSets[player][index];
 	}
@@ -48,13 +46,11 @@ public class SEEControlEvaluator {
 	
 	int getAttackSetData(int player, int i) {
 		assert Player.validate(player);
-		//TODO: add validation for index
 		return attackSetData[player][i];
 	}
 
 	long getAttackSet(int player, int i) {
 		assert Player.validate(player);
-		//TODO: add validation for index
 		return attackSets[player][i];
 	}
 	

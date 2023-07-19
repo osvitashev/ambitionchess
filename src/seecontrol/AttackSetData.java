@@ -107,7 +107,6 @@ public class AttackSetData {
 	}
 
 	public static int setAttackSetType(int asData, int type) {
-		//TODO: add argument validation
 		return setBits(asData, type, 0, 2);
 	}
 	
@@ -142,7 +141,6 @@ public class AttackSetData {
 	}
 
 	public static int setSunkenCost(int asData, int val) {
-		// TODO: add parameter validation
 		return setBits(asData, val, 12, 8);
 	}
 	
@@ -151,7 +149,6 @@ public class AttackSetData {
 	}
 
 	public static int setOppontntSunkenCost(int asData, int val) {
-		// TODO: add parameter validation
 		return setBits(asData, val, 20, 8);
 	}
 	

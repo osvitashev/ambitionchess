@@ -12,7 +12,7 @@ public class GlobalConstants {
 		public static final int[] PLAYERS = { WHITE, BLACK };
 		
 		public static String toString(int pl) {
-			//TODO: add validaition
+			assert Player.validate(pl);
 			String ret = "";
 			if (pl == WHITE)
 				ret = "White";
