@@ -45,7 +45,7 @@ public class Move {
 	}
 
 	public static int setSquareFrom(int move, int val) {
-		DebugLibrary.validateSquare(val);
+		assert Square.validate(val);
 		return setBits(move, val, 0, 6);
 	}
 
@@ -54,7 +54,7 @@ public class Move {
 	}
 
 	public static int setSquareTo(int move, int val) {
-		DebugLibrary.validateSquare(val);
+		assert Square.validate(val);
 		return setBits(move, val, 6, 6);
 	}
 
@@ -63,7 +63,7 @@ public class Move {
 	}
 
 	public static int setPieceType(int move, int type) {
-		DebugLibrary.validatePieceType(type);
+		assert PieceType.validate(type);
 		return setBits(move, type, 12, 3);
 	}
 
@@ -72,7 +72,7 @@ public class Move {
 	}
 
 	public static int setPieceCapturedType(int move, int type) {
-		DebugLibrary.validatePieceType(type);
+		assert PieceType.validate(type);
 		return setBits(move, type, 15, 3);
 	}
 
@@ -81,7 +81,7 @@ public class Move {
 	}
 
 	public static int setPiecePromotedType(int move, int type) {
-		DebugLibrary.validatePieceType(type);
+		assert PieceType.validate(type);
 		return setBits(move, type, 18, 3);
 	}
 
@@ -90,7 +90,7 @@ public class Move {
 	}
 
 	public static int setMoveType(int move, int type) {
-		DebugLibrary.validateMoveType(type);
+		assert MoveType.validate(type);
 		return setBits(move, type, 21, 3);
 	}
 
@@ -99,7 +99,7 @@ public class Move {
 	}
 
 	public static int setPlayer(int move, int pl) {
-		DebugLibrary.validatePlayer(pl);
+		assert Player.validate(pl);
 		return setBits(move, pl, 24, 1);
 	}
 
@@ -190,11 +190,11 @@ public class Move {
 	}
 
 	public static int createCapturePromo(int squareFrom, int squareTo, int pieceCapturedType, int piecePromotedType, int player) {
-		DebugLibrary.validateSquare(squareFrom);
-		DebugLibrary.validateSquare(squareTo);
-		DebugLibrary.validatePieceType(pieceCapturedType);
-		DebugLibrary.validatePieceType(piecePromotedType);
-		DebugLibrary.validatePlayer(player);
+		assert Square.validate(squareFrom);
+		assert Square.validate(squareTo);
+		assert PieceType.validate(pieceCapturedType);
+		assert PieceType.validate(piecePromotedType);
+		assert Player.validate(player);
 		int move = 0;
 		move = Move.setSquareFrom(move, squareFrom);
 		move = Move.setSquareTo(move, squareTo);
@@ -206,10 +206,10 @@ public class Move {
 	}
 
 	public static int createPromo(int squareFrom, int squareTo, int piecePromotedType, int player) {
-		DebugLibrary.validateSquare(squareFrom);
-		DebugLibrary.validateSquare(squareTo);
-		DebugLibrary.validatePieceType(piecePromotedType);
-		DebugLibrary.validatePlayer(player);
+		assert Square.validate(squareFrom);
+		assert Square.validate(squareTo);
+		assert PieceType.validate(piecePromotedType);
+		assert Player.validate(player);
 		int move = 0;
 		move = Move.setSquareFrom(move, squareFrom);
 		move = Move.setSquareTo(move, squareTo);
@@ -220,11 +220,11 @@ public class Move {
 	}
 
 	public static int createCapture(int squareFrom, int squareTo, int pieceType, int pieceCapturedType, int player) {
-		DebugLibrary.validateSquare(squareFrom);
-		DebugLibrary.validateSquare(squareTo);
-		DebugLibrary.validatePieceType(pieceType);
-		DebugLibrary.validatePieceType(pieceCapturedType);
-		DebugLibrary.validatePlayer(player);
+		assert Square.validate(squareFrom);
+		assert Square.validate(squareTo);
+		assert PieceType.validate(pieceType);
+		assert PieceType.validate(pieceCapturedType);
+		assert Player.validate(player);
 		int move = 0;
 		move = Move.setSquareFrom(move, squareFrom);
 		move = Move.setSquareTo(move, squareTo);
@@ -236,9 +236,9 @@ public class Move {
 	}
 
 	public static int createEnpassant(int squareFrom, int squareTo, int player) {
-		DebugLibrary.validateSquare(squareFrom);
-		DebugLibrary.validateSquare(squareTo);
-		DebugLibrary.validatePlayer(player);
+		assert Square.validate(squareFrom);
+		assert Square.validate(squareTo);
+		assert Player.validate(player);
 		int move = 0;
 		move = Move.setSquareFrom(move, squareFrom);
 		move = Move.setSquareTo(move, squareTo);
@@ -248,7 +248,7 @@ public class Move {
 	}
 
 	public static int createCastleKing(int player) {
-		DebugLibrary.validatePlayer(player);
+		assert Player.validate(player);
 		int move = 0;
 		move = Move.setMoveType(move, MoveType.CASTLE_KING);
 		move = Move.setPlayer(move, player);
@@ -256,7 +256,7 @@ public class Move {
 	}
 
 	public static int createCastleQueen(int player) {
-		DebugLibrary.validatePlayer(player);
+		assert Player.validate(player);
 		int move = 0;
 		move = Move.setMoveType(move, MoveType.CASTLE_QUEEN);
 		move = Move.setPlayer(move, player);
@@ -264,10 +264,10 @@ public class Move {
 	}
 
 	public static int createNormal(int squareFrom, int squareTo, int pieceType, int player) {
-		DebugLibrary.validateSquare(squareFrom);
-		DebugLibrary.validateSquare(squareTo);
-		DebugLibrary.validatePieceType(pieceType);
-		DebugLibrary.validatePlayer(player);
+		assert Square.validate(squareFrom);
+		assert Square.validate(squareTo);
+		assert PieceType.validate(pieceType);
+		assert Player.validate(player);
 		int move = 0;
 		move = Move.setSquareFrom(move, squareFrom);
 		move = Move.setSquareTo(move, squareTo);
@@ -278,9 +278,9 @@ public class Move {
 	}
 
 	public static int createDoublePush(int squareFrom, int squareTo, int player) {
-		DebugLibrary.validateSquare(squareFrom);
-		DebugLibrary.validateSquare(squareTo);
-		DebugLibrary.validatePlayer(player);
+		assert Square.validate(squareFrom);
+		assert Square.validate(squareTo);
+		assert Player.validate(player);
 		int move = 0;
 		move = Move.setSquareFrom(move, squareFrom);
 		move = Move.setSquareTo(move, squareTo);

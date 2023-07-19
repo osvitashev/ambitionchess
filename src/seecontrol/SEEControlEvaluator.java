@@ -26,18 +26,18 @@ public class SEEControlEvaluator {
 	
 	int getSetData(int player, int index) {
 		// TODO: ADD validation
-		DebugLibrary.validatePlayer(player);
+		assert Player.validate(player);
 		return attackSetData[player][index];
 	}
 	
 	long getSet(int player, int index) {
 		// TODO: add validation
-		DebugLibrary.validatePlayer(player);
+		assert Player.validate(player);
 		return attackSets[player][index];
 	}
 	
 	int getSetSize(int player) {
-		DebugLibrary.validatePlayer(player);
+		assert Player.validate(player);
 		return attackSet_size[player];
 	}
 
@@ -47,13 +47,13 @@ public class SEEControlEvaluator {
 	}
 	
 	int getAttackSetData(int player, int i) {
-		DebugLibrary.validatePlayer(player);
+		assert Player.validate(player);
 		//TODO: add validation for index
 		return attackSetData[player][i];
 	}
 
 	long getAttackSet(int player, int i) {
-		DebugLibrary.validatePlayer(player);
+		assert Player.validate(player);
 		//TODO: add validation for index
 		return attackSets[player][i];
 	}

@@ -36,7 +36,7 @@ public class StaticExchangeEvaluator {
 	 * @return
 	 */
 	public static int getPieceCost(int pieceType) {
-		DebugLibrary.validatePieceType(pieceType);
+		assert PieceType.validate(pieceType);
 		return COSTS[pieceType];
 	}
 	

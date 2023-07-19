@@ -23,13 +23,13 @@ public class DebugLibrary {
 	 * @param sq
 	 * @return
 	 */
-	public static int validateSquare(int sq) {
-		if (ENABLE_PRIMITIVE_TYPE_VALIDATION) {
-			if (Square.H8 < sq || sq < Square.A1)
-				throw new RuntimeException("Argument is out of range for a Square type: " + sq);
-		}
-		return sq;
-	}
+//	public static int validateSquare(int sq) {
+//		if (ENABLE_PRIMITIVE_TYPE_VALIDATION) {
+//			if (Square.H8 < sq || sq < Square.A1)
+//				throw new RuntimeException("Argument is out of range for a Square type: " + sq);
+//		}
+//		return sq;
+//	}
 
 	/**
 	 * Checks that integer piece type is within the range of valid values.
@@ -38,13 +38,13 @@ public class DebugLibrary {
 	 * @param pt
 	 * @return
 	 */
-	public static int validatePieceType(int pt) {
-		if (ENABLE_PRIMITIVE_TYPE_VALIDATION) {
-			if (PieceType.KING < pt || pt < PieceType.PAWN)
-				throw new RuntimeException("Argument is out of range for a Piece type: " + pt);
-		}
-		return pt;
-	}
+//	public static int validatePieceType(int pt) {
+//		if (ENABLE_PRIMITIVE_TYPE_VALIDATION) {
+//			if (PieceType.KING < pt || pt < PieceType.PAWN)
+//				throw new RuntimeException("Argument is out of range for a Piece type: " + pt);
+//		}
+//		return pt;
+//	}
 
 	/**
 	 * Checks that integer player is within the range of valid values.
@@ -53,13 +53,13 @@ public class DebugLibrary {
 	 * @param p
 	 * @return
 	 */
-	public static int validatePlayer(int p) {
-		if (ENABLE_PRIMITIVE_TYPE_VALIDATION) {
-			if (p != Player.WHITE && p != Player.BLACK)
-				throw new RuntimeException("Argument is out of range for a Player type: " + p);
-		}
-		return p;
-	}
+//	public static int validatePlayer(int p) {
+//		if (ENABLE_PRIMITIVE_TYPE_VALIDATION) {
+//			if (p != Player.WHITE && p != Player.BLACK)
+//				throw new RuntimeException("Argument is out of range for a Player type: " + p);
+//		}
+//		return p;
+//	}
 
 	/**
 	 * Checks that integer move type is within the range of valid values.
@@ -67,11 +67,11 @@ public class DebugLibrary {
 	 * @param mt
 	 * @return
 	 */
-	public static int validateMoveType(int mt) {
-		if (ENABLE_PRIMITIVE_TYPE_VALIDATION) {
-			if (GlobalConstants.MoveType.DOUBLE_PUSH < mt || mt < GlobalConstants.MoveType.PROMO_CAPTURE)
-				throw new RuntimeException("Argument is out of range for a MoveType: " + mt);
-		}
-		return mt;
-	}
+//	public static int validateMoveType(int mt) {
+//		if (ENABLE_PRIMITIVE_TYPE_VALIDATION) {
+//			if (GlobalConstants.MoveType.DOUBLE_PUSH < mt || mt < GlobalConstants.MoveType.PROMO_CAPTURE)
+//				throw new RuntimeException("Argument is out of range for a MoveType: " + mt);
+//		}
+//		return mt;
+//	}
 }

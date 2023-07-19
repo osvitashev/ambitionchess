@@ -86,18 +86,18 @@ public class Gamestate {
 	}
 
 	public long getPieces(int type) {
-		DebugLibrary.validatePieceType(type);
+		assert PieceType.validate(type);
 		return pieceBB[type];
 	}
 
 	public long getPieces(int player, int type) {
-		DebugLibrary.validatePlayer(player);
-		DebugLibrary.validatePieceType(type);
+		assert Player.validate(player);
+		assert PieceType.validate(type);
 		return pieceBB[type] & playerBB[player];
 	}
 
 	public long getPlayerPieces(int p) {
-		DebugLibrary.validatePlayer(p);
+		assert Player.validate(p);
 		return playerBB[p];
 	}
 
@@ -110,9 +110,9 @@ public class Gamestate {
 	 * @param sq
 	 */
 	private void putPieceAt(int piece, int player, int sq) {
-		DebugLibrary.validatePieceType(piece);
-		DebugLibrary.validatePlayer(player);
-		DebugLibrary.validateSquare(sq);
+		assert PieceType.validate(piece);
+		assert Player.validate(player);
+		assert Square.validate(sq);
 		playerBB[player] = setBit(playerBB[player], sq);
 		pieceBB[piece] = setBit(pieceBB[piece], sq);
 	}
@@ -124,7 +124,7 @@ public class Gamestate {
 //	 * @param sq
 //	 */
 //	private void clearPieceAt(int sq) {
-//		DebugLibrary.validateSquare(sq);
+//		assert Square.validate(sq);
 //		playerBB[Player.WHITE] = clearBit(playerBB[Player.WHITE], sq);
 //		playerBB[Player.BLACK] = clearBit(playerBB[Player.BLACK], sq);
 //		for (int i = 0; i < PieceType.PIECE_TYPES.length; ++i)
@@ -132,15 +132,15 @@ public class Gamestate {
 //	}
 
 	private void clearPieceAt(int pt, int sq) {
-		DebugLibrary.validateSquare(sq);
-		DebugLibrary.validatePieceType(pt);
+		assert Square.validate(sq);
+		assert PieceType.validate(pt);
 		playerBB[Player.WHITE] = clearBit(playerBB[Player.WHITE], sq);
 		playerBB[Player.BLACK] = clearBit(playerBB[Player.BLACK], sq);
 		pieceBB[pt] = clearBit(pieceBB[pt], sq);
 	}
 
 	public int getPieceAt(int sq) {
-		DebugLibrary.validateSquare(sq);
+		assert Square.validate(sq);
 		for (int i = 0; i < PieceType.PIECE_TYPES.length; ++i)
 			if (testBit(pieceBB[i], sq))
 				return i;
@@ -154,7 +154,7 @@ public class Gamestate {
 	 * @return player
 	 */
 	public int getPlayerAt(int sq) {
-		DebugLibrary.validateSquare(sq);
+		assert Square.validate(sq);
 		if (testBit(playerBB[Player.WHITE], sq))
 			return Player.WHITE;
 		else if (testBit(playerBB[Player.BLACK], sq))
@@ -172,9 +172,9 @@ public class Gamestate {
 	 * @return boolean
 	 */
 	public boolean testPieceAt(int pieceType, int player, int sq) {
-		DebugLibrary.validatePieceType(pieceType);
-		DebugLibrary.validatePlayer(player);
-		DebugLibrary.validateSquare(sq);
+		assert PieceType.validate(pieceType);
+		assert Player.validate(player);
+		assert Square.validate(sq);
 		return testBit(playerBB[player], sq) && testBit(pieceBB[pieceType], sq);
 	}
 
@@ -195,13 +195,13 @@ public class Gamestate {
 	}
 
 	private void setKingSquare(int sq, int pl) {
-		DebugLibrary.validatePlayer(pl);
-		DebugLibrary.validateSquare(sq);
+		assert Player.validate(pl);
+		assert Square.validate(sq);
 		kingSquare[pl] = sq;
 	}
 
 	public int getKingSquare(int pl) {
-		DebugLibrary.validatePlayer(pl);
+		assert Player.validate(pl);
 		return kingSquare[pl];
 	}
 
@@ -214,8 +214,8 @@ public class Gamestate {
 	 */
 	public long calculateSquareAttackers(int sq, int pl) {
 		long ret = 0;
-		DebugLibrary.validatePlayer(pl);
-		DebugLibrary.validateSquare(sq);
+		assert Player.validate(pl);
+		assert Square.validate(sq);
 		// IDEA: this function can be a dynamic part of the game state. If there are no
 		// more knights on the board, there is no point in checking for knight attacks.
 		// Most moves do not modify such conditions.
@@ -240,8 +240,8 @@ public class Gamestate {
 	 * @return
 	 */
 	public long calculatePinsSkewersAndDiscoveredAttacks(int sq, int pl) {
-		DebugLibrary.validatePlayer(pl);
-		DebugLibrary.validateSquare(sq);
+		assert Player.validate(pl);
+		assert Square.validate(sq);
 		long ret = 0;
 		long rookReverseSet = BitboardGen.getRookSet(sq, getOccupied());
 		long rookBlockers = rookReverseSet & ~getEmpty();
@@ -269,8 +269,8 @@ public class Gamestate {
 	 * @return boolean
 	 */
 	public boolean calculateIsSquareAttackedBy(int sq, int pl) {
-		DebugLibrary.validatePlayer(pl);
-		DebugLibrary.validateSquare(sq);
+		assert Player.validate(pl);
+		assert Square.validate(sq);
 		if (!Bitboard.isEmpty(calculateSquareAttackers(sq, pl)))
 			return true;
 		return false;
@@ -283,7 +283,7 @@ public class Gamestate {
 	 * @return boolean
 	 */
 	public boolean calculateIsPlayerInCheck(int pl) {
-		DebugLibrary.validatePlayer(pl);
+		assert Player.validate(pl);
 		int sq = getKingSquare(pl);
 		return calculateIsSquareAttackedBy(sq, Player.getOtherPlayer(pl));
 	}
@@ -709,6 +709,9 @@ public class Gamestate {
 		} catch (Exception e) {
 
 		}
+		catch (AssertionError e) {
+			
+		}
 
 		validateState();
 		return this;
@@ -722,7 +725,7 @@ public class Gamestate {
 	 * @return
 	 */
 	public String getPieceStringAt(int sq) {
-		DebugLibrary.validateSquare(sq);
+		assert Square.validate(sq);
 		int pt = getPieceAt(sq);
 		String ret = PieceType.toString(pt);
 		if (getPlayerAt(sq) != Player.WHITE)
@@ -819,7 +822,7 @@ public class Gamestate {
 			}
 			// validate enpassant
 			if (getEnpassantSquare() != Square.SQUARE_NONE) {
-				DebugLibrary.validateSquare(getEnpassantSquare());
+				assert Square.validate(getEnpassantSquare());
 				if (getPlayerToMove() == Player.WHITE && 5 != (getEnpassantSquare() / 8))
 					throw new RuntimeException("Invalid enpassant square");
 				if (getPlayerToMove() == Player.BLACK && 2 != (getEnpassantSquare() / 8))
@@ -837,6 +840,12 @@ public class Gamestate {
 				throw new RuntimeException("Invalid castling state!");
 			if (getCastling_BQ() && !(testPieceAt(PieceType.KING, Player.BLACK, Square.E8) && testPieceAt(PieceType.ROOK, Player.BLACK, Square.A8)))
 				throw new RuntimeException("Invalid castling state!");
+			
+			if (Bitboard.popcount(getPieces(Player.WHITE, PieceType.KING)) != 1)
+				throw new RuntimeException("Something wrong with kings!");
+			if (Bitboard.popcount(getPieces(Player.BLACK, PieceType.KING)) != 1)
+				throw new RuntimeException("Something wrong with kings!");
+			
 			// validate checks.
 			if (calculateIsPlayerInCheck(getPlayerToMove()) != getIsCheck())
 				throw new RuntimeException("Check flag mismatch!");
@@ -845,16 +854,15 @@ public class Gamestate {
 			// validate pawns on first and last ranks
 			if (Bitboard.popcount(getPieces(PieceType.PAWN) & 0xff000000000000ffL) != 0)
 				throw new RuntimeException("Pawns on first or last rank!");
-			DebugLibrary.validatePlayer(getPlayerToMove());
+			assert Player.validate(getPlayerToMove());
 			// validate king denorm
-			if (Bitboard.popcount(getPieces(PieceType.KING)) != 2)
-				throw new RuntimeException("Something wrong with kings!");
+			
 			if (getKingSquare(Player.WHITE) != getFirstSquareIndex(getPieces(Player.WHITE, PieceType.KING)))
 				throw new RuntimeException("Error in king denorm!");
 			if (getKingSquare(Player.BLACK) != getFirstSquareIndex(getPieces(Player.BLACK, PieceType.KING)))
 				throw new RuntimeException("Error in king denorm!");
-			DebugLibrary.validateSquare(getKingSquare(Player.WHITE));
-			DebugLibrary.validateSquare(getKingSquare(Player.BLACK));
+			assert Square.validate(getKingSquare(Player.WHITE));
+			assert Square.validate(getKingSquare(Player.BLACK));
 		} catch (Exception e) {
 			// uncomment when troubleshooting!
 			// e.printStackTrace();

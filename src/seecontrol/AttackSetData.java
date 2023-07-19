@@ -97,7 +97,7 @@ public class AttackSetData {
 		 * @return
 		 */
 		public static int getValue(int pieceType) {
-			DebugLibrary.validatePieceType(pieceType);
+			assert PieceType.validate(pieceType);
 			return COSTS[pieceType];
 		}
 	}
@@ -116,7 +116,7 @@ public class AttackSetData {
 	}
 
 	public static int setPieceType(int asData, int type) {
-		DebugLibrary.validatePieceType(type);
+		assert PieceType.validate(type);
 		return setBits(asData, type, 2, 3);
 	}
 	
@@ -125,7 +125,7 @@ public class AttackSetData {
 	}
 
 	public static int setSquare(int asData, int val) {
-		DebugLibrary.validateSquare(val);
+		assert Square.validate(val);
 		return setBits(asData, val, 5, 6);
 	}
 	
@@ -160,7 +160,7 @@ public class AttackSetData {
 	}
 
 	public static int setPlayer(int asData, int player) {
-		DebugLibrary.validatePlayer(player);
+		assert Player.validate(player);
 		return setBits(asData, player, 28, 1);
 	}
 
