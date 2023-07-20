@@ -85,108 +85,6 @@ class StaticExchangeEvaluatorTest {
 	 * 
 	 */
 	
-//	@Test
-//	void reinitializeGainLossToPieceValuesTest() {
-//		Gamestate brd;
-//		QuantitativeAnalyzer qa = new QuantitativeAnalyzer();
-//		brd = new Gamestate("rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1");
-//		qa.initializeBoardState(brd);
-//		qa.reinitializeGainLossToPieceValues();
-//		
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.A1));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.B1));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.C1));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.QUEEN), qa.getTemp_exchangeGainLoss(Square.D1));
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E1));//king
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.F1));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.G1));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.H1));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.A2));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.B2));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.C2));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.D2));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.E4));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.F2));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.G2));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.H2));
-//		
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.A8));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.B8));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.C8));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.QUEEN), qa.getTemp_exchangeGainLoss(Square.D8));
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E8));//king
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.F8));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.G8));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.H8));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.A7));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.B7));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.C7));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.D7));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.E5));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.F7));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.G7));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.H7));
-//		//empty
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E2));
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E7));
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.B3));
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.C4));
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.D6));
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E6));
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E3));
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.H6));
-//		
-//		brd = new Gamestate("3r1rk1/pb1q1pbp/1pnp1np1/2p1p1B1/4P3/2NP1N2/PPPQBPPP/2KR3R w - - 0 1");
-//		qa.initializeBoardState(brd);
-//		qa.reinitializeGainLossToPieceValues();
-//		
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.D1));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.C3));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.E2));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.QUEEN), qa.getTemp_exchangeGainLoss(Square.D2));
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.C1));//king
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.G5));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.F3));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.H1));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.A2));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.B2));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.C2));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.D3));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.E4));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.F2));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.G2));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.H2));
-//		
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.D8));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.C6));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.B7));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.QUEEN), qa.getTemp_exchangeGainLoss(Square.D7));
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E8));//king
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.BISHOP), qa.getTemp_exchangeGainLoss(Square.G7));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.KNIGHT), qa.getTemp_exchangeGainLoss(Square.F6));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.ROOK), qa.getTemp_exchangeGainLoss(Square.F8));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.A7));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.B6));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.C5));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.D6));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.E5));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.F7));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.G6));
-//		assertEquals(QuantitativeAnalyzer.getPieceValue(PieceType.PAWN), qa.getTemp_exchangeGainLoss(Square.H7));
-//		
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.A1));
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.B1));
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E1));
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.F1));
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.G1));
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.A8));
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.B8));
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.C8));
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E8));
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.H8));
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.C7));
-//		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E7));
-//	}
 	
 	@Test
 	void testExchange() {
@@ -195,7 +93,184 @@ class StaticExchangeEvaluatorTest {
 		see.initializeBoardState(new Gamestate("8/8/5k2/4n3/8/2KP4/8/8 w - - 0 1"));
 		see.populate_temp_serializedCaptureSets_pieceCosts(Player.WHITE);
 		see.populate_temp_serializedCaptureSets_pieceCosts(Player.BLACK);
+		assertEquals("b2: White: 15  | Black: \r\n"
+				+ "c2: White: 15  | Black: \r\n"
+				+ "d2: White: 15  | Black: \r\n"
+				+ "b3: White: 15  | Black: \r\n"
+				+ "d3: White: 15  | Black: 3 \r\n"
+				+ "f3: White:  | Black: 3 \r\n"
+				+ "b4: White: 15  | Black: \r\n"
+				+ "c4: White: 1 15  | Black: 3 \r\n"
+				+ "d4: White: 15  | Black: \r\n"
+				+ "e4: White: 1  | Black: \r\n"
+				+ "g4: White:  | Black: 3 \r\n"
+				+ "e5: White:  | Black: 15 \r\n"
+				+ "f5: White:  | Black: 15 \r\n"
+				+ "g5: White:  | Black: 15 \r\n"
+				+ "c6: White:  | Black: 3 \r\n"
+				+ "e6: White:  | Black: 15 \r\n"
+				+ "g6: White:  | Black: 3 15 \r\n"
+				+ "d7: White:  | Black: 3 \r\n"
+				+ "e7: White:  | Black: 15 \r\n"
+				+ "f7: White:  | Black: 3 15 \r\n"
+				+ "g7: White:  | Black: 15 \r\n", see.toString_temp_serializedCaptureSets_pieceCosts().replaceAll("\n", "\r\n"));
+		//System.out.println(see.toString_temp_serializedCaptureSets_pieceCosts());
 		
-		System.out.println(see.toString_temp_serializedCaptureSets_pieceCosts());
+		see.initializeBoardState(new Gamestate("8/5k2/4n3/2p5/2KP1P2/2p5/8/8 w - - 0 1"));
+		see.populate_temp_serializedCaptureSets_pieceCosts(Player.WHITE);
+		see.populate_temp_serializedCaptureSets_pieceCosts(Player.BLACK);
+		assertEquals("b2: White:  | Black: 1 \r\n"
+				+ "d2: White:  | Black: 1 \r\n"
+				+ "b3: White: 15  | Black: \r\n"
+				+ "c3: White: 15  | Black: \r\n"
+				+ "d3: White: 15  | Black: \r\n"
+				+ "b4: White: 15  | Black: 1 \r\n"
+				+ "d4: White: 15  | Black: 1 3 \r\n"
+				+ "f4: White:  | Black: 3 \r\n"
+				+ "b5: White: 15  | Black: \r\n"
+				+ "c5: White: 1 15  | Black: 3 \r\n"
+				+ "d5: White: 15  | Black: \r\n"
+				+ "e5: White: 1 1  | Black: \r\n"
+				+ "g5: White: 1  | Black: 3 \r\n"
+				+ "e6: White:  | Black: 15 \r\n"
+				+ "f6: White:  | Black: 15 \r\n"
+				+ "g6: White:  | Black: 15 \r\n"
+				+ "c7: White:  | Black: 3 \r\n"
+				+ "e7: White:  | Black: 15 \r\n"
+				+ "g7: White:  | Black: 3 15 \r\n"
+				+ "d8: White:  | Black: 3 \r\n"
+				+ "e8: White:  | Black: 15 \r\n"
+				+ "f8: White:  | Black: 3 15 \r\n"
+				+ "g8: White:  | Black: 15 \r\n", see.toString_temp_serializedCaptureSets_pieceCosts().replaceAll("\n", "\r\n"));
+		
+		see.initializeBoardState(new Gamestate("8/5k2/4n3/2p5/2KB1N2/2p5/8/8 w - - 0 1"));
+		see.populate_temp_serializedCaptureSets_pieceCosts(Player.WHITE);
+		see.populate_temp_serializedCaptureSets_pieceCosts(Player.BLACK);
+		assertEquals("g1: White: 3  | Black: \r\n"
+				+ "b2: White:  | Black: 1 \r\n"
+				+ "d2: White:  | Black: 1 \r\n"
+				+ "e2: White: 3  | Black: \r\n"
+				+ "f2: White: 3  | Black: \r\n"
+				+ "g2: White: 3  | Black: \r\n"
+				+ "b3: White: 15  | Black: \r\n"
+				+ "c3: White: 3 15  | Black: \r\n"
+				+ "d3: White: 3 15  | Black: \r\n"
+				+ "e3: White: 3  | Black: \r\n"
+				+ "h3: White: 3  | Black: \r\n"
+				+ "b4: White: 15  | Black: 1 \r\n"
+				+ "d4: White: 15  | Black: 1 3 \r\n"
+				+ "f4: White:  | Black: 3 \r\n"
+				+ "b5: White: 15  | Black: \r\n"
+				+ "c5: White: 3 15  | Black: 3 \r\n"
+				+ "d5: White: 3 15  | Black: \r\n"
+				+ "e5: White: 3  | Black: \r\n"
+				+ "g5: White:  | Black: 3 \r\n"
+				+ "h5: White: 3  | Black: \r\n"
+				+ "e6: White: 3  | Black: 15 \r\n"
+				+ "f6: White: 3  | Black: 15 \r\n"
+				+ "g6: White: 3  | Black: 15 \r\n"
+				+ "c7: White:  | Black: 3 \r\n"
+				+ "e7: White:  | Black: 15 \r\n"
+				+ "g7: White: 3  | Black: 3 15 \r\n"
+				+ "d8: White:  | Black: 3 \r\n"
+				+ "e8: White:  | Black: 15 \r\n"
+				+ "f8: White:  | Black: 3 15 \r\n"
+				+ "g8: White:  | Black: 15 \r\n"
+				+ "h8: White: 3  | Black: \r\n", see.toString_temp_serializedCaptureSets_pieceCosts().replaceAll("\n", "\r\n"));
+		
+		see.initializeBoardState(new Gamestate("8/4r3/5k2/5rb1/8/3KQ3/5P2/8 w - - 0 1"));
+		see.populate_temp_serializedCaptureSets_pieceCosts(Player.WHITE);
+		see.populate_temp_serializedCaptureSets_pieceCosts(Player.BLACK);
+		assertEquals("c1: White: 9  | Black: \r\n"
+				+ "e1: White: 9  | Black: \r\n"
+				+ "c2: White: 15  | Black: \r\n"
+				+ "d2: White: 9 15  | Black: \r\n"
+				+ "e2: White: 9 15  | Black: \r\n"
+				+ "f2: White: 9  | Black: 5 \r\n"
+				+ "c3: White: 15  | Black: \r\n"
+				+ "d3: White: 9  | Black: \r\n"
+				+ "e3: White: 1 15  | Black: 3 5 \r\n"
+				+ "f3: White: 9  | Black: 5 \r\n"
+				+ "g3: White: 1 9  | Black: \r\n"
+				+ "h3: White: 9  | Black: \r\n"
+				+ "c4: White: 15  | Black: \r\n"
+				+ "d4: White: 9 15  | Black: \r\n"
+				+ "e4: White: 9 15  | Black: 5 \r\n"
+				+ "f4: White: 9  | Black: 3 5 \r\n"
+				+ "h4: White:  | Black: 3 \r\n"
+				+ "a5: White:  | Black: 5 \r\n"
+				+ "b5: White:  | Black: 5 \r\n"
+				+ "c5: White: 9  | Black: 5 \r\n"
+				+ "d5: White:  | Black: 5 \r\n"
+				+ "e5: White: 9  | Black: 5 5 15 \r\n"
+				+ "f5: White:  | Black: 15 \r\n"
+				+ "g5: White: 9  | Black: 5 15 \r\n"
+				+ "b6: White: 9  | Black: \r\n"
+				+ "e6: White: 9  | Black: 5 15 \r\n"
+				+ "f6: White:  | Black: 3 5 \r\n"
+				+ "g6: White:  | Black: 15 \r\n"
+				+ "h6: White:  | Black: 3 \r\n"
+				+ "a7: White: 9  | Black: 5 \r\n"
+				+ "b7: White:  | Black: 5 \r\n"
+				+ "c7: White:  | Black: 5 \r\n"
+				+ "d7: White:  | Black: 5 \r\n"
+				+ "e7: White: 9  | Black: 15 \r\n"
+				+ "f7: White:  | Black: 5 15 \r\n"
+				+ "g7: White:  | Black: 5 15 \r\n"
+				+ "h7: White:  | Black: 5 \r\n"
+				+ "e8: White:  | Black: 5 \r\n", see.toString_temp_serializedCaptureSets_pieceCosts().replaceAll("\n", "\r\n"));
+		
+		see.initializeBoardState(new Gamestate("8/2k1q3/2b2N2/2n2p2/2R1R3/2BQ1P2/2K5/8 w - - 0 1"));
+		see.populate_temp_serializedCaptureSets_pieceCosts(Player.WHITE);
+		see.populate_temp_serializedCaptureSets_pieceCosts(Player.BLACK);
+		assertEquals("a1: White: 3  | Black: \r\n"
+				+ "b1: White: 15  | Black: \r\n"
+				+ "c1: White: 15  | Black: \r\n"
+				+ "d1: White: 9 15  | Black: \r\n"
+				+ "e1: White: 3 5  | Black: \r\n"
+				+ "f1: White: 9  | Black: \r\n"
+				+ "b2: White: 3 15  | Black: \r\n"
+				+ "c2: White: 9  | Black: \r\n"
+				+ "d2: White: 3 9 15  | Black: \r\n"
+				+ "e2: White: 5 9  | Black: \r\n"
+				+ "b3: White: 15  | Black: 3 \r\n"
+				+ "c3: White: 5 9 15  | Black: \r\n"
+				+ "d3: White: 15  | Black: 3 \r\n"
+				+ "e3: White: 5 9  | Black: \r\n"
+				+ "f3: White: 9  | Black: \r\n"
+				+ "a4: White: 5  | Black: 3 3 \r\n"
+				+ "b4: White: 3 5  | Black: \r\n"
+				+ "c4: White: 5 9  | Black: \r\n"
+				+ "d4: White: 3 5 5 9  | Black: \r\n"
+				+ "e4: White: 1 3 5 9  | Black: 1 3 3 9 \r\n"
+				+ "f4: White: 5  | Black: \r\n"
+				+ "g4: White: 1 3 5  | Black: 1 \r\n"
+				+ "h4: White: 5  | Black: \r\n"
+				+ "a5: White: 3  | Black: \r\n"
+				+ "b5: White:  | Black: 3 \r\n"
+				+ "c5: White: 5  | Black: 9 \r\n"
+				+ "d5: White: 3 9  | Black: 3 \r\n"
+				+ "e5: White: 3 5  | Black: 9 \r\n"
+				+ "h5: White: 3  | Black: \r\n"
+				+ "a6: White:  | Black: 3 \r\n"
+				+ "b6: White:  | Black: 15 \r\n"
+				+ "c6: White:  | Black: 15 \r\n"
+				+ "d6: White: 9  | Black: 9 15 \r\n"
+				+ "e6: White: 5  | Black: 3 9 \r\n"
+				+ "f6: White: 3  | Black: 9 \r\n"
+				+ "b7: White:  | Black: 3 3 15 \r\n"
+				+ "c7: White:  | Black: 9 \r\n"
+				+ "d7: White: 3 9  | Black: 3 3 9 15 \r\n"
+				+ "e7: White: 5  | Black: \r\n"
+				+ "f7: White:  | Black: 9 \r\n"
+				+ "g7: White:  | Black: 9 \r\n"
+				+ "h7: White: 3  | Black: 9 \r\n"
+				+ "a8: White:  | Black: 3 \r\n"
+				+ "b8: White:  | Black: 15 \r\n"
+				+ "c8: White:  | Black: 15 \r\n"
+				+ "d8: White: 9  | Black: 9 15 \r\n"
+				+ "e8: White: 3  | Black: 3 9 \r\n"
+				+ "f8: White:  | Black: 9 \r\n"
+				+ "g8: White: 3  | Black: \r\n", see.toString_temp_serializedCaptureSets_pieceCosts().replaceAll("\n", "\r\n"));
 	}
 }

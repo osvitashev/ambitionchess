@@ -156,7 +156,7 @@ class StaticExchangeEvaluatorMockDataTest {
 		myspy.populate_temp_serializedCaptureSets_pieceCosts(Player.WHITE);
 		myspy.populate_temp_serializedCaptureSets_pieceCosts(Player.BLACK);
 		
-		System.out.println(myspy.toString_temp_serializedCaptureSets_pieceCosts());
+		//System.out.println(myspy.toString_temp_serializedCaptureSets_pieceCosts());
 		
 		assertEquals("c1: White: 3  | Black: \r\n"
 				+ "d1: White: 5 9  | Black: \r\n"
