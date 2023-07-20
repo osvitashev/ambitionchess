@@ -8,6 +8,8 @@ import java.util.Arrays;
 import javax.swing.text.MaskFormatter;
 
 import gamestate.Bitboard;
+import gamestate.Bitboard.ShiftDirection;
+import gamestate.BitboardGen;
 import gamestate.DebugLibrary;
 import gamestate.Gamestate;
 import gamestate.GlobalConstants.PieceType;
@@ -210,9 +212,9 @@ public class StaticExchangeEvaluator {
 			}
 		}
 		
-		for(int i=0; i<64; ++i) {
-			ret+=Square.toString(i) + ": White: " + temp[0][i] + " | Black: "+ temp[1][i] +"\n";
-		}
+		for(int i=0; i<64; ++i)
+			if(!(temp[0][i].isEmpty() && temp[1][i].isEmpty()))
+				ret+=Square.toString(i) + ": White: " + temp[0][i] + " | Black: "+ temp[1][i] +"\n";
 		return ret;
 	}
 
@@ -266,8 +268,75 @@ public class StaticExchangeEvaluator {
 	}
 	
 	void populateAttackSets() {
+		long as, temp;
 		
+		temp = brd.getPieces(Player.WHITE, PieceType.PAWN);
+		as= Bitboard.shift(ShiftDirection.NORTH_EAST, temp);
+		if(as != 0)
+			addAttackSetPawn(Player.WHITE, as);
+		temp = brd.getPieces(Player.WHITE, PieceType.PAWN);
+		as= Bitboard.shift(ShiftDirection.NORTH_WEST, temp);
+		if(as != 0)
+			addAttackSetPawn(Player.WHITE, as);
 		
+		temp = brd.getPieces(Player.BLACK, PieceType.PAWN);
+		as= Bitboard.shift(ShiftDirection.SOUTH_EAST, temp);
+		if(as != 0)
+			addAttackSetPawn(Player.BLACK, as);
+		temp = brd.getPieces(Player.BLACK, PieceType.PAWN);
+		as= Bitboard.shift(ShiftDirection.SOUTH_WEST, temp);
+		if(as != 0)
+			addAttackSetPawn(Player.BLACK, as);
+		
+		for(int player : Player.PLAYERS) {
+			{
+				int bi = 0;
+				for (long zarg = brd.getPieces(player, PieceType.KNIGHT),
+						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
+					bi = Bitboard.getFirstSquareIndex(barg);
+					addAttackSetPieceTypeSquare(PieceType.KNIGHT, bi, player, BitboardGen.getKnightSet(bi));
+				}
+			}
+			
+			{
+				int bi = 0;
+				for (long zarg = brd.getPieces(player, PieceType.BISHOP),
+						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
+					bi = Bitboard.getFirstSquareIndex(barg);
+					addAttackSetPieceTypeSquare(PieceType.BISHOP, bi, player, BitboardGen.getBishopSet(bi, brd.getOccupied()));
+				}
+			}
+			
+			{
+				int bi = 0;
+				for (long zarg = brd.getPieces(player, PieceType.ROOK),
+						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
+					bi = Bitboard.getFirstSquareIndex(barg);
+					addAttackSetPieceTypeSquare(PieceType.ROOK, bi, player, BitboardGen.getRookSet(bi, brd.getOccupied()));
+				}
+			}
+			
+			{
+				int bi = 0;
+				for (long zarg = brd.getPieces(player, PieceType.QUEEN),
+						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
+					bi = Bitboard.getFirstSquareIndex(barg);
+					addAttackSetPieceTypeSquare(PieceType.QUEEN, bi, player, BitboardGen.getQueenSet(bi, brd.getOccupied()));
+				}
+			}
+			
+			{
+				int bi = 0;
+				for (long zarg = brd.getPieces(player, PieceType.KING),
+						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
+					bi = Bitboard.getFirstSquareIndex(barg);
+					addAttackSetPieceTypeSquare(PieceType.KING, bi, player, BitboardGen.getKingSet(bi));
+				}
+			}
+			
+			
+		}
+		//next: pupulate attack sets without batteris or pawn pushes. Aka the 'regular' attacks
 	}
 	
 	/*

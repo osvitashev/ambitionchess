@@ -187,5 +187,15 @@ class StaticExchangeEvaluatorTest {
 //		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.C7));
 //		assertEquals(0, qa.getTemp_exchangeGainLoss(Square.E7));
 //	}
-
+	
+	@Test
+	void testExchange() {
+		StaticExchangeEvaluator see = new StaticExchangeEvaluator();
+		
+		see.initializeBoardState(new Gamestate("8/8/5k2/4n3/8/2KP4/8/8 w - - 0 1"));
+		see.populate_temp_serializedCaptureSets_pieceCosts(Player.WHITE);
+		see.populate_temp_serializedCaptureSets_pieceCosts(Player.BLACK);
+		
+		System.out.println(see.toString_temp_serializedCaptureSets_pieceCosts());
+	}
 }
