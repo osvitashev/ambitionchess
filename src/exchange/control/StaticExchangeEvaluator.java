@@ -227,20 +227,6 @@ public class StaticExchangeEvaluator {
 	//or, NO. Precicely bacause it is marginal and when doing move ordering we will only care for captures of one side.
 	
 	
-	/**
-	 * PREREQUISITE: attacksSets are generated and sorted.
-	 * performs a forward scan of attackSets[player]
-	 */
-//	AttackSet getNextAttacker(int sq, int player, int startingIndex) {
-//		long targerBB = Bitboard.initFromSquare(sq);
-//		for(int i=startingIndex; i<size_attackSet(player); ++i)
-//			if((attackSets[player][i].getAttacks() & targerBB) != 0l)
-//				return attackSets[player][i];
-//		return null;
-//	}
-	
-
-	
 	void addAttackSetPieceTypeSquare(int pt, int sq, int player, long attacks) {
 		assert attacks !=0l;
 		////TODO =>>>>>>>> This is VERY wrong. We do not want to be creating objects on-demand. EVER!!!!!
