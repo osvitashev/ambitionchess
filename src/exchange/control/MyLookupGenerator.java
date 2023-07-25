@@ -8,7 +8,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import gamestate.GlobalConstants.PieceType;
+
 public class MyLookupGenerator {
+	class AttackStack{
+		ArrayList<Integer> attackers=new ArrayList<Integer>();
+		int serializedAttackers;
+		
+	}
+	
+	MyLookupGenerator(){
+		populateGrandAttackCollection();
+	}
+	
 	
 	static void addToSelection(ArrayList<Character>  arr, char arg, int num) {
 		for(int i=0; i<num; ++i)
@@ -21,18 +33,36 @@ public class MyLookupGenerator {
         		uniquePermutations.add(new ArrayList<Character>(arr));
         		//System.out.println(arr.toString());
         	}
-            
             return;
         }
-
         for (int i = index; i < arr.size(); i++) {
             Collections.swap(arr, index, i);
             generatePermutations(arr, index + 1, uniquePermutations);
             Collections.swap(arr, index, i);
         }
     }
-
-	public static void main(String[] args) {
+	
+	private ArrayList<AttackStack> grandAttackCollection;
+	
+	private static int characterToExtendedPieceType(Character ch) {
+		if(ch.equals('i'))
+			return PlayerAttackStack.ENEMY_PAWN;
+		else if(ch.equals('P'))
+			return PieceType.PAWN;
+		else if(ch.equals('R'))
+			return PieceType.ROOK;
+		else if(ch.equals('N'))
+			return PieceType.KNIGHT;
+		else if(ch.equals('B'))
+			return PieceType.BISHOP;
+		else if(ch.equals('Q'))
+			return PieceType.QUEEN;
+		else if(ch.equals('K'))
+			return PieceType.KING;
+		throw new RuntimeException("encountered unexpected value!");
+	}
+	
+	private void populateGrandAttackCollection(){
 		ArrayList<ArrayList<Character>> pawnSets = new ArrayList<ArrayList<Character>>();
 		pawnSets.add(new ArrayList<Character>());
 		pawnSets.add(new ArrayList<Character>());
@@ -51,8 +81,6 @@ public class MyLookupGenerator {
 		pawnSets.add(new ArrayList<Character>());
 		pawnSets.get(5).add('i');
 		pawnSets.get(5).add('i');
-		
-		
 		
 		ArrayList<ArrayList<Character>> knightSets = new ArrayList<ArrayList<Character>>();
 		knightSets.add(new ArrayList<Character>());
@@ -96,24 +124,8 @@ public class MyLookupGenerator {
 		sliderPermutations.add(new ArrayList<Character>());//HashSet<ArrayList<Character>> could not hold the empty set
 		sliderPermutations.addAll(uniqueSliderPermutations);
 		
-		System.out.println("pawnSets.size: " + pawnSets.size());
-		for(ArrayList<Character> ps : pawnSets)
-			System.out.println(ps);
-		
-		System.out.println("knightSets.size: " + knightSets.size());
-		for(ArrayList<Character> ns : knightSets)
-			System.out.println(ns);
-		
-		System.out.println("sliderPermutations.size: " + sliderPermutations.size());
-		for(ArrayList<Character> sp : sliderPermutations)
-			System.out.println(sp);
-		
-		System.out.println("kingSets.size: " + kingSets.size());
-		for(ArrayList<Character> ks : kingSets)
-			System.out.println(ks);
-		
 		ArrayList<Character> temp = new ArrayList<Character>();
-		ArrayList<ArrayList<Character>> grandCollection = new ArrayList<ArrayList<Character>>();
+		ArrayList<ArrayList<Character>> grandCollectionWithChars = new ArrayList<ArrayList<Character>>();
 		
 		for(ArrayList<Character> ps : pawnSets)
 			for(ArrayList<Character> ns : knightSets)
@@ -124,14 +136,55 @@ public class MyLookupGenerator {
 						temp.addAll(ns);
 						temp.addAll(ss);
 						temp.addAll(ks);
-						grandCollection.add(new ArrayList<Character>(temp));
+						grandCollectionWithChars.add(new ArrayList<Character>(temp));
 					}
 		
-		Collections.sort(grandCollection, Comparator.comparingInt(ArrayList::size));
+		Collections.sort(grandCollectionWithChars, Comparator.comparingInt(ArrayList::size));
+		ArrayList<AttackStack> grandCollection = new ArrayList<AttackStack>();
+		AttackStack tempAS;
+		for(ArrayList<Character> attackers : grandCollectionWithChars) {
+			tempAS=new AttackStack();
+			int tempSerialized = PlayerAttackStack.initialize();
+			for(Character character : attackers) {
+				tempAS.attackers.add(characterToExtendedPieceType(character));
+				if(character.equals('i'))
+					tempSerialized = PlayerAttackStack.addEnemyPawn(tempSerialized);
+				else if(character.equals('P'))
+					tempSerialized = PlayerAttackStack.addRegularPiece(tempSerialized, PieceType.PAWN);
+				else if(character.equals('R'))
+					tempSerialized = PlayerAttackStack.addRegularPiece(tempSerialized, PieceType.ROOK);
+				else if(character.equals('N'))
+					tempSerialized = PlayerAttackStack.addRegularPiece(tempSerialized, PieceType.KNIGHT);
+				else if(character.equals('B'))
+					tempSerialized = PlayerAttackStack.addRegularPiece(tempSerialized, PieceType.BISHOP);
+				else if(character.equals('Q'))
+					tempSerialized = PlayerAttackStack.addRegularPiece(tempSerialized, PieceType.QUEEN);
+				else if(character.equals('K'))
+					tempSerialized = PlayerAttackStack.addRegularPiece(tempSerialized, PieceType.KING);
+				else
+					throw new RuntimeException("encountered unexpected value!");
+			}
+			tempAS.serializedAttackers=tempSerialized;
+			grandCollection.add(tempAS);
+		}
+			
 		System.out.println("grandCollection.size: " + grandCollection.size());
-		for(ArrayList<Character> gl : grandCollection)
-			System.out.println(gl);
+		for(AttackStack gl : grandCollection)
+			System.out.println(gl.attackers + " \t\t\t "+ Integer.toOctalString(gl.serializedAttackers));
+		grandAttackCollection = grandCollection;
+	}
+
+	public static void main(String[] args) {
+		MyLookupGenerator myGenerator = new MyLookupGenerator();
 		
+		
+		for (int i = 0; i < 11; ++i) {
+			final int c=i;
+			System.out.println("AttackStacks with " + c+" component(s): "
+					+ myGenerator.grandAttackCollection.stream().filter(item -> item.attackers.size() == c).count() + " "
+					+ myGenerator.grandAttackCollection.stream().filter(item -> item.attackers.size() <= c).count());
+		}
+			
 		
 	}//main
 
