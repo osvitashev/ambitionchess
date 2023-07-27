@@ -161,13 +161,21 @@ public class MyLookupGenerator {
 		grandAttackCollection = new ArrayList<>(attacksWithNoEnemyPawns);
 		
 		Collections.sort(grandAttackCollection, (a, b) -> {
-            int result = a.attackers.size()-b.attackers.size();
-            return result;
+			
+			
+			if(a.attackers.size()!=b.attackers.size())
+				return a.attackers.size()-b.attackers.size();
+			for(int i=a.attackers.size()-1; i>=0; --i)
+				if((a.attackers.get(i) - b.attackers.get(i)) < 0)
+					return -1;
+				else if((a.attackers.get(i) - b.attackers.get(i)) > 0)
+					return 1;
+            return 0;
         });
 		
 		System.out.println("grandAttackCollection.size: " + grandAttackCollection.size());
-//		for(AttackStack gl : grandAttackCollection)
-//			System.out.println(attackerListToString(gl.attackers));
+		for(AttackStack gl : grandAttackCollection)
+			System.out.println(attackerListToString(gl.attackers));
 		grandAttackCollection = grandAttackCollection;
 	}
 	
