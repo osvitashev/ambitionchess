@@ -43,7 +43,7 @@ public class MyLookupGenerator {
 		
 		@Override
 		public String toString() {
-			String ret="direct= " + attackerListToString(attackers) + " conditional= " + attackerListToString(attackersThroughEnemyPawn);
+			String ret="direct= [" + attackerListToString(attackers) + "] conditional= [" + attackerListToString(attackersThroughEnemyPawn)+"]";
 			return ret;
 		}
 	}
@@ -102,9 +102,6 @@ public class MyLookupGenerator {
 		kingSets.add(new ArrayList<Integer>());
 		kingSets.get(1).add(PieceType.KING);
 		
-		int maxKnights =2;
-		int maxKings = 1;
-		
 		int maxBishops = 1;
 		int maxRooks=2;
 		int maxQueens=2;
@@ -156,12 +153,19 @@ public class MyLookupGenerator {
 			for(ArrayList<Integer> ns : knightSets)
 				for(ArrayList<Integer> ss : sliderSets)
 					for(ArrayList<Integer> ks : kingSets) {
-						tempAS=new AttackStack();
-						tempAS.attackers.addAll(ps);
-						tempAS.attackers.addAll(ns);
-						tempAS.attackers.addAll(ss);
-						tempAS.attackers.addAll(ks);
-						uniqueAttackCombinations.add(tempAS);
+						for(int numDirectAttackers=0; numDirectAttackers<=ss.size(); numDirectAttackers++) {//<= because we wan to execute the loop body even with empty set
+							tempAS=new AttackStack();
+							tempAS.attackers.addAll(ps);
+							tempAS.attackers.addAll(ns);
+							
+							for(int di=0;di<numDirectAttackers;++di)
+								tempAS.attackers.add(ss.get(di));
+							for(int di=numDirectAttackers;di<ss.size();++di)
+								tempAS.attackersThroughEnemyPawn.add(ss.get(di));
+							tempAS.attackers.addAll(ks);
+							if(tempAS.attackersThroughEnemyPawn.indexOf(PieceType.ROOK) == -1)
+								uniqueAttackCombinations.add(tempAS);
+						}
 					}
 		
 		grandAttackCollection = new ArrayList<>(uniqueAttackCombinations);
@@ -175,6 +179,14 @@ public class MyLookupGenerator {
 				if((a.attackers.get(i) - b.attackers.get(i)) < 0)
 					return -1;
 				else if((a.attackers.get(i) - b.attackers.get(i)) > 0)
+					return 1;
+			
+			if(a.attackersThroughEnemyPawn.size()!=b.attackersThroughEnemyPawn.size())
+				return a.attackersThroughEnemyPawn.size()-b.attackersThroughEnemyPawn.size();
+			for(int i=a.attackersThroughEnemyPawn.size()-1; i>=0; --i)
+				if((a.attackersThroughEnemyPawn.get(i) - b.attackersThroughEnemyPawn.get(i)) < 0)
+					return -1;
+				else if((a.attackersThroughEnemyPawn.get(i) - b.attackersThroughEnemyPawn.get(i)) > 0)
 					return 1;
             return 0;
         });
