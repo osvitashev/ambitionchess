@@ -17,7 +17,7 @@ import gamestate.GlobalConstants.PieceType;
 
 public class MyLookupGenerator {
 	public static String attackerListToString(ArrayList<Integer> attackers) {
-		String ret="attackers: ";
+		String ret="";
 		for(Integer i : attackers)
 			ret += PieceType.toString(i);
 		return ret;
@@ -40,6 +40,12 @@ public class MyLookupGenerator {
 	    public int hashCode() {
 	        return Objects.hash(attackers, attackersThroughEnemyPawn);
 	    }
+		
+		@Override
+		public String toString() {
+			String ret="direct= " + attackerListToString(attackers) + " conditional= " + attackerListToString(attackersThroughEnemyPawn);
+			return ret;
+		}
 	}
 	
 	MyLookupGenerator(){
@@ -126,7 +132,7 @@ public class MyLookupGenerator {
 		
 		AttackStack tempAS;
 		//ArrayList<Integer> temp = new ArrayList<Integer>();
-		HashSet<AttackStack> attacksWithNoEnemyPawns = new HashSet<AttackStack>();
+		HashSet<AttackStack> uniqueAttackCombinations = new HashSet<AttackStack>();
 		//ArrayList<ArrayList<Integer>> attacksWithNoEnemyPawns = new ArrayList<ArrayList<Integer>>();
 		
 		System.out.println("pawnSets: " + pawnSets.size());
@@ -155,10 +161,10 @@ public class MyLookupGenerator {
 						tempAS.attackers.addAll(ns);
 						tempAS.attackers.addAll(ss);
 						tempAS.attackers.addAll(ks);
-						attacksWithNoEnemyPawns.add(tempAS);
+						uniqueAttackCombinations.add(tempAS);
 					}
 		
-		grandAttackCollection = new ArrayList<>(attacksWithNoEnemyPawns);
+		grandAttackCollection = new ArrayList<>(uniqueAttackCombinations);
 		
 		Collections.sort(grandAttackCollection, (a, b) -> {
 			
@@ -175,7 +181,7 @@ public class MyLookupGenerator {
 		
 		System.out.println("grandAttackCollection.size: " + grandAttackCollection.size());
 		for(AttackStack gl : grandAttackCollection)
-			System.out.println(attackerListToString(gl.attackers));
+			System.out.println(gl.toString());
 		grandAttackCollection = grandAttackCollection;
 	}
 	
