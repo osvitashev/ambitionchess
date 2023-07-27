@@ -35,6 +35,11 @@ public class MyLookupGenerator {
 	        AttackStack other = (AttackStack) o;
 	        return attackers.equals(other.attackers) && attackersThroughEnemyPawn.equals(other.attackersThroughEnemyPawn);
 	    }
+		
+		@Override
+	    public int hashCode() {
+	        return Objects.hash(attackers, attackersThroughEnemyPawn);
+	    }
 	}
 	
 	MyLookupGenerator(){
@@ -65,7 +70,7 @@ public class MyLookupGenerator {
 	private ArrayList<AttackStack> grandAttackCollection;
 	
 	/**
-	 * 
+	 * Is only concerned with pawn attacks. not pushes!
 	 */
 	private void populateGrandAttackCollection(){
 		ArrayList<ArrayList<Integer>> pawnSets = new ArrayList<ArrayList<Integer>>();
