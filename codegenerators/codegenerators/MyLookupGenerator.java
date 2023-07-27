@@ -1,5 +1,6 @@
 package codegenerators;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 import exchange.control.AttackSet;
@@ -12,6 +13,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 
+import javax.management.openmbean.OpenMBeanParameterInfoSupport;
+
 import gamestate.Bitboard;
 import gamestate.GlobalConstants.PieceType;
 
@@ -23,33 +26,10 @@ public class MyLookupGenerator {
 		return ret;
 	}
 	
-	class AttackStack{
-		//list of AttackSet.AttackSetType
-		ArrayList<Integer> attackers=new ArrayList<Integer>();
-		ArrayList<Integer> attackersThroughEnemyPawn=new ArrayList<Integer>();
-		
-		@Override
-	    public boolean equals(Object o) {
-	        if (this == o) return true;
-	        if (o == null || getClass() != o.getClass()) return false;
-	        AttackStack other = (AttackStack) o;
-	        return attackers.equals(other.attackers) && attackersThroughEnemyPawn.equals(other.attackersThroughEnemyPawn);
-	    }
-		
-		@Override
-	    public int hashCode() {
-	        return Objects.hash(attackers, attackersThroughEnemyPawn);
-	    }
-		
-		@Override
-		public String toString() {
-			String ret="direct= [" + attackerListToString(attackers) + "] conditional= [" + attackerListToString(attackersThroughEnemyPawn)+"]";
-			return ret;
-		}
-	}
+
 	
 	MyLookupGenerator(){
-		populateGrandAttackCollection();
+		populateAttackCollection();
 	}
 	
 	
@@ -73,12 +53,18 @@ public class MyLookupGenerator {
         }
     }
 	
-	private ArrayList<AttackStack> grandAttackCollection;
+	/**
+	 * Considers up to one mismatched pawn per attack combination, thus intentionally does not make a distinctions between
+	 * 3k4/7K/8/3r4/2P1P3/1q3b2/8/8 w - - 0 1
+	 * and
+	 * 3k4/7K/8/3r4/2P1P3/5b2/6q1/8 w - - 0 1
+	 */
+	private ArrayList<AttackCombo> attackCollection;
 	
 	/**
 	 * Is only concerned with pawn attacks. not pushes!
 	 */
-	private void populateGrandAttackCollection(){
+	private void populateAttackCollection(){
 		ArrayList<ArrayList<Integer>> pawnSets = new ArrayList<ArrayList<Integer>>();
 		pawnSets.add(new ArrayList<Integer>());
 		pawnSets.add(new ArrayList<Integer>());
@@ -127,9 +113,9 @@ public class MyLookupGenerator {
 		sliderSets.add(new ArrayList<Integer>());//HashSet<ArrayList<Character>> could not hold the empty set
 		sliderSets.addAll(uniqueSliderPermutations);
 		
-		AttackStack tempAS;
+		AttackCombo tempAS;
 		//ArrayList<Integer> temp = new ArrayList<Integer>();
-		HashSet<AttackStack> uniqueAttackCombinations = new HashSet<AttackStack>();
+		HashSet<AttackCombo> uniqueAttackCombinations = new HashSet<AttackCombo>();
 		//ArrayList<ArrayList<Integer>> attacksWithNoEnemyPawns = new ArrayList<ArrayList<Integer>>();
 		
 		System.out.println("pawnSets: " + pawnSets.size());
@@ -154,7 +140,7 @@ public class MyLookupGenerator {
 				for(ArrayList<Integer> ss : sliderSets)
 					for(ArrayList<Integer> ks : kingSets) {
 						for(int numDirectAttackers=0; numDirectAttackers<=ss.size(); numDirectAttackers++) {//<= because we wan to execute the loop body even with empty set
-							tempAS=new AttackStack();
+							tempAS=new AttackCombo();
 							tempAS.attackers.addAll(ps);
 							tempAS.attackers.addAll(ns);
 							
@@ -163,14 +149,15 @@ public class MyLookupGenerator {
 							for(int di=numDirectAttackers;di<ss.size();++di)
 								tempAS.attackersThroughEnemyPawn.add(ss.get(di));
 							tempAS.attackers.addAll(ks);
+							tempAS.setSerialized();
 							if(tempAS.attackersThroughEnemyPawn.indexOf(PieceType.ROOK) == -1)
 								uniqueAttackCombinations.add(tempAS);
 						}
 					}
 		
-		grandAttackCollection = new ArrayList<>(uniqueAttackCombinations);
+		attackCollection = new ArrayList<>(uniqueAttackCombinations);
 		
-		Collections.sort(grandAttackCollection, (a, b) -> {
+		Collections.sort(attackCollection, (a, b) -> {
 			
 			
 			if(a.attackers.size()!=b.attackers.size())
@@ -191,27 +178,107 @@ public class MyLookupGenerator {
             return 0;
         });
 		
-		System.out.println("grandAttackCollection.size: " + grandAttackCollection.size());
-		for(AttackStack gl : grandAttackCollection)
+		System.out.println("grandAttackCollection.size: " + attackCollection.size());
+		for(AttackCombo gl : attackCollection)
 			System.out.println(gl.toString());
-		grandAttackCollection = grandAttackCollection;
 	}
 	
 	
+	static int pieceCost(int pt) {
+		assert PieceType.validate(pt);
+		switch (pt) {
+		case PieceType.PAWN:
+			return 1;
+		case PieceType.KNIGHT:
+			return 3;
+		case PieceType.BISHOP:
+			return 3;
+		case PieceType.ROOK:
+			return 5;
+		case PieceType.QUEEN:
+			return 9;
+		}
+		throw new RuntimeException("Unexpected value!");
+	}
+	
 	/**
-	 * Plays out the interactions of two attack stacks.
-	 * The value returned is WHAT???
 	 * 
+	 * @return index in ac.attackers
 	 */
-	static byte calculatePowerDiff(AttackStack attacker, AttackStack defender) {
-		return 0;
+	static int getNextAttackerIndex(AttackCombo ac, int attacker_index, int conditional_attacker_index, boolean isConditionMet) {
+		if(!isConditionMet)
+			if((attacker_index+1) < ac.attackers.size())
+				return attacker_index+1;
+			else
+				return -1;
+		
+		return -1;
+	}
+	
+	static int calculateGain_pureAttacks(AttackCombo attacker, AttackCombo defender, int victim) {
+		assert PieceType.validate(victim);
+		ArrayDeque<Integer> attacker_attacks = new ArrayDeque<>(attacker.attackers);
+		ArrayDeque<Integer> attacker_conditionalAttacks = new ArrayDeque<>(attacker.attackersThroughEnemyPawn);
+		ArrayDeque<Integer> defender_attacks = new ArrayDeque<>(defender.attackers);
+		ArrayDeque<Integer> defender_conditionalAttacks = new ArrayDeque<>(defender.attackersThroughEnemyPawn);
+		
+		ArrayDeque<Integer> attacks, conditionalAttacks;
+		
+		//Follow static exchange evaluation algorithm here.
+		boolean attacker_opposite_pawn_condition_met = false, defender_opposite_pawn_condition_met = false, opposite_pawn_condition_met;
+		ArrayList<Integer> gain = new ArrayList<Integer>();
+		int d=0, nextAttacker, costOfNextAttacker=0;
+		gain.add(pieceCost(victim));//gain[d]     = value[target];
+		boolean isAttackerTurn = false;
+		do {
+			isAttackerTurn^=true;
+			//get next attacker
+			nextAttacker=-1;
+			if(isAttackerTurn) {
+				attacks = attacker_attacks;
+				conditionalAttacks=attacker_conditionalAttacks;	
+				opposite_pawn_condition_met=attacker_opposite_pawn_condition_met;
+			}
+			else {
+				attacks = defender_attacks;
+				conditionalAttacks=defender_conditionalAttacks;	
+				opposite_pawn_condition_met=defender_opposite_pawn_condition_met;
+			}
+			if(!attacks.isEmpty() && (!opposite_pawn_condition_met || conditionalAttacks.isEmpty()))
+				nextAttacker=attacks.removeFirst();
+			else if(attacks.isEmpty() && opposite_pawn_condition_met && !conditionalAttacks.isEmpty())
+				nextAttacker=conditionalAttacks.removeFirst();
+			else if(!attacks.isEmpty() && opposite_pawn_condition_met && !conditionalAttacks.isEmpty()) {
+				if(attacks.peekFirst().intValue() < conditionalAttacks.peekFirst().intValue())
+					nextAttacker=attacks.removeFirst();
+				else
+					nextAttacker=conditionalAttacks.removeFirst();
+			}
+
+			
+			if(nextAttacker == -1)
+				break;
+			else if(nextAttacker == PieceType.PAWN)
+				if(isAttackerTurn)
+					defender_opposite_pawn_condition_met=true;
+				else
+					attacker_opposite_pawn_condition_met=true;
+				
+			d++;
+			
+			costOfNextAttacker = pieceCost(nextAttacker);//placeholder
+			gain.add(costOfNextAttacker - gain.get(d-1));//gain[d]  = value[aPiece] - gain[d-1]; // speculative store, if defended
+			if (Math.max (-1*gain.get(d-1), gain.get(d)) < 0) break;//if (max (-gain[d-1], gain[d]) < 0) break; // pruning does not influence the result
+
+		}while(true);
+		while ((--d)!=0)
+		      gain.set(d-1,  -Math.max (-1*gain.get(d-1), gain.get(d)));
+		return gain.get(0);
 	}
 
 	public static void main(String[] args) {
 		MyLookupGenerator myGenerator = new MyLookupGenerator();
 		
-		
-			
 		
 	}//main
 
