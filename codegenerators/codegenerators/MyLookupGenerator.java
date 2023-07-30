@@ -186,17 +186,33 @@ public class MyLookupGenerator {
 	
 	static int pieceCost(int pt) {
 		assert PieceType.validate(pt);
+//		switch (pt) {
+//		case PieceType.PAWN:
+//			return 100;
+//		case PieceType.KNIGHT:
+//			return 325;
+//		case PieceType.BISHOP:
+//			return 325;
+//		case PieceType.ROOK:
+//			return 500;
+//		case PieceType.QUEEN:
+//			return 1000;
+//		case PieceType.KING:
+//			return 999999;
+//		}
 		switch (pt) {
 		case PieceType.PAWN:
-			return 1;
+			return 100;
 		case PieceType.KNIGHT:
-			return 3;
+			return 300;
 		case PieceType.BISHOP:
-			return 3;
+			return 300;
 		case PieceType.ROOK:
-			return 5;
+			return 500;
 		case PieceType.QUEEN:
-			return 9;
+			return 1000;
+		case PieceType.KING:
+			return 1000000;
 		}
 		throw new RuntimeException("Unexpected value!");
 	}
@@ -215,8 +231,16 @@ public class MyLookupGenerator {
 		return -1;
 	}
 	
-	static int calculateGain_pureAttacks(AttackCombo attacker, AttackCombo defender, int victim) {
-		assert PieceType.validate(victim);
+	
+	/**
+	 * 
+	 * @param attacker
+	 * @param defender
+	 * @param occupier - PieceType
+	 * @return
+	 */
+	static int calculateGain_pureAttacks(AttackCombo attacker, AttackCombo defender, int targetCost) {
+		int occupier;
 		ArrayDeque<Integer> attacker_attacks = new ArrayDeque<>(attacker.attackers);
 		ArrayDeque<Integer> attacker_conditionalAttacks = new ArrayDeque<>(attacker.attackersThroughEnemyPawn);
 		ArrayDeque<Integer> defender_attacks = new ArrayDeque<>(defender.attackers);
@@ -226,14 +250,13 @@ public class MyLookupGenerator {
 		
 		//Follow static exchange evaluation algorithm here.
 		boolean attacker_opposite_pawn_condition_met = false, defender_opposite_pawn_condition_met = false, opposite_pawn_condition_met;
-		ArrayList<Integer> gain = new ArrayList<Integer>();
-		int d=0, nextAttacker, costOfNextAttacker=0;
-		gain.add(pieceCost(victim));//gain[d]     = value[target];
+		ArrayList<Integer> occupationValueHistory = new ArrayList<Integer>();
+		occupationValueHistory.add(-targetCost);//gain[d]     = value[target];
 		boolean isAttackerTurn = false;
 		do {
 			isAttackerTurn^=true;
 			//get next attacker
-			nextAttacker=-1;
+			occupier=-1;
 			if(isAttackerTurn) {
 				attacks = attacker_attacks;
 				conditionalAttacks=attacker_conditionalAttacks;	
@@ -245,35 +268,54 @@ public class MyLookupGenerator {
 				opposite_pawn_condition_met=defender_opposite_pawn_condition_met;
 			}
 			if(!attacks.isEmpty() && (!opposite_pawn_condition_met || conditionalAttacks.isEmpty()))
-				nextAttacker=attacks.removeFirst();
+				occupier=attacks.removeFirst();
 			else if(attacks.isEmpty() && opposite_pawn_condition_met && !conditionalAttacks.isEmpty())
-				nextAttacker=conditionalAttacks.removeFirst();
+				occupier=conditionalAttacks.removeFirst();
 			else if(!attacks.isEmpty() && opposite_pawn_condition_met && !conditionalAttacks.isEmpty()) {
 				if(attacks.peekFirst().intValue() < conditionalAttacks.peekFirst().intValue())
-					nextAttacker=attacks.removeFirst();
+					occupier=attacks.removeFirst();
 				else
-					nextAttacker=conditionalAttacks.removeFirst();
+					occupier=conditionalAttacks.removeFirst();
 			}
+			
+			System.out.println("isAttackerTurn: "+ isAttackerTurn+ " and occupier: "+ occupier);
 
 			
-			if(nextAttacker == -1)
+			if(occupier == -1)
 				break;
-			else if(nextAttacker == PieceType.PAWN)
+			else if(occupier == PieceType.PAWN)
 				if(isAttackerTurn)
 					defender_opposite_pawn_condition_met=true;
 				else
 					attacker_opposite_pawn_condition_met=true;
 				
-			d++;
-			
-			costOfNextAttacker = pieceCost(nextAttacker);//placeholder
-			gain.add(costOfNextAttacker - gain.get(d-1));//gain[d]  = value[aPiece] - gain[d-1]; // speculative store, if defended
-			if (Math.max (-1*gain.get(d-1), gain.get(d)) < 0) break;//if (max (-gain[d-1], gain[d]) < 0) break; // pruning does not influence the result
+
+			occupationValueHistory.add((isAttackerTurn ? 1 : -1) *(pieceCost(occupier)));//gain[d]  = value[aPiece] - gain[d-1]; // speculative store, if defended
+			//if (Math.max (-gain.get(d-1), gain.get(d)) < 0) break;//if (max (-gain[d-1], gain[d]) < 0) break; // pruning does not influence the result
 
 		}while(true);
-		while ((--d)!=0)
-		      gain.set(d-1,  -Math.max (-1*gain.get(d-1), gain.get(d)));
-		return gain.get(0);
+		
+		System.out.println("Occupation sequence: "+ occupationValueHistory);
+		ArrayList<Integer>gains=new ArrayList<Integer>();
+		int currentGain=0;
+		gains.add(currentGain);
+		//gains.add(0);//doing nothing
+		for(int i=0; i<occupationValueHistory.size()-1;++i) {
+			currentGain-=occupationValueHistory.get(i);
+			gains.add(currentGain);
+		}
+		System.out.println("gains: "+ gains);
+		      
+		return helper_minimax_sequence(gains, 0);
+	}
+	
+	static int helper_minimax_sequence(ArrayList<Integer> arg, int i) {
+		if(i == arg.size()-1)
+			return arg.get(i);//the value of the last possible capturer does not affect the calculation.
+		if(i%2 ==0)
+			return Math.max(arg.get(i), helper_minimax_sequence(arg, i+1));
+		else
+			return Math.min(arg.get(i), helper_minimax_sequence(arg, i+1));
 	}
 
 	public static void main(String[] args) {
