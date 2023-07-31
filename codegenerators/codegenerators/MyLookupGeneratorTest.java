@@ -2,6 +2,8 @@ package codegenerators;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
+
 import org.junit.jupiter.api.Test;
 
 import gamestate.GlobalConstants.PieceType;
@@ -80,27 +82,39 @@ class MyLookupGeneratorTest {
 		return ac;
 	}
 	
-	AttackCombo populateAttackCombo(String attackers) {
-		AttackCombo ac = new AttackCombo();
+	
+	void helper_add_attackers(ArrayList<Integer> col, String str) {
 		int a=-1;
-		for(int i=0; i<attackers.length(); ++i) {
-			if(attackers.charAt(i) == 'P')
+		for(int i=0; i<str.length(); ++i) {
+			if(str.charAt(i) == 'P')
 				a=PieceType.PAWN;
-			else if(attackers.charAt(i) == 'R')
+			else if(str.charAt(i) == 'R')
 				a=PieceType.ROOK;
-			else if(attackers.charAt(i) == 'B')
+			else if(str.charAt(i) == 'B')
 				a=PieceType.BISHOP;
-			else if(attackers.charAt(i) == 'N')
+			else if(str.charAt(i) == 'N')
 				a=PieceType.KNIGHT;
-			else if(attackers.charAt(i) == 'Q')
+			else if(str.charAt(i) == 'Q')
 				a=PieceType.QUEEN;
-			else if(attackers.charAt(i) == 'K')
+			else if(str.charAt(i) == 'K')
 				a=PieceType.KING;
 			else
 				throw new RuntimeException("unexpected value!");
 			assert PieceType.validate(a);
-			ac.attackers.add(a);
+			col.add(a);
 		}
+	}
+	
+	AttackCombo populateAttackCombo(String attackers, String conditionalAttackers) {
+		AttackCombo ac = new AttackCombo();
+		helper_add_attackers(ac.attackers, attackers);
+		helper_add_attackers(ac.attackersThroughEnemyPawn, conditionalAttackers);
+		return ac;
+	}
+	
+	AttackCombo populateAttackCombo(String attackers) {
+		AttackCombo ac = new AttackCombo();
+		helper_add_attackers(ac.attackers, attackers);
 		return ac;
 	}
 	
@@ -108,7 +122,7 @@ class MyLookupGeneratorTest {
 	@Test
 	void test_calculateGain_pureAttacks() {
 		AttackCombo att, def;
-		
+		///tests fair captures and recaptures with no backstabbed pawns
 		att=new AttackCombo();
 		def=new AttackCombo();
 		att.attackers.add(PieceType.ROOK);
@@ -225,6 +239,65 @@ class MyLookupGeneratorTest {
 		
 		att=populateAttackCombo("PRQQBRK");
 		def=populateAttackCombo("PNQRR");
+		assertEquals(200 , MyLookupGenerator.calculateGain_pureAttacks(att, def, 300));
+		
+		att=populateAttackCombo("PN");
+		def=populateAttackCombo("NNR");
+		assertEquals(200 , MyLookupGenerator.calculateGain_pureAttacks(att, def, 300));
+		
+		att=populateAttackCombo("QRBR");
+		def=populateAttackCombo("RRQ");
+		assertEquals(0 , MyLookupGenerator.calculateGain_pureAttacks(att, def, 300));
+		
+		///adding backstabbed pawns
+		att=populateAttackCombo("P");
+		def=populateAttackCombo("", "B");
+		assertEquals(200 , MyLookupGenerator.calculateGain_pureAttacks(att, def, 300));
+		
+		att=populateAttackCombo("PK");
+		def=populateAttackCombo("", "B");
+		assertEquals(300 , MyLookupGenerator.calculateGain_pureAttacks(att, def, 300));
+		
+		att=populateAttackCombo("P");
+		def=populateAttackCombo("K", "B");
+		assertEquals(200 , MyLookupGenerator.calculateGain_pureAttacks(att, def, 300));
+		
+		att=populateAttackCombo("PK");
+		def=populateAttackCombo("K", "B");
+		assertEquals(200 , MyLookupGenerator.calculateGain_pureAttacks(att, def, 300));
+		
+		att=populateAttackCombo("P", "Q");
+		def=populateAttackCombo("PK", "B");
+		assertEquals(200 , MyLookupGenerator.calculateGain_pureAttacks(att, def, 300));
+		
+		att=populateAttackCombo("PN");
+		def=populateAttackCombo("R", "B");
+		assertEquals(900 , MyLookupGenerator.calculateGain_pureAttacks(att, def, 1000));
+		
+		att=populateAttackCombo("PN");
+		def=populateAttackCombo("R", "Q");
+		assertEquals(1000 , MyLookupGenerator.calculateGain_pureAttacks(att, def, 1000));
+		
+		att=populateAttackCombo("PNB");
+		def=populateAttackCombo("R", "Q");
+		assertEquals(300 , MyLookupGenerator.calculateGain_pureAttacks(att, def, 300));
+		
+		att=populateAttackCombo("RQ", "B");
+		def=populateAttackCombo("PN");
+		assertEquals(0 , MyLookupGenerator.calculateGain_pureAttacks(att, def, 100));
+		
+		//edge case sanity check
+		
+		att=populateAttackCombo("");
+		def=populateAttackCombo("");
+		assertEquals(0 , MyLookupGenerator.calculateGain_pureAttacks(att, def, 100));
+		
+		att=populateAttackCombo("", "B");
+		def=populateAttackCombo("P");
+		assertEquals(0 , MyLookupGenerator.calculateGain_pureAttacks(att, def, 100));
+		
+		att=populateAttackCombo("P", "B");
+		def=populateAttackCombo("P", "Q");
 		assertEquals(200 , MyLookupGenerator.calculateGain_pureAttacks(att, def, 300));
 	}
 }

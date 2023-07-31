@@ -240,6 +240,7 @@ public class MyLookupGenerator {
 	 * @return
 	 */
 	static int calculateGain_pureAttacks(AttackCombo attacker, AttackCombo defender, int targetCost) {
+		System.out.println(attacker.toString() + " vs. " + defender.toString());
 		int occupier;
 		ArrayDeque<Integer> attacker_attacks = new ArrayDeque<>(attacker.attackers);
 		ArrayDeque<Integer> attacker_conditionalAttacks = new ArrayDeque<>(attacker.attackersThroughEnemyPawn);
@@ -277,8 +278,6 @@ public class MyLookupGenerator {
 				else
 					occupier=conditionalAttacks.removeFirst();
 			}
-			
-			System.out.println("isAttackerTurn: "+ isAttackerTurn+ " and occupier: "+ occupier);
 
 			
 			if(occupier == -1)
@@ -289,7 +288,8 @@ public class MyLookupGenerator {
 				else
 					attacker_opposite_pawn_condition_met=true;
 				
-
+			System.out.println("isAttackerTurn: "+ isAttackerTurn+ " and occupier: "+ PieceType.toString(occupier));
+			
 			occupationValueHistory.add((isAttackerTurn ? 1 : -1) *(pieceCost(occupier)));//gain[d]  = value[aPiece] - gain[d-1]; // speculative store, if defended
 			//if (Math.max (-gain.get(d-1), gain.get(d)) < 0) break;//if (max (-gain[d-1], gain[d]) < 0) break; // pruning does not influence the result
 
@@ -305,13 +305,14 @@ public class MyLookupGenerator {
 			gains.add(currentGain);
 		}
 		System.out.println("gains: "+ gains);
-		      
-		return helper_minimax_sequence(gains, 0);
+		int ret = helper_minimax_sequence(gains, 0);
+		System.out.println("returning: " + ret);
+		return ret;
 	}
 	
 	static int helper_minimax_sequence(ArrayList<Integer> arg, int i) {
 		if(i == arg.size()-1)
-			return arg.get(i);//the value of the last possible capturer does not affect the calculation.
+			return arg.get(i);//the value of the last possible capturer does not affect the minimax calculation.
 		if(i%2 ==0)
 			return Math.max(arg.get(i), helper_minimax_sequence(arg, i+1));
 		else
