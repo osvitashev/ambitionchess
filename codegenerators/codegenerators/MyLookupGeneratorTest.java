@@ -299,5 +299,11 @@ class MyLookupGeneratorTest {
 		att=populateAttackCombo("P", "B");
 		def=populateAttackCombo("P", "Q");
 		assertEquals(200 , MyLookupGenerator.calculateGain_pureAttacks(att, def, 300));
+		
+		//Matchup sample: direct= [PPNNQBQRR] conditional= [] serialized= 7334241100 VS. direct= [PPQRK] conditional= [BQ] serialized= 2453400
+		//natural attack sequence pay offs for targets: P=100 M=300 R=500 Q=1000 matchupKey=355612044000002453400
+		att=populateAttackCombo("PPNNQBQRR");
+		def=populateAttackCombo("PPQRK", "BQ");
+		assertEquals(300 , MyLookupGenerator.calculateGain_pureAttacks(att, def, 300));
 	}
 }

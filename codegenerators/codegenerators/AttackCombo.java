@@ -1,11 +1,12 @@
 package codegenerators;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
 
 import gamestate.GlobalConstants.PieceType;
 
-class AttackCombo {
+class AttackCombo implements Serializable {
 	// list of AttackSet.AttackSetType
 	ArrayList<Integer> attackers = new ArrayList<Integer>();
 	ArrayList<Integer> attackersThroughEnemyPawn = new ArrayList<Integer>();

@@ -1,5 +1,10 @@
 package codegenerators;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 
@@ -59,7 +64,22 @@ public class MyLookupGenerator {
 	 * and
 	 * 3k4/7K/8/3r4/2P1P3/5b2/6q1/8 w - - 0 1
 	 */
-	private ArrayList<AttackCombo> attackCollection;
+	private ArrayList<AttackCombo> attackCollection=new ArrayList<>();
+	
+	boolean isFeasibleAttackCombo(AttackCombo ac) {
+		if(ac.toString().indexOf("RB") != -1)
+			return false;
+		if(ac.toString().indexOf("QBR") != -1)
+			return false;
+		if(ac.toString().indexOf("QRQB") != -1)
+			return false;
+		if(ac.toString().indexOf("QRRQB") != -1)
+			return false;
+		if(ac.toString().indexOf("RQBQ") != -1)
+			return false;
+		
+		return true;
+	}
 	
 	/**
 	 * Is only concerned with pawn attacks. not pushes!
@@ -155,7 +175,13 @@ public class MyLookupGenerator {
 						}
 					}
 		
-		attackCollection = new ArrayList<>(uniqueAttackCombinations);
+		ArrayList<AttackCombo> tempholder = new ArrayList<>(uniqueAttackCombinations);
+		
+		
+		for(AttackCombo ac : tempholder)
+			if(isFeasibleAttackCombo(ac))
+				attackCollection.add(ac);
+		
 		
 		Collections.sort(attackCollection, (a, b) -> {
 			
@@ -240,7 +266,7 @@ public class MyLookupGenerator {
 	 * @return
 	 */
 	static int calculateGain_pureAttacks(AttackCombo attacker, AttackCombo defender, int targetCost) {
-		System.out.println(attacker.toString() + " vs. " + defender.toString());
+//		System.out.println(attacker.toString() + " vs. " + defender.toString());
 		int occupier;
 		ArrayDeque<Integer> attacker_attacks = new ArrayDeque<>(attacker.attackers);
 		ArrayDeque<Integer> attacker_conditionalAttacks = new ArrayDeque<>(attacker.attackersThroughEnemyPawn);
@@ -288,40 +314,125 @@ public class MyLookupGenerator {
 				else
 					attacker_opposite_pawn_condition_met=true;
 				
-			System.out.println("isAttackerTurn: "+ isAttackerTurn+ " and occupier: "+ PieceType.toString(occupier));
+//			System.out.println("isAttackerTurn: "+ isAttackerTurn+ " and occupier: "+ PieceType.toString(occupier));
 			
 			occupationValueHistory.add((isAttackerTurn ? 1 : -1) *(pieceCost(occupier)));//gain[d]  = value[aPiece] - gain[d-1]; // speculative store, if defended
-			//if (Math.max (-gain.get(d-1), gain.get(d)) < 0) break;//if (max (-gain[d-1], gain[d]) < 0) break; // pruning does not influence the result
 
 		}while(true);
 		
-		System.out.println("Occupation sequence: "+ occupationValueHistory);
+//		System.out.println("Occupation sequence: "+ occupationValueHistory);
 		ArrayList<Integer>gains=new ArrayList<Integer>();
 		int currentGain=0;
 		gains.add(currentGain);
-		//gains.add(0);//doing nothing
 		for(int i=0; i<occupationValueHistory.size()-1;++i) {
 			currentGain-=occupationValueHistory.get(i);
 			gains.add(currentGain);
 		}
-		System.out.println("gains: "+ gains);
+//		System.out.println("gains: "+ gains);
 		int ret = helper_minimax_sequence(gains, 0);
-		System.out.println("returning: " + ret);
+//		System.out.println("returning: " + ret);
 		return ret;
 	}
 	
 	static int helper_minimax_sequence(ArrayList<Integer> arg, int i) {
-		if(i == arg.size()-1)
-			return arg.get(i);//the value of the last possible capturer does not affect the minimax calculation.
-		if(i%2 ==0)
-			return Math.max(arg.get(i), helper_minimax_sequence(arg, i+1));
-		else
-			return Math.min(arg.get(i), helper_minimax_sequence(arg, i+1));
+		int temp;
+		if(i == arg.size()-1) {
+			temp=arg.get(i);
+//			System.out.println("i="+i+ " returning leaf: "+temp);
+			return temp;//the value of the last possible capturer does not affect the minimax calculation.
+		}
+			
+		if(i%2 ==0) {
+			temp=helper_minimax_sequence(arg, i+1);
+//			System.out.println("i="+i+ " max("+arg.get(i)+", "+temp+")");
+			temp=Math.max(arg.get(i), temp);
+			return temp;
+		}
+			
+		else {
+			temp=helper_minimax_sequence(arg, i+1);
+//			System.out.println("i="+i+ " min("+arg.get(i)+", "+temp+")");
+			temp=Math.min(arg.get(i), temp);
+			return temp;
+		}
+			
+	}
+	
+	static boolean verifyMatch(AttackCombo a, AttackCombo b) {
+		if(!a.attackersThroughEnemyPawn.isEmpty() && b.attackers.indexOf(PieceType.PAWN)==-1)
+			return false;
+		if(!b.attackersThroughEnemyPawn.isEmpty() && a.attackers.indexOf(PieceType.PAWN)==-1)
+			return false;
+		return true;
+	}
+	
+	ArrayList<ComboMatchUp> matchups= new ArrayList<>();
+	
+	void generateMatchUpCollection() {
+		ComboMatchUp matchup;
+		
+		for(int i=0;i<attackCollection.size();++i)
+			for(int j=0;j<attackCollection.size();++j)
+				if(verifyMatch(attackCollection.get(i), attackCollection.get(j))){
+					matchup=new ComboMatchUp(attackCollection.get(i), attackCollection.get(j));
+					matchups.add(matchup);
+				}
+		
+		matchups.trimToSize();
+		Collections.sort(matchups);
+		System.out.println("ArrayList<ComboMatchUp> is generated with this many records: " + matchups.size());
+		System.out.println("Matchup sample: "+ matchups.get(0).toStringNaturalAttacks());
+		
+		System.out.println("Matchup sample: "+ matchups.get(1).toStringNaturalAttacks());
+		
+		System.out.println("Matchup sample: "+ matchups.get(2).toStringNaturalAttacks());
+		
+		System.out.println("Matchup sample: "+ matchups.get(7856).toStringNaturalAttacks());
+		
+		System.out.println("Matchup sample: "+ matchups.get(45654).toStringNaturalAttacks());
+		
+		System.out.println("Matchup sample: "+ matchups.get(1099689).toStringNaturalAttacks());
+		
+		System.out.println("Matchup sample: "+ matchups.get(2013700).toStringNaturalAttacks());
+		
+		System.out.println("Matchup sample: "+ matchups.get(2099700).toStringNaturalAttacks());
+		
+		System.out.println("Matchup sample: "+ matchups.get(2499700).toStringNaturalAttacks());
+		
+		System.out.println("Matchup sample: "+ matchups.get(2709970).toStringNaturalAttacks());
+		
+	}
+	
+	
+	/// turns out that file read/write operations are VERY slow.
+	void writeMatchupCollection() {
+	       // Write the ArrayList to a file using object serialization
+        try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream("naturalMatchupOutcomes.dat"))) {
+            outputStream.writeObject(matchups);
+            System.out.println("ArrayList<ComboMatchUp> written to the file successfully. With this many records: " + matchups.size());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+	}
+	
+	void loadMatchupCollection() {
+	       try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream("naturalMatchupOutcomes.dat"))) {
+	    	   matchups = (ArrayList<ComboMatchUp>) inputStream.readObject();
+	            matchups.trimToSize();
+	            // Print the contents of the read ArrayList
+	            System.out.println("Read ArrayList<ComboMatchUp> with this many records: " + matchups.size());
+	        } catch (IOException | ClassNotFoundException e) {
+	            e.printStackTrace();
+	        }
 	}
 
 	public static void main(String[] args) {
 		MyLookupGenerator myGenerator = new MyLookupGenerator();
+
+		//myGenerator.generateAndWriteMatchupCollection();
+		//myGenerator.loadMatchupCollection();
 		
+		myGenerator.generateMatchUpCollection();
 		
 	}//main
 
