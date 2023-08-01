@@ -134,26 +134,7 @@ public class MyLookupGenerator {
 		sliderSets.addAll(uniqueSliderPermutations);
 		
 		AttackCombo tempAS;
-		//ArrayList<Integer> temp = new ArrayList<Integer>();
 		HashSet<AttackCombo> uniqueAttackCombinations = new HashSet<AttackCombo>();
-		//ArrayList<ArrayList<Integer>> attacksWithNoEnemyPawns = new ArrayList<ArrayList<Integer>>();
-		
-		System.out.println("pawnSets: " + pawnSets.size());
-		//for(ArrayList<Integer> ps : pawnSets)
-		//	System.out.println(attackerListToString(ps));
-		
-		System.out.println("knightSets: " + knightSets.size());
-		//for(ArrayList<Integer> ps : knightSets)
-		//	System.out.println(attackerListToString(ps));
-		
-		System.out.println("sliderSets: " + sliderSets.size());
-		//for(ArrayList<Integer> ps : sliderSets)
-		//	System.out.println(attackerListToString(ps));
-		
-		System.out.println("kingSets: " + kingSets.size());
-		//for(ArrayList<Integer> ps : kingSets)
-		//	System.out.println(attackerListToString(ps));
-		
 		
 		for(ArrayList<Integer> ps : pawnSets)
 			for(ArrayList<Integer> ns : knightSets)
@@ -163,7 +144,6 @@ public class MyLookupGenerator {
 							tempAS=new AttackCombo();
 							tempAS.attackers.addAll(ps);
 							tempAS.attackers.addAll(ns);
-							
 							for(int di=0;di<numDirectAttackers;++di)
 								tempAS.attackers.add(ss.get(di));
 							for(int di=numDirectAttackers;di<ss.size();++di)
@@ -203,29 +183,18 @@ public class MyLookupGenerator {
 					return 1;
             return 0;
         });
-		
-		System.out.println("grandAttackCollection.size: " + attackCollection.size());
 		for(AttackCombo gl : attackCollection)
 			System.out.println(gl.toString());
+		System.out.println("pawnSets: " + pawnSets.size());
+		System.out.println("knightSets: " + knightSets.size());
+		System.out.println("sliderSets: " + sliderSets.size());
+		System.out.println("kingSets: " + kingSets.size());
+		System.out.println("grandAttackCollection.size: " + attackCollection.size());
 	}
 	
 	
 	static int pieceCost(int pt) {
 		assert PieceType.validate(pt);
-//		switch (pt) {
-//		case PieceType.PAWN:
-//			return 100;
-//		case PieceType.KNIGHT:
-//			return 325;
-//		case PieceType.BISHOP:
-//			return 325;
-//		case PieceType.ROOK:
-//			return 500;
-//		case PieceType.QUEEN:
-//			return 1000;
-//		case PieceType.KING:
-//			return 999999;
-//		}
 		switch (pt) {
 		case PieceType.PAWN:
 			return 100;
@@ -241,20 +210,6 @@ public class MyLookupGenerator {
 			return 1000000;
 		}
 		throw new RuntimeException("Unexpected value!");
-	}
-	
-	/**
-	 * 
-	 * @return index in ac.attackers
-	 */
-	static int getNextAttackerIndex(AttackCombo ac, int attacker_index, int conditional_attacker_index, boolean isConditionMet) {
-		if(!isConditionMet)
-			if((attacker_index+1) < ac.attackers.size())
-				return attacker_index+1;
-			else
-				return -1;
-		
-		return -1;
 	}
 	
 	
@@ -433,6 +388,26 @@ public class MyLookupGenerator {
 		//myGenerator.loadMatchupCollection();
 		
 		myGenerator.generateMatchUpCollection();
+		
+		System.out.println("Some matchup stats:");
+		int pawnPos=0, minorPos=0, rookPos=0, queenPos=0;
+		for(ComboMatchUp cmu : myGenerator.matchups) {
+			if(cmu.naturalOutcomeTargetPawn>0)
+				pawnPos++;
+			if(cmu.naturalOutcomeTargetMinor>0)
+				minorPos++;
+			if(cmu.naturalOutcomeTargetRook>0)
+				rookPos++;
+			if(cmu.naturalOutcomeTargetQueen>0)
+				queenPos++;
+		}
+		
+		System.out.println("Total number of matchups: "+myGenerator.matchups.size());
+		System.out.println("Matchups where outcome is positive when target is pawn: "+pawnPos + " or " + String.format("%.2f", (double)pawnPos/(double)myGenerator.matchups.size()));
+		System.out.println("Matchups where outcome is positive when target is minor: "+minorPos+ " or " + String.format("%.2f", (double)minorPos/(double)myGenerator.matchups.size()));
+		System.out.println("Matchups where outcome is positive when target is rook: "+rookPos+ " or " + String.format("%.2f", (double)rookPos/(double)myGenerator.matchups.size()));
+		System.out.println("Matchups where outcome is positive when target is queen: "+queenPos+ " or " + String.format("%.2f", (double)queenPos/(double)myGenerator.matchups.size()));
+
 		
 	}//main
 

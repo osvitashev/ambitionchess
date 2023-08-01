@@ -6,10 +6,32 @@ import java.util.ArrayList;
 
 import org.junit.jupiter.api.Test;
 
+import gamestate.Gamestate;
 import gamestate.GlobalConstants.PieceType;
 
 
 class MyLookupGeneratorTest {
+	
+	@Test
+	void testWideBitfieldAccumulator() {
+		WideBitfieldAccumulator w = new WideBitfieldAccumulator(370660);
+		assertFalse(w.get(28));
+		w.setPayload(28);
+		assertTrue(w.get(28));
+		RuntimeException thrown = assertThrows(RuntimeException.class, () -> w.setPayload(28), "index is unavailable!");
+		assertTrue(thrown.getMessage().equals("index is unavailable!"));
+		
+		assertFalse(w.get(310660));
+		w.setPayload(310660);
+		assertTrue(w.get(310660));
+		
+		assertFalse(w.get(2765280));
+		w.lock(2765280);
+		thrown = assertThrows(RuntimeException.class, () -> w.setPayload(2765280), "index is unavailable!");
+		assertTrue(thrown.getMessage().equals("index is unavailable!"));
+		
+		
+	}
 
 	@Test
 	void testAttackComboOperations() {
