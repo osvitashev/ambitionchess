@@ -46,6 +46,7 @@ class AttackCombo implements Serializable {
 			return false;
 		AttackCombo other = (AttackCombo) o;
 		return attackers.equals(other.attackers) && attackersThroughEnemyPawn.equals(other.attackersThroughEnemyPawn);
+		//return toCompressedAttackString().equals(other.toCompressedAttackString());
 	}
 
 	@Override

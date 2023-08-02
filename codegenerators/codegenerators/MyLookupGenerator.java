@@ -190,6 +190,19 @@ public class MyLookupGenerator {
 		System.out.println("sliderSets: " + sliderSets.size());
 		System.out.println("kingSets: " + kingSets.size());
 		System.out.println("grandAttackCollection.size: " + attackCollection.size());
+		
+		
+		//maps short attack string to attack combo
+		HashMap<String, AttackCombo> dedupe= new HashMap<>();
+		for(AttackCombo ac : attackCollection) {
+			if(!dedupe.containsKey(ac.toCompressedAttackString())) {
+				dedupe.put(ac.toCompressedAttackString(), ac);
+			}
+		}
+		
+		attackCollection=new ArrayList<>(dedupe.values());
+		attackCollection.trimToSize();
+		System.out.println("deduped grandAttackCollection.size: " + attackCollection.size());
 	}
 	
 	
@@ -348,14 +361,6 @@ public class MyLookupGenerator {
 		
 		System.out.println("Matchup sample: "+ matchups.get(1099689).toStringNaturalAttacks());
 		
-		System.out.println("Matchup sample: "+ matchups.get(2013700).toStringNaturalAttacks());
-		
-		System.out.println("Matchup sample: "+ matchups.get(2099700).toStringNaturalAttacks());
-		
-		System.out.println("Matchup sample: "+ matchups.get(2499700).toStringNaturalAttacks());
-		
-		System.out.println("Matchup sample: "+ matchups.get(2709970).toStringNaturalAttacks());
-		
 	}
 	
 	
@@ -390,31 +395,31 @@ public class MyLookupGenerator {
 		//myGenerator.generateAndWriteMatchupCollection();
 		//myGenerator.loadMatchupCollection();
 		
-//		myGenerator.generateMatchUpCollection();
-//		
-//		System.out.println("Some matchup stats:");
-//		int pawnPos=0, minorPos=0, rookPos=0, queenPos=0;
-//		for(ComboMatchUp cmu : myGenerator.matchups) {
-//			if(cmu.naturalOutcomeTargetPawn>0)
-//				pawnPos++;
-//			if(cmu.naturalOutcomeTargetMinor>0)
-//				minorPos++;
-//			if(cmu.naturalOutcomeTargetRook>0)
-//				rookPos++;
-//			if(cmu.naturalOutcomeTargetQueen>0)
-//				queenPos++;
-//		}
-//		
-//		minorPos = myGenerator.matchups.size()-minorPos;
-//		rookPos = myGenerator.matchups.size()-rookPos;
-//		queenPos = myGenerator.matchups.size()-queenPos;
-//		
-//		System.out.println("Total number of matchups: "+myGenerator.matchups.size());
-//		System.out.println("Matchups where outcome is positive when target is pawn: "+pawnPos + " or " + String.format("%.2f", (double)pawnPos/(double)myGenerator.matchups.size()));
-//		System.out.println("Matchups where outcome is NOT positive when target is minor: "+minorPos+ " or " + String.format("%.2f", (double)minorPos/(double)myGenerator.matchups.size()));
-//		System.out.println("Matchups where outcome is NOT positive when target is rook: "+rookPos+ " or " + String.format("%.2f", (double)rookPos/(double)myGenerator.matchups.size()));
-//		System.out.println("Matchups where outcome is NOT positive when target is queen: "+queenPos+ " or " + String.format("%.2f", (double)queenPos/(double)myGenerator.matchups.size()));
-//		
+		myGenerator.generateMatchUpCollection();
+		
+		System.out.println("Some matchup stats:");
+		int pawnPos=0, minorPos=0, rookPos=0, queenPos=0;
+		for(ComboMatchUp cmu : myGenerator.matchups) {
+			if(cmu.naturalOutcomeTargetPawn>0)
+				pawnPos++;
+			if(cmu.naturalOutcomeTargetMinor>0)
+				minorPos++;
+			if(cmu.naturalOutcomeTargetRook>0)
+				rookPos++;
+			if(cmu.naturalOutcomeTargetQueen>0)
+				queenPos++;
+		}
+		
+		minorPos = myGenerator.matchups.size()-minorPos;
+		rookPos = myGenerator.matchups.size()-rookPos;
+		queenPos = myGenerator.matchups.size()-queenPos;
+		
+		System.out.println("Total number of matchups: "+myGenerator.matchups.size());
+		System.out.println("Matchups where outcome is positive when target is pawn: "+pawnPos + " or " + String.format("%.2f", (double)pawnPos/(double)myGenerator.matchups.size()));
+		System.out.println("Matchups where outcome is NOT positive when target is minor: "+minorPos+ " or " + String.format("%.2f", (double)minorPos/(double)myGenerator.matchups.size()));
+		System.out.println("Matchups where outcome is NOT positive when target is rook: "+rookPos+ " or " + String.format("%.2f", (double)rookPos/(double)myGenerator.matchups.size()));
+		System.out.println("Matchups where outcome is NOT positive when target is queen: "+queenPos+ " or " + String.format("%.2f", (double)queenPos/(double)myGenerator.matchups.size()));
+
 
     
         
