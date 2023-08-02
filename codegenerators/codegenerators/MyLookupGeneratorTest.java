@@ -16,7 +16,9 @@ class MyLookupGeneratorTest {
 	void testWideBitfieldAccumulator() {
 		WideBitfieldAccumulator w = new WideBitfieldAccumulator(370660);
 		assertFalse(w.get(28));
+		assertFalse(w.isUsed(28));
 		w.setPayload(28);
+		assertTrue(w.isUsed(28));
 		assertTrue(w.get(28));
 		RuntimeException thrown = assertThrows(RuntimeException.class, () -> w.setPayload(28), "index is unavailable!");
 		assertTrue(thrown.getMessage().equals("index is unavailable!"));

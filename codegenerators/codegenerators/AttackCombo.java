@@ -55,8 +55,25 @@ class AttackCombo implements Serializable {
 
 	@Override
 	public String toString() {
-		String ret = "direct= [" + MyLookupGenerator.attackerListToString(attackers) + "] conditional= ["
-				+ MyLookupGenerator.attackerListToString(attackersThroughEnemyPawn) + "] " + "serialized= " + Integer.toOctalString(serialized);
+		String ret = "long=[" + MyLookupGenerator.attackerListToString(attackers) + "|"
+				+ MyLookupGenerator.attackerListToString(attackersThroughEnemyPawn) + "] short=["+ toCompressedAttackString()
+				+ "] serialized= " + Integer.toOctalString(serialized);
+		return ret;
+	}
+	
+	/**
+	 * example: PMMRRQK|QM
+	 */
+	public String toCompressedAttackString() {
+		
+		String ret="";
+		for(Integer i : attackers)
+			ret += PieceType.toString(i);
+		ret+="|";
+		for(Integer i : attackersThroughEnemyPawn)
+			ret += PieceType.toString(i);
+		ret=ret.replace('N', 'M');
+		ret=ret.replace('B', 'M');
 		return ret;
 	}
 }
