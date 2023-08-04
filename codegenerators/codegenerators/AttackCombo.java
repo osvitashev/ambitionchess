@@ -8,9 +8,9 @@ import gamestate.GlobalConstants.PieceType;
 
 class AttackCombo implements Serializable {
 	// list of AttackSet.AttackSetType
-	ArrayList<Integer> attackers = new ArrayList<Integer>();
+	ArrayList<Integer> unconditionalAttackers = new ArrayList<Integer>();
 	ArrayList<Integer> attackersThroughEnemyPawn = new ArrayList<Integer>();
-	int serializedLongKey = 0;
+	int serializedIntKey = 0;
 
 	/**
 	 * Having two collections traverse in opposite directions is weird, but it is
@@ -23,18 +23,18 @@ class AttackCombo implements Serializable {
 	 * de-serialization. We are just trying to give unique integer representation to
 	 * attacks array.
 	 */
-	void setSerializedLongKey() {
+	void setSerializedIntKey() {
 		for (int a : attackersThroughEnemyPawn) {
-			serializedLongKey <<= 3;// 3 bits
-			serializedLongKey |= a;
+			serializedIntKey <<= 3;// 3 bits
+			serializedIntKey |= a;
 		}
-		if (attackers.isEmpty() || attackers.get(attackers.size() - 1) != PieceType.KING) {
-			serializedLongKey <<= 3;// 3 bits
-			serializedLongKey |= PieceType.NO_PIECE;
+		if (unconditionalAttackers.isEmpty() || unconditionalAttackers.get(unconditionalAttackers.size() - 1) != PieceType.KING) {
+			serializedIntKey <<= 3;// 3 bits
+			serializedIntKey |= PieceType.NO_PIECE;
 		}
-		for (int i = attackers.size() - 1; i >= 0; --i) {
-			serializedLongKey <<= 3;// 3 bits
-			serializedLongKey |= attackers.get(i);
+		for (int i = unconditionalAttackers.size() - 1; i >= 0; --i) {
+			serializedIntKey <<= 3;// 3 bits
+			serializedIntKey |= unconditionalAttackers.get(i);
 		}
 	}
 
@@ -45,13 +45,13 @@ class AttackCombo implements Serializable {
 		if (o == null || getClass() != o.getClass())
 			return false;
 		AttackCombo other = (AttackCombo) o;
-		return attackers.equals(other.attackers) && attackersThroughEnemyPawn.equals(other.attackersThroughEnemyPawn);
+		return unconditionalAttackers.equals(other.unconditionalAttackers) && attackersThroughEnemyPawn.equals(other.attackersThroughEnemyPawn);
 		//return toCompressedAttackString().equals(other.toCompressedAttackString());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(attackers, attackersThroughEnemyPawn);
+		return Objects.hash(unconditionalAttackers, attackersThroughEnemyPawn);
 	}
 
 	public static String attackerListToString(ArrayList<Integer> attackers) {
@@ -64,9 +64,9 @@ class AttackCombo implements Serializable {
 	
 	@Override
 	public String toString() {
-		String ret = "long=[" + attackerListToString(attackers) + "|"
+		String ret = "long=[" + attackerListToString(unconditionalAttackers) + "|"
 				+ attackerListToString(attackersThroughEnemyPawn) + "] short=["+ toCompressedAttackString()
-				+ "] serialized= " + Integer.toOctalString(serializedLongKey);
+				+ "] serialized= " + Integer.toOctalString(serializedIntKey);
 		return ret;
 	}
 	
@@ -76,7 +76,7 @@ class AttackCombo implements Serializable {
 	public String toCompressedAttackString() {
 		
 		String ret="";
-		for(Integer i : attackers)
+		for(Integer i : unconditionalAttackers)
 			ret += PieceType.toString(i);
 		ret+="|";
 		for(Integer i : attackersThroughEnemyPawn)

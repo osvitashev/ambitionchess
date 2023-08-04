@@ -135,14 +135,14 @@ public class MyLookupGenerator {
 					for(ArrayList<Integer> ks : kingSets) {
 						for(int numDirectAttackers=0; numDirectAttackers<=ss.size(); numDirectAttackers++) {//<= because we wan to execute the loop body even with empty set
 							tempAS=new AttackCombo();
-							tempAS.attackers.addAll(ps);
-							tempAS.attackers.addAll(ns);
+							tempAS.unconditionalAttackers.addAll(ps);
+							tempAS.unconditionalAttackers.addAll(ns);
 							for(int di=0;di<numDirectAttackers;++di)
-								tempAS.attackers.add(ss.get(di));
+								tempAS.unconditionalAttackers.add(ss.get(di));
 							for(int di=numDirectAttackers;di<ss.size();++di)
 								tempAS.attackersThroughEnemyPawn.add(ss.get(di));
-							tempAS.attackers.addAll(ks);
-							tempAS.setSerializedLongKey();
+							tempAS.unconditionalAttackers.addAll(ks);
+							tempAS.setSerializedIntKey();
 							if(tempAS.attackersThroughEnemyPawn.indexOf(PieceType.ROOK) == -1)
 								uniqueAttackCombinations.add(tempAS);
 						}
@@ -159,12 +159,12 @@ public class MyLookupGenerator {
 		Collections.sort(attackCollection, (a, b) -> {
 			
 			
-			if(a.attackers.size()!=b.attackers.size())
-				return a.attackers.size()-b.attackers.size();
-			for(int i=a.attackers.size()-1; i>=0; --i)
-				if((a.attackers.get(i) - b.attackers.get(i)) < 0)
+			if(a.unconditionalAttackers.size()!=b.unconditionalAttackers.size())
+				return a.unconditionalAttackers.size()-b.unconditionalAttackers.size();
+			for(int i=a.unconditionalAttackers.size()-1; i>=0; --i)
+				if((a.unconditionalAttackers.get(i) - b.unconditionalAttackers.get(i)) < 0)
 					return -1;
-				else if((a.attackers.get(i) - b.attackers.get(i)) > 0)
+				else if((a.unconditionalAttackers.get(i) - b.unconditionalAttackers.get(i)) > 0)
 					return 1;
 			
 			if(a.attackersThroughEnemyPawn.size()!=b.attackersThroughEnemyPawn.size())
@@ -206,13 +206,14 @@ public class MyLookupGenerator {
 	 * @param occupier - PieceType
 	 * @return
 	 */
-	static int calculateGain_pureAttacks(AttackCombo attacker, AttackCombo defender, int targetCost) {
+	static int calculateGain_pureAttacks(ArrayList<Integer> attacker_unconditionalAttackers, ArrayList<Integer> attacker_attackersThroughEnemyPawn,
+			ArrayList<Integer> defender_unconditionalAttackers, ArrayList<Integer> defender_attackersThroughEnemyPawn,int targetCost) {
 //		System.out.println(attacker.toString() + " vs. " + defender.toString());
 		int occupier;
-		ArrayDeque<Integer> attacker_attacks = new ArrayDeque<>(attacker.attackers);
-		ArrayDeque<Integer> attacker_conditionalAttacks = new ArrayDeque<>(attacker.attackersThroughEnemyPawn);
-		ArrayDeque<Integer> defender_attacks = new ArrayDeque<>(defender.attackers);
-		ArrayDeque<Integer> defender_conditionalAttacks = new ArrayDeque<>(defender.attackersThroughEnemyPawn);
+		ArrayDeque<Integer> attacker_attacks = new ArrayDeque<>(attacker_unconditionalAttackers);
+		ArrayDeque<Integer> attacker_conditionalAttacks = new ArrayDeque<>(attacker_attackersThroughEnemyPawn);
+		ArrayDeque<Integer> defender_attacks = new ArrayDeque<>(defender_unconditionalAttackers);
+		ArrayDeque<Integer> defender_conditionalAttacks = new ArrayDeque<>(defender_attackersThroughEnemyPawn);
 		
 		ArrayDeque<Integer> attacks, conditionalAttacks;
 		
@@ -300,9 +301,9 @@ public class MyLookupGenerator {
 	}
 	
 	static boolean verifyMatch(AttackCombo a, AttackCombo b) {
-		if(!a.attackersThroughEnemyPawn.isEmpty() && b.attackers.indexOf(PieceType.PAWN)==-1)
+		if(!a.attackersThroughEnemyPawn.isEmpty() && b.unconditionalAttackers.indexOf(PieceType.PAWN)==-1)
 			return false;
-		if(!b.attackersThroughEnemyPawn.isEmpty() && a.attackers.indexOf(PieceType.PAWN)==-1)
+		if(!b.attackersThroughEnemyPawn.isEmpty() && a.unconditionalAttackers.indexOf(PieceType.PAWN)==-1)
 			return false;
 		return true;
 	}
