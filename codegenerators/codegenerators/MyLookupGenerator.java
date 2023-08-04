@@ -26,13 +26,6 @@ import gamestate.Bitboard;
 import gamestate.GlobalConstants.PieceType;
 
 public class MyLookupGenerator {
-	public static String attackerListToString(ArrayList<Integer> attackers) {
-		String ret="";
-		for(Integer i : attackers)
-			ret += PieceType.toString(i);
-		return ret;
-	}
-	
 	MyLookupGenerator(){
 		populateAttackCollection();
 	}
@@ -149,7 +142,7 @@ public class MyLookupGenerator {
 							for(int di=numDirectAttackers;di<ss.size();++di)
 								tempAS.attackersThroughEnemyPawn.add(ss.get(di));
 							tempAS.attackers.addAll(ks);
-							tempAS.setSerialized();
+							tempAS.setSerializedLongKey();
 							if(tempAS.attackersThroughEnemyPawn.indexOf(PieceType.ROOK) == -1)
 								uniqueAttackCombinations.add(tempAS);
 						}
@@ -350,15 +343,12 @@ public class MyLookupGenerator {
 		Collections.sort(matchups);
 		System.out.println("ArrayList<ComboMatchUp> is generated with this many records: " + matchups.size());
 		System.out.println("Matchup sample: "+ matchups.get(0).toStringNaturalAttacks());
-		
 		System.out.println("Matchup sample: "+ matchups.get(1).toStringNaturalAttacks());
-		
 		System.out.println("Matchup sample: "+ matchups.get(2).toStringNaturalAttacks());
-		
-		System.out.println("Matchup sample: "+ matchups.get(7856).toStringNaturalAttacks());
-		
+		System.out.println("Matchup sample: "+ matchups.get(3).toStringNaturalAttacks());
+		System.out.println("Matchup sample: "+ matchups.get(856).toStringNaturalAttacks());
+		System.out.println("Matchup sample: "+ matchups.get(2900).toStringNaturalAttacks());
 		System.out.println("Matchup sample: "+ matchups.get(45654).toStringNaturalAttacks());
-		
 		System.out.println("Matchup sample: "+ matchups.get(1099689).toStringNaturalAttacks());
 		
 	}
@@ -420,7 +410,14 @@ public class MyLookupGenerator {
 		System.out.println("Matchups where outcome is NOT positive when target is rook: "+rookPos+ " or " + String.format("%.2f", (double)rookPos/(double)myGenerator.matchups.size()));
 		System.out.println("Matchups where outcome is NOT positive when target is queen: "+queenPos+ " or " + String.format("%.2f", (double)queenPos/(double)myGenerator.matchups.size()));
 
-
+		String costString;
+		HashMap<String, Integer> htg = new HashMap<>();
+		for(ComboMatchUp cmu : myGenerator.matchups) {
+			costString=cmu.getStringNaturalAttacks();
+			htg.put(costString, 1+htg.getOrDefault(costString, 0));
+		}
+		System.out.println("Attack natural payoff distribution: ["+htg.size()+"]");
+		System.out.println(htg);
     
         
 	}//main

@@ -10,7 +10,7 @@ class AttackCombo implements Serializable {
 	// list of AttackSet.AttackSetType
 	ArrayList<Integer> attackers = new ArrayList<Integer>();
 	ArrayList<Integer> attackersThroughEnemyPawn = new ArrayList<Integer>();
-	int serialized = 0;
+	int serializedLongKey = 0;
 
 	/**
 	 * Having two collections traverse in opposite directions is weird, but it is
@@ -23,18 +23,18 @@ class AttackCombo implements Serializable {
 	 * de-serialization. We are just trying to give unique integer representation to
 	 * attacks array.
 	 */
-	void setSerialized() {
+	void setSerializedLongKey() {
 		for (int a : attackersThroughEnemyPawn) {
-			serialized <<= 3;// 3 bits
-			serialized |= a;
+			serializedLongKey <<= 3;// 3 bits
+			serializedLongKey |= a;
 		}
 		if (attackers.isEmpty() || attackers.get(attackers.size() - 1) != PieceType.KING) {
-			serialized <<= 3;// 3 bits
-			serialized |= PieceType.NO_PIECE;
+			serializedLongKey <<= 3;// 3 bits
+			serializedLongKey |= PieceType.NO_PIECE;
 		}
 		for (int i = attackers.size() - 1; i >= 0; --i) {
-			serialized <<= 3;// 3 bits
-			serialized |= attackers.get(i);
+			serializedLongKey <<= 3;// 3 bits
+			serializedLongKey |= attackers.get(i);
 		}
 	}
 
@@ -54,11 +54,19 @@ class AttackCombo implements Serializable {
 		return Objects.hash(attackers, attackersThroughEnemyPawn);
 	}
 
+	public static String attackerListToString(ArrayList<Integer> attackers) {
+		String ret="";
+		for(Integer i : attackers)
+			ret += PieceType.toString(i);
+		return ret;
+	}
+	
+	
 	@Override
 	public String toString() {
-		String ret = "long=[" + MyLookupGenerator.attackerListToString(attackers) + "|"
-				+ MyLookupGenerator.attackerListToString(attackersThroughEnemyPawn) + "] short=["+ toCompressedAttackString()
-				+ "] serialized= " + Integer.toOctalString(serialized);
+		String ret = "long=[" + attackerListToString(attackers) + "|"
+				+ attackerListToString(attackersThroughEnemyPawn) + "] short=["+ toCompressedAttackString()
+				+ "] serialized= " + Integer.toOctalString(serializedLongKey);
 		return ret;
 	}
 	

@@ -18,19 +18,24 @@ public class ComboMatchUp implements Serializable, Comparable<ComboMatchUp> {
 		naturalOutcomeTargetRook=MyLookupGenerator.calculateGain_pureAttacks(attacker, defender, 500);
 		naturalOutcomeTargetQueen=MyLookupGenerator.calculateGain_pureAttacks(attacker, defender, 1000);
 		
-		matchupKey=(((long)attacker.serialized)<<32) | ((long)defender.serialized);
+		matchupKey=(((long)attacker.serializedLongKey)<<32) | ((long)defender.serializedLongKey);
 		// TODO Auto-generated constructor stub
 	}
 	
 	String toStringNaturalAttacks() {
 		String ret="";
 		ret+=attacker.toString() + " VS. " + defender.toString()+ "\n";
-		ret+= "natural attack sequence pay offs for targets: ";
+		ret+= "natural attack payoffs per target: " + getStringNaturalAttacks();
+		ret+="matchupKey="+Long.toOctalString(matchupKey);
+		return ret;
+	}
+	
+	String getStringNaturalAttacks() {
+		String ret="";
 		ret+= "P=" + naturalOutcomeTargetPawn+ " ";
 		ret+= "M=" + naturalOutcomeTargetMinor+ " ";
 		ret+= "R=" + naturalOutcomeTargetRook+ " ";
 		ret+= "Q=" + naturalOutcomeTargetQueen+ " ";
-		ret+="matchupKey="+Long.toOctalString(matchupKey);
 		return ret;
 	}
 	
