@@ -3,6 +3,7 @@ package codegenerators;
 import java.io.Serializable;
 
 import exchange.control.AttackSet;
+import gamestate.GlobalConstants.PieceType;
 
 public class ComboMatchUp implements Serializable, Comparable<ComboMatchUp> {
 	AttackCombo attacker, defender;
@@ -13,10 +14,10 @@ public class ComboMatchUp implements Serializable, Comparable<ComboMatchUp> {
 	public ComboMatchUp(AttackCombo a, AttackCombo b) {
 		attacker=a;
 		defender=b;
-		naturalOutcomeTargetPawn=MyLookupGenerator.calculateGain_pureAttacks(attacker, defender, 100);
-		naturalOutcomeTargetMinor=MyLookupGenerator.calculateGain_pureAttacks(attacker, defender, 300);
-		naturalOutcomeTargetRook=MyLookupGenerator.calculateGain_pureAttacks(attacker, defender, 500);
-		naturalOutcomeTargetQueen=MyLookupGenerator.calculateGain_pureAttacks(attacker, defender, 1000);
+		naturalOutcomeTargetPawn=MyLookupGenerator.calculateGain_pureAttacks(attacker, defender, AttackCombo.pieceCost(PieceType.PAWN));
+		naturalOutcomeTargetMinor=MyLookupGenerator.calculateGain_pureAttacks(attacker, defender, AttackCombo.pieceCost(PieceType.KNIGHT));
+		naturalOutcomeTargetRook=MyLookupGenerator.calculateGain_pureAttacks(attacker, defender, AttackCombo.pieceCost(PieceType.ROOK));
+		naturalOutcomeTargetQueen=MyLookupGenerator.calculateGain_pureAttacks(attacker, defender, AttackCombo.pieceCost(PieceType.QUEEN));
 		
 		matchupKey=(((long)attacker.serializedLongKey)<<32) | ((long)defender.serializedLongKey);
 		// TODO Auto-generated constructor stub

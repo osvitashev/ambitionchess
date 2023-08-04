@@ -85,4 +85,23 @@ class AttackCombo implements Serializable {
 		ret=ret.replace('B', 'M');
 		return ret;
 	}
+	
+	public static int pieceCost(int pt) {
+		assert PieceType.validate(pt);
+		switch (pt) {
+		case PieceType.PAWN:
+			return 100;
+		case PieceType.KNIGHT:
+			return 300;
+		case PieceType.BISHOP:
+			return 300;
+		case PieceType.ROOK:
+			return 500;
+		case PieceType.QUEEN:
+			return 1000;
+		case PieceType.KING:
+			return 1000000;
+		}
+		throw new RuntimeException("Unexpected value!");
+	}
 }

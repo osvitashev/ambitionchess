@@ -199,26 +199,6 @@ public class MyLookupGenerator {
 	}
 	
 	
-	static int pieceCost(int pt) {
-		assert PieceType.validate(pt);
-		switch (pt) {
-		case PieceType.PAWN:
-			return 100;
-		case PieceType.KNIGHT:
-			return 300;
-		case PieceType.BISHOP:
-			return 300;
-		case PieceType.ROOK:
-			return 500;
-		case PieceType.QUEEN:
-			return 1000;
-		case PieceType.KING:
-			return 1000000;
-		}
-		throw new RuntimeException("Unexpected value!");
-	}
-	
-	
 	/**
 	 * 
 	 * @param attacker
@@ -277,7 +257,7 @@ public class MyLookupGenerator {
 				
 //			System.out.println("isAttackerTurn: "+ isAttackerTurn+ " and occupier: "+ PieceType.toString(occupier));
 			
-			occupationValueHistory.add((isAttackerTurn ? 1 : -1) *(pieceCost(occupier)));//gain[d]  = value[aPiece] - gain[d-1]; // speculative store, if defended
+			occupationValueHistory.add((isAttackerTurn ? 1 : -1) *(AttackCombo.pieceCost(occupier)));//gain[d]  = value[aPiece] - gain[d-1]; // speculative store, if defended
 
 		}while(true);
 		
