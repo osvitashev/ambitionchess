@@ -27,9 +27,9 @@ class MyLookupGeneratorTest {
 		w.setPayload(310660);
 		assertTrue(w.get(310660));
 		
-		assertFalse(w.get(2765280));
-		w.lock(2765280);
-		thrown = assertThrows(RuntimeException.class, () -> w.setPayload(2765280), "index is unavailable!");
+		assertFalse(w.get(270660));
+		w.lock(270660);
+		thrown = assertThrows(RuntimeException.class, () -> w.setPayload(270660), "index is unavailable!");
 		assertTrue(thrown.getMessage().equals("index is unavailable!"));
 		
 		
@@ -38,93 +38,91 @@ class MyLookupGeneratorTest {
 	@Test
 	void testAttackComboOperations() {
 		AttackCombo ac = new AttackCombo();
-		ac.unconditionalAttackers.add(PieceType.KNIGHT);
-		ac.unconditionalAttackers.add(PieceType.ROOK);
-		ac.unconditionalAttackers.add(PieceType.KING);
+		ac.unconditionalAttackers.add('N');
+		ac.unconditionalAttackers.add('R');
+		ac.unconditionalAttackers.add('K');
 		ac.setSerializedIntKey();
-		assertEquals("direct= [NRK] conditional= [] serialized= 531", ac.toString());
+		assertEquals("long=[NRK|] short=[MRK|] serialized= 421", ac.toString());
 		
 		ac = new AttackCombo();
-		ac.unconditionalAttackers.add(PieceType.PAWN);
-		ac.unconditionalAttackers.add(PieceType.PAWN);
-		ac.unconditionalAttackers.add(PieceType.ROOK);
-		ac.unconditionalAttackers.add(PieceType.ROOK);
-		ac.unconditionalAttackers.add(PieceType.QUEEN);
-		ac.unconditionalAttackers.add(PieceType.KING);
-		ac.attackersThroughEnemyPawn.add(PieceType.BISHOP);
-		ac.attackersThroughEnemyPawn.add(PieceType.QUEEN);
+		ac.unconditionalAttackers.add('P');
+		ac.unconditionalAttackers.add('P');
+		ac.unconditionalAttackers.add('R');
+		ac.unconditionalAttackers.add('R');
+		ac.unconditionalAttackers.add('Q');
+		ac.unconditionalAttackers.add('K');
+		ac.attackersThroughEnemyPawn.add('B');
+		ac.attackersThroughEnemyPawn.add('Q');
 		ac.setSerializedIntKey();
-		assertEquals("direct= [PPRRQK] conditional= [BQ] serialized= 24543300", ac.toString());
+		assertEquals("long=[PPRRQK|BQ] short=[PPRRQK|MQ] serialized= 13432200", ac.toString());
 		
 		ac = new AttackCombo();
-		ac.unconditionalAttackers.add(PieceType.KNIGHT);
-		ac.unconditionalAttackers.add(PieceType.BISHOP);
-		ac.unconditionalAttackers.add(PieceType.ROOK);
-		ac.unconditionalAttackers.add(PieceType.QUEEN);
-		ac.unconditionalAttackers.add(PieceType.ROOK);
-		ac.unconditionalAttackers.add(PieceType.KING);
-		ac.attackersThroughEnemyPawn.add(PieceType.QUEEN);
+		ac.unconditionalAttackers.add('N');
+		ac.unconditionalAttackers.add('B');
+		ac.unconditionalAttackers.add('R');
+		ac.unconditionalAttackers.add('Q');
+		ac.unconditionalAttackers.add('R');
+		ac.unconditionalAttackers.add('K');
+		ac.attackersThroughEnemyPawn.add('Q');
 		ac.setSerializedIntKey();
-		assertEquals("direct= [NBRQRK] conditional= [Q] serialized= 4534321", ac.toString());
+		assertEquals("long=[NBRQRK|Q] short=[MMRQRK|Q] serialized= 3423211", ac.toString());
 		
 		ac = new AttackCombo();
-		ac.attackersThroughEnemyPawn.add(PieceType.QUEEN);
-		ac.attackersThroughEnemyPawn.add(PieceType.BISHOP);
-		ac.attackersThroughEnemyPawn.add(PieceType.QUEEN);
+		ac.attackersThroughEnemyPawn.add('Q');
+		ac.attackersThroughEnemyPawn.add('B');
+		ac.attackersThroughEnemyPawn.add('Q');
 		ac.setSerializedIntKey();
-		assertEquals("direct= [] conditional= [QBQ] serialized= 4247", ac.toString());
+		assertEquals("long=[|QBQ] short=[|QMQ] serialized= 3135", ac.toString());
 		
 		ac = new AttackCombo();
 		ac.setSerializedIntKey();
-		assertEquals("direct= [] conditional= [] serialized= 7", ac.toString());
+		assertEquals("long=[|] short=[|] serialized= 5", ac.toString());
 
 		ac = new AttackCombo();
-		ac.unconditionalAttackers.add(PieceType.KING);
+		ac.unconditionalAttackers.add('K');
 		ac.setSerializedIntKey();
-		assertEquals("direct= [K] conditional= [] serialized= 5", ac.toString());
+		assertEquals("long=[K|] short=[K|] serialized= 4", ac.toString());
 		
 		ac = new AttackCombo();
-		ac.unconditionalAttackers.add(PieceType.KING);
-		ac.attackersThroughEnemyPawn.add(PieceType.BISHOP);
+		ac.unconditionalAttackers.add('K');
+		ac.attackersThroughEnemyPawn.add('B');
 		ac.setSerializedIntKey();
-		assertEquals("direct= [K] conditional= [B] serialized= 25", ac.toString());
+		assertEquals("long=[K|B] short=[K|M] serialized= 14", ac.toString());
 		
 		ac = new AttackCombo();
-		ac.unconditionalAttackers.add(PieceType.PAWN);
-		ac.unconditionalAttackers.add(PieceType.PAWN);
+		ac.unconditionalAttackers.add('P');
+		ac.unconditionalAttackers.add('P');
 		ac.setSerializedIntKey();
-		assertEquals("direct= [PP] conditional= [] serialized= 700", ac.toString());
+		assertEquals("long=[PP|] short=[PP|] serialized= 500", ac.toString());
 	}
 	
 	
-	AttackCombo populateAttackCombo(int ...attackers) {
+	AttackCombo populateAttackCombo(Character ...attackers) {
 		AttackCombo ac = new AttackCombo();
-		for(int a : attackers) {
-			assert PieceType.validate(a);
+		for(Character a : attackers) {
 			ac.unconditionalAttackers.add(a);
 		}
 		return ac;
 	}
 	
 	
-	void helper_add_attackers(ArrayList<Integer> col, String str) {
-		int a=-1;
+	void helper_add_attackers(ArrayList<Character> col, String str) {
+		Character a = null;
 		for(int i=0; i<str.length(); ++i) {
 			if(str.charAt(i) == 'P')
-				a=PieceType.PAWN;
+				a='P';
 			else if(str.charAt(i) == 'R')
-				a=PieceType.ROOK;
+				a='R';
 			else if(str.charAt(i) == 'B')
-				a=PieceType.BISHOP;
+				a='B';
 			else if(str.charAt(i) == 'N')
-				a=PieceType.KNIGHT;
+				a='N';
 			else if(str.charAt(i) == 'Q')
-				a=PieceType.QUEEN;
+				a='Q';
 			else if(str.charAt(i) == 'K')
-				a=PieceType.KING;
+				a='K';
 			else
 				throw new RuntimeException("unexpected value!");
-			assert PieceType.validate(a);
 			col.add(a);
 		}
 	}
@@ -149,93 +147,93 @@ class MyLookupGeneratorTest {
 		///tests fair captures and recaptures with no backstabbed pawns
 		att=new AttackCombo();
 		def=new AttackCombo();
-		att.unconditionalAttackers.add(PieceType.ROOK);
+		att.unconditionalAttackers.add('R');
 		assertEquals(100 , MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn, 
 				def.unconditionalAttackers, def.attackersThroughEnemyPawn, 100));
 		
 		att=new AttackCombo();
 		def=new AttackCombo();
-		att.unconditionalAttackers.add(PieceType.KNIGHT);
-		def.unconditionalAttackers.add(PieceType.PAWN);
+		att.unconditionalAttackers.add('N');
+		def.unconditionalAttackers.add('P');
 		assertEquals(200 , MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn, def.unconditionalAttackers, def.attackersThroughEnemyPawn, 500));
 		
 		att=new AttackCombo();
 		def=new AttackCombo();
-		att.unconditionalAttackers.add(PieceType.KNIGHT);
-		att.unconditionalAttackers.add(PieceType.KING);
-		def.unconditionalAttackers.add(PieceType.PAWN);
+		att.unconditionalAttackers.add('N');
+		att.unconditionalAttackers.add('K');
+		def.unconditionalAttackers.add('P');
 		assertEquals(300 , MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn, def.unconditionalAttackers, def.attackersThroughEnemyPawn, 500));
 		
 		att=new AttackCombo();
 		def=new AttackCombo();
-		att.unconditionalAttackers.add(PieceType.KNIGHT);
-		att.unconditionalAttackers.add(PieceType.KING);
-		def.unconditionalAttackers.add(PieceType.PAWN);
-		def.unconditionalAttackers.add(PieceType.PAWN);
+		att.unconditionalAttackers.add('N');
+		att.unconditionalAttackers.add('K');
+		def.unconditionalAttackers.add('P');
+		def.unconditionalAttackers.add('P');
 		assertEquals(200 , MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn, def.unconditionalAttackers, def.attackersThroughEnemyPawn, 500));
 		
 		att=new AttackCombo();
 		def=new AttackCombo();
-		att.unconditionalAttackers.add(PieceType.KNIGHT);
-		att.unconditionalAttackers.add(PieceType.KING);
-		def.unconditionalAttackers.add(PieceType.PAWN);
-		def.unconditionalAttackers.add(PieceType.KING);
+		att.unconditionalAttackers.add('N');
+		att.unconditionalAttackers.add('K');
+		def.unconditionalAttackers.add('P');
+		def.unconditionalAttackers.add('K');
 		assertEquals(200 , MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn, def.unconditionalAttackers, def.attackersThroughEnemyPawn, 500));
 		
 		att=new AttackCombo();
 		def=new AttackCombo();
-		att.unconditionalAttackers.add(PieceType.ROOK);
-		def.unconditionalAttackers.add(PieceType.KING);
+		att.unconditionalAttackers.add('R');
+		def.unconditionalAttackers.add('K');
 		assertEquals(0 , MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn, def.unconditionalAttackers, def.attackersThroughEnemyPawn, 100));
 		
 		att=new AttackCombo();
 		def=new AttackCombo();
-		att.unconditionalAttackers.add(PieceType.ROOK);
-		def.unconditionalAttackers.add(PieceType.KING);
+		att.unconditionalAttackers.add('R');
+		def.unconditionalAttackers.add('K');
 		assertEquals(0 , MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn, def.unconditionalAttackers, def.attackersThroughEnemyPawn, 300));
 		
 		att=new AttackCombo();
 		def=new AttackCombo();
-		att.unconditionalAttackers.add(PieceType.ROOK);
-		def.unconditionalAttackers.add(PieceType.KING);
+		att.unconditionalAttackers.add('R');
+		def.unconditionalAttackers.add('K');
 		assertEquals(0 , MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn, def.unconditionalAttackers, def.attackersThroughEnemyPawn, 300));
 		
 		att=new AttackCombo();
 		def=new AttackCombo();
-		att.unconditionalAttackers.add(PieceType.ROOK);
-		def.unconditionalAttackers.add(PieceType.KING);
+		att.unconditionalAttackers.add('R');
+		def.unconditionalAttackers.add('K');
 		assertEquals(0 , MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn, def.unconditionalAttackers, def.attackersThroughEnemyPawn, 500));
 		
 		att=new AttackCombo();
 		def=new AttackCombo();
-		att.unconditionalAttackers.add(PieceType.BISHOP);
-		att.unconditionalAttackers.add(PieceType.ROOK);
-		def.unconditionalAttackers.add(PieceType.ROOK);
-		def.unconditionalAttackers.add(PieceType.KING);
+		att.unconditionalAttackers.add('B');
+		att.unconditionalAttackers.add('R');
+		def.unconditionalAttackers.add('R');
+		def.unconditionalAttackers.add('K');
 		assertEquals(0 , MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn, def.unconditionalAttackers, def.attackersThroughEnemyPawn, 300));
 		
 		att=new AttackCombo();
 		def=new AttackCombo();
-		att.unconditionalAttackers.add(PieceType.KNIGHT);
-		att.unconditionalAttackers.add(PieceType.BISHOP);
-		def.unconditionalAttackers.add(PieceType.ROOK);
-		def.unconditionalAttackers.add(PieceType.KING);
+		att.unconditionalAttackers.add('N');
+		att.unconditionalAttackers.add('B');
+		def.unconditionalAttackers.add('R');
+		def.unconditionalAttackers.add('K');
 		assertEquals(200 , MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn, def.unconditionalAttackers, def.attackersThroughEnemyPawn, 300));
 		
-		att=populateAttackCombo(PieceType.PAWN, PieceType.KING);
-		def=populateAttackCombo(PieceType.QUEEN, PieceType.ROOK);
+		att=populateAttackCombo('P', 'K');
+		def=populateAttackCombo('Q', 'R');
 		assertEquals(0 , MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn, def.unconditionalAttackers, def.attackersThroughEnemyPawn, 100));
 		
-		att=populateAttackCombo(PieceType.PAWN ,PieceType.KING);
-		def=populateAttackCombo(PieceType.QUEEN, PieceType.ROOK);
+		att=populateAttackCombo('P' ,'K');
+		def=populateAttackCombo('Q', 'R');
 		assertEquals(200 , MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn, def.unconditionalAttackers, def.attackersThroughEnemyPawn, 300));
 		
-		att=populateAttackCombo(PieceType.PAWN, PieceType.BISHOP ,PieceType.KING);
-		def=populateAttackCombo(PieceType.QUEEN, PieceType.ROOK);
+		att=populateAttackCombo('P', 'B' ,'K');
+		def=populateAttackCombo('Q', 'R');
 		assertEquals(300 , MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn, def.unconditionalAttackers, def.attackersThroughEnemyPawn, 300));
 		
-		att=populateAttackCombo(PieceType.QUEEN, PieceType.ROOK);
-		def=populateAttackCombo(PieceType.PAWN, PieceType.ROOK);
+		att=populateAttackCombo('Q', 'R');
+		def=populateAttackCombo('P', 'R');
 		assertEquals(0 , MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn, def.unconditionalAttackers, def.attackersThroughEnemyPawn, 300));
 		
 		att=populateAttackCombo("NRQBQK");

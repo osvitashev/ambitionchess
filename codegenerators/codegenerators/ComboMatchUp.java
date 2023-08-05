@@ -3,7 +3,6 @@ package codegenerators;
 import java.io.Serializable;
 
 import exchange.control.AttackSet;
-import gamestate.GlobalConstants.PieceType;
 
 public class ComboMatchUp implements Serializable, Comparable<ComboMatchUp> {
 	AttackCombo attacker, defender;
@@ -15,13 +14,13 @@ public class ComboMatchUp implements Serializable, Comparable<ComboMatchUp> {
 		attacker = a;
 		defender = b;
 		naturalOutcomeTargetPawn = MyLookupGenerator.calculateGain_pureAttacks(attacker.unconditionalAttackers, attacker.attackersThroughEnemyPawn,
-				defender.unconditionalAttackers, defender.attackersThroughEnemyPawn, AttackCombo.pieceCost(PieceType.PAWN));
+				defender.unconditionalAttackers, defender.attackersThroughEnemyPawn, AttackCombo.pieceCost('P'));
 		naturalOutcomeTargetMinor = MyLookupGenerator.calculateGain_pureAttacks(attacker.unconditionalAttackers, attacker.attackersThroughEnemyPawn,
-				defender.unconditionalAttackers, defender.attackersThroughEnemyPawn, AttackCombo.pieceCost(PieceType.KNIGHT));
+				defender.unconditionalAttackers, defender.attackersThroughEnemyPawn, AttackCombo.pieceCost('M'));
 		naturalOutcomeTargetRook = MyLookupGenerator.calculateGain_pureAttacks(attacker.unconditionalAttackers, attacker.attackersThroughEnemyPawn,
-				defender.unconditionalAttackers, defender.attackersThroughEnemyPawn, AttackCombo.pieceCost(PieceType.ROOK));
+				defender.unconditionalAttackers, defender.attackersThroughEnemyPawn, AttackCombo.pieceCost('R'));
 		naturalOutcomeTargetQueen = MyLookupGenerator.calculateGain_pureAttacks(attacker.unconditionalAttackers, attacker.attackersThroughEnemyPawn,
-				defender.unconditionalAttackers, defender.attackersThroughEnemyPawn, AttackCombo.pieceCost(PieceType.QUEEN));
+				defender.unconditionalAttackers, defender.attackersThroughEnemyPawn, AttackCombo.pieceCost('Q'));
 
 		matchupKey = (((long) attacker.serializedIntKey) << 32) | ((long) defender.serializedIntKey);
 		// TODO Auto-generated constructor stub

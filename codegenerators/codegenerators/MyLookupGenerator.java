@@ -23,7 +23,6 @@ import java.util.function.Function;
 import javax.management.openmbean.OpenMBeanParameterInfoSupport;
 
 import gamestate.Bitboard;
-import gamestate.GlobalConstants.PieceType;
 
 public class MyLookupGenerator {
 	MyLookupGenerator(){
@@ -31,15 +30,15 @@ public class MyLookupGenerator {
 	}
 	
 	
-	static void addToSelection(ArrayList<Integer>  arr, int arg, int num) {
+	static void addToSelection(ArrayList<Character>  arr, char arg, int num) {
 		for(int i=0; i<num; ++i)
 			arr.add(arg);
 	}
 	
-	static void generatePermutations(ArrayList<Integer> arr, int index, HashSet<ArrayList<Integer>> uniquePermutations) {
+	static void generatePermutations(ArrayList<Character> arr, int index, HashSet<ArrayList<Character>> uniquePermutations) {
         if (index == arr.size() - 1) {
         	if(!uniquePermutations.contains(arr)) {
-        		uniquePermutations.add(new ArrayList<Integer>(arr));
+        		uniquePermutations.add(new ArrayList<Character>(arr));
         		//System.out.println(arr.toString());
         	}
             return;
@@ -78,36 +77,36 @@ public class MyLookupGenerator {
 	 * Is only concerned with pawn attacks. not pushes!
 	 */
 	private void populateAttackCollection(){
-		ArrayList<ArrayList<Integer>> pawnSets = new ArrayList<ArrayList<Integer>>();
-		pawnSets.add(new ArrayList<Integer>());
-		pawnSets.add(new ArrayList<Integer>());
-		pawnSets.get(1).add(PieceType.PAWN);
+		ArrayList<ArrayList<Character>> pawnSets = new ArrayList<ArrayList<Character>>();
+		pawnSets.add(new ArrayList<Character>());
+		pawnSets.add(new ArrayList<Character>());
+		pawnSets.get(1).add('P');
 		
-		pawnSets.add(new ArrayList<Integer>());
-		pawnSets.get(2).add(PieceType.PAWN);
-		pawnSets.get(2).add(PieceType.PAWN);
+		pawnSets.add(new ArrayList<Character>());
+		pawnSets.get(2).add('P');
+		pawnSets.get(2).add('P');
 
-		ArrayList<ArrayList<Integer>> knightSets = new ArrayList<ArrayList<Integer>>();
-		knightSets.add(new ArrayList<Integer>());
-		knightSets.add(new ArrayList<Integer>());
-		knightSets.get(1).add(PieceType.KNIGHT);
-		knightSets.add(new ArrayList<Integer>());
-		knightSets.get(2).add(PieceType.KNIGHT);
-		knightSets.get(2).add(PieceType.KNIGHT);
+		ArrayList<ArrayList<Character>> knightSets = new ArrayList<ArrayList<Character>>();
+		knightSets.add(new ArrayList<Character>());
+		knightSets.add(new ArrayList<Character>());
+		knightSets.get(1).add('N');
+		knightSets.add(new ArrayList<Character>());
+		knightSets.get(2).add('N');
+		knightSets.get(2).add('N');
 		
 		
-		ArrayList<ArrayList<Integer>> kingSets = new ArrayList<ArrayList<Integer>>();
-		kingSets.add(new ArrayList<Integer>());
-		kingSets.add(new ArrayList<Integer>());
-		kingSets.get(1).add(PieceType.KING);
+		ArrayList<ArrayList<Character>> kingSets = new ArrayList<ArrayList<Character>>();
+		kingSets.add(new ArrayList<Character>());
+		kingSets.add(new ArrayList<Character>());
+		kingSets.get(1).add('K');
 		
 		int maxBishops = 1;
 		int maxRooks=2;
 		int maxQueens=2;
 		
 		int maxLength = 5;
-		ArrayList<Integer> selection = new ArrayList<Integer>(10);
-		HashSet<ArrayList<Integer>> uniqueSliderPermutations = new HashSet<ArrayList<Integer>>();
+		ArrayList<Character> selection = new ArrayList<Character>(10);
+		HashSet<ArrayList<Character>> uniqueSliderPermutations = new HashSet<ArrayList<Character>>();
 
 		
 		for(int b=0; b<=maxBishops; ++b)
@@ -115,24 +114,24 @@ public class MyLookupGenerator {
 				for(int q=0; q<=maxQueens; ++q) {
 					if(b+r+q<=maxLength) {
 						selection.clear();
-						addToSelection(selection, PieceType.BISHOP, b);
-						addToSelection(selection, PieceType.ROOK, r);
-						addToSelection(selection, PieceType.QUEEN, q);
+						addToSelection(selection, 'B', b);
+						addToSelection(selection, 'R', r);
+						addToSelection(selection, 'Q', q);
 						generatePermutations(selection, 0, uniqueSliderPermutations);
 					}
 				}
 		
-		ArrayList<ArrayList<Integer>> sliderSets = new ArrayList<ArrayList<Integer>>();
-		sliderSets.add(new ArrayList<Integer>());//HashSet<ArrayList<Character>> could not hold the empty set
+		ArrayList<ArrayList<Character>> sliderSets = new ArrayList<ArrayList<Character>>();
+		sliderSets.add(new ArrayList<Character>());//HashSet<ArrayList<Character>> could not hold the empty set
 		sliderSets.addAll(uniqueSliderPermutations);
 		
 		AttackCombo tempAS;
 		HashSet<AttackCombo> uniqueAttackCombinations = new HashSet<AttackCombo>();
 		
-		for(ArrayList<Integer> ps : pawnSets)
-			for(ArrayList<Integer> ns : knightSets)
-				for(ArrayList<Integer> ss : sliderSets)
-					for(ArrayList<Integer> ks : kingSets) {
+		for(ArrayList<Character> ps : pawnSets)
+			for(ArrayList<Character> ns : knightSets)
+				for(ArrayList<Character> ss : sliderSets)
+					for(ArrayList<Character> ks : kingSets) {
 						for(int numDirectAttackers=0; numDirectAttackers<=ss.size(); numDirectAttackers++) {//<= because we wan to execute the loop body even with empty set
 							tempAS=new AttackCombo();
 							tempAS.unconditionalAttackers.addAll(ps);
@@ -143,7 +142,7 @@ public class MyLookupGenerator {
 								tempAS.attackersThroughEnemyPawn.add(ss.get(di));
 							tempAS.unconditionalAttackers.addAll(ks);
 							tempAS.setSerializedIntKey();
-							if(tempAS.attackersThroughEnemyPawn.indexOf(PieceType.ROOK) == -1)
+							if(tempAS.attackersThroughEnemyPawn.indexOf('R') == -1)
 								uniqueAttackCombinations.add(tempAS);
 						}
 					}
@@ -206,16 +205,16 @@ public class MyLookupGenerator {
 	 * @param occupier - PieceType
 	 * @return
 	 */
-	static int calculateGain_pureAttacks(ArrayList<Integer> attacker_unconditionalAttackers, ArrayList<Integer> attacker_attackersThroughEnemyPawn,
-			ArrayList<Integer> defender_unconditionalAttackers, ArrayList<Integer> defender_attackersThroughEnemyPawn,int targetCost) {
+	static int calculateGain_pureAttacks(ArrayList<Character> attacker_unconditionalAttackers, ArrayList<Character> attacker_attackersThroughEnemyPawn,
+			ArrayList<Character> defender_unconditionalAttackers, ArrayList<Character> defender_attackersThroughEnemyPawn,int targetCost) {
 //		System.out.println(attacker.toString() + " vs. " + defender.toString());
-		int occupier;
-		ArrayDeque<Integer> attacker_attacks = new ArrayDeque<>(attacker_unconditionalAttackers);
-		ArrayDeque<Integer> attacker_conditionalAttacks = new ArrayDeque<>(attacker_attackersThroughEnemyPawn);
-		ArrayDeque<Integer> defender_attacks = new ArrayDeque<>(defender_unconditionalAttackers);
-		ArrayDeque<Integer> defender_conditionalAttacks = new ArrayDeque<>(defender_attackersThroughEnemyPawn);
+		Character occupier;
+		ArrayDeque<Character> attacker_attacks = new ArrayDeque<>(attacker_unconditionalAttackers);
+		ArrayDeque<Character> attacker_conditionalAttacks = new ArrayDeque<>(attacker_attackersThroughEnemyPawn);
+		ArrayDeque<Character> defender_attacks = new ArrayDeque<>(defender_unconditionalAttackers);
+		ArrayDeque<Character> defender_conditionalAttacks = new ArrayDeque<>(defender_attackersThroughEnemyPawn);
 		
-		ArrayDeque<Integer> attacks, conditionalAttacks;
+		ArrayDeque<Character> attacks, conditionalAttacks;
 		
 		//Follow static exchange evaluation algorithm here.
 		boolean attacker_opposite_pawn_condition_met = false, defender_opposite_pawn_condition_met = false, opposite_pawn_condition_met;
@@ -225,7 +224,7 @@ public class MyLookupGenerator {
 		do {
 			isAttackerTurn^=true;
 			//get next attacker
-			occupier=-1;
+			occupier=null;
 			if(isAttackerTurn) {
 				attacks = attacker_attacks;
 				conditionalAttacks=attacker_conditionalAttacks;	
@@ -241,16 +240,16 @@ public class MyLookupGenerator {
 			else if(attacks.isEmpty() && opposite_pawn_condition_met && !conditionalAttacks.isEmpty())
 				occupier=conditionalAttacks.removeFirst();
 			else if(!attacks.isEmpty() && opposite_pawn_condition_met && !conditionalAttacks.isEmpty()) {
-				if(attacks.peekFirst().intValue() < conditionalAttacks.peekFirst().intValue())
+				if(AttackCombo.isLesserAttacker(attacks.peekFirst(), conditionalAttacks.peekFirst()))
 					occupier=attacks.removeFirst();
 				else
 					occupier=conditionalAttacks.removeFirst();
 			}
 
 			
-			if(occupier == -1)
+			if(occupier == null)
 				break;
-			else if(occupier == PieceType.PAWN)
+			else if(occupier == 'P')
 				if(isAttackerTurn)
 					defender_opposite_pawn_condition_met=true;
 				else
@@ -301,9 +300,9 @@ public class MyLookupGenerator {
 	}
 	
 	static boolean verifyMatch(AttackCombo a, AttackCombo b) {
-		if(!a.attackersThroughEnemyPawn.isEmpty() && b.unconditionalAttackers.indexOf(PieceType.PAWN)==-1)
+		if(!a.attackersThroughEnemyPawn.isEmpty() && b.unconditionalAttackers.indexOf('P')==-1)
 			return false;
-		if(!b.attackersThroughEnemyPawn.isEmpty() && a.unconditionalAttackers.indexOf(PieceType.PAWN)==-1)
+		if(!b.attackersThroughEnemyPawn.isEmpty() && a.unconditionalAttackers.indexOf('P')==-1)
 			return false;
 		return true;
 	}

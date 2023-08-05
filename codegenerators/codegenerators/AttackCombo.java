@@ -4,12 +4,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import gamestate.GlobalConstants.PieceType;
-
 class AttackCombo implements Serializable {
 	// list of AttackSet.AttackSetType
-	ArrayList<Integer> unconditionalAttackers = new ArrayList<Integer>();
-	ArrayList<Integer> attackersThroughEnemyPawn = new ArrayList<Integer>();
+	ArrayList<Character> unconditionalAttackers = new ArrayList<Character>();
+	ArrayList<Character> attackersThroughEnemyPawn = new ArrayList<Character>();
 	int serializedIntKey = 0;
 
 	/**
@@ -23,18 +21,36 @@ class AttackCombo implements Serializable {
 	 * de-serialization. We are just trying to give unique integer representation to
 	 * attacks array.
 	 */
+	
+	static int getSerializedAttacker(char c) {
+		if(c == 'P')
+			return 0;
+		if(c == 'N' ||c == 'B' ||c == 'M')
+			return 1;
+		if(c == 'R')
+			return 2;
+		if(c == 'Q')
+			return 3;
+		if(c == 'K')
+			return 4;
+		throw new RuntimeException("Boo: " + c);
+	}
+	
 	void setSerializedIntKey() {
-		for (int a : attackersThroughEnemyPawn) {
+		
+		
+		
+		for (char c : attackersThroughEnemyPawn) {
 			serializedIntKey <<= 3;// 3 bits
-			serializedIntKey |= a;
+			serializedIntKey |= getSerializedAttacker(c);
 		}
-		if (unconditionalAttackers.isEmpty() || unconditionalAttackers.get(unconditionalAttackers.size() - 1) != PieceType.KING) {
+		if (unconditionalAttackers.isEmpty() || unconditionalAttackers.get(unconditionalAttackers.size() - 1) != 'K') {
 			serializedIntKey <<= 3;// 3 bits
-			serializedIntKey |= PieceType.NO_PIECE;
+			serializedIntKey |= 5;
 		}
 		for (int i = unconditionalAttackers.size() - 1; i >= 0; --i) {
 			serializedIntKey <<= 3;// 3 bits
-			serializedIntKey |= unconditionalAttackers.get(i);
+			serializedIntKey |= getSerializedAttacker(unconditionalAttackers.get(i));
 		}
 	}
 
@@ -54,10 +70,10 @@ class AttackCombo implements Serializable {
 		return Objects.hash(unconditionalAttackers, attackersThroughEnemyPawn);
 	}
 
-	public static String attackerListToString(ArrayList<Integer> attackers) {
+	public static String attackerListToString(ArrayList<Character> attackers) {
 		String ret="";
-		for(Integer i : attackers)
-			ret += PieceType.toString(i);
+		for(Character c : attackers)
+			ret += c;
 		return ret;
 	}
 	
@@ -76,32 +92,49 @@ class AttackCombo implements Serializable {
 	public String toCompressedAttackString() {
 		
 		String ret="";
-		for(Integer i : unconditionalAttackers)
-			ret += PieceType.toString(i);
+		for(Character c : unconditionalAttackers)
+			ret += c;
 		ret+="|";
-		for(Integer i : attackersThroughEnemyPawn)
-			ret += PieceType.toString(i);
+		for(Character c : attackersThroughEnemyPawn)
+			ret += c;
 		ret=ret.replace('N', 'M');
 		ret=ret.replace('B', 'M');
 		return ret;
 	}
 	
-	public static int pieceCost(int pt) {
-		assert PieceType.validate(pt);
+	public static int pieceCost(Character pt) {
 		switch (pt) {
-		case PieceType.PAWN:
+		case 'P':
 			return 100;
-		case PieceType.KNIGHT:
+		case 'N':
 			return 300;
-		case PieceType.BISHOP:
+		case 'B':
 			return 300;
-		case PieceType.ROOK:
+		case 'M':
+			return 300;
+		case 'R':
 			return 500;
-		case PieceType.QUEEN:
+		case 'Q':
 			return 1000;
-		case PieceType.KING:
+		case 'K':
 			return 1000000;
 		}
 		throw new RuntimeException("Unexpected value!");
+	}
+	
+	static boolean isLesserAttacker(char a, char b) {
+		if(a=='P') {
+			return b!='P';
+		}
+		else if(a=='N' || a=='B' || a=='M') {
+			return b=='R' || b=='Q' || b=='K';
+		}
+		else if(a=='R') {
+			return b=='Q' || b=='K';
+		}
+		else if(a=='Q') {
+			return b=='K';
+		}
+		return false;
 	}
 }
