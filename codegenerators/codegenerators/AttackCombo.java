@@ -37,7 +37,7 @@ class AttackCombo implements Serializable {
 	}
 	
 	void setSerializedIntKey() {
-		
+		//todo: use multiplication instead of bit shift for more condensed encoding.
 		
 		
 		for (char c : attackersThroughEnemyPawn) {

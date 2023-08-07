@@ -205,8 +205,8 @@ public class MyLookupGenerator {
 	 * @param occupier - PieceType
 	 * @return
 	 */
-	static int calculateGain_pureAttacks(ArrayList<Character> attacker_unconditionalAttackers, ArrayList<Character> attacker_attackersThroughEnemyPawn,
-			ArrayList<Character> defender_unconditionalAttackers, ArrayList<Character> defender_attackersThroughEnemyPawn,int targetCost) {
+	static int calculateGain_pureAttacks(List<Character> attacker_unconditionalAttackers, ArrayList<Character> attacker_attackersThroughEnemyPawn,
+			List<Character> defender_unconditionalAttackers, ArrayList<Character> defender_attackersThroughEnemyPawn,int targetCost) {
 //		System.out.println(attacker.toString() + " vs. " + defender.toString());
 		Character occupier;
 		ArrayDeque<Character> attacker_attacks = new ArrayDeque<>(attacker_unconditionalAttackers);
@@ -322,14 +322,30 @@ public class MyLookupGenerator {
 		matchups.trimToSize();
 		Collections.sort(matchups);
 		System.out.println("ArrayList<ComboMatchUp> is generated with this many records: " + matchups.size());
-		System.out.println("Matchup sample: "+ matchups.get(0).toStringNaturalAttacks());
-		System.out.println("Matchup sample: "+ matchups.get(1).toStringNaturalAttacks());
-		System.out.println("Matchup sample: "+ matchups.get(2).toStringNaturalAttacks());
-		System.out.println("Matchup sample: "+ matchups.get(3).toStringNaturalAttacks());
-		System.out.println("Matchup sample: "+ matchups.get(856).toStringNaturalAttacks());
-		System.out.println("Matchup sample: "+ matchups.get(2900).toStringNaturalAttacks());
-		System.out.println("Matchup sample: "+ matchups.get(45654).toStringNaturalAttacks());
-		System.out.println("Matchup sample: "+ matchups.get(1099689).toStringNaturalAttacks());
+		System.out.println("Matchup sample: "+ matchups.get(0).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(1).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(2).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(3).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(856).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(2900).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(30654).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(36654).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(40654).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(45654).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(50654).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(1069689).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(1079689).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(1099689).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(1119689).toVerboseString());
+		
+//this is wrong!!!
+//Matchup sample: long=[PPBRRQK|] short=[PPMRRQK|] serialized= 4322100 VS. long=[PQR|Q] short=[PQR|Q] serialized= 35230
+//natural attack payoffs per target: P=100 M=300 R=500 Q=1000 matchupKey=215104000000035230
+//  P M R Q  - attackers
+//P x . . . 
+//M x . . . 
+//R x . x . 
+//Q x . x x 
 		
 	}
 	
