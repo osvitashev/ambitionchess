@@ -621,5 +621,105 @@ class MyLookupGeneratorTest {
 				+ "R . x . . \n"
 				+ "Q . x . . \n",
 				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
+		
+		att = new AttackCombo();//8/8/8/1R1r4/4P3/5q2/6b1/8 w - - 0 1
+		def = new AttackCombo();
+		att.unconditionalAttackers.add('P');
+		att.unconditionalAttackers.add('R');
+		def.attackersThroughEnemyPawn.add('Q');
+		def.attackersThroughEnemyPawn.add('B');
+		matchup = new ComboMatchUp(att, def);
+		assertEquals("natural attack payoffs per target: P=100 M=300 R=500 Q=1000 matchupKey=0\n"
+				+ "  P M R Q  - attackers\n"
+				+ "P x . x . \n"
+				+ "M x . x . \n"
+				+ "R x . x . \n"
+				+ "Q x . x . \n",
+				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
+		
+		att = new AttackCombo();//8/8/8/1R1r4/4P3/5q2/6b1/8 w - - 0 1
+		def = new AttackCombo();
+		att.unconditionalAttackers.add('P');
+		att.unconditionalAttackers.add('R');
+		def.attackersThroughEnemyPawn.add('B');
+		def.attackersThroughEnemyPawn.add('Q');
+		matchup = new ComboMatchUp(att, def);
+		assertEquals("natural attack payoffs per target: P=0 M=200 R=400 Q=900 matchupKey=0\n"
+				+ "  P M R Q  - attackers\n"
+				+ "P . . x . \n"
+				+ "M x . x . \n"
+				+ "R x . x . \n"
+				+ "Q x . x . \n",
+				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
+		
+		att = new AttackCombo();//8/8/8/RQ1r4/4P3/8/6b1/7q w - - 0 1
+		def = new AttackCombo();
+		att.unconditionalAttackers.add('P');
+		att.unconditionalAttackers.add('Q');
+		att.unconditionalAttackers.add('R');
+		def.attackersThroughEnemyPawn.add('B');
+		def.attackersThroughEnemyPawn.add('Q');
+		matchup = new ComboMatchUp(att, def);
+		assertEquals("natural attack payoffs per target: P=100 M=300 R=500 Q=1000 matchupKey=0\n"
+				+ "  P M R Q  - attackers\n"
+				+ "P x . x x \n"
+				+ "M x . x x \n"
+				+ "R x . x x \n"
+				+ "Q x . x x \n",
+				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
+		
+		att = new AttackCombo();//8/8/8/RQ1p4/4P3/4n3/6b1/7q w - - 0 1
+		def = new AttackCombo();
+		att.unconditionalAttackers.add('P');
+		att.unconditionalAttackers.add('Q');
+		att.unconditionalAttackers.add('R');
+		def.unconditionalAttackers.add('N');
+		def.attackersThroughEnemyPawn.add('B');
+		def.attackersThroughEnemyPawn.add('Q');
+		matchup = new ComboMatchUp(att, def);
+		assertEquals("natural attack payoffs per target: P=0 M=200 R=400 Q=900 matchupKey=0\n"
+				+ "  P M R Q  - attackers\n"
+				+ "P . . . . \n"
+				+ "M x . . . \n"
+				+ "R x . x . \n"
+				+ "Q x . x x \n",
+				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
+		
+		att = new AttackCombo();//8/8/5N2/RQ1p4/4Pn2/4n3/6b1/7q w - - 0 1
+		def = new AttackCombo();
+		att.unconditionalAttackers.add('P');
+		att.unconditionalAttackers.add('N');
+		att.unconditionalAttackers.add('Q');
+		att.unconditionalAttackers.add('R');
+		def.unconditionalAttackers.add('N');
+		def.unconditionalAttackers.add('N');
+		def.attackersThroughEnemyPawn.add('B');
+		def.attackersThroughEnemyPawn.add('Q');
+		matchup = new ComboMatchUp(att, def);
+		assertEquals("natural attack payoffs per target: P=0 M=200 R=400 Q=900 matchupKey=0\n"
+				+ "  P M R Q  - attackers\n"
+				+ "P . . . . \n"
+				+ "M x x . . \n"
+				+ "R x x x . \n"
+				+ "Q x x x x \n",
+				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
+		
+		att = new AttackCombo();//6q1/5b2/2k1p3/3r2RQ/8/4N3/8/8 w - - 0 1
+		def = new AttackCombo();
+		att.unconditionalAttackers.add('N');
+		att.unconditionalAttackers.add('R');
+		att.unconditionalAttackers.add('Q');
+		def.unconditionalAttackers.add('P');
+		def.unconditionalAttackers.add('B');
+		def.unconditionalAttackers.add('Q');
+		def.unconditionalAttackers.add('K');
+		matchup = new ComboMatchUp(att, def);
+		assertEquals("natural attack payoffs per target: P=0 M=0 R=200 Q=700 matchupKey=0\n"
+				+ "  P M R Q  - attackers\n"
+				+ "P . . . . \n"
+				+ "M . . . . \n"
+				+ "R . x . . \n"
+				+ "Q . x x . \n",
+				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
 	}
 }
