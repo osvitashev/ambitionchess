@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
 
-class AttackCombo implements Serializable {
+class AttackSequence implements Serializable {
 	// list of AttackSet.AttackSetType
 	ArrayList<Character> unconditionalAttackers = new ArrayList<Character>();
 	ArrayList<Character> attackersThroughEnemyPawn = new ArrayList<Character>();
@@ -24,15 +24,15 @@ class AttackCombo implements Serializable {
 	
 	static int getSerializedAttacker(char c) {
 		if(c == 'P')
-			return 0;
-		if(c == 'N' ||c == 'B' ||c == 'M')
 			return 1;
-		if(c == 'R')
+		if(c == 'N' ||c == 'B' ||c == 'M')
 			return 2;
-		if(c == 'Q')
+		if(c == 'R')
 			return 3;
-		if(c == 'K')
+		if(c == 'Q')
 			return 4;
+		if(c == 'K')
+			return 5;
 		throw new RuntimeException("Boo: " + c);
 	}
 	
@@ -41,16 +41,16 @@ class AttackCombo implements Serializable {
 		
 		
 		for (char c : attackersThroughEnemyPawn) {
-			serializedIntKey <<= 3;// 3 bits
-			serializedIntKey |= getSerializedAttacker(c);
+			serializedIntKey *=6;
+			serializedIntKey += getSerializedAttacker(c);
 		}
 		if (unconditionalAttackers.isEmpty() || unconditionalAttackers.get(unconditionalAttackers.size() - 1) != 'K') {
-			serializedIntKey <<= 3;// 3 bits
-			serializedIntKey |= 5;
+			serializedIntKey *=6;
+			//insert blank
 		}
 		for (int i = unconditionalAttackers.size() - 1; i >= 0; --i) {
-			serializedIntKey <<= 3;// 3 bits
-			serializedIntKey |= getSerializedAttacker(unconditionalAttackers.get(i));
+			serializedIntKey *=6;
+			serializedIntKey += getSerializedAttacker(unconditionalAttackers.get(i));
 		}
 	}
 
@@ -60,7 +60,7 @@ class AttackCombo implements Serializable {
 			return true;
 		if (o == null || getClass() != o.getClass())
 			return false;
-		AttackCombo other = (AttackCombo) o;
+		AttackSequence other = (AttackSequence) o;
 		return unconditionalAttackers.equals(other.unconditionalAttackers) && attackersThroughEnemyPawn.equals(other.attackersThroughEnemyPawn);
 		//return toCompressedAttackString().equals(other.toCompressedAttackString());
 	}

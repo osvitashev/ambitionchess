@@ -56,9 +56,9 @@ public class MyLookupGenerator {
 	 * and
 	 * 3k4/7K/8/3r4/2P1P3/5b2/6q1/8 w - - 0 1
 	 */
-	private ArrayList<AttackCombo> attackCollection=new ArrayList<>();
+	private ArrayList<AttackSequence> attackCollection=new ArrayList<>();
 	
-	boolean isFeasibleAttackCombo(AttackCombo ac) {
+	boolean isFeasibleAttackCombo(AttackSequence ac) {
 		if(ac.toString().indexOf("RB") != -1)
 			return false;
 		if(ac.toString().indexOf("QBR") != -1)
@@ -125,15 +125,15 @@ public class MyLookupGenerator {
 		sliderSets.add(new ArrayList<Character>());//HashSet<ArrayList<Character>> could not hold the empty set
 		sliderSets.addAll(uniqueSliderPermutations);
 		
-		AttackCombo tempAS;
-		HashSet<AttackCombo> uniqueAttackCombinations = new HashSet<AttackCombo>();
+		AttackSequence tempAS;
+		HashSet<AttackSequence> uniqueAttackCombinations = new HashSet<AttackSequence>();
 		
 		for(ArrayList<Character> ps : pawnSets)
 			for(ArrayList<Character> ns : knightSets)
 				for(ArrayList<Character> ss : sliderSets)
 					for(ArrayList<Character> ks : kingSets) {
 						for(int numDirectAttackers=0; numDirectAttackers<=ss.size(); numDirectAttackers++) {//<= because we wan to execute the loop body even with empty set
-							tempAS=new AttackCombo();
+							tempAS=new AttackSequence();
 							tempAS.unconditionalAttackers.addAll(ps);
 							tempAS.unconditionalAttackers.addAll(ns);
 							for(int di=0;di<numDirectAttackers;++di)
@@ -147,10 +147,10 @@ public class MyLookupGenerator {
 						}
 					}
 		
-		ArrayList<AttackCombo> tempholder = new ArrayList<>(uniqueAttackCombinations);
+		ArrayList<AttackSequence> tempholder = new ArrayList<>(uniqueAttackCombinations);
 		
 		
-		for(AttackCombo ac : tempholder)
+		for(AttackSequence ac : tempholder)
 			if(isFeasibleAttackCombo(ac))
 				attackCollection.add(ac);
 		
@@ -175,7 +175,7 @@ public class MyLookupGenerator {
 					return 1;
             return 0;
         });
-		for(AttackCombo gl : attackCollection)
+		for(AttackSequence gl : attackCollection)
 			System.out.println(gl.toString());
 		System.out.println("pawnSets: " + pawnSets.size());
 		System.out.println("knightSets: " + knightSets.size());
@@ -185,8 +185,8 @@ public class MyLookupGenerator {
 		
 		
 		//maps short attack string to attack combo
-		HashMap<String, AttackCombo> dedupe= new HashMap<>();
-		for(AttackCombo ac : attackCollection) {
+		HashMap<String, AttackSequence> dedupe= new HashMap<>();
+		for(AttackSequence ac : attackCollection) {
 			if(!dedupe.containsKey(ac.toCompressedAttackString())) {
 				dedupe.put(ac.toCompressedAttackString(), ac);
 			}
@@ -195,6 +195,21 @@ public class MyLookupGenerator {
 		attackCollection=new ArrayList<>(dedupe.values());
 		attackCollection.trimToSize();
 		System.out.println("deduped grandAttackCollection.size: " + attackCollection.size());
+		
+		int minKey=Integer.MAX_VALUE, maxKey=Integer.MIN_VALUE;
+		Set<Integer> keysSet = new HashSet<>();
+		for(AttackSequence ac : attackCollection) {
+			keysSet.add(ac.serializedIntKey);
+			if(ac.serializedIntKey<minKey)
+				minKey=ac.serializedIntKey;
+			if(ac.serializedIntKey>maxKey)
+				maxKey=ac.serializedIntKey;
+		}
+		if(keysSet.size()==attackCollection.size())
+			System.out.println("All good: the attack sequences all have unique keys.");
+		else
+			System.out.println("SOMETHING IS WRONG!!!!!!!!!!!!!!!!!!!!!!!! NOT ALL attack sequences all have unique keys!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		System.out.println("Keys of grandAttackCollection: min="+minKey + " max="+maxKey);
 	}
 	
 	
@@ -240,7 +255,7 @@ public class MyLookupGenerator {
 			else if(attacks.isEmpty() && opposite_pawn_condition_met && !conditionalAttacks.isEmpty())
 				occupier=conditionalAttacks.removeFirst();
 			else if(!attacks.isEmpty() && opposite_pawn_condition_met && !conditionalAttacks.isEmpty()) {
-				if(AttackCombo.isLesserAttacker(attacks.peekFirst(), conditionalAttacks.peekFirst()))
+				if(AttackSequence.isLesserAttacker(attacks.peekFirst(), conditionalAttacks.peekFirst()))
 					occupier=attacks.removeFirst();
 				else
 					occupier=conditionalAttacks.removeFirst();
@@ -257,7 +272,7 @@ public class MyLookupGenerator {
 				
 //			System.out.println("isAttackerTurn: "+ isAttackerTurn+ " and occupier: "+ PieceType.toString(occupier));
 			
-			occupationValueHistory.add((isAttackerTurn ? 1 : -1) *(AttackCombo.pieceCost(occupier)));//gain[d]  = value[aPiece] - gain[d-1]; // speculative store, if defended
+			occupationValueHistory.add((isAttackerTurn ? 1 : -1) *(AttackSequence.pieceCost(occupier)));//gain[d]  = value[aPiece] - gain[d-1]; // speculative store, if defended
 
 		}while(true);
 		
@@ -299,7 +314,7 @@ public class MyLookupGenerator {
 			
 	}
 	
-	static boolean verifyMatch(AttackCombo a, AttackCombo b) {
+	static boolean verifyMatch(AttackSequence a, AttackSequence b) {
 		if(!a.attackersThroughEnemyPawn.isEmpty() && b.unconditionalAttackers.indexOf('P')==-1)
 			return false;
 		if(!b.attackersThroughEnemyPawn.isEmpty() && a.unconditionalAttackers.indexOf('P')==-1)
@@ -337,6 +352,21 @@ public class MyLookupGenerator {
 		System.out.println("Matchup sample: "+ matchups.get(1079689).toVerboseString());
 		System.out.println("Matchup sample: "+ matchups.get(1099689).toVerboseString());
 		System.out.println("Matchup sample: "+ matchups.get(1119689).toVerboseString());
+		
+		Long minKey=Long.MAX_VALUE, maxKey=Long.MIN_VALUE;
+		Set<Long> keysSet = new HashSet<>();
+		for(ComboMatchUp cmu : matchups) {
+			keysSet.add(cmu.matchupKey);
+			if(cmu.matchupKey<minKey)
+				minKey=cmu.matchupKey;
+			if(cmu.matchupKey>maxKey)
+				maxKey=cmu.matchupKey;
+		}
+		if(keysSet.size()==matchups.size())
+			System.out.println("All good: the matchups all have unique keys.");
+		else
+			System.out.println("SOMETHING IS WRONG!!!!!!!!!!!!!!!!!!!!!!!! NOT ALL matchups all have unique keys!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		System.out.println("Keys of matchups: min="+minKey + " max="+maxKey);
 		
 //this is wrong!!!
 //Matchup sample: long=[PPBRRQK|] short=[PPMRRQK|] serialized= 4322100 VS. long=[PQR|Q] short=[PQR|Q] serialized= 35230
@@ -376,6 +406,9 @@ public class MyLookupGenerator {
 
 	
 	public static void main(String[] args) {
+		String javaVersion = System.getProperty("java.specification.version");
+        System.out.println("Java Version: " + javaVersion);
+		
 		MyLookupGenerator myGenerator = new MyLookupGenerator();
 
 		//myGenerator.generateAndWriteMatchupCollection();
@@ -415,6 +448,17 @@ public class MyLookupGenerator {
 		System.out.println("Attack natural payoff distribution: ["+htg.size()+"]");
 		System.out.println(htg);
     
+		
+		int whatIfValue;
+		HashMap<Integer, Integer> htg2 = new HashMap<>();
+		for(ComboMatchUp cmu : myGenerator.matchups) {
+			whatIfValue=cmu.whatIfMatrix;
+			htg2.put(whatIfValue, 1+htg2.getOrDefault(whatIfValue, 0));
+		}
+		System.out.println("WhatIf distribution: ["+htg2.size()+"]");
+		System.out.println(htg2);
+		
+
         
 	}//main
 

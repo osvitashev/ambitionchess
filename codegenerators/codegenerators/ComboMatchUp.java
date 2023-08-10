@@ -7,25 +7,27 @@ import java.util.List;
 import exchange.control.AttackSet;
 
 public class ComboMatchUp implements Serializable, Comparable<ComboMatchUp> {
-	AttackCombo attacker, defender;
+	AttackSequence attacker, defender;
 	long matchupKey;
 	int whatIfMatrix=0;
 
 	int naturalOutcomeTargetPawn, naturalOutcomeTargetMinor, naturalOutcomeTargetRook, naturalOutcomeTargetQueen;
 
-	public ComboMatchUp(AttackCombo a, AttackCombo b) {
+	public ComboMatchUp(AttackSequence a, AttackSequence b) {
 		attacker = a;
 		defender = b;
 		naturalOutcomeTargetPawn = MyLookupGenerator.calculateGain_pureAttacks(attacker.unconditionalAttackers, attacker.attackersThroughEnemyPawn,
-				defender.unconditionalAttackers, defender.attackersThroughEnemyPawn, AttackCombo.pieceCost('P'));
+				defender.unconditionalAttackers, defender.attackersThroughEnemyPawn, AttackSequence.pieceCost('P'));
 		naturalOutcomeTargetMinor = MyLookupGenerator.calculateGain_pureAttacks(attacker.unconditionalAttackers, attacker.attackersThroughEnemyPawn,
-				defender.unconditionalAttackers, defender.attackersThroughEnemyPawn, AttackCombo.pieceCost('M'));
+				defender.unconditionalAttackers, defender.attackersThroughEnemyPawn, AttackSequence.pieceCost('M'));
 		naturalOutcomeTargetRook = MyLookupGenerator.calculateGain_pureAttacks(attacker.unconditionalAttackers, attacker.attackersThroughEnemyPawn,
-				defender.unconditionalAttackers, defender.attackersThroughEnemyPawn, AttackCombo.pieceCost('R'));
+				defender.unconditionalAttackers, defender.attackersThroughEnemyPawn, AttackSequence.pieceCost('R'));
 		naturalOutcomeTargetQueen = MyLookupGenerator.calculateGain_pureAttacks(attacker.unconditionalAttackers, attacker.attackersThroughEnemyPawn,
-				defender.unconditionalAttackers, defender.attackersThroughEnemyPawn, AttackCombo.pieceCost('Q'));
-
-		matchupKey = (((long) attacker.serializedIntKey) << 32) | ((long) defender.serializedIntKey);
+				defender.unconditionalAttackers, defender.attackersThroughEnemyPawn, AttackSequence.pieceCost('Q'));
+		
+		//58393087 = the max value of serialized attack sequence key!!!!
+		// we are adding 1 to it.
+		matchupKey = (((long) attacker.serializedIntKey) *58393088L) + ((long) defender.serializedIntKey);
 		
 		/**
 		 * note: N and B are represented by their own codes instead of M
@@ -54,9 +56,9 @@ public class ComboMatchUp implements Serializable, Comparable<ComboMatchUp> {
 						index = copyWithoutFirstMatch.indexOf(fa);
 						copyWithoutFirstMatch.subList(index, index + 1).clear();
 						tempEval = MyLookupGenerator.calculateGain_pureAttacks(defender.unconditionalAttackers, defender.attackersThroughEnemyPawn,
-								copyWithoutFirstMatch, attacker.attackersThroughEnemyPawn, AttackCombo.pieceCost(fa));
+								copyWithoutFirstMatch, attacker.attackersThroughEnemyPawn, AttackSequence.pieceCost(fa));
 	//This is not correct - temp eval is missing one last call to minimax!!!!
-						tempEval=Math.max(0, AttackCombo.pieceCost(t)-tempEval);
+						tempEval=Math.max(0, AttackSequence.pieceCost(t)-tempEval);
 						
 						if(tempEval>0)
 							whatIfMatrix=setWhatIf(whatIfMatrix, fa, t);
@@ -101,7 +103,7 @@ public class ComboMatchUp implements Serializable, Comparable<ComboMatchUp> {
 			|target.equals('R')|target.equals('Q');
 		assert forcedAttacker.equals('P')|forcedAttacker.equals('N')|forcedAttacker.equals('B')
 			|forcedAttacker.equals('M')|forcedAttacker.equals('R')|forcedAttacker.equals('Q');
-		int index=AttackCombo.getSerializedAttacker(target)*4+AttackCombo.getSerializedAttacker(forcedAttacker);
+		int index=AttackSequence.getSerializedAttacker(target)*4+AttackSequence.getSerializedAttacker(forcedAttacker);
 		return (whatIfMatrix & (1<<index)) !=0;
 	}
 	
@@ -111,7 +113,7 @@ public class ComboMatchUp implements Serializable, Comparable<ComboMatchUp> {
 			|target.equals('R')|target.equals('Q');
 		assert forcedAttacker.equals('P')|forcedAttacker.equals('N')|forcedAttacker.equals('B')
 			|forcedAttacker.equals('M')|forcedAttacker.equals('R')|forcedAttacker.equals('Q');
-		int index=AttackCombo.getSerializedAttacker(target)*4+AttackCombo.getSerializedAttacker(forcedAttacker);
+		int index=AttackSequence.getSerializedAttacker(target)*4+AttackSequence.getSerializedAttacker(forcedAttacker);
 		return (whatIfMatrix | (1<<index));
 	}
 	

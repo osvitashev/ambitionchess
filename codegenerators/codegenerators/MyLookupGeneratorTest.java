@@ -61,14 +61,14 @@ class MyLookupGeneratorTest {
 
 	@Test
 	void testAttackComboOperations() {
-		AttackCombo ac = new AttackCombo();
+		AttackSequence ac = new AttackSequence();
 		ac.unconditionalAttackers.add('N');
 		ac.unconditionalAttackers.add('R');
 		ac.unconditionalAttackers.add('K');
 		ac.setSerializedIntKey();
 		assertEquals("long=[NRK|] short=[MRK|] serialized= 421", ac.toString());
 
-		ac = new AttackCombo();
+		ac = new AttackSequence();
 		ac.unconditionalAttackers.add('P');
 		ac.unconditionalAttackers.add('P');
 		ac.unconditionalAttackers.add('R');
@@ -80,7 +80,7 @@ class MyLookupGeneratorTest {
 		ac.setSerializedIntKey();
 		assertEquals("long=[PPRRQK|BQ] short=[PPRRQK|MQ] serialized= 13432200", ac.toString());
 
-		ac = new AttackCombo();
+		ac = new AttackSequence();
 		ac.unconditionalAttackers.add('N');
 		ac.unconditionalAttackers.add('B');
 		ac.unconditionalAttackers.add('R');
@@ -91,37 +91,37 @@ class MyLookupGeneratorTest {
 		ac.setSerializedIntKey();
 		assertEquals("long=[NBRQRK|Q] short=[MMRQRK|Q] serialized= 3423211", ac.toString());
 
-		ac = new AttackCombo();
+		ac = new AttackSequence();
 		ac.attackersThroughEnemyPawn.add('Q');
 		ac.attackersThroughEnemyPawn.add('B');
 		ac.attackersThroughEnemyPawn.add('Q');
 		ac.setSerializedIntKey();
 		assertEquals("long=[|QBQ] short=[|QMQ] serialized= 3135", ac.toString());
 
-		ac = new AttackCombo();
+		ac = new AttackSequence();
 		ac.setSerializedIntKey();
 		assertEquals("long=[|] short=[|] serialized= 5", ac.toString());
 
-		ac = new AttackCombo();
+		ac = new AttackSequence();
 		ac.unconditionalAttackers.add('K');
 		ac.setSerializedIntKey();
 		assertEquals("long=[K|] short=[K|] serialized= 4", ac.toString());
 
-		ac = new AttackCombo();
+		ac = new AttackSequence();
 		ac.unconditionalAttackers.add('K');
 		ac.attackersThroughEnemyPawn.add('B');
 		ac.setSerializedIntKey();
 		assertEquals("long=[K|B] short=[K|M] serialized= 14", ac.toString());
 
-		ac = new AttackCombo();
+		ac = new AttackSequence();
 		ac.unconditionalAttackers.add('P');
 		ac.unconditionalAttackers.add('P');
 		ac.setSerializedIntKey();
 		assertEquals("long=[PP|] short=[PP|] serialized= 500", ac.toString());
 	}
 
-	private AttackCombo populateAttackCombo(Character... attackers) {
-		AttackCombo ac = new AttackCombo();
+	private AttackSequence populateAttackCombo(Character... attackers) {
+		AttackSequence ac = new AttackSequence();
 		for (Character a : attackers) {
 			ac.unconditionalAttackers.add(a);
 		}
@@ -149,46 +149,46 @@ class MyLookupGeneratorTest {
 		}
 	}
 
-	private AttackCombo populateAttackCombo(String unconditionalAttackers, String conditionalAttackers) {
-		AttackCombo ac = new AttackCombo();
+	private AttackSequence populateAttackCombo(String unconditionalAttackers, String conditionalAttackers) {
+		AttackSequence ac = new AttackSequence();
 		helper_add_attackers(ac.unconditionalAttackers, unconditionalAttackers);
 		helper_add_attackers(ac.attackersThroughEnemyPawn, conditionalAttackers);
 		return ac;
 	}
 
-	private AttackCombo populateAttackCombo(String attackers) {
-		AttackCombo ac = new AttackCombo();
+	private AttackSequence populateAttackCombo(String attackers) {
+		AttackSequence ac = new AttackSequence();
 		helper_add_attackers(ac.unconditionalAttackers, attackers);
 		return ac;
 	}
 
 	@Test
 	void test_calculateGain_pureAttacks() {
-		AttackCombo att, def;
+		AttackSequence att, def;
 		/// tests fair captures and recaptures with no backstabbed pawns
-		att = new AttackCombo();
-		def = new AttackCombo();
+		att = new AttackSequence();
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('R');
 		assertEquals(100, MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn,
 				def.unconditionalAttackers, def.attackersThroughEnemyPawn, 100));
 
-		att = new AttackCombo();
-		def = new AttackCombo();
+		att = new AttackSequence();
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('N');
 		def.unconditionalAttackers.add('P');
 		assertEquals(200, MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn,
 				def.unconditionalAttackers, def.attackersThroughEnemyPawn, 500));
 
-		att = new AttackCombo();
-		def = new AttackCombo();
+		att = new AttackSequence();
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('N');
 		att.unconditionalAttackers.add('K');
 		def.unconditionalAttackers.add('P');
 		assertEquals(300, MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn,
 				def.unconditionalAttackers, def.attackersThroughEnemyPawn, 500));
 
-		att = new AttackCombo();
-		def = new AttackCombo();
+		att = new AttackSequence();
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('N');
 		att.unconditionalAttackers.add('K');
 		def.unconditionalAttackers.add('P');
@@ -196,8 +196,8 @@ class MyLookupGeneratorTest {
 		assertEquals(200, MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn,
 				def.unconditionalAttackers, def.attackersThroughEnemyPawn, 500));
 
-		att = new AttackCombo();
-		def = new AttackCombo();
+		att = new AttackSequence();
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('N');
 		att.unconditionalAttackers.add('K');
 		def.unconditionalAttackers.add('P');
@@ -205,36 +205,36 @@ class MyLookupGeneratorTest {
 		assertEquals(200, MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn,
 				def.unconditionalAttackers, def.attackersThroughEnemyPawn, 500));
 
-		att = new AttackCombo();
-		def = new AttackCombo();
+		att = new AttackSequence();
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('R');
 		def.unconditionalAttackers.add('K');
 		assertEquals(0, MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn,
 				def.unconditionalAttackers, def.attackersThroughEnemyPawn, 100));
 
-		att = new AttackCombo();
-		def = new AttackCombo();
+		att = new AttackSequence();
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('R');
 		def.unconditionalAttackers.add('K');
 		assertEquals(0, MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn,
 				def.unconditionalAttackers, def.attackersThroughEnemyPawn, 300));
 
-		att = new AttackCombo();
-		def = new AttackCombo();
+		att = new AttackSequence();
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('R');
 		def.unconditionalAttackers.add('K');
 		assertEquals(0, MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn,
 				def.unconditionalAttackers, def.attackersThroughEnemyPawn, 300));
 
-		att = new AttackCombo();
-		def = new AttackCombo();
+		att = new AttackSequence();
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('R');
 		def.unconditionalAttackers.add('K');
 		assertEquals(0, MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn,
 				def.unconditionalAttackers, def.attackersThroughEnemyPawn, 500));
 
-		att = new AttackCombo();
-		def = new AttackCombo();
+		att = new AttackSequence();
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('B');
 		att.unconditionalAttackers.add('R');
 		def.unconditionalAttackers.add('R');
@@ -242,8 +242,8 @@ class MyLookupGeneratorTest {
 		assertEquals(0, MyLookupGenerator.calculateGain_pureAttacks(att.unconditionalAttackers, att.attackersThroughEnemyPawn,
 				def.unconditionalAttackers, def.attackersThroughEnemyPawn, 300));
 
-		att = new AttackCombo();
-		def = new AttackCombo();
+		att = new AttackSequence();
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('N');
 		att.unconditionalAttackers.add('B');
 		def.unconditionalAttackers.add('R');
@@ -391,11 +391,11 @@ class MyLookupGeneratorTest {
 	
 	@Test
 	void testMatchUps() {
-		AttackCombo att, def;
+		AttackSequence att, def;
 		ComboMatchUp matchup;
 		
-		att = new AttackCombo();
-		def = new AttackCombo();
+		att = new AttackSequence();
+		def = new AttackSequence();
 		matchup = new ComboMatchUp(att, def);
 		assertEquals("natural attack payoffs per target: P=0 M=0 R=0 Q=0 matchupKey=0\n"
 				+ "  P M R Q  - attackers\n"
@@ -405,8 +405,8 @@ class MyLookupGeneratorTest {
 				+ "Q . . . . \n",
 				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
 		
-		att = new AttackCombo();
-		def = new AttackCombo();
+		att = new AttackSequence();
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('P');
 		matchup = new ComboMatchUp(att, def);
 		assertEquals("natural attack payoffs per target: P=100 M=300 R=500 Q=1000 matchupKey=0\n"
@@ -417,8 +417,8 @@ class MyLookupGeneratorTest {
 				+ "Q x . . . \n",
 				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
 		
-		att = new AttackCombo();
-		def = new AttackCombo();
+		att = new AttackSequence();
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('B');
 		matchup = new ComboMatchUp(att, def);
 		assertEquals("natural attack payoffs per target: P=100 M=300 R=500 Q=1000 matchupKey=0\n"
@@ -429,8 +429,8 @@ class MyLookupGeneratorTest {
 				+ "Q . x . . \n",
 				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
 		
-		att = new AttackCombo();
-		def = new AttackCombo();
+		att = new AttackSequence();
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('N');
 		matchup = new ComboMatchUp(att, def);
 		assertEquals("natural attack payoffs per target: P=100 M=300 R=500 Q=1000 matchupKey=0\n"
@@ -441,8 +441,8 @@ class MyLookupGeneratorTest {
 				+ "Q . x . . \n",
 				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
 		
-		att = new AttackCombo();
-		def = new AttackCombo();
+		att = new AttackSequence();
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('R');
 		matchup = new ComboMatchUp(att, def);
 		assertEquals("natural attack payoffs per target: P=100 M=300 R=500 Q=1000 matchupKey=0\n"
@@ -453,8 +453,8 @@ class MyLookupGeneratorTest {
 				+ "Q . . x . \n",
 				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
 		
-		att = new AttackCombo();
-		def = new AttackCombo();
+		att = new AttackSequence();
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('Q');
 		matchup = new ComboMatchUp(att, def);
 		assertEquals("natural attack payoffs per target: P=100 M=300 R=500 Q=1000 matchupKey=0\n"
@@ -465,8 +465,8 @@ class MyLookupGeneratorTest {
 				+ "Q . . . x \n",
 				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
 		
-		att = new AttackCombo();
-		def = new AttackCombo();
+		att = new AttackSequence();
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('K');
 		matchup = new ComboMatchUp(att, def);
 		assertEquals("natural attack payoffs per target: P=100 M=300 R=500 Q=1000 matchupKey=0\n"
@@ -477,8 +477,8 @@ class MyLookupGeneratorTest {
 				+ "Q . . . . \n",
 				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
 
-		att = new AttackCombo();
-		def = new AttackCombo();
+		att = new AttackSequence();
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('P');
 		att.unconditionalAttackers.add('N');
 		att.unconditionalAttackers.add('R');
@@ -493,8 +493,8 @@ class MyLookupGeneratorTest {
 				+ "Q x x x x \n",
 				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
 		
-		att = new AttackCombo();
-		def = new AttackCombo();
+		att = new AttackSequence();
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('P');
 		att.unconditionalAttackers.add('N');
 		att.unconditionalAttackers.add('Q');
@@ -509,8 +509,8 @@ class MyLookupGeneratorTest {
 				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
 //attacks and defences
 		
-		att = new AttackCombo();//8/1k6/5n2/3r2r1/8/2NRN3/8/8 w - - 0 1
-		def = new AttackCombo();
+		att = new AttackSequence();//8/1k6/5n2/3r2r1/8/2NRN3/8/8 w - - 0 1
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('N');
 		att.unconditionalAttackers.add('N');
 		att.unconditionalAttackers.add('R');
@@ -525,8 +525,8 @@ class MyLookupGeneratorTest {
 				+ "Q . x x . \n",
 				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
 		
-		att = new AttackCombo();//8/1k6/5n2/3b2r1/8/3RN3/3R4/8 w - - 0 1
-		def = new AttackCombo();
+		att = new AttackSequence();//8/1k6/5n2/3b2r1/8/3RN3/3R4/8 w - - 0 1
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('N');
 		att.unconditionalAttackers.add('R');
 		att.unconditionalAttackers.add('R');
@@ -541,8 +541,8 @@ class MyLookupGeneratorTest {
 				+ "Q . x x . \n",
 				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
 		
-		att = new AttackCombo();//8/7k/5n2/1Q1b2r1/8/3R4/3R4/8 w - - 0 1
-		def = new AttackCombo();
+		att = new AttackSequence();//8/7k/5n2/1Q1b2r1/8/3R4/3R4/8 w - - 0 1
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('R');
 		att.unconditionalAttackers.add('R');
 		att.unconditionalAttackers.add('Q');
@@ -557,8 +557,8 @@ class MyLookupGeneratorTest {
 				+ "Q . . x x \n",
 				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
 		
-		att = new AttackCombo();//8/4n2k/5n2/1Q1b2r1/8/3R4/3R4/8 w - - 0 1
-		def = new AttackCombo();
+		att = new AttackSequence();//8/4n2k/5n2/1Q1b2r1/8/3R4/3R4/8 w - - 0 1
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('R');
 		att.unconditionalAttackers.add('R');
 		att.unconditionalAttackers.add('Q');
@@ -574,8 +574,8 @@ class MyLookupGeneratorTest {
 				+ "Q . . x . \n",
 				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
 		
-		att = new AttackCombo();//3r4/1b6/2p5/3b4/8/1BN1N3/8/8 w - - 0 1
-		def = new AttackCombo();
+		att = new AttackSequence();//3r4/1b6/2p5/3b4/8/1BN1N3/8/8 w - - 0 1
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('N');
 		att.unconditionalAttackers.add('N');
 		att.unconditionalAttackers.add('B');
@@ -591,8 +591,8 @@ class MyLookupGeneratorTest {
 				+ "Q . x . . \n",
 				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
 		
-		att = new AttackCombo();//3r4/1B6/2p5/3b4/8/4N3/8/8 w - - 0 1
-		def = new AttackCombo();
+		att = new AttackSequence();//3r4/1B6/2p5/3b4/8/4N3/8/8 w - - 0 1
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('N');
 		att.attackersThroughEnemyPawn.add('B');
 		def.unconditionalAttackers.add('P');
@@ -606,8 +606,8 @@ class MyLookupGeneratorTest {
 				+ "Q . x . . \n",
 				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
 		
-		att = new AttackCombo();//Q2r4/1B6/2p5/3b4/8/4N3/8/8 w - - 0 1
-		def = new AttackCombo();
+		att = new AttackSequence();//Q2r4/1B6/2p5/3b4/8/4N3/8/8 w - - 0 1
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('N');
 		att.attackersThroughEnemyPawn.add('B');
 		att.attackersThroughEnemyPawn.add('Q');
@@ -622,8 +622,8 @@ class MyLookupGeneratorTest {
 				+ "Q . x . . \n",
 				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
 		
-		att = new AttackCombo();//8/8/8/1R1r4/4P3/5q2/6b1/8 w - - 0 1
-		def = new AttackCombo();
+		att = new AttackSequence();//8/8/8/1R1r4/4P3/5q2/6b1/8 w - - 0 1
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('P');
 		att.unconditionalAttackers.add('R');
 		def.attackersThroughEnemyPawn.add('Q');
@@ -637,8 +637,8 @@ class MyLookupGeneratorTest {
 				+ "Q x . x . \n",
 				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
 		
-		att = new AttackCombo();//8/8/8/1R1r4/4P3/5q2/6b1/8 w - - 0 1
-		def = new AttackCombo();
+		att = new AttackSequence();//8/8/8/1R1r4/4P3/5q2/6b1/8 w - - 0 1
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('P');
 		att.unconditionalAttackers.add('R');
 		def.attackersThroughEnemyPawn.add('B');
@@ -652,8 +652,8 @@ class MyLookupGeneratorTest {
 				+ "Q x . x . \n",
 				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
 		
-		att = new AttackCombo();//8/8/8/RQ1r4/4P3/8/6b1/7q w - - 0 1
-		def = new AttackCombo();
+		att = new AttackSequence();//8/8/8/RQ1r4/4P3/8/6b1/7q w - - 0 1
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('P');
 		att.unconditionalAttackers.add('Q');
 		att.unconditionalAttackers.add('R');
@@ -668,8 +668,8 @@ class MyLookupGeneratorTest {
 				+ "Q x . x x \n",
 				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
 		
-		att = new AttackCombo();//8/8/8/RQ1p4/4P3/4n3/6b1/7q w - - 0 1
-		def = new AttackCombo();
+		att = new AttackSequence();//8/8/8/RQ1p4/4P3/4n3/6b1/7q w - - 0 1
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('P');
 		att.unconditionalAttackers.add('Q');
 		att.unconditionalAttackers.add('R');
@@ -685,8 +685,8 @@ class MyLookupGeneratorTest {
 				+ "Q x . x x \n",
 				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
 		
-		att = new AttackCombo();//8/8/5N2/RQ1p4/4Pn2/4n3/6b1/7q w - - 0 1
-		def = new AttackCombo();
+		att = new AttackSequence();//8/8/5N2/RQ1p4/4Pn2/4n3/6b1/7q w - - 0 1
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('P');
 		att.unconditionalAttackers.add('N');
 		att.unconditionalAttackers.add('Q');
@@ -704,8 +704,8 @@ class MyLookupGeneratorTest {
 				+ "Q x x x x \n",
 				matchup.toVerboseString().substring(matchup.toVerboseString().indexOf('\n') + 1));
 		
-		att = new AttackCombo();//6q1/5b2/2k1p3/3r2RQ/8/4N3/8/8 w - - 0 1
-		def = new AttackCombo();
+		att = new AttackSequence();//6q1/5b2/2k1p3/3r2RQ/8/4N3/8/8 w - - 0 1
+		def = new AttackSequence();
 		att.unconditionalAttackers.add('N');
 		att.unconditionalAttackers.add('R');
 		att.unconditionalAttackers.add('Q');
