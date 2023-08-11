@@ -175,8 +175,8 @@ public class MyLookupGenerator {
 					return 1;
             return 0;
         });
-		for(AttackSequence gl : attackCollection)
-			System.out.println(gl.toString());
+//		for(AttackSequence gl : attackCollection)
+//			System.out.println(gl.toString());
 		System.out.println("pawnSets: " + pawnSets.size());
 		System.out.println("knightSets: " + knightSets.size());
 		System.out.println("sliderSets: " + sliderSets.size());
@@ -337,21 +337,21 @@ public class MyLookupGenerator {
 		matchups.trimToSize();
 		Collections.sort(matchups);
 		System.out.println("ArrayList<ComboMatchUp> is generated with this many records: " + matchups.size());
-		System.out.println("Matchup sample: "+ matchups.get(0).toVerboseString());
-		System.out.println("Matchup sample: "+ matchups.get(1).toVerboseString());
-		System.out.println("Matchup sample: "+ matchups.get(2).toVerboseString());
-		System.out.println("Matchup sample: "+ matchups.get(3).toVerboseString());
-		System.out.println("Matchup sample: "+ matchups.get(856).toVerboseString());
-		System.out.println("Matchup sample: "+ matchups.get(2900).toVerboseString());
-		System.out.println("Matchup sample: "+ matchups.get(30654).toVerboseString());
-		System.out.println("Matchup sample: "+ matchups.get(36654).toVerboseString());
-		System.out.println("Matchup sample: "+ matchups.get(40654).toVerboseString());
-		System.out.println("Matchup sample: "+ matchups.get(45654).toVerboseString());
-		System.out.println("Matchup sample: "+ matchups.get(50654).toVerboseString());
-		System.out.println("Matchup sample: "+ matchups.get(1069689).toVerboseString());
-		System.out.println("Matchup sample: "+ matchups.get(1079689).toVerboseString());
-		System.out.println("Matchup sample: "+ matchups.get(1099689).toVerboseString());
-		System.out.println("Matchup sample: "+ matchups.get(1119689).toVerboseString());
+//		System.out.println("Matchup sample: "+ matchups.get(0).toVerboseString());
+//		System.out.println("Matchup sample: "+ matchups.get(1).toVerboseString());
+//		System.out.println("Matchup sample: "+ matchups.get(2).toVerboseString());
+//		System.out.println("Matchup sample: "+ matchups.get(3).toVerboseString());
+//		System.out.println("Matchup sample: "+ matchups.get(856).toVerboseString());
+//		System.out.println("Matchup sample: "+ matchups.get(2900).toVerboseString());
+//		System.out.println("Matchup sample: "+ matchups.get(30654).toVerboseString());
+//		System.out.println("Matchup sample: "+ matchups.get(36654).toVerboseString());
+//		System.out.println("Matchup sample: "+ matchups.get(40654).toVerboseString());
+//		System.out.println("Matchup sample: "+ matchups.get(45654).toVerboseString());
+//		System.out.println("Matchup sample: "+ matchups.get(50654).toVerboseString());
+//		System.out.println("Matchup sample: "+ matchups.get(1069689).toVerboseString());
+//		System.out.println("Matchup sample: "+ matchups.get(1079689).toVerboseString());
+//		System.out.println("Matchup sample: "+ matchups.get(1099689).toVerboseString());
+//		System.out.println("Matchup sample: "+ matchups.get(1119689).toVerboseString());
 		
 		Long minKey=Long.MAX_VALUE, maxKey=Long.MIN_VALUE;
 		Set<Long> keysSet = new HashSet<>();
@@ -458,7 +458,7 @@ public class MyLookupGenerator {
 		System.out.println("WhatIf distribution: ["+htg2.size()+"]");
 		System.out.println(htg2);
 		
-
+		
         
 	}//main
 
