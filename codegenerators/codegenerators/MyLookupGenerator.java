@@ -447,18 +447,43 @@ public class MyLookupGenerator {
 		}
 		System.out.println("Attack natural payoff distribution: ["+htg.size()+"]");
 		System.out.println(htg);
-    
+
 		
-		int whatIfValue;
 		HashMap<Integer, Integer> htg2 = new HashMap<>();
 		for(ComboMatchUp cmu : myGenerator.matchups) {
-			whatIfValue=cmu.whatIfMatrix;
-			htg2.put(whatIfValue, 1+htg2.getOrDefault(whatIfValue, 0));
+			htg2.put(cmu.whatIfMatrix, 1+htg2.getOrDefault(cmu.whatIfMatrix, 0));
 		}
 		System.out.println("WhatIf distribution: ["+htg2.size()+"]");
 		System.out.println(htg2);
 		
+		int mod256Histogram[]=new int[256];
+		for(ComboMatchUp cmu : myGenerator.matchups)
+			mod256Histogram[cmu.to256Index()]++;
+		{
+			int min = Integer.MAX_VALUE;
+	        int max = Integer.MIN_VALUE;
+	        int sum = 0;
+	        
+	        for(int i=0;i<mod256Histogram.length;++i) {
+	        	System.out.println("mod 256 = " + i+ " count = "+ mod256Histogram[i]);
+	            min = Math.min(min, mod256Histogram[i]);
+	            max = Math.max(max, mod256Histogram[i]);
+	            sum += mod256Histogram[i];
+	        }
+	        double average = (double) sum / mod256Histogram.length;
+	        
+	        double sumOfSquaredDifferences = 0;
+	        for(int i=0;i<mod256Histogram.length;++i) {
+	            double diff = mod256Histogram[i] - average;
+	            sumOfSquaredDifferences += diff * diff;
+	        }
+
+	        double standardDeviation = Math.sqrt(sumOfSquaredDifferences / mod256Histogram.length);
+
+			System.out.println("mod 256 min: "+min+ " max: "+max+" avg: "+String.format("%.2f", average)+ " stddev: "+String.format("%.2f", standardDeviation));
+		}
 		
+			
         
 	}//main
 

@@ -137,4 +137,8 @@ public class ComboMatchUp implements Serializable, Comparable<ComboMatchUp> {
 		}
 		return ret;
 	}
+	
+	int to256Index() {
+		return (int)((matchupKey>>11 )% 256L);
+	}
 }
