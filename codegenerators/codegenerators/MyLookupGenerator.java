@@ -459,29 +459,28 @@ public class MyLookupGenerator {
 		int mod256Histogram[]=new int[256];
 		for(ComboMatchUp cmu : myGenerator.matchups)
 			mod256Histogram[cmu.to256Index()]++;
-		{
-			int min = Integer.MAX_VALUE;
-	        int max = Integer.MIN_VALUE;
-	        int sum = 0;
-	        
-	        for(int i=0;i<mod256Histogram.length;++i) {
-	        	System.out.println("mod 256 = " + i+ " count = "+ mod256Histogram[i]);
-	            min = Math.min(min, mod256Histogram[i]);
-	            max = Math.max(max, mod256Histogram[i]);
-	            sum += mod256Histogram[i];
-	        }
-	        double average = (double) sum / mod256Histogram.length;
-	        
-	        double sumOfSquaredDifferences = 0;
-	        for(int i=0;i<mod256Histogram.length;++i) {
-	            double diff = mod256Histogram[i] - average;
-	            sumOfSquaredDifferences += diff * diff;
-	        }
-
-	        double standardDeviation = Math.sqrt(sumOfSquaredDifferences / mod256Histogram.length);
-
-			System.out.println("mod 256 min: "+min+ " max: "+max+" avg: "+String.format("%.2f", average)+ " stddev: "+String.format("%.2f", standardDeviation));
-		}
+//		{
+//			int min = Integer.MAX_VALUE;
+//	        int max = Integer.MIN_VALUE;
+//	        int sum = 0;
+//	        
+//	        for(int i=0;i<mod256Histogram.length;++i) {
+//	        	System.out.println("mod 256 = " + i+ " count = "+ mod256Histogram[i]);
+//	            min = Math.min(min, mod256Histogram[i]);
+//	            max = Math.max(max, mod256Histogram[i]);
+//	            sum += mod256Histogram[i];
+//	        }
+//	        double average = (double) sum / mod256Histogram.length;
+//	        
+//	        double sumOfSquaredDifferences = 0;
+//	        for(int i=0;i<mod256Histogram.length;++i) {
+//	            double diff = mod256Histogram[i] - average;
+//	            sumOfSquaredDifferences += diff * diff;
+//	        }
+//
+//	        double standardDeviation = Math.sqrt(sumOfSquaredDifferences / mod256Histogram.length);
+//			System.out.println("mod 256 min: "+min+ " max: "+max+" avg: "+String.format("%.2f", average)+ " stddev: "+String.format("%.2f", standardDeviation));
+//		}
 		
 			
         

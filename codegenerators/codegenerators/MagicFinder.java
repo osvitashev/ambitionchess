@@ -60,16 +60,10 @@ public class MagicFinder {
 	
 
 	void lookForMagic() {
-		
-
 		Random random = new Random();
 		long magic, bestMagic;
 		int bestScore = 0, score, constructiveCollisions, index = 0;
-
-
-
 		ArrayList<Long> magicsOver80Percent = new ArrayList<>();
-
 		for (int tryy = 0; tryy < 1000000000; ++tryy) {
 			reset();
 			magic = random.nextLong() & random.nextLong();
@@ -89,8 +83,14 @@ public class MagicFinder {
 				}
 			}
 			if (score > bestScore) {
-				System.out.println(
-						tryy + ", " + score + ", "+ constructiveCollisions+", " + magic + ", " + String.format("%.2f", ((double) score / (double) payloadsAndKeys.length)));
+				int free = 0;
+		        for (boolean taken : isTaken) {
+		            if (!taken) {
+		                free++;
+		            }
+		        }
+				System.out.println("Try:" + tryy + ", score:" + score + ", constructiveCollisions: " + constructiveCollisions + ", freeSlots: " + free
+						+ ", magic: " + magic + ", unitization: " + String.format("%.2f", ((double) score / (double) payloadsAndKeys.length)));
 				bestScore = score;
 			}
 			if (((double) score / (double) payloadsAndKeys.length) >= 0.80) {
@@ -125,7 +125,7 @@ public class MagicFinder {
 	
 
 	public static void main(String[] args) {
-		MagicFinder m = new MagicFinder(96);
+		MagicFinder m = new MagicFinder(156);
 		m.lookForMagic();
 		//m.augmentMagic(157635336890527504l);
 	}
