@@ -5,25 +5,27 @@ import java.util.Random;
 
 public class MagicFinder {
 	MagicFinder(int mod256) {
-		this.mod256=mod256;
+		MagicFinder.mod256=mod256;
 		MyLookupGenerator myGenerator = new MyLookupGenerator();
 		myGenerator.generateMatchUpCollection();
 		int howMany = 0;
 		for (int i = 0; i < myGenerator.matchups.size(); ++i)
 			if (myGenerator.matchups.get(i).to256Index() == mod256)
 				howMany++;
-		payloadsAndKeys = new PayloadKey[howMany];
+		inputsPayloadsAndKeys = new PayloadKey[howMany];
 		for (int i = 0, j = 0; i < myGenerator.matchups.size(); ++i)
 			if (myGenerator.matchups.get(i).to256Index() == mod256)
-				payloadsAndKeys[j++] = new PayloadKey(myGenerator.matchups.get(i).whatIfMatrix, myGenerator.matchups.get(i).matchupKey);
+				inputsPayloadsAndKeys[j++] = new PayloadKey(myGenerator.matchups.get(i).whatIfMatrix, myGenerator.matchups.get(i).matchupKey);
 
-		BITS_IN_INDEX = intLog2RoundUp(payloadsAndKeys.length) - 1;// trying to condense the table a bit....
+		BITS_IN_INDEX = intLog2RoundUp(inputsPayloadsAndKeys.length) - 1;// trying to condense the table a bit....
 		TABLE_SIZE = 1 << BITS_IN_INDEX;/// this is a parameter.
 		System.out.println("Table containing this many elements: " + TABLE_SIZE + " we try to covert it with an index key of this width: "
-				+ BITS_IN_INDEX + " bits. Representing a table with " + payloadsAndKeys.length + " elements");
+				+ BITS_IN_INDEX + " bits. Representing a table with " + inputsPayloadsAndKeys.length + " elements. Need to afhieve density of "+
+				String.format("%.2f", (double)inputsPayloadsAndKeys.length/(double)TABLE_SIZE));
 
-		payloadValues = new int[TABLE_SIZE];
-		isTaken = new boolean[TABLE_SIZE];
+		hashTable = new int[TABLE_SIZE];
+		isTaken_currentIteration = new boolean[TABLE_SIZE];
+		isTaken_prevIteration = new boolean[TABLE_SIZE];
 	}
 
 	class PayloadKey {
@@ -36,17 +38,19 @@ public class MagicFinder {
 		}
 	}
 
-	static int payloadValues[];
-	static boolean isTaken[];
-	static PayloadKey payloadsAndKeys[];
+	static int hashTable[];
+	static boolean isTaken_currentIteration[];
+	static boolean isTaken_prevIteration[];
+	static PayloadKey inputsPayloadsAndKeys[];
 	static int TABLE_SIZE;
 	static int BITS_IN_INDEX;
 	static int mod256;
 
-	static void reset() {
-		for (int i = 0; i < isTaken.length; ++i)
-			isTaken[i] = false;
-	}
+//	static void reset() {
+//		for (int i = 0; i < isTaken.length; ++i)
+//			isTaken[i] = false;
+//	}
+	
 
 	static int getIndex(long key, long magic) {
 		long t = key * magic;
@@ -59,74 +63,107 @@ public class MagicFinder {
 	}
 	
 
-	void lookForMagic() {
+	void lookForMagic(long prevMagic) {
 		Random random = new Random();
-		long magic, bestMagic;
-		int bestScore = 0, score, constructiveCollisions, index = 0;
-		ArrayList<Long> magicsOver80Percent = new ArrayList<>();
-		for (int tryy = 0; tryy < 1000000000; ++tryy) {
-			reset();
-			magic = random.nextLong() & random.nextLong();
-			score = payloadsAndKeys.length;
-			constructiveCollisions=0;
-			for (PayloadKey pk : payloadsAndKeys) {
-				index = getIndex(pk.key, magic);
-				if (!isTaken[index]) {
-					payloadValues[index] = pk.payload;
-					isTaken[index] = true;
-				} else if (isTaken[index] && payloadValues[index] == pk.payload) {
-					constructiveCollisions++;
-					// do nothing - we get the right value through a lucky key collision
-				} else {
-					score--;
-					// break;
-				}
+		long magic;
+		double mostOptimalScore=0;
+		int numTotalCorrectValues, numPrevCorrectValues=0, constructiveCollisions, index = 0;
+		ArrayList<Long> missingKeys = new ArrayList<>();
+		if(prevMagic !=0) {
+			for (PayloadKey pk : inputsPayloadsAndKeys) {
+				index = getIndex(pk.key, prevMagic);
+					hashTable[index] = pk.payload;
 			}
-			if (score > bestScore) {
+			numPrevCorrectValues=0;
+			for (PayloadKey pk : inputsPayloadsAndKeys){
+				index = getIndex(pk.key, prevMagic);
+				if(hashTable[index] == pk.payload) {
+					numPrevCorrectValues++;
+					isTaken_prevIteration[index]=true;
+				}
+				else
+					missingKeys.add(pk.key);
+			}
+			/**
+			 * It is NOT that there are any incorrect values in the hashTable at this point,
+			 * There are missing values!!!!
+			 * How to detect pk.key which got skipped?
+			 * 
+			 * >>> put it into a separate collection!
+			 */
+		}
+		System.out.println("There are this many missing keys: "+ missingKeys.size());
+		System.out.println("The table already containst this many correct elements from previous magic search: "+ numPrevCorrectValues);
+		for (int tryy = 0; tryy < 1000000000; ++tryy) {//1000000000
+			//reset
+			for (int i = 0; i < isTaken_currentIteration.length; ++i)
+				isTaken_currentIteration[i] = false;
+			for (int i = 0; i < hashTable.length; ++i)//need a reset, to avoid getting the benefit from the previous random magic.
+				hashTable[i]=0;
+			if(prevMagic!=0)
+				for (PayloadKey pk : inputsPayloadsAndKeys) {
+					index = getIndex(pk.key, prevMagic);
+						hashTable[index] = pk.payload;
+				}
+			
+			
+			magic = random.nextLong() & random.nextLong();
+			constructiveCollisions=0;
+			numTotalCorrectValues = numPrevCorrectValues;
+			//calculate
+			for (PayloadKey pk : inputsPayloadsAndKeys) 
+				if(prevMagic==0 )
+				{
+					index = getIndex(pk.key, magic);
+						hashTable[index] = pk.payload;
+				}
+			//reflect
+			for (PayloadKey pk : inputsPayloadsAndKeys)
+				if(prevMagic==0)
+				{
+					index = getIndex(pk.key, magic);
+					if(hashTable[index] == pk.payload) {
+						if(isTaken_currentIteration[index] == true)
+							constructiveCollisions++;
+						isTaken_currentIteration[index] = true;
+						numTotalCorrectValues++;
+					}
+				}
+			//evaluate
+			{
 				int free = 0;
-		        for (boolean taken : isTaken) {
-		            if (!taken) {
+				for(int i=0; i<TABLE_SIZE;++i) {
+					if (!isTaken_currentIteration[i] && !isTaken_prevIteration[i]) {
 		                free++;
 		            }
-		        }
-				System.out.println("Try:" + tryy + ", score:" + score + ", constructiveCollisions: " + constructiveCollisions + ", freeSlots: " + free
-						+ ", magic: " + magic + ", unitization: " + String.format("%.2f", ((double) score / (double) payloadsAndKeys.length)));
-				bestScore = score;
+				}
+				
+		        double completeness = ((double) numTotalCorrectValues / (double) inputsPayloadsAndKeys.length);
+				double tableUtilization=1.0-((double) free / (double) TABLE_SIZE);
+				double thisPassDensity = (double)(numTotalCorrectValues)/(double)(TABLE_SIZE-free);
+				double neededNextPassDensity = (double)(inputsPayloadsAndKeys.length-numTotalCorrectValues)/(double)(free);
+				int outstanding = (inputsPayloadsAndKeys.length-numTotalCorrectValues);
+				if(completeness>mostOptimalScore)
+				{
+					mostOptimalScore=completeness;
+					System.out.println("Try:" + tryy + ", correct:" + numTotalCorrectValues + 
+							", constructive: " + constructiveCollisions + 
+							", freeSlots: " + free + 
+							", outstanding: " + outstanding +
+							", magic: " + magic + 
+							", comp: " + String.format("%.2f", completeness)+ 
+							", util: "  + String.format("%.2f", tableUtilization)+
+							", this.density: "+ String.format("%.2f", thisPassDensity)+
+							", next.density**: "+ String.format("%.2f", neededNextPassDensity));
+				}
+				
 			}
-			if (((double) score / (double) payloadsAndKeys.length) >= 0.80) {
-				magicsOver80Percent.add(magic);
-				System.out.println("added candidate magic:" + magic);
-			}
 		}
-		System.out.println("Got 100 candidate magics with score of 80+: " + magicsOver80Percent.toString());
-	}
-	
-	void augmentMagic(long startingMagic) {
-		MyLookupGenerator myGenerator = new MyLookupGenerator();
-		myGenerator.generateMatchUpCollection();
-
-		
-		int score, index;
-		score = payloadsAndKeys.length;
-		for (PayloadKey pk : payloadsAndKeys) {
-			index = getIndex(pk.key, startingMagic);
-			payloadValues[index] = pk.payload;
-		}
-		for (PayloadKey pk : payloadsAndKeys) {
-			index = getIndex(pk.key, startingMagic);
-			if(payloadValues[index] != pk.payload)
-				score--;
-		}
-		System.out.println("Actual utilization of the magic:");
-		System.out.println(score + ", " + startingMagic + ", " + String.format("%.2f", ((double) score / (double) payloadsAndKeys.length)));
-
-		
 	}
 	
 
 	public static void main(String[] args) {
-		MagicFinder m = new MagicFinder(156);
-		m.lookForMagic();
-		//m.augmentMagic(157635336890527504l);
+		MagicFinder m = new MagicFinder(96);
+		m.lookForMagic(0);
 	}
 }

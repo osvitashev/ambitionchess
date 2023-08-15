@@ -337,21 +337,26 @@ public class MyLookupGenerator {
 		matchups.trimToSize();
 		Collections.sort(matchups);
 		System.out.println("ArrayList<ComboMatchUp> is generated with this many records: " + matchups.size());
-//		System.out.println("Matchup sample: "+ matchups.get(0).toVerboseString());
-//		System.out.println("Matchup sample: "+ matchups.get(1).toVerboseString());
-//		System.out.println("Matchup sample: "+ matchups.get(2).toVerboseString());
-//		System.out.println("Matchup sample: "+ matchups.get(3).toVerboseString());
-//		System.out.println("Matchup sample: "+ matchups.get(856).toVerboseString());
-//		System.out.println("Matchup sample: "+ matchups.get(2900).toVerboseString());
-//		System.out.println("Matchup sample: "+ matchups.get(30654).toVerboseString());
-//		System.out.println("Matchup sample: "+ matchups.get(36654).toVerboseString());
-//		System.out.println("Matchup sample: "+ matchups.get(40654).toVerboseString());
-//		System.out.println("Matchup sample: "+ matchups.get(45654).toVerboseString());
-//		System.out.println("Matchup sample: "+ matchups.get(50654).toVerboseString());
-//		System.out.println("Matchup sample: "+ matchups.get(1069689).toVerboseString());
-//		System.out.println("Matchup sample: "+ matchups.get(1079689).toVerboseString());
-//		System.out.println("Matchup sample: "+ matchups.get(1099689).toVerboseString());
-//		System.out.println("Matchup sample: "+ matchups.get(1119689).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(0).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(1).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(2).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(3).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(342).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(856).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(2900).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(5556).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(10546).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(1856).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(24864).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(30654).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(36654).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(40654).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(45654).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(50654).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(1069689).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(1079689).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(1099689).toVerboseString());
+		System.out.println("Matchup sample: "+ matchups.get(1119689).toVerboseString());
 		
 		Long minKey=Long.MAX_VALUE, maxKey=Long.MIN_VALUE;
 		Set<Long> keysSet = new HashSet<>();
@@ -459,28 +464,25 @@ public class MyLookupGenerator {
 		int mod256Histogram[]=new int[256];
 		for(ComboMatchUp cmu : myGenerator.matchups)
 			mod256Histogram[cmu.to256Index()]++;
-//		{
-//			int min = Integer.MAX_VALUE;
-//	        int max = Integer.MIN_VALUE;
-//	        int sum = 0;
-//	        
-//	        for(int i=0;i<mod256Histogram.length;++i) {
-//	        	System.out.println("mod 256 = " + i+ " count = "+ mod256Histogram[i]);
-//	            min = Math.min(min, mod256Histogram[i]);
-//	            max = Math.max(max, mod256Histogram[i]);
-//	            sum += mod256Histogram[i];
-//	        }
-//	        double average = (double) sum / mod256Histogram.length;
-//	        
-//	        double sumOfSquaredDifferences = 0;
-//	        for(int i=0;i<mod256Histogram.length;++i) {
-//	            double diff = mod256Histogram[i] - average;
-//	            sumOfSquaredDifferences += diff * diff;
-//	        }
-//
-//	        double standardDeviation = Math.sqrt(sumOfSquaredDifferences / mod256Histogram.length);
-//			System.out.println("mod 256 min: "+min+ " max: "+max+" avg: "+String.format("%.2f", average)+ " stddev: "+String.format("%.2f", standardDeviation));
-//		}
+		{
+			int min = Integer.MAX_VALUE;
+	        int max = Integer.MIN_VALUE;
+	        int sum = 0;
+	        for(int i=0;i<mod256Histogram.length;++i) {
+	        	System.out.println("mod 256 = " + i+ " count = "+ mod256Histogram[i]);
+	            min = Math.min(min, mod256Histogram[i]);
+	            max = Math.max(max, mod256Histogram[i]);
+	            sum += mod256Histogram[i];
+	        }
+	        double average = (double) sum / mod256Histogram.length;
+	        double sumOfSquaredDifferences = 0;
+	        for(int i=0;i<mod256Histogram.length;++i) {
+	            double diff = mod256Histogram[i] - average;
+	            sumOfSquaredDifferences += diff * diff;
+	        }
+	        double standardDeviation = Math.sqrt(sumOfSquaredDifferences / mod256Histogram.length);
+			System.out.println("mod 256 min: "+min+ " max: "+max+" avg: "+String.format("%.2f", average)+ " stddev: "+String.format("%.2f", standardDeviation));
+		}
 		
 			
         
