@@ -1,5 +1,8 @@
 package codegenerators;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -17,10 +20,45 @@ public class MagicFinder {
 		boolean isUsed;
 	}
 	
+	static int ARG_MOD256 = 96;
+	
 	public MagicFinder() {
-		NUM_ITEMS = 4096;
-		NUM_SLOTS = 4096;
-		KEY_WIDTH = 12;
+		//MyLookupGenerator myGenerator = new MyLookupGenerator();
+		
+        List<Integer> read_payload = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader("etc/payload.csv"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                int value = Integer.parseInt(line);
+                read_payload.add(value);
+            }
+            
+            System.out.println("Payload loaded from CSV: " + read_payload.size());
+        } catch (IOException e) {
+            System.err.println("An error occurred: " + e.getMessage());
+        }
+        
+        List<Long> read_identifier = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader("etc/identifiers.csv"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                long value = Long.parseLong(line);
+                read_identifier.add(value);
+            }
+            
+            System.out.println("Identifier loaded from CSV: " + read_identifier.size());
+        } catch (IOException e) {
+            System.err.println("An error occurred: " + e.getMessage());
+        }
+		
+		int itemCount=0;
+		for(long matchupKey : read_identifier)
+			if(ComboMatchUp.to256Index(matchupKey) % 256 == ARG_MOD256)
+				itemCount++;
+		
+		NUM_ITEMS = itemCount;
+		NUM_SLOTS = 4096*2;
+		KEY_WIDTH = 13;
 		
 		hashedValues = new HashedValue[NUM_SLOTS];
 		inputItems = new Item[NUM_ITEMS];
@@ -29,12 +67,23 @@ public class MagicFinder {
 			inputItems[i]=new Item();
 		for(int i=0; i<NUM_SLOTS; ++i)
 			hashedValues[i]=new HashedValue();
-		//placeholder value population
-		Random ran_input = new Random(123123123);
-		for(int i=0; i<NUM_ITEMS; ++i) {
-			inputItems[i].identifier=ran_input.nextLong();
-			inputItems[i].payload=ran_input.nextInt(100);
+//		//placeholder value population
+//		Random ran_input = new Random(123123123);
+//		for(int i=0; i<NUM_ITEMS; ++i) {
+//			inputItems[i].identifier=ran_input.nextLong();
+//			inputItems[i].payload=ran_input.nextInt(100);
+//		}
+		
+		
+		int insertionIndex=0;
+		for(int i=0; i<read_identifier.size(); ++i)
+		if(ComboMatchUp.to256Index(read_identifier.get(i)) % 256 == ARG_MOD256){
+			inputItems[insertionIndex].identifier=read_identifier.get(i);
+			inputItems[insertionIndex].payload= read_payload.get(i);
+			++insertionIndex;
 		}
+		
+		System.out.println(">> mapping " + NUM_ITEMS + " items to " + NUM_SLOTS + " slots using a key of width: "+KEY_WIDTH);
 	}
 	
 	int NUM_ITEMS;
@@ -61,7 +110,7 @@ public class MagicFinder {
 		Random ran = new Random();	
 		int hashIndex, matched, free, bestScore=0;
 		long hashKey;
-		for(int attempt=0; attempt<1000000; ++attempt) {
+		for(int attempt=0; attempt<500000000; ++attempt) {
 			reset();
 			hashKey=ran.nextLong() & ran.nextLong();
 			for(Item it : inputItems) {
@@ -90,7 +139,7 @@ public class MagicFinder {
 						", itemsRemaining: "+ (NUM_ITEMS-matched) +
 						", slotsTaken: " + (NUM_SLOTS-free)+
 						", slotsFree: " + free +
-						", hashKey: " + hashKey +
+						", hashKey: " + Long.toHexString(hashKey) +
 						", success%: " + String.format("%.2f", successRate)
 				);
 			}

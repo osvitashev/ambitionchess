@@ -1,7 +1,12 @@
 package codegenerators;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -17,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -436,7 +442,7 @@ public class MyLookupGenerator {
 		
 		int mod256Histogram[]=new int[256];
 		for(ComboMatchUp cmu : myGenerator.matchups)
-			mod256Histogram[cmu.to256Index()]++;
+			mod256Histogram[ComboMatchUp.to256Index(cmu.matchupKey)]++;
 		{
 			int min = Integer.MAX_VALUE;
 	        int max = Integer.MIN_VALUE;
@@ -457,7 +463,57 @@ public class MyLookupGenerator {
 			System.out.println("mod 256 min: "+min+ " max: "+max+" avg: "+String.format("%.2f", average)+ " stddev: "+String.format("%.2f", standardDeviation));
 		}
 		
-			
+		String filePath = "etc/payload.csv";
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+			for (ComboMatchUp value : myGenerator.matchups) {
+				writer.write(Integer.toString(value.whatIfMatrix));
+				//writer.write(",");
+				writer.newLine();
+			}
+			//writer.newLine();
+			System.out.println("Array payload written to CSV file successfully.");
+		} catch (IOException e) {
+			System.err.println("An error occurred: " + e.getMessage());
+		}
+		
+		filePath = "etc/identifiers.csv";
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+			for (ComboMatchUp value : myGenerator.matchups) {
+				writer.write(Long.toString(value.matchupKey));
+				//writer.write(",");
+				writer.newLine();
+			}
+			//writer.newLine();
+			System.out.println("Array identifier written to CSV file successfully.");
+		} catch (IOException e) {
+			System.err.println("An error occurred: " + e.getMessage());
+		}
+		
+        List<Integer> read_payload = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader("etc/payload.csv"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                int value = Integer.parseInt(line);
+                read_payload.add(value);
+            }
+            
+            System.out.println("Payload loaded from CSV: " + read_payload.size());
+        } catch (IOException e) {
+            System.err.println("An error occurred: " + e.getMessage());
+        }
+        
+        List<Long> read_identifier = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader("etc/identifiers.csv"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                long value = Long.parseLong(line);
+                read_identifier.add(value);
+            }
+            
+            System.out.println("Identifier loaded from CSV: " + read_identifier.size());
+        } catch (IOException e) {
+            System.err.println("An error occurred: " + e.getMessage());
+        }
         
 	}//main
 
