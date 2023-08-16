@@ -12,6 +12,7 @@ public class MagicFinder {
 	class Item{
 		long identifier;
 		int payload;
+		boolean isMapped;
 	}
 	
 	class HashedValue{
@@ -104,21 +105,30 @@ public class MagicFinder {
 			hashedValues[i].keyUsed=0;
 			hashedValues[i].isUsed=false;
 		}
+		
+		for(int i=0; i<NUM_ITEMS;++i)
+			inputItems[i].isMapped=false;
 	}
 	
 	public void lookForMagic() {
 		Random ran = new Random();	
 		int hashIndex, matched, free, bestScore=0;
 		long hashKey;
-		for(int attempt=0; attempt<500000000; ++attempt) {
+		
+		long startTime = System.currentTimeMillis();
+        long duration = 10 * 60 * 1000; // 10 minutes in milliseconds
+		for(int attempt=0; ; ++attempt) {
+			if(System.currentTimeMillis() - startTime > duration)
+				break;
 			reset();
 			hashKey=ran.nextLong() & ran.nextLong();
 			for(Item it : inputItems) {
 				hashIndex=getHashIndex(it.identifier, hashKey);
-				if(hashedValues[hashIndex].isUsed == false) {
+				if(it.isMapped ==false && hashedValues[hashIndex].isUsed == false) {
 					hashedValues[hashIndex].keyUsed=hashKey;
 					hashedValues[hashIndex].payload=it.payload;
 					hashedValues[hashIndex].isUsed=true;
+					it.isMapped=true;
 				}
 			}
 			matched=0;
