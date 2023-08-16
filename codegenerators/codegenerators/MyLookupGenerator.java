@@ -210,6 +210,8 @@ public class MyLookupGenerator {
 		else
 			System.out.println("SOMETHING IS WRONG!!!!!!!!!!!!!!!!!!!!!!!! NOT ALL attack sequences all have unique keys!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		System.out.println("Keys of grandAttackCollection: min="+minKey + " max="+maxKey);
+		
+		generateMatchUpCollection();
 	}
 	
 	
@@ -384,42 +386,12 @@ public class MyLookupGenerator {
 		
 	}
 	
-	
-	/// turns out that file read/write operations are VERY slow.
-	void writeMatchupCollection() {
-	       // Write the ArrayList to a file using object serialization
-        try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream("naturalMatchupOutcomes.dat"))) {
-            outputStream.writeObject(matchups);
-            System.out.println("ArrayList<ComboMatchUp> written to the file successfully. With this many records: " + matchups.size());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-	}
-	
-	void loadMatchupCollection() {
-	       try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream("naturalMatchupOutcomes.dat"))) {
-	    	   matchups = (ArrayList<ComboMatchUp>) inputStream.readObject();
-	            matchups.trimToSize();
-	            // Print the contents of the read ArrayList
-	            System.out.println("Read ArrayList<ComboMatchUp> with this many records: " + matchups.size());
-	        } catch (IOException | ClassNotFoundException e) {
-	            e.printStackTrace();
-	        }
-	}
-	
-	
 
-	
 	public static void main(String[] args) {
 		String javaVersion = System.getProperty("java.specification.version");
         System.out.println("Java Version: " + javaVersion);
 		
 		MyLookupGenerator myGenerator = new MyLookupGenerator();
-
-		//myGenerator.generateAndWriteMatchupCollection();
-		//myGenerator.loadMatchupCollection();
-		
-		myGenerator.generateMatchUpCollection();
 		
 		System.out.println("Some matchup stats:");
 		int pawnPos=0, minorPos=0, rookPos=0, queenPos=0;
@@ -460,6 +432,7 @@ public class MyLookupGenerator {
 		}
 		System.out.println("WhatIf distribution: ["+htg2.size()+"]");
 		System.out.println(htg2);
+		System.out.println("WhatIf values: " + htg2.values());
 		
 		int mod256Histogram[]=new int[256];
 		for(ComboMatchUp cmu : myGenerator.matchups)

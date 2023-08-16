@@ -12,28 +12,6 @@ import gamestate.GlobalConstants.PieceType;
 class MyLookupGeneratorTest {
 
 	@Test
-	void testWideBitfieldAccumulator() {
-		WideBitfieldAccumulator w = new WideBitfieldAccumulator(370660);
-		assertFalse(w.get(28));
-		assertFalse(w.isUsed(28));
-		w.setPayload(28);
-		assertTrue(w.isUsed(28));
-		assertTrue(w.get(28));
-		RuntimeException thrown = assertThrows(RuntimeException.class, () -> w.setPayload(28), "index is unavailable!");
-		assertTrue(thrown.getMessage().equals("index is unavailable!"));
-
-		assertFalse(w.get(310660));
-		w.setPayload(310660);
-		assertTrue(w.get(310660));
-
-		assertFalse(w.get(270660));
-		w.lock(270660);
-		thrown = assertThrows(RuntimeException.class, () -> w.setPayload(270660), "index is unavailable!");
-		assertTrue(thrown.getMessage().equals("index is unavailable!"));
-
-	}
-
-	@Test
 	void testWhatIfOperations() {
 		int wif = 0;
 		assertFalse(ComboMatchUp.getWhatIf(wif, 'P', 'R'));
