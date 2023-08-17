@@ -4,8 +4,11 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 public class MagicFinder {
@@ -110,38 +113,52 @@ public class MagicFinder {
 			inputItems[i].isMapped=false;
 	}
 	
-	public void lookForMagic() {
+	void applyMagic(long hashKey) {
+		reset();
+		for(Item it : inputItems) {
+			int hashIndex=getHashIndex(it.identifier, hashKey);
+			if(it.isMapped ==false && hashedValues[hashIndex].isUsed == false) {
+				hashedValues[hashIndex].keyUsed=hashKey;
+				hashedValues[hashIndex].payload=it.payload;
+				hashedValues[hashIndex].isUsed=true;
+			}
+		}
+	}
+	
+	int updateNumberOfmatches(long hashKey) {
+		int matched=0;
+		for(Item it : inputItems) {
+			int hashIndex=getHashIndex(it.identifier, hashKey);
+			if(hashedValues[hashIndex].keyUsed == hashKey && hashedValues[hashIndex].payload == it.payload) {
+				matched++;
+				it.isMapped=true;
+			}
+		}
+		return matched;
+	}
+	
+	public long lookForMagic() {
 		Random ran = new Random();	
 		int hashIndex, matched, free, bestScore=0;
-		long hashKey;
+		long hashKey, bestKey=0;
 		
 		long startTime = System.currentTimeMillis();
-        long duration = 10 * 60 * 1000; // 10 minutes in milliseconds
+        long duration = 2 * 60 * 1000; // 2 minutes in milliseconds
 		for(int attempt=0; ; ++attempt) {
 			if(System.currentTimeMillis() - startTime > duration)
 				break;
-			reset();
+			
 			hashKey=ran.nextLong() & ran.nextLong();
-			for(Item it : inputItems) {
-				hashIndex=getHashIndex(it.identifier, hashKey);
-				if(it.isMapped ==false && hashedValues[hashIndex].isUsed == false) {
-					hashedValues[hashIndex].keyUsed=hashKey;
-					hashedValues[hashIndex].payload=it.payload;
-					hashedValues[hashIndex].isUsed=true;
-					it.isMapped=true;
-				}
-			}
-			matched=0;
-			for(Item it : inputItems) {
-				hashIndex=getHashIndex(it.identifier, hashKey);
-				if(hashedValues[hashIndex].keyUsed == hashKey && hashedValues[hashIndex].payload == it.payload)
-					matched++;
-			}
+			applyMagic(hashKey);
+			
+			matched=updateNumberOfmatches(hashKey);
+			
 			free = NUM_SLOTS;
 			for(HashedValue hv : hashedValues)
 				if(hv.isUsed == true)
 					free--;
 			if(matched > bestScore) {
+				bestKey=hashKey;
 				bestScore=matched;
 				double successRate = (double)matched/(double)inputItems.length;
 				System.out.println("Try: "+ attempt +
@@ -152,15 +169,58 @@ public class MagicFinder {
 						", hashKey: " + Long.toHexString(hashKey) +
 						", success%: " + String.format("%.2f", successRate)
 				);
+				
+				{
+					int countMapped=0;
+					for(Item it : inputItems)
+						if(it.isMapped)
+							countMapped++;
+					System.out.print("lookForMagic:countMapped: "+countMapped);
+					int countUnMapped=0;
+					for(Item it : inputItems)
+						if(!it.isMapped)
+							countUnMapped++;
+					System.out.println(" lookForMagic:countUnMapped: "+countUnMapped);
+				}
 			}
 			
 		}
+		return bestKey;
+	}
+	
+	void showUnmappedInputs() {
+		SortedMap<Integer, Integer> sortedMap = new TreeMap<>();
+		
+		
+		for(Item it : inputItems)
+			if(it.isMapped)
+				sortedMap.put(it.payload, sortedMap.getOrDefault(it.payload, 0));
+			else
+				sortedMap.put(it.payload, 1+sortedMap.getOrDefault(it.payload, 0));
+		int total=0;
+		for(int v : sortedMap.values())
+			total+=v;
+		System.out.println("payload: "+sortedMap.size()+" distinct values with: "+ total + " unmapped items");
+		System.out.println("payload values: " + sortedMap.values());
+		{
+			int countUnMapped=0;
+			for(Item it : inputItems)
+				if(!it.isMapped)
+					countUnMapped++;
+			System.out.println("showUnmappedInputs:countUnMapped: "+countUnMapped);
+		}
+
 	}
 
 	public static void main(String[] args) {
-		MagicFinder mf= new MagicFinder();
-		mf.lookForMagic();
 		
+		MagicFinder mf= new MagicFinder();
+		mf.showUnmappedInputs();
+		
+		long bestMagic = mf.lookForMagic();
+		mf.updateNumberOfmatches(bestMagic);
+		System.out.println("Best magic found: " + Long.toHexString(bestMagic));
+		mf.showUnmappedInputs();
 		
 	}
 }
