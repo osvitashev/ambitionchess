@@ -24,7 +24,7 @@ public class MagicFinder {
 		boolean isUsed;
 	}
 	
-	static int ARG_MOD256 = 96;
+	static int ARG_MOD256 = 96;//96;
 	
 	public MagicFinder() {
 		//MyLookupGenerator myGenerator = new MyLookupGenerator();
@@ -139,7 +139,7 @@ public class MagicFinder {
 	
 	public long lookForMagic() {
 		Random ran = new Random();	
-		int hashIndex, matched, free, bestScore=0;
+		int matched, free, bestScore=0;
 		long hashKey, bestKey=0;
 		
 		long startTime = System.currentTimeMillis();
@@ -153,13 +153,13 @@ public class MagicFinder {
 			
 			matched=updateNumberOfmatches(hashKey);
 			
-			free = NUM_SLOTS;
-			for(HashedValue hv : hashedValues)
-				if(hv.isUsed == true)
-					free--;
 			if(matched > bestScore) {
 				bestKey=hashKey;
 				bestScore=matched;
+				free = NUM_SLOTS;
+				for(HashedValue hv : hashedValues)
+					if(hv.isUsed == true)
+						free--;
 				double successRate = (double)matched/(double)inputItems.length;
 				System.out.println("Try: "+ attempt +
 						", matches: " + matched +
@@ -169,19 +169,6 @@ public class MagicFinder {
 						", hashKey: " + Long.toHexString(hashKey) +
 						", success%: " + String.format("%.2f", successRate)
 				);
-				
-				{
-					int countMapped=0;
-					for(Item it : inputItems)
-						if(it.isMapped)
-							countMapped++;
-					System.out.print("lookForMagic:countMapped: "+countMapped);
-					int countUnMapped=0;
-					for(Item it : inputItems)
-						if(!it.isMapped)
-							countUnMapped++;
-					System.out.println(" lookForMagic:countUnMapped: "+countUnMapped);
-				}
 			}
 			
 		}
@@ -190,7 +177,6 @@ public class MagicFinder {
 	
 	void showUnmappedInputs() {
 		SortedMap<Integer, Integer> sortedMap = new TreeMap<>();
-		
 		
 		for(Item it : inputItems)
 			if(it.isMapped)
@@ -202,14 +188,6 @@ public class MagicFinder {
 			total+=v;
 		System.out.println("payload: "+sortedMap.size()+" distinct values with: "+ total + " unmapped items");
 		System.out.println("payload values: " + sortedMap.values());
-		{
-			int countUnMapped=0;
-			for(Item it : inputItems)
-				if(!it.isMapped)
-					countUnMapped++;
-			System.out.println("showUnmappedInputs:countUnMapped: "+countUnMapped);
-		}
-
 	}
 
 	public static void main(String[] args) {
@@ -218,6 +196,7 @@ public class MagicFinder {
 		mf.showUnmappedInputs();
 		
 		long bestMagic = mf.lookForMagic();
+		mf.applyMagic(bestMagic);
 		mf.updateNumberOfmatches(bestMagic);
 		System.out.println("Best magic found: " + Long.toHexString(bestMagic));
 		mf.showUnmappedInputs();
