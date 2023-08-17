@@ -171,7 +171,7 @@ public class MagicFinder {
 		long hashKey, bestKey=0;
 		
 		long startTime = System.currentTimeMillis();
-		long durationMinutes = 1;
+		long durationMinutes = 120;
         long duration = durationMinutes * 60 * 1000; // in milliseconds
 		for(int attempt=0; ; ++attempt) {
 			if(System.currentTimeMillis() - startTime > duration)
@@ -180,7 +180,7 @@ public class MagicFinder {
 			reset();
 			applyPrevMagics();
 			
-			hashKey=ran.nextLong() & ran.nextLong();
+			hashKey=ran.nextLong() & ran.nextLong() & ran.nextLong() ;
 			applyMagic(hashKey);
 			
 			if(currentMatches > bestScore) {
@@ -224,8 +224,10 @@ public class MagicFinder {
 
 	public static void main(String[] args) {
 		
-		MagicFinder mf= new MagicFinder(0x71c71400713100cl);//0x71c71400713100cl
-		
+		MagicFinder mf= new MagicFinder();
+		//0x71c71400713100cl 
+		//0x888882007000808
+		//0x6222220200000040
 
 		long bestMagic = mf.lookForMagic();
 		System.out.println("Best magic found: " + Long.toHexString(bestMagic));
