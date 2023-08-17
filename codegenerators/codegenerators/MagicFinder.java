@@ -25,9 +25,14 @@ public class MagicFinder {
 	}
 	
 	static int ARG_MOD256 = 96;//96;
+	int currentMatches=0;
 	
-	public MagicFinder() {
+	ArrayList<Long> magicsSoFar=new ArrayList<>();
+	
+	public MagicFinder(long ...initMagics) {
 		//MyLookupGenerator myGenerator = new MyLookupGenerator();
+		for(long m : initMagics)
+			magicsSoFar.add(m);
 		
         List<Integer> read_payload = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader("etc/payload.csv"))) {
@@ -86,7 +91,20 @@ public class MagicFinder {
 			inputItems[insertionIndex].payload= read_payload.get(i);
 			++insertionIndex;
 		}
-		
+		reset();
+		applyPrevMagics();
+		int free = NUM_SLOTS;
+		for(HashedValue hv : hashedValues)
+			if(hv.isUsed == true)
+				free--;
+		double successRate = (double)currentMatches/(double)inputItems.length;
+		System.out.println(">>INITIAL matches: " + currentMatches +
+				", itemsRemaining: "+ (NUM_ITEMS-currentMatches) +
+				", slotsTaken: " + (NUM_SLOTS-free)+
+				", slotsFree: " + free +
+				", success%: " + String.format("%.2f", successRate)
+		);
+		showUnmappedInputs();
 		System.out.println(">> mapping " + NUM_ITEMS + " items to " + NUM_SLOTS + " slots using a key of width: "+KEY_WIDTH);
 	}
 	
@@ -102,7 +120,11 @@ public class MagicFinder {
 	}
 	
 
+	/**
+	 * performs a true reset on stateful variables - nothing else
+	 */
 	void reset() {
+		currentMatches=0;
 		for(int i=0; i<NUM_SLOTS; ++i) {
 			hashedValues[i].payload=0;
 			hashedValues[i].keyUsed=0;
@@ -113,8 +135,18 @@ public class MagicFinder {
 			inputItems[i].isMapped=false;
 	}
 	
+	void applyPrevMagics() {
+		if(!magicsSoFar.isEmpty()) {
+			long prevMagic =magicsSoFar.get(0);
+			applyMagic(prevMagic);
+		}
+	}
+	
+	/**
+	 * updates the hash table and match counts
+	 * @param hashKey
+	 */
 	void applyMagic(long hashKey) {
-		reset();
 		for(Item it : inputItems) {
 			int hashIndex=getHashIndex(it.identifier, hashKey);
 			if(it.isMapped ==false && hashedValues[hashIndex].isUsed == false) {
@@ -123,52 +155,51 @@ public class MagicFinder {
 				hashedValues[hashIndex].isUsed=true;
 			}
 		}
-	}
-	
-	int updateNumberOfmatches(long hashKey) {
-		int matched=0;
 		for(Item it : inputItems) {
 			int hashIndex=getHashIndex(it.identifier, hashKey);
-			if(hashedValues[hashIndex].keyUsed == hashKey && hashedValues[hashIndex].payload == it.payload) {
-				matched++;
+			if(it.isMapped==false && hashedValues[hashIndex].keyUsed == hashKey && hashedValues[hashIndex].payload == it.payload) {
+				currentMatches++;
 				it.isMapped=true;
 			}
 		}
-		return matched;
 	}
 	
+
 	public long lookForMagic() {
 		Random ran = new Random();	
-		int matched, free, bestScore=0;
+		int free, bestScore=0;
 		long hashKey, bestKey=0;
 		
 		long startTime = System.currentTimeMillis();
-        long duration = 2 * 60 * 1000; // 2 minutes in milliseconds
+		long durationMinutes = 1;
+        long duration = durationMinutes * 60 * 1000; // in milliseconds
 		for(int attempt=0; ; ++attempt) {
 			if(System.currentTimeMillis() - startTime > duration)
 				break;
 			
+			reset();
+			applyPrevMagics();
+			
 			hashKey=ran.nextLong() & ran.nextLong();
 			applyMagic(hashKey);
 			
-			matched=updateNumberOfmatches(hashKey);
-			
-			if(matched > bestScore) {
+			if(currentMatches > bestScore) {
 				bestKey=hashKey;
-				bestScore=matched;
+				bestScore=currentMatches;
 				free = NUM_SLOTS;
 				for(HashedValue hv : hashedValues)
 					if(hv.isUsed == true)
 						free--;
-				double successRate = (double)matched/(double)inputItems.length;
+				double successRate = (double)currentMatches/(double)inputItems.length;
 				System.out.println("Try: "+ attempt +
-						", matches: " + matched +
-						", itemsRemaining: "+ (NUM_ITEMS-matched) +
+						", matches: " + currentMatches +
+						", itemsRemaining: "+ (NUM_ITEMS-currentMatches) +
 						", slotsTaken: " + (NUM_SLOTS-free)+
 						", slotsFree: " + free +
-						", hashKey: " + Long.toHexString(hashKey) +
+						", hashKey: 0x" + Long.toHexString(hashKey) +
 						", success%: " + String.format("%.2f", successRate)
 				);
+				
 			}
 			
 		}
@@ -186,20 +217,21 @@ public class MagicFinder {
 		int total=0;
 		for(int v : sortedMap.values())
 			total+=v;
-		System.out.println("payload: "+sortedMap.size()+" distinct values with: "+ total + " unmapped items");
-		System.out.println("payload values: " + sortedMap.values());
+		
+		System.out.println("input payload: "+sortedMap.size()+" distinct values with: "+ total + " unmapped items");
+		System.out.println("input payload unmapped values frequency: " + sortedMap.values());
 	}
 
 	public static void main(String[] args) {
 		
-		MagicFinder mf= new MagicFinder();
-		mf.showUnmappedInputs();
+		MagicFinder mf= new MagicFinder(0x71c71400713100cl);//0x71c71400713100cl
 		
+
 		long bestMagic = mf.lookForMagic();
-		mf.applyMagic(bestMagic);
-		mf.updateNumberOfmatches(bestMagic);
 		System.out.println("Best magic found: " + Long.toHexString(bestMagic));
+		mf.reset();
+		mf.applyPrevMagics();
+		mf.applyMagic(bestMagic);
 		mf.showUnmappedInputs();
-		
 	}
 }
