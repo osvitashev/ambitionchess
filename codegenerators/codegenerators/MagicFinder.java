@@ -28,6 +28,12 @@ public class MagicFinder {
 	int currentMatches=0;
 	
 	ArrayList<Long> magicsSoFar=new ArrayList<>();
+	int NUM_ITEMS;
+	int NUM_SLOTS;
+	int KEY_WIDTH;
+	
+	HashedValue[] hashedValues;
+	Item[] inputItems;
 	
 	public MagicFinder(long ...initMagics) {
 		//MyLookupGenerator myGenerator = new MyLookupGenerator();
@@ -108,13 +114,6 @@ public class MagicFinder {
 		System.out.println(">> mapping " + NUM_ITEMS + " items to " + NUM_SLOTS + " slots using a key of width: "+KEY_WIDTH);
 	}
 	
-	int NUM_ITEMS;
-	int NUM_SLOTS;
-	int KEY_WIDTH;
-	
-	HashedValue[] hashedValues;
-	Item[] inputItems;
-	
 	int getHashIndex(long identifier, long hashKey) {
 		return (int)((identifier * hashKey)>>>(64-KEY_WIDTH));
 	}
@@ -165,7 +164,7 @@ public class MagicFinder {
 	}
 	
 
-	public long lookForMagic() {
+	public long lookForMagic_timedTryRandoms() {
 		Random ran = new Random();	
 		int free, bestScore=0;
 		long hashKey, bestKey=0;
@@ -199,10 +198,53 @@ public class MagicFinder {
 						", hashKey: 0x" + Long.toHexString(hashKey) +
 						", success%: " + String.format("%.2f", successRate)
 				);
+				long hillClimbKey = lookForMagic_hillclimb(hashKey);
 				
 			}
 			
 		}
+		return bestKey;
+	}
+	
+	public long lookForMagic_hillclimb(long arg) {
+		int free, bestScore=0;
+		long hashKey, bestKey=0;
+		boolean didImprove = false;
+		for(int tryy=0; ; ++tryy) {
+			didImprove = false;
+			for(int i=1; i<=64; ++i) {
+				reset();
+				applyPrevMagics();
+				
+				hashKey=arg ^ (1L<<i);
+				applyMagic(hashKey);
+				
+				if(currentMatches > bestScore) {
+					didImprove=true;
+					bestKey=hashKey;
+					bestScore=currentMatches;
+					free = NUM_SLOTS;
+					for(HashedValue hv : hashedValues)
+						if(hv.isUsed == true)
+							free--;
+					double successRate = (double)currentMatches/(double)inputItems.length;
+					System.out.println("Hillclimb: "+ tryy+ "/" + i+
+							", matches: " + currentMatches +
+							", itemsRemaining: "+ (NUM_ITEMS-currentMatches) +
+							", slotsTaken: " + (NUM_SLOTS-free)+
+							", slotsFree: " + free +
+							", hashKey: 0x" + Long.toHexString(hashKey) +
+							", success%: " + String.format("%.2f", successRate)
+					);
+					
+				}
+			}
+			if(!didImprove)
+				break;
+			else
+				arg=bestKey;
+		}
+
 		return bestKey;
 	}
 	
@@ -224,16 +266,23 @@ public class MagicFinder {
 
 	public static void main(String[] args) {
 		
-		MagicFinder mf= new MagicFinder();
+		
 		//0x71c71400713100cl 
 		//0x888882007000808
 		//0x6222220200000040
-
-		long bestMagic = mf.lookForMagic();
+		//0x444440040010000
+		//0x888882000008828
+		MagicFinder mf= new MagicFinder(0x888882007000808l);
+		long bestMagic = mf.lookForMagic_timedTryRandoms();
 		System.out.println("Best magic found: " + Long.toHexString(bestMagic));
 		mf.reset();
 		mf.applyPrevMagics();
 		mf.applyMagic(bestMagic);
 		mf.showUnmappedInputs();
+		
+		
+//		MagicFinder mf= new MagicFinder(0x71c71400713100cl);
+//		mf.lookForMagic_hillclimb(0x80004000024664l);
+		
 	}
 }
