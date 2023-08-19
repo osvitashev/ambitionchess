@@ -115,6 +115,10 @@ public class MagicFinder {
 	}
 	
 	int getHashIndex(long identifier, long hashKey) {
+//		long t = identifier * hashKey;
+//		t = t & (t<<32);
+//		t= t>>>(64-KEY_WIDTH);
+//		return (int)t;
 		return (int)((identifier * hashKey)>>>(64-KEY_WIDTH));
 	}
 	
@@ -190,15 +194,19 @@ public class MagicFinder {
 					if(hv.isUsed == true)
 						free--;
 				double successRate = (double)currentMatches/(double)inputItems.length;
+				double currentDensity = (double)currentMatches/(double)(NUM_SLOTS-free);
+				double neededDensityInNextPhase = (double)(NUM_ITEMS-currentMatches)/(double)free;
 				System.out.println("Try: "+ attempt +
 						", matches: " + currentMatches +
 						", itemsRemaining: "+ (NUM_ITEMS-currentMatches) +
 						", slotsTaken: " + (NUM_SLOTS-free)+
 						", slotsFree: " + free +
 						", hashKey: 0x" + Long.toHexString(hashKey) +
+						", curDen: " + String.format("%.2f", currentDensity)+
+						", remDen%: " + String.format("%.2f", neededDensityInNextPhase)+
 						", success%: " + String.format("%.2f", successRate)
 				);
-				long hillClimbKey = lookForMagic_hillclimb(hashKey);
+				//long hillClimbKey = lookForMagic_hillclimb(hashKey);
 				
 			}
 			
@@ -272,7 +280,7 @@ public class MagicFinder {
 		//0x6222220200000040
 		//0x444440040010000
 		//0x888882000008828
-		MagicFinder mf= new MagicFinder(0x888882007000808l);
+		MagicFinder mf= new MagicFinder();
 		long bestMagic = mf.lookForMagic_timedTryRandoms();
 		System.out.println("Best magic found: " + Long.toHexString(bestMagic));
 		mf.reset();
