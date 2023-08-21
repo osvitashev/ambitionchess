@@ -68,7 +68,7 @@ public class MagicFinder {
 		
 		int itemCount=0;
 		for(long matchupKey : read_identifier)
-			if(ComboMatchUp.to256Index(matchupKey) % 256 == ARG_MOD256)
+			if(ComboMatchUp.toGroupIndex(matchupKey) == ARG_MOD256)
 				itemCount++;
 		
 		NUM_ITEMS = itemCount;
@@ -92,7 +92,7 @@ public class MagicFinder {
 		
 		int insertionIndex=0;
 		for(int i=0; i<read_identifier.size(); ++i)
-		if(ComboMatchUp.to256Index(read_identifier.get(i)) % 256 == ARG_MOD256){
+		if(ComboMatchUp.toGroupIndex(read_identifier.get(i)) == ARG_MOD256){
 			inputItems[insertionIndex].identifier=read_identifier.get(i);
 			inputItems[insertionIndex].payload= read_payload.get(i);
 			++insertionIndex;
@@ -206,7 +206,7 @@ public class MagicFinder {
 						", remDen%: " + String.format("%.2f", neededDensityInNextPhase)+
 						", success%: " + String.format("%.2f", successRate)
 				);
-				//long hillClimbKey = lookForMagic_hillclimb(hashKey);
+				long hillClimbKey = lookForMagic_hillclimb(hashKey);
 				
 			}
 			

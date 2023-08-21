@@ -138,7 +138,7 @@ public class ComboMatchUp implements Serializable, Comparable<ComboMatchUp> {
 		return ret;
 	}
 	
-	static int to256Index(long matchupKey) {
-		return (int)((matchupKey>>11 )% 256L);
+	static int toGroupIndex(long matchupKey) {
+		return (int)((matchupKey>>11 )% MyLookupGenerator.NUM_GROUPS);
 	}
 }

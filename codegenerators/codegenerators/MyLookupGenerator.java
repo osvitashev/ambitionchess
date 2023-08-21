@@ -31,6 +31,8 @@ import javax.management.openmbean.OpenMBeanParameterInfoSupport;
 import gamestate.Bitboard;
 
 public class MyLookupGenerator {
+	static int NUM_GROUPS =1024;
+	
 	MyLookupGenerator(){
 		populateAttackCollection();
 	}
@@ -432,35 +434,53 @@ public class MyLookupGenerator {
 		System.out.println(htg);
 
 		
-		HashMap<Integer, Integer> htg2 = new HashMap<>();
+		HashMap<Integer, Integer> whatIfDistribution = new HashMap<>();
 		for(ComboMatchUp cmu : myGenerator.matchups) {
-			htg2.put(cmu.whatIfMatrix, 1+htg2.getOrDefault(cmu.whatIfMatrix, 0));
+			whatIfDistribution.put(cmu.whatIfMatrix, 1+whatIfDistribution.getOrDefault(cmu.whatIfMatrix, 0));
 		}
-		System.out.println("WhatIf distribution: ["+htg2.size()+"]");
-		System.out.println(htg2);
-		System.out.println("WhatIf values: " + htg2.values());
+		System.out.println("WhatIf distribution: ["+whatIfDistribution.size()+"]");
+		System.out.println(whatIfDistribution);
+		System.out.println("WhatIf values: " + whatIfDistribution.values());
 		
-		int mod256Histogram[]=new int[256];
-		for(ComboMatchUp cmu : myGenerator.matchups)
-			mod256Histogram[ComboMatchUp.to256Index(cmu.matchupKey)]++;
+		int histogram_inputs[]=new int[NUM_GROUPS];
+		Set<Integer>[] histogram_unique_outputs = new HashSet[NUM_GROUPS];
+		for(int i=0; i< NUM_GROUPS; ++i)
+			histogram_unique_outputs[i]=new HashSet<Integer>();
+		
+		for(ComboMatchUp cmu : myGenerator.matchups) {
+			histogram_inputs[ComboMatchUp.toGroupIndex(cmu.matchupKey)]++;
+			histogram_unique_outputs[ComboMatchUp.toGroupIndex(cmu.matchupKey)].add(cmu.whatIfMatrix);
+		}
+			
 		{
-			int min = Integer.MAX_VALUE;
-	        int max = Integer.MIN_VALUE;
-	        int sum = 0;
-	        for(int i=0;i<mod256Histogram.length;++i) {
-	        	System.out.println("mod 256 = " + i+ " count = "+ mod256Histogram[i]);
-	            min = Math.min(min, mod256Histogram[i]);
-	            max = Math.max(max, mod256Histogram[i]);
-	            sum += mod256Histogram[i];
+			int min_inputSize = Integer.MAX_VALUE, min_outputSize = Integer.MAX_VALUE;
+	        int max_inputSize = Integer.MIN_VALUE, max_outputSize = Integer.MIN_VALUE;
+	        int sum_inputSize = 0, sum_outputSize = 0;
+	        for(int i=0;i<NUM_GROUPS;++i) {
+	        	System.out.println("mod "+NUM_GROUPS+" = " + i+ " inputs: "+ histogram_inputs[i] + " outputs: " + histogram_unique_outputs[i].size());
+	            min_inputSize = Math.min(min_inputSize, histogram_inputs[i]);
+	            max_inputSize = Math.max(max_inputSize, histogram_inputs[i]);
+	            sum_inputSize += histogram_inputs[i];
+	            
+	            min_outputSize = Math.min(min_outputSize, histogram_unique_outputs[i].size());
+	            max_outputSize = Math.max(max_outputSize, histogram_unique_outputs[i].size());
+	            sum_outputSize += histogram_unique_outputs[i].size();
 	        }
-	        double average = (double) sum / mod256Histogram.length;
-	        double sumOfSquaredDifferences = 0;
-	        for(int i=0;i<mod256Histogram.length;++i) {
-	            double diff = mod256Histogram[i] - average;
-	            sumOfSquaredDifferences += diff * diff;
+	        double average_inputSize = (double) sum_inputSize / NUM_GROUPS;
+	        double average_outputSize = (double) sum_outputSize / NUM_GROUPS;
+	        double sumOfSquaredDifferences_inputSize = 0, sumOfSquaredDifferences_outputSize = 0;
+	        for(int i=0;i<NUM_GROUPS;++i) {
+	            double diff = histogram_inputs[i] - average_inputSize;
+	            sumOfSquaredDifferences_inputSize += diff * diff;
+	            
+	            diff = histogram_unique_outputs[i].size() - average_outputSize;
+	            sumOfSquaredDifferences_outputSize += diff * diff;
 	        }
-	        double standardDeviation = Math.sqrt(sumOfSquaredDifferences / mod256Histogram.length);
-			System.out.println("mod 256 min: "+min+ " max: "+max+" avg: "+String.format("%.2f", average)+ " stddev: "+String.format("%.2f", standardDeviation));
+	        double standardDeviation_inputSize = Math.sqrt(sumOfSquaredDifferences_inputSize / NUM_GROUPS);
+	        double standardDeviation_outputSize = Math.sqrt(sumOfSquaredDifferences_outputSize / NUM_GROUPS);
+			System.out.println("mod "+NUM_GROUPS+" inputs== min: "+min_inputSize+ " max: "+max_inputSize+" avg: "+String.format("%.2f", average_inputSize)+ " stddev: "+String.format("%.2f", standardDeviation_inputSize));
+			System.out.println("mod "+NUM_GROUPS+" outputs== min: "+min_outputSize+ " max: "+max_outputSize+" avg: "+String.format("%.2f", average_outputSize)+ " stddev: "+String.format("%.2f", standardDeviation_outputSize));
+
 		}
 		
 		String filePath = "etc/payload.csv";
