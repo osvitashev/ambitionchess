@@ -323,7 +323,7 @@ public class Gamestate {
 			clearPieceAt(Move.getPieceCapturedType(move), Move.getSquareTo(move));
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareTo(move));
 			// TODO: add more distinction for the king update
-			setKingSquare(bitScanForward(getPieces(player, PieceType.KING)), player);
+			setKingSquare(getFirstSquareIndex(getPieces(player, PieceType.KING)), player);
 			break;
 		case MoveType.ENPASSANT:
 			clearPieceAt(Move.getPieceType(move), Move.getSquareFrom(move));
@@ -367,7 +367,7 @@ public class Gamestate {
 			clearPieceAt(Move.getPieceType(move), Move.getSquareFrom(move));
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareTo(move));
 			// TODO: more detection before king update
-			setKingSquare(bitScanForward(getPieces(player, PieceType.KING)), player);
+			setKingSquare(getFirstSquareIndex(getPieces(player, PieceType.KING)), player);
 			break;
 		case MoveType.DOUBLE_PUSH:
 			clearPieceAt(Move.getPieceType(move), Move.getSquareFrom(move));
@@ -395,7 +395,7 @@ public class Gamestate {
 			putPieceAt(Move.getPieceCapturedType(move), otherPlayer, Move.getSquareTo(move));
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareFrom(move));
 			// TODO: add more distinction for the king update
-			setKingSquare(bitScanForward(getPieces(player, PieceType.KING)), player);
+			setKingSquare(getFirstSquareIndex(getPieces(player, PieceType.KING)), player);
 			break;
 		case MoveType.ENPASSANT:
 			clearPieceAt(PieceType.PAWN, Move.getSquareTo(move));
@@ -439,7 +439,7 @@ public class Gamestate {
 			clearPieceAt(Move.getPieceType(move), Move.getSquareTo(move));
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareFrom(move));
 			// TODO: add more distinction for the king update
-			setKingSquare(bitScanForward(getPieces(player, PieceType.KING)), player);
+			setKingSquare(getFirstSquareIndex(getPieces(player, PieceType.KING)), player);
 			break;
 		case MoveType.DOUBLE_PUSH:
 			clearPieceAt(PieceType.PAWN, Move.getSquareTo(move));
@@ -701,8 +701,8 @@ public class Gamestate {
 		// needed in case board is in an invalid state which will lead to more errors
 		// this will be handled by the validation step.
 		try {
-			kingSquare[0] = (getPieces(Player.WHITE, PieceType.KING) == 0) ? Square.SQUARE_NONE : Bitboard.bitScanForward(getPieces(Player.WHITE, PieceType.KING));
-			kingSquare[1] = (getPieces(Player.BLACK, PieceType.KING) == 0) ? Square.SQUARE_NONE : Bitboard.bitScanForward(getPieces(Player.BLACK, PieceType.KING));
+			kingSquare[0] = (getPieces(Player.WHITE, PieceType.KING) == 0) ? Square.SQUARE_NONE : Bitboard.getFirstSquareIndex(getPieces(Player.WHITE, PieceType.KING));
+			kingSquare[1] = (getPieces(Player.BLACK, PieceType.KING) == 0) ? Square.SQUARE_NONE : Bitboard.getFirstSquareIndex(getPieces(Player.BLACK, PieceType.KING));
 			isCheck = calculateIsPlayerInCheck(playerToMove);
 		} catch (Exception e) {
 
@@ -847,9 +847,9 @@ public class Gamestate {
 			// validate king denorm
 			if (Bitboard.popcount(getPieces(PieceType.KING)) != 2)
 				throw new RuntimeException("Something wrong with kings!");
-			if (getKingSquare(Player.WHITE) != bitScanForward(getPieces(Player.WHITE, PieceType.KING)))
+			if (getKingSquare(Player.WHITE) != getFirstSquareIndex(getPieces(Player.WHITE, PieceType.KING)))
 				throw new RuntimeException("Error in king denorm!");
-			if (getKingSquare(Player.BLACK) != bitScanForward(getPieces(Player.BLACK, PieceType.KING)))
+			if (getKingSquare(Player.BLACK) != getFirstSquareIndex(getPieces(Player.BLACK, PieceType.KING)))
 				throw new RuntimeException("Error in king denorm!");
 			DebugLibrary.validateSquare(getKingSquare(Player.WHITE));
 			DebugLibrary.validateSquare(getKingSquare(Player.BLACK));

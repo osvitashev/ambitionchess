@@ -29,7 +29,7 @@ import gamestate.GlobalConstants.Square;
  *
  */
 public final class Bitboard {
-	public static int bitScanForward(long bb) {
+	public static int getFirstSquareIndex(long bb) {
 		return Long.numberOfTrailingZeros(bb);
 	}
 
