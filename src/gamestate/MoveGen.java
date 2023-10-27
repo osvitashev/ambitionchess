@@ -17,6 +17,7 @@ import gamestate.GlobalConstants.Square;
  *
  */
 public class MoveGen {
+	///TODO: reevaluate whether this is needed!
 	private long pinnedPieces;
 
 	private long getPinnedPieces() {
