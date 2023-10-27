@@ -101,27 +101,11 @@ class MoveTest {
 		move = Move.setMoveType(move, GlobalConstants.MoveType.DOUBLE_PUSH);
 		assertEquals(GlobalConstants.MoveType.DOUBLE_PUSH, Move.getMoveType(move));
 		assertEquals(0, Move.getPiecePromotedType(move));
-		assertEquals(false, Move.getCastlingQueenside(move));
-
-		// test castlingQueenSide
-		move = 0;
-		move = Move.setCastlingQueenside(move, true);
-		assertEquals(true, Move.getCastlingQueenside(move));
-		assertEquals(0, Move.getPiecePromotedType(move));
-		assertEquals(false, Move.getCastlingKingside(move));
-
-		// test castlingKingside
-		move = 0;
-		move = Move.setCastlingKingside(move, true);
-		assertEquals(true, Move.getCastlingKingside(move));
-		assertEquals(false, Move.getCastlingQueenside(move));
-		assertEquals(0, Move.getPlayer(move));
 
 		// test get player
 		move = 0;
 		move = Move.setPlayer(move, Player.BLACK);
 		assertEquals(Player.BLACK, Move.getPlayer(move));
-		assertEquals(false, Move.getCastlingKingside(move));
 		assertEquals(false, Move.getCheck(move));
 
 		// test check

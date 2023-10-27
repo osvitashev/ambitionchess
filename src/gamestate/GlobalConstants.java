@@ -1,12 +1,27 @@
 package gamestate;
 
+import gamestate.GlobalConstants.PieceType;
+
 public class GlobalConstants {
 	public static final class Player {
+		public static boolean validate(int pl) {
+			return pl==0 || pl==1;
+		}
 
 		public static final int WHITE = 0;
 		public static final int BLACK = 1;
 		public static final int NO_PLAYER = 2;
 		public static final int[] PLAYERS = { WHITE, BLACK };
+		
+		public static String toString(int pl) {
+			assert Player.validate(pl);
+			String ret = "";
+			if (pl == WHITE)
+				ret = "White";
+			else if (pl == BLACK)
+				ret = "Black";
+			return ret;
+		}
 
 		public static boolean isWhite(int player) {
 			return player == WHITE;
@@ -25,6 +40,9 @@ public class GlobalConstants {
 	}
 
 	public static final class PieceType {
+		public static boolean validate(int pt) {
+			return pt>=PAWN && pt<=KING;
+		}
 // IMPORTANT: NO_PIECE is not in the collection!
 		public static final int[] PIECE_TYPES = { PieceType.PAWN, PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP, PieceType.QUEEN, PieceType.KING };
 		// it may be useful to have piece codes roughly approximating the order of value
@@ -38,7 +56,7 @@ public class GlobalConstants {
 		public static final int NO_PIECE = 6;
 
 		public static String toString(int pt) {
-			DebugLibrary.validatePieceType(pt);
+			assert PieceType.validate(pt);
 			String ret = "";
 			if (pt == PieceType.PAWN)
 				ret = "P";
@@ -57,6 +75,13 @@ public class GlobalConstants {
 	}
 
 	public static final class Square {
+		public static boolean validate(int sq) {
+			return sq>=0 && sq<=63;
+		}
+		
+		public static String toString(int sq) {
+			return ALGEBRAIC_SQUARE_STRINGS[sq];
+		}
 
 		public static final int A1 = 0;
 		public static final int[] SQUARES = { A1, Square.B1, Square.C1, Square.D1, Square.E1, Square.F1, Square.G1, Square.H1, Square.A2, Square.B2, Square.C2, Square.D2, Square.E2,
@@ -153,6 +178,9 @@ public class GlobalConstants {
 	 * field
 	 */
 	public static final class MoveType {
+		public static boolean validate(int pt) {
+			return pt>=0 && pt<=7;
+		}
 		// NOTICE: assigned value roughly indicate the desired move ordering.
 		public static final int PROMO_CAPTURE = 0;
 		public static final int PROMO = 1;
@@ -163,7 +191,26 @@ public class GlobalConstants {
 		public static final int NORMAL = 6;
 		public static final int DOUBLE_PUSH = 7;
 		public static final int[] MOVE_TYPES = { PROMO_CAPTURE, PROMO, CAPTURE, ENPASSANT, CASTLE_KING, CASTLE_QUEEN, NORMAL, DOUBLE_PUSH };
-
+		
+		public static String toString(int mType) {
+			switch(mType) {
+			case PROMO_CAPTURE:
+				return "PROMO_CAPTURE";
+			case PROMO:
+				return "PROMO";
+			case CAPTURE:
+				return "CAPTURE";
+			case ENPASSANT:
+				return "ENPASSANT";
+			case CASTLE_KING:
+				return "CASTLE_KING";
+			case CASTLE_QUEEN:
+				return "CASTLE_QUEEN";
+			case NORMAL:
+				return "NORMAL";
+			}
+			return "DOUBLE_PUSH";
+		}
 	}
 
 	private GlobalConstants() {
