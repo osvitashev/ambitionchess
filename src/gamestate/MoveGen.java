@@ -446,7 +446,7 @@ public class MoveGen {
 	}
 
 	private int generateBishopCaptures_helper(Gamestate brd, int sqFrom, MovePool movepool) {
-		DebugLibrary.validateSquare(sqFrom);
+		assert Square.validate(sqFrom);
 		int move;
 		long targetBitboard = BitboardGen.getBishopSet(sqFrom, brd.getOccupied()) & brd.getPlayerPieces(Player.getOtherPlayer(brd.getPlayerToMove()));
 		{
@@ -461,7 +461,7 @@ public class MoveGen {
 	}
 
 	private int generateBishopMoves_helper(Gamestate brd, int sqFrom, MovePool movepool) {
-		DebugLibrary.validateSquare(sqFrom);
+		assert Square.validate(sqFrom);
 		int move;
 		long targetBitboard = BitboardGen.getBishopSet(sqFrom, brd.getOccupied()) & brd.getEmpty();
 		{
@@ -476,7 +476,7 @@ public class MoveGen {
 	}
 
 	private int generateKnightCaptures_helper(Gamestate brd, int sqFrom, MovePool movepool) {
-		DebugLibrary.validateSquare(sqFrom);
+		assert Square.validate(sqFrom);
 		int move;
 		long targetBitboard = BitboardGen.getKnightSet(sqFrom) & brd.getPlayerPieces(Player.getOtherPlayer(brd.getPlayerToMove()));
 		{
@@ -491,7 +491,7 @@ public class MoveGen {
 	}
 
 	private int generateKnightMoves_helper(Gamestate brd, int sqFrom, MovePool movepool) {
-		DebugLibrary.validateSquare(sqFrom);
+		assert Square.validate(sqFrom);
 		int move;
 		long targetBitboard = BitboardGen.getKnightSet(sqFrom) & brd.getEmpty();
 		{
@@ -506,7 +506,7 @@ public class MoveGen {
 	}
 
 	private int generatePawnCaptures_helper(Gamestate brd, int sqFrom, MovePool movepool) {
-		DebugLibrary.validateSquare(sqFrom);
+		assert Square.validate(sqFrom);
 		int move;
 		long targetBitboard = BitboardGen.getPawnAttackSet(sqFrom, brd.getPlayerToMove()) & brd.getPlayerPieces(Player.getOtherPlayer(brd.getPlayerToMove()));
 		{
@@ -522,7 +522,7 @@ public class MoveGen {
 
 	private int generatePawnPromotionsAndCapturePromotions_helper(Gamestate brd, int sqFrom, MovePool movepool) {
 		// sqFrom is guaranteed to be rank to be either 2 or 7
-		DebugLibrary.validateSquare(sqFrom);
+		assert Square.validate(sqFrom);
 		int move;
 		long targetBitboard = BitboardGen.getPawnAttackSet(sqFrom, brd.getPlayerToMove()) & brd.getPlayerPieces(Player.getOtherPlayer(brd.getPlayerToMove()));
 		{
@@ -568,7 +568,7 @@ public class MoveGen {
 	}
 
 	private int generateQueenCaptures_helper(Gamestate brd, int sqFrom, MovePool movepool) {
-		DebugLibrary.validateSquare(sqFrom);
+		assert Square.validate(sqFrom);
 		int move;
 		long targetBitboard = BitboardGen.getQueenSet(sqFrom, brd.getOccupied()) & brd.getPlayerPieces(Player.getOtherPlayer(brd.getPlayerToMove()));
 		{
@@ -583,7 +583,7 @@ public class MoveGen {
 	}
 
 	private int generateQueenMoves_helper(Gamestate brd, int sqFrom, MovePool movepool) {
-		DebugLibrary.validateSquare(sqFrom);
+		assert Square.validate(sqFrom);
 		int move;
 		long targetBitboard = BitboardGen.getQueenSet(sqFrom, brd.getOccupied()) & brd.getEmpty();
 		{
@@ -598,7 +598,7 @@ public class MoveGen {
 	}
 
 	private int generateRookCaptures_helper(Gamestate brd, int sqFrom, MovePool movepool) {
-		DebugLibrary.validateSquare(sqFrom);
+		assert Square.validate(sqFrom);
 		int move;
 		long targetBitboard = BitboardGen.getRookSet(sqFrom, brd.getOccupied()) & brd.getPlayerPieces(Player.getOtherPlayer(brd.getPlayerToMove()));
 		{
@@ -613,7 +613,7 @@ public class MoveGen {
 	}
 
 	private int generateRookMoves_helper(Gamestate brd, int sqFrom, MovePool movepool) {
-		DebugLibrary.validateSquare(sqFrom);
+		assert Square.validate(sqFrom);
 		int move;
 		long targetBitboard = BitboardGen.getRookSet(sqFrom, brd.getOccupied()) & brd.getEmpty();
 		{

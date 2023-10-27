@@ -1,5 +1,8 @@
 package gamestate;
 
+import gamestate.GlobalConstants.Player;
+import gamestate.GlobalConstants.Square;
+
 public class BitboardGen {
 
 	private final static long[] KING_SETS = { 0x0000000000000302L, 0x0000000000000705L, 0x0000000000000e0aL, 0x0000000000001c14L, 0x0000000000003828L,
@@ -54,8 +57,8 @@ public class BitboardGen {
 	 * @return bitboard
 	 */
 	public static long getPawnAttackSet(int sq, int pl) {
-		DebugLibrary.validateSquare(sq);
-		DebugLibrary.validatePlayer(pl);
+		assert Square.validate(sq);
+		assert Player.validate(pl);
 		return PAWN_SETS[pl][sq];
 	}
 
@@ -67,7 +70,7 @@ public class BitboardGen {
 	 * @return bitboard
 	 */
 	public static long getKingSet(int sq) {
-		DebugLibrary.validateSquare(sq);
+		assert Square.validate(sq);
 		return KING_SETS[sq];
 	}
 
@@ -79,7 +82,7 @@ public class BitboardGen {
 	 * @return bitboard
 	 */
 	public static long getKnightSet(int sq) {
-		DebugLibrary.validateSquare(sq);
+		assert Square.validate(sq);
 		return KNIGHT_SETS[sq];
 	}
 
@@ -126,19 +129,19 @@ public class BitboardGen {
 	private static final Magic[] bishopMagics = new Magic[64];
 
 	public static long getRookSet(final int sq, final long occ) {
-		DebugLibrary.validateSquare(sq);
+		assert Square.validate(sq);
 		final Magic magic = rookMagics[sq];
 		return magic.magicMoves[(int) ((occ & magic.movementMask) * magic.magicNumber >>> magic.shift)];
 	}
 
 	public static long getBishopSet(final int sq, final long occ) {
-		DebugLibrary.validateSquare(sq);
+		assert Square.validate(sq);
 		final Magic magic = bishopMagics[sq];
 		return magic.magicMoves[(int) ((occ & magic.movementMask) * magic.magicNumber >>> magic.shift)];
 	}
 
 	public static long getQueenSet(final int sq, final long occ) {
-		DebugLibrary.validateSquare(sq);
+		assert Square.validate(sq);
 		final Magic rookMagic = rookMagics[sq];
 		final Magic bishopMagic = bishopMagics[sq];
 		return rookMagic.magicMoves[(int) ((occ & rookMagic.movementMask) * rookMagic.magicNumber >>> rookMagic.shift)]
@@ -146,17 +149,17 @@ public class BitboardGen {
 	}
 
 	public static long getRookSetEmptyBoard(final int sq) {
-		DebugLibrary.validateSquare(sq);
+		assert Square.validate(sq);
 		return rookMagics[sq].magicMoves[0];
 	}
 
 	public static long getBishopSetEmptyBoard(final int sq) {
-		DebugLibrary.validateSquare(sq);
+		assert Square.validate(sq);
 		return bishopMagics[sq].magicMoves[0];
 	}
 
 	public static long getQueenSetEmptyBoard(final int sq) {
-		DebugLibrary.validateSquare(sq);
+		assert Square.validate(sq);
 		return bishopMagics[sq].magicMoves[0] | rookMagics[sq].magicMoves[0];
 	}
 

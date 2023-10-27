@@ -50,27 +50,27 @@ public final class Bitboard {
 	}
 
 	public static boolean testBit(long bb, int i) {
-		DebugLibrary.validateSquare(i);
+		assert Square.validate(i);
 		return 0L != (bb & 1L << i);
 	}
 
 	public static long setBit(long bb, int i) {
-		DebugLibrary.validateSquare(i);
+		assert Square.validate(i);
 		return bb | 1L << i;
 	}
 
 	public static long initFromSquare(int i) {
-		DebugLibrary.validateSquare(i);
+		assert Square.validate(i);
 		return 1L << i;
 	}
 
 	public static long clearBit(long bb, int i) {
-		DebugLibrary.validateSquare(i);
+		assert Square.validate(i);
 		return bb & ~(1L << i);
 	}
 
 	public static long toggleBit(long bb, int i) {
-		DebugLibrary.validateSquare(i);
+		assert Square.validate(i);
 		return bb ^ (1L << i);
 	}
 
@@ -236,28 +236,28 @@ public final class Bitboard {
 	}
 
 	public static long getRankMask(int sq) {
-		DebugLibrary.validateSquare(sq);
+		assert Square.validate(sq);
 		return ranks_64[sq];
 	}
 
 	public static long getFileMask(int sq) {
-		DebugLibrary.validateSquare(sq);
+		assert Square.validate(sq);
 		return files_64[sq];
 	}
 
 	public static long getDiagMask(int sq) {
-		DebugLibrary.validateSquare(sq);
+		assert Square.validate(sq);
 		return diagonals_64[sq];
 	}
 
 	public static long getAntiDiagMask(int sq) {
-		DebugLibrary.validateSquare(sq);
+		assert Square.validate(sq);
 		return anti_diagonals_64[sq];
 	}
 	
 	public static long getSquaresBetween(int sq1, int sq2) {
-		DebugLibrary.validateSquare(sq1);
-		DebugLibrary.validateSquare(sq2);
+		assert Square.validate(sq1);
+		assert Square.validate(sq2);
 		return masks_in_between[sq1][sq2];
 	}
 

@@ -1,13 +1,13 @@
 package exchangeval;
 
 import gamestate.Gamestate;
-import gamestate.DebugLibrary;
 import gamestate.Move;
 import gamestate.MoveGen;
 import gamestate.MovePool;
 import gamestate.GlobalConstants.MoveType;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
+import gamestate.GlobalConstants.Square;
 
 /**
  * Used to calculate outcomes of potential exchanges by performing series of
@@ -29,7 +29,7 @@ public class ExpensiveExchangeEvaluator {
 	private boolean generateCaptures;
 	
 	public static int getPieceTypeValue(int piecetype, boolean maximizingPlayer) {
-		DebugLibrary.validatePieceType(piecetype);
+		assert PieceType.validate(piecetype);
 		int temp = pieceValues[piecetype];
 		if(!maximizingPlayer)
 			temp = -1*temp;
@@ -134,8 +134,8 @@ public class ExpensiveExchangeEvaluator {
 	 * @return
 	 */
 	public boolean toOccupy(Gamestate brd, int square, int player) {
-		DebugLibrary.validatePlayer(player);
-		DebugLibrary.validateSquare(square);
+		assert Player.validate(player);
+		assert Square.validate(square);
 		if (brd.getPlayerAt(square) == player)
 			return false;// friendly capture
 		this.square = square;
@@ -215,7 +215,7 @@ public class ExpensiveExchangeEvaluator {
 	}
 
 	public int toWinMaterial(Gamestate brd, int square) {
-		DebugLibrary.validateSquare(square);		
+		assert Square.validate(square);		
 		generateCaptures = brd.getPlayerAt(square) != Player.NO_PLAYER;
 		
 		this.square = square;
