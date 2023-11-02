@@ -57,6 +57,13 @@ public class BasicStaticExchangeEvaluator {
 				return Bitboard.isolateLsb(candidate_bishops);
 		}
 		
+		{
+			long candidate_rooks = BitboardGen.getRookSet(sq_target, game.getOccupied() & ~clearedLocations) & ~clearedLocations
+					& game.getPieces(player, PieceType.ROOK);
+			if(!Bitboard.isEmpty(candidate_rooks))
+				return Bitboard.isolateLsb(candidate_rooks);
+		}
+		
 		return 0;
 	}
 	

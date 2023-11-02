@@ -166,7 +166,70 @@ class BasicStaticExchangeEvaluatorTest {
 				Player.BLACK,
 				Bitboard.initFromAlgebraicSquares("a7", "b5", "e8")//cleared locations
 		);
+		//rooks
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.B5),//expected
+				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
+				Square.C5,//target
+				Player.BLACK,
+				Bitboard.initFromAlgebraicSquares()//cleared locations
+		);
 		
+		helper_test_getLeastValuableAttacker_mask(
+				0l,//expected
+				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
+				Square.C5,//target
+				Player.BLACK,
+				Bitboard.initFromAlgebraicSquares("b5")//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.E5),//expected
+				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
+				Square.C5,//target
+				Player.WHITE,
+				Bitboard.initFromAlgebraicSquares()//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.F5),//expected
+				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
+				Square.C5,//target
+				Player.WHITE,
+				Bitboard.initFromAlgebraicSquares("e5")//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				0l,//expected
+				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
+				Square.C5,//target
+				Player.WHITE,
+				Bitboard.initFromAlgebraicSquares("e5", "f5")//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				0l,//expected
+				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
+				Square.H5,//target
+				Player.WHITE,
+				Bitboard.initFromAlgebraicSquares()//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				0l,//expected
+				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
+				Square.H5,//target
+				Player.BLACK,
+				Bitboard.initFromAlgebraicSquares()//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.F5),//expected
+				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
+				Square.H5,//target
+				Player.WHITE,
+				Bitboard.initFromAlgebraicSquares("g5")//cleared locations
+		);
 		
 		//test for priority override: knight should take precedence over bishop and so on.
 	}
