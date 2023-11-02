@@ -1,10 +1,13 @@
 package basicseeval;
 
 import gamestate.Bitboard;
+import gamestate.BitboardGen;
 import gamestate.Gamestate;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
+import gamestate.MoveGen;
+import gamestate.MoveGen.LegalMoveGenerator;
 
 /*
  * Takes a board state and performs square-centric static exchange evaluation.
@@ -23,22 +26,35 @@ public class BasicStaticExchangeEvaluator {
 	 * @param clearedLocations
 	 * @return
 	 */
-	static long getLeastValuableAttacker_mask(Gamestate game, int sq, int player, long clearedLocations) {
-		assert Square.validate(sq);
+	static long getLeastValuableAttacker_mask(Gamestate game, int sq_target, int player, long clearedLocations) {
+		assert Square.validate(sq_target);
 		assert Player.validate(player);
-		long targetMask = Bitboard.initFromSquare(sq);
+		long targetMask = Bitboard.initFromSquare(sq_target);
 		
 		{
 			long candidate_pawns=0;
 			if(Player.isWhite(player))
 				candidate_pawns= Bitboard.shiftSouth( Bitboard.shiftEast(targetMask)) |
-						Bitboard.shiftSouth( Bitboard.shiftWest(targetMask));
+					Bitboard.shiftSouth( Bitboard.shiftWest(targetMask));
 			else
 				candidate_pawns= Bitboard.shiftNorth( Bitboard.shiftEast(targetMask)) |
-				Bitboard.shiftNorth( Bitboard.shiftWest(targetMask));
+					Bitboard.shiftNorth( Bitboard.shiftWest(targetMask));
 			candidate_pawns &= game.getPieces(player, PieceType.PAWN) & ~clearedLocations;
 			if(!Bitboard.isEmpty(candidate_pawns))
 				return Bitboard.isolateLsb(candidate_pawns);
+		}
+		
+		{
+			long candidate_knights = BitboardGen.getKnightSet(sq_target) & ~clearedLocations & game.getPieces(player, PieceType.KNIGHT);
+			if(!Bitboard.isEmpty(candidate_knights))
+				return Bitboard.isolateLsb(candidate_knights);
+		}
+		
+		{
+			long candidate_bishops = BitboardGen.getBishopSet(sq_target, game.getOccupied() & ~clearedLocations) & ~clearedLocations
+					& game.getPieces(player, PieceType.BISHOP);
+			if(!Bitboard.isEmpty(candidate_bishops))
+				return Bitboard.isolateLsb(candidate_bishops);
 		}
 		
 		return 0;
