@@ -177,7 +177,7 @@ class BasicStaticExchangeEvaluatorTest {
 		
 		helper_test_getLeastValuableAttacker_mask(
 				0l,//expected
-				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
+				"8/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
 				Square.C5,//target
 				Player.BLACK,
 				Bitboard.initFromAlgebraicSquares("b5")//cleared locations
@@ -229,6 +229,47 @@ class BasicStaticExchangeEvaluatorTest {
 				Square.H5,//target
 				Player.WHITE,
 				Bitboard.initFromAlgebraicSquares("g5")//cleared locations
+		);
+		//queens
+		
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.C5),//expected
+				"7k/1p4pp/1P6/1Pq2q2/1p1Q4/8/K7/8 w - - 0 1",
+				Square.B5,//target
+				Player.BLACK,
+				Bitboard.initFromAlgebraicSquares()//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.F5),//expected
+				"7k/1p4pp/1P6/1Pq2q2/1p1Q4/8/K7/8 w - - 0 1",
+				Square.B5,//target
+				Player.BLACK,
+				Bitboard.initFromAlgebraicSquares("c5")//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				0l,//expected
+				"7k/1p4pp/1P6/1Pq2q2/1p1Q4/8/K7/8 w - - 0 1",
+				Square.B5,//target
+				Player.BLACK,
+				Bitboard.initFromAlgebraicSquares("c5", "f5")//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				0l,//expected
+				"7k/1p4pp/1P6/1Pq2q2/1p1Q4/8/K7/8 w - - 0 1",
+				Square.B6,//target
+				Player.WHITE,
+				Bitboard.initFromAlgebraicSquares()//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.D4),//expected
+				"7k/1p4pp/1P6/1Pq2q2/1p1Q4/8/K7/8 w - - 0 1",
+				Square.B6,//target
+				Player.WHITE,
+				Bitboard.initFromAlgebraicSquares("c5")//cleared locations
 		);
 		
 		//test for priority override: knight should take precedence over bishop and so on.
