@@ -71,6 +71,12 @@ public class BasicStaticExchangeEvaluator {
 				return Bitboard.isolateLsb(candidate_queens);
 		}
 		
+		{
+			long candidate_kings = BitboardGen.getKingSet(sq_target) & ~clearedLocations & game.getPieces(player, PieceType.KING);
+			if(!Bitboard.isEmpty(candidate_kings))
+				return Bitboard.isolateLsb(candidate_kings);
+		}
+		
 		return 0;
 	}
 	

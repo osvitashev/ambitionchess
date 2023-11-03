@@ -177,7 +177,7 @@ class BasicStaticExchangeEvaluatorTest {
 		
 		helper_test_getLeastValuableAttacker_mask(
 				0l,//expected
-				"8/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
+				"8/8/k7/1rp1RRp1/8/6K1/8/8 w - - 0 1",
 				Square.C5,//target
 				Player.BLACK,
 				Bitboard.initFromAlgebraicSquares("b5")//cleared locations
@@ -270,6 +270,53 @@ class BasicStaticExchangeEvaluatorTest {
 				Square.B6,//target
 				Player.WHITE,
 				Bitboard.initFromAlgebraicSquares("c5")//cleared locations
+		);
+		//kings
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.C6),//expected
+				"8/2n5/2k5/8/2K5/8/3P4/8 b - - 0 1",
+				Square.C5,//target
+				Player.BLACK,
+				Bitboard.initFromAlgebraicSquares()//cleared locations
+		);
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.C6),//expected
+				"8/2n5/2k5/8/2K5/8/3P4/8 b - - 0 1",
+				Square.B6,//target
+				Player.BLACK,
+				Bitboard.initFromAlgebraicSquares("c7")//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				0l,//expected
+				"8/2n5/2k5/8/2K5/8/3P4/8 b - - 0 1",
+				Square.B6,//target
+				Player.BLACK,
+				Bitboard.initFromAlgebraicSquares("c7", "c6")//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.C4),//expected
+				"8/2n5/2k5/8/2K5/8/3P4/8 b - - 0 1",
+				Square.C5,//target
+				Player.WHITE,
+				Bitboard.initFromAlgebraicSquares()//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.C4),//expected
+				"8/2n5/2k5/8/2K5/8/3P4/8 b - - 0 1",
+				Square.C3,//target
+				Player.WHITE,
+				Bitboard.initFromAlgebraicSquares("d2")//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				0l,//expected
+				"8/2n5/2k5/8/2K5/8/3P4/8 b - - 0 1",
+				Square.C3,//target
+				Player.WHITE,
+				Bitboard.initFromAlgebraicSquares("d2", "c4")//cleared locations
 		);
 		
 		//test for priority override: knight should take precedence over bishop and so on.
