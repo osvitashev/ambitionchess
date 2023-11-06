@@ -319,6 +319,143 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("d2", "c4")//cleared locations
 		);
 		
+		//order of attacks - no batteries
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.E3),//expected
+				"6k1/8/1Q3B2/8/3P1R2/3KP3/4N3/8 w - - 0 1",
+				Square.D4,//target
+				Player.WHITE,
+				Bitboard.initFromAlgebraicSquares()//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.E2),//expected
+				"6k1/8/1Q3B2/8/3P1R2/3KP3/4N3/8 w - - 0 1",
+				Square.D4,//target
+				Player.WHITE,
+				Bitboard.initFromAlgebraicSquares("e3")//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.F6),//expected
+				"6k1/8/1Q3B2/8/3P1R2/3KP3/4N3/8 w - - 0 1",
+				Square.D4,//target
+				Player.WHITE,
+				Bitboard.initFromAlgebraicSquares("e3", "e2")//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.F4),//expected
+				"6k1/8/1Q3B2/8/3P1R2/3KP3/4N3/8 w - - 0 1",
+				Square.D4,//target
+				Player.WHITE,
+				Bitboard.initFromAlgebraicSquares("e3", "e2", "f6")//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.B6),//expected
+				"6k1/8/1Q3B2/8/3P1R2/3KP3/4N3/8 w - - 0 1",
+				Square.D4,//target
+				Player.WHITE,
+				Bitboard.initFromAlgebraicSquares("e3", "e2", "f6", "f4")//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.D3),//expected
+				"6k1/8/1Q3B2/8/3P1R2/3KP3/4N3/8 w - - 0 1",
+				Square.D4,//target
+				Player.WHITE,
+				Bitboard.initFromAlgebraicSquares("e3", "e2", "f6", "f4", "b6")//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				0l,//expected
+				"6k1/8/1Q3B2/8/3P1R2/3KP3/4N3/8 w - - 0 1",
+				Square.D4,//target
+				Player.WHITE,
+				Bitboard.initFromAlgebraicSquares("e3", "e2", "f6", "f4", "b6", "d3")//cleared locations
+		);
+		//with batteries
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.E6),//expected
+				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
+				Square.D5,//target
+				Player.BLACK,
+				Bitboard.initFromAlgebraicSquares()//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.C7),//expected
+				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
+				Square.D5,//target
+				Player.BLACK,
+				Bitboard.initFromAlgebraicSquares("e6")//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.F7),//expected
+				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
+				Square.D5,//target
+				Player.BLACK,
+				Bitboard.initFromAlgebraicSquares("e6", "c7")//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.D6),//expected
+				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
+				Square.D5,//target
+				Player.BLACK,
+				Bitboard.initFromAlgebraicSquares("e6", "c7", "f7")//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.F3),//expected
+				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
+				Square.D5,//target
+				Player.BLACK,
+				Bitboard.initFromAlgebraicSquares("e6", "c7", "f7", "d6")//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.G2),//expected
+				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
+				Square.D5,//target
+				Player.BLACK,
+				Bitboard.initFromAlgebraicSquares("e6", "c7", "f7", "d6", "f3")//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.D7),//expected
+				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
+				Square.D5,//target
+				Player.BLACK,
+				Bitboard.initFromAlgebraicSquares("e6", "c7", "f7", "d6", "f3", "g2")//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.D8),//expected
+				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
+				Square.D5,//target
+				Player.BLACK,
+				Bitboard.initFromAlgebraicSquares("e6", "c7", "f7", "d6", "f3", "g2", "d7")//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				Bitboard.initFromSquare(Square.C6),//expected
+				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
+				Square.D5,//target
+				Player.BLACK,
+				Bitboard.initFromAlgebraicSquares("e6", "c7", "f7", "d6", "f3", "g2", "d7", "d8")//cleared locations
+		);
+		
+		helper_test_getLeastValuableAttacker_mask(
+				0l,//expected
+				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
+				Square.D5,//target
+				Player.BLACK,
+				Bitboard.initFromAlgebraicSquares("e6", "c7", "f7", "d6", "f3", "g2", "d7", "d8", "c6")//cleared locations
+		);
+		
 		//test for priority override: knight should take precedence over bishop and so on.
 	}
 
