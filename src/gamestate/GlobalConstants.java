@@ -43,8 +43,16 @@ public class GlobalConstants {
 		public static boolean validate(int pt) {
 			return pt>=PAWN && pt<=KING;
 		}
-// IMPORTANT: NO_PIECE is not in the collection!
+		/**
+		 * IMPORTANT: NO_PIECE is not in the collection!
+		 */
 		public static final int[] PIECE_TYPES = { PieceType.PAWN, PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP, PieceType.QUEEN, PieceType.KING };
+
+		/**
+		 * IMPORTANT: PAWN and NO_PIECE is not in the collection!
+		 */
+		public static final int[] NON_PAWN_PIECE_TYPES = { PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP, PieceType.QUEEN, PieceType.KING };
+
 		// it may be useful to have piece codes roughly approximating the order of value
 		// of pieces: p<n<b<r<q<k
 		public static final int PAWN = 0;

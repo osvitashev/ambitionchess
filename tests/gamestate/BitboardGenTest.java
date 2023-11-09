@@ -86,5 +86,11 @@ class BitboardGenTest {
 		assertEquals(0x0L, BitboardGen.getPawnAttackSet(Square.H8, Player.WHITE));
 		assertEquals(0x40000000000000L, BitboardGen.getPawnAttackSet(Square.H8, Player.BLACK));
 	}
+	
+	@Test
+	void testMultiplePawnAttackSet() {
+		assertEquals(0x4000a00005020000L, BitboardGen.getMultiplePawnAttackSet(0x80004000020100l, Player.WHITE));
+		assertEquals(0x4000a0000502L, BitboardGen.getMultiplePawnAttackSet(0x80004000020100l, Player.BLACK));
+	}
 
 }

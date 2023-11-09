@@ -6,13 +6,14 @@ import org.junit.jupiter.api.Test;
 
 import gamestate.Bitboard;
 import gamestate.Gamestate;
+import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
 
 class BasicStaticExchangeEvaluatorTest {
 	
 	void helper_test_getLeastValuableAttacker_mask(long expected, String fen, int sq_target, int player, long clearedLocationsMask) {
-		assertEquals(expected, BasicStaticExchangeEvaluator.getLeastValuableAttacker_mask(new Gamestate(fen),
+		assertEquals(expected, BasicStaticExchangeEvaluator.static_getLeastValuableAttacker_mask(new Gamestate(fen),
 				sq_target,
 				player, clearedLocationsMask));
 	}
@@ -455,8 +456,47 @@ class BasicStaticExchangeEvaluatorTest {
 				Player.BLACK,
 				Bitboard.initFromAlgebraicSquares("e6", "c7", "f7", "d6", "f3", "g2", "d7", "d8", "c6")//cleared locations
 		);
+	}
+	
+	@Test
+	void initialize_test() {
+		Gamestate game = new Gamestate();
+		BasicStaticExchangeEvaluator eval = new BasicStaticExchangeEvaluator(game);
 		
-		//test for priority override: knight should take precedence over bishop and so on.
+		game.loadFromFEN("1k1r4/pp1r1q2/2npb3/6B1/1R1R2b1/2KQN1NP/1P4P1/5Q2 w - - 0 1");
+		eval.initialize();
+		
+		assertEquals(0x40a50000L, eval.getAttackedTargets(Player.WHITE, PieceType.PAWN));
+		assertEquals(0xa8540054a8L, eval.getAttackedTargets(Player.WHITE, PieceType.KNIGHT));
+		assertEquals(0x810a000a0100000L, eval.getAttackedTargets(Player.WHITE, PieceType.BISHOP));
+		assertEquals(0x20a0a7f0a0200L, eval.getAttackedTargets(Player.WHITE, PieceType.ROOK));
+		assertEquals(0xa061223c3c7cffL, eval.getAttackedTargets(Player.WHITE, PieceType.QUEEN));
+		assertEquals(0xe0a0e00L, eval.getAttackedTargets(Player.WHITE, PieceType.KING));
+		
+		assertEquals(0x71400000000L, eval.getAttackedTargets(Player.BLACK, PieceType.PAWN));
+		assertEquals(0xa1100110a000000L, eval.getAttackedTargets(Player.BLACK, PieceType.KNIGHT));
+		assertEquals(0x2810a844a21108L, eval.getAttackedTargets(Player.BLACK, PieceType.BISHOP));
+		assertEquals(0xfe3e080000000000L, eval.getAttackedTargets(Player.BLACK, PieceType.ROOK));
+		assertEquals(0x70d870a020202020L, eval.getAttackedTargets(Player.BLACK, PieceType.QUEEN));
+		assertEquals(0x507000000000000L, eval.getAttackedTargets(Player.BLACK, PieceType.KING));
+		
+		//need to test a second position to verify the reset!
+		game.loadFromFEN("8/8/8/k7/7K/8/8/8 w - - 0 1");
+		eval.initialize();
+		
+		assertEquals(0x0L, eval.getAttackedTargets(Player.WHITE, PieceType.PAWN));
+		assertEquals(0x0L, eval.getAttackedTargets(Player.WHITE, PieceType.KNIGHT));
+		assertEquals(0x0L, eval.getAttackedTargets(Player.WHITE, PieceType.BISHOP));
+		assertEquals(0x0L, eval.getAttackedTargets(Player.WHITE, PieceType.ROOK));
+		assertEquals(0x0L, eval.getAttackedTargets(Player.WHITE, PieceType.QUEEN));
+		assertEquals(0xc040c00000L, eval.getAttackedTargets(Player.WHITE, PieceType.KING));
+		
+		assertEquals(0x0L, eval.getAttackedTargets(Player.BLACK, PieceType.PAWN));
+		assertEquals(0x0L, eval.getAttackedTargets(Player.BLACK, PieceType.KNIGHT));
+		assertEquals(0x0L, eval.getAttackedTargets(Player.BLACK, PieceType.BISHOP));
+		assertEquals(0x0L, eval.getAttackedTargets(Player.BLACK, PieceType.ROOK));
+		assertEquals(0x0L, eval.getAttackedTargets(Player.BLACK, PieceType.QUEEN));
+		assertEquals(0x30203000000L, eval.getAttackedTargets(Player.BLACK, PieceType.KING));
 	}
 
 }

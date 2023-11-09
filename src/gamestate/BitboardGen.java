@@ -61,6 +61,22 @@ public class BitboardGen {
 		assert Player.validate(pl);
 		return PAWN_SETS[pl][sq];
 	}
+	
+	/**
+	 * Generates *diagonal* 'attack set' for group of pawns. Disregards
+	 * target square occupancy.
+	 * 
+	 * @return bitboard
+	 */
+	public static long getMultiplePawnAttackSet(long pawns, int pl) {
+		assert Player.validate(pl);
+		if(Player.isWhite(pl))
+			return Bitboard.shiftNorth( Bitboard.shiftEast(pawns)) |
+				Bitboard.shiftNorth( Bitboard.shiftWest(pawns));
+		else
+			return Bitboard.shiftSouth( Bitboard.shiftEast(pawns)) |
+				Bitboard.shiftSouth( Bitboard.shiftWest(pawns));
+	}
 
 	/**
 	 * Generates 'attack set' for a king on a given square. Disregards target
