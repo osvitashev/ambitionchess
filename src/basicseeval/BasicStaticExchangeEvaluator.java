@@ -169,8 +169,6 @@ public class BasicStaticExchangeEvaluator {
 						direct = BitboardGen.getBishopSet(bi, game.getOccupied());
 						indirect = BitboardGen.getBishopSet(bi, game.getOccupied() & ~(direct & suitableBlockers)) & ~direct;
 						var_bitboard_secondary_battery_attackedBy[player][PieceType.BISHOP] |= indirect;
-						
-						///this is wrong: square d5 might be a subject of both direct and indirect battery bishop attack at the same time.
 					}
 				}
 				//batteries with pawns
@@ -195,7 +193,23 @@ public class BasicStaticExchangeEvaluator {
 				}
 				
 			}///bishops
-			
+			{//rooks - does not take into account pawn pushes for now - so it is only sliders.
+				//batteries with sliding pieces
+				suitableBlockers = game.getPieces(PieceType.ROOK) | game.getPieces(PieceType.QUEEN);
+				{
+					int bi = 0;
+					for (long zarg = game.getPieces(player, PieceType.ROOK),
+							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
+						bi = Bitboard.getFirstSquareIndex(barg);
+						
+						direct = BitboardGen.getRookSet(bi, game.getOccupied());
+						indirect = BitboardGen.getRookSet(bi, game.getOccupied() & ~(direct & suitableBlockers)) & ~direct;
+						var_bitboard_secondary_battery_attackedBy[player][PieceType.ROOK] |= indirect;
+						
+					}
+				}
+				
+			}
 			
 		}//players loop
 	}//initialize method

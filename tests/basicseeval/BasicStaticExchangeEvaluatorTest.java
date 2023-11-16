@@ -588,6 +588,18 @@ class BasicStaticExchangeEvaluatorTest {
 		eval.initialize();
 		assertEquals(0x4100L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE, PieceType.BISHOP));
 		assertEquals(0x41000000000000L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK, PieceType.BISHOP));
+		
+		//rooks and sliding pieces
+		game.loadFromFEN("7k/6p1/3Q4/1bQ3r1/1q1R2R1/8/3n3K/8 w - - 0 1");
+		eval.initialize();
+		assertEquals(0x848400087000000L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE, PieceType.ROOK));
+		assertEquals(0x200404040L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK, PieceType.ROOK));
+		
+		game.loadFromFEN("2rr1rk1/8/8/8/2nQ1R2/8/5BK1/8 w - - 0 1");
+		eval.initialize();
+		assertEquals(0x4000000L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE, PieceType.ROOK));
+		assertEquals(0x7700000000282808L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK, PieceType.ROOK));
+		
 	}
 	
 	@Test
