@@ -600,6 +600,49 @@ class BasicStaticExchangeEvaluatorTest {
 		assertEquals(0x4000000L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE, PieceType.ROOK));
 		assertEquals(0x7700000000282808L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK, PieceType.ROOK));
 		
+		//queens and sliding pieces
+		game.loadFromFEN("8/2kq1r2/6n1/1R1b1B2/8/1q1Q2P1/3p4/1Q3RK1 w - - 0 1");
+		eval.initialize();
+		assertEquals(0x402212010040L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE, PieceType.QUEEN));
+		assertEquals(0x2e2120040f00000L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK, PieceType.QUEEN));
+		
+		game.loadFromFEN("5K2/4Q1Q1/1b2b3/4r3/2Q2N2/6R1/1q2q3/1k6 w - - 0 1");
+		eval.initialize();
+		assertEquals(0x40af000000004060L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE, PieceType.QUEEN));
+		assertEquals(0x11020000e100L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK, PieceType.QUEEN));
+		
+		//queens and pawns
+		//point blank
+		game.loadFromFEN("3k4/4ppp1/4pqp1/1PPPppp1/1PQP4/1PPP4/8/5K2 b - - 0 1");
+		eval.initialize();
+		assertEquals(0x110000000000L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE, PieceType.QUEEN));
+		assertEquals(0x88000000L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK, PieceType.QUEEN));
+		
+		game.loadFromFEN("3k4/4ppp1/4pQp1/1PPPppp1/1PqP4/1PPP4/8/5K2 w - - 0 1");
+		eval.initialize();
+		assertEquals(0x88000000L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE, PieceType.QUEEN));
+		assertEquals(0x110000000000L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK, PieceType.QUEEN));
+		
+		//distant pawns
+		game.loadFromFEN("8/8/kP1P1P2/8/1P1Q1P2/1q6/1P1P1PQ1/4K3 w - - 0 1");
+		eval.initialize();
+		assertEquals(0x41000000000000L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE, PieceType.QUEEN));
+		assertEquals(0x0L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK, PieceType.QUEEN));
+		
+		game.loadFromFEN("8/6q1/kP1P1P2/8/1P1q1P2/1Q6/1P1P1P2/4K3 w - - 0 1");
+		eval.initialize();
+		assertEquals(0x0L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE, PieceType.QUEEN));
+		assertEquals(0x41000000000000L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK, PieceType.QUEEN));
+		
+		game.loadFromFEN("8/kp1p1p2/8/1p1Q1p2/8/1p1p1p2/5K2/2Q5 w - - 0 1");
+		eval.initialize();
+		assertEquals(0x4100L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE, PieceType.QUEEN));
+		assertEquals(0x0L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK, PieceType.QUEEN));
+		
+		game.loadFromFEN("8/kpqp1p2/8/1p1q1p2/8/1p1p1p2/5K2/2r2NQ1 w - - 0 1");
+		eval.initialize();
+		assertEquals(0x0L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE, PieceType.QUEEN));
+		assertEquals(0x4100L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK, PieceType.QUEEN));
 	}
 	
 	@Test

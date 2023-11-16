@@ -191,7 +191,6 @@ public class BasicStaticExchangeEvaluator {
 								indirect & BitboardGen.getMultiplePawnAttackSet(bPawns, Player.BLACK);
 					}
 				}
-				
 			}///bishops
 			{//rooks - does not take into account pawn pushes for now - so it is only sliders.
 				//batteries with sliding pieces
@@ -208,8 +207,56 @@ public class BasicStaticExchangeEvaluator {
 						
 					}
 				}
-				
-			}
+			}///rooks
+			{//queens
+				//batteries with bishops pieces
+				suitableBlockers = game.getPieces(PieceType.BISHOP) | game.getPieces(PieceType.QUEEN);
+				{
+					int bi = 0;
+					for (long zarg = game.getPieces(player, PieceType.QUEEN),
+							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
+						bi = Bitboard.getFirstSquareIndex(barg);
+						
+						direct = BitboardGen.getBishopSet(bi, game.getOccupied());
+						indirect = BitboardGen.getBishopSet(bi, game.getOccupied() & ~(direct & suitableBlockers)) & ~direct;
+						var_bitboard_secondary_battery_attackedBy[player][PieceType.QUEEN] |= indirect;
+					}
+				}
+				//batteries with rooks
+				suitableBlockers = game.getPieces(PieceType.ROOK) | game.getPieces(PieceType.QUEEN);
+				{
+					int bi = 0;
+					for (long zarg = game.getPieces(player, PieceType.QUEEN),
+							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
+						bi = Bitboard.getFirstSquareIndex(barg);
+						
+						direct = BitboardGen.getRookSet(bi, game.getOccupied());
+						indirect = BitboardGen.getRookSet(bi, game.getOccupied() & ~(direct & suitableBlockers)) & ~direct;
+						var_bitboard_secondary_battery_attackedBy[player][PieceType.QUEEN] |= indirect;
+						
+					}
+				}
+				//batteries with pawns
+				{
+					int bi = 0;
+					for (long zarg = game.getPieces(player, PieceType.QUEEN),
+							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
+						bi = Bitboard.getFirstSquareIndex(barg);
+
+						wPawns = BitboardGen.getBishopSet(bi, game.getOccupied()) & game.getPieces(Player.WHITE, PieceType.PAWN);
+						bPawns = BitboardGen.getBishopSet(bi, game.getOccupied()) & game.getPieces(Player.BLACK, PieceType.PAWN);
+						direct = BitboardGen.getBishopSet(bi, game.getOccupied());
+						
+						indirect = BitboardGen.getBishopSet(bi, game.getOccupied() & ~(direct & wPawns)) & ~direct;
+						var_bitboard_secondary_battery_attackedBy[player][PieceType.QUEEN] |=
+								indirect & BitboardGen.getMultiplePawnAttackSet(wPawns, Player.WHITE);
+						
+						indirect = BitboardGen.getBishopSet(bi, game.getOccupied() & ~(direct & bPawns)) & ~direct;
+						var_bitboard_secondary_battery_attackedBy[player][PieceType.QUEEN] |=
+								indirect & BitboardGen.getMultiplePawnAttackSet(bPawns, Player.BLACK);
+					}
+				}
+			}///queens
 			
 		}//players loop
 	}//initialize method
