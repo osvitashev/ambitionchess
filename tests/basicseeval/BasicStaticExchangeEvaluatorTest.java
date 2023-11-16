@@ -568,6 +568,26 @@ class BasicStaticExchangeEvaluatorTest {
 		
 		//bishops and pawns
 		//point-blank
+		game.loadFromFEN("8/1B1K4/3p1p2/1P1Pb2B/2Bp1p2/1P1P3k/8/8 w - - 0 1");
+		eval.initialize();
+		assertEquals(0x110000000000L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE, PieceType.BISHOP));
+		assertEquals(0x440000L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK, PieceType.BISHOP));
+		
+		game.loadFromFEN("2bK4/8/3p1p2/1P1PB3/2bp1p1B/1P1P3k/8/8 w - - 0 1");
+		eval.initialize();
+		assertEquals(0x440000L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE, PieceType.BISHOP));
+		assertEquals(0x110000000000L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK, PieceType.BISHOP));
+		
+		//distant
+		game.loadFromFEN("6k1/1p3p2/1P1B1P2/3b4/3B1P2/1p3p2/1P1K1P2/8 w - - 0 1");
+		eval.initialize();
+		assertEquals(0x41000000000000L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE, PieceType.BISHOP));
+		assertEquals(0x4100L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK, PieceType.BISHOP));
+		
+		game.loadFromFEN("6k1/1p2pp2/1P3P2/3B1B2/3b1P2/1p1P1p2/1P1K1P2/8 w - - 0 1");
+		eval.initialize();
+		assertEquals(0x4100L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE, PieceType.BISHOP));
+		assertEquals(0x41000000000000L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK, PieceType.BISHOP));
 	}
 	
 	@Test

@@ -102,7 +102,7 @@ public class BasicStaticExchangeEvaluator {
 			}
 		}
 		
-		long direct, indirect, suitableBlockers;
+		long direct, indirect, suitableBlockers, wPawns, bPawns;
 		
 		for (int player : Player.PLAYERS) {
 			var_bitboard_attackedBy[player][PieceType.PAWN] |= BitboardGen.getMultiplePawnAttackSet(game.getPieces(player, PieceType.PAWN), player);
@@ -157,22 +157,45 @@ public class BasicStaticExchangeEvaluator {
 			//populate batteries
 			//todo: the next 3 sections can be skipped conditionally....
 			
-			//for bish: do the calculation iff there is an intersection of bish secondary attack and P B R Q...
-			
-			suitableBlockers = game.getPieces(PieceType.BISHOP) | game.getPieces(PieceType.QUEEN);
-			{
-				int bi = 0;
-				for (long zarg = game.getPieces(player, PieceType.BISHOP),
-						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
-					bi = Bitboard.getFirstSquareIndex(barg);
-					
-					direct = BitboardGen.getBishopSet(bi, game.getOccupied());
-					indirect = BitboardGen.getBishopSet(bi, game.getOccupied() & ~(direct & suitableBlockers)) & ~direct;
-					var_bitboard_secondary_battery_attackedBy[player][PieceType.BISHOP] |= indirect;
-					
-					///this is wrong: square d5 might be a subject of both direct and indirect battery bishop attack at the same time.
+			{//bishops
+				//batteries with sliding pieces
+				suitableBlockers = game.getPieces(PieceType.BISHOP) | game.getPieces(PieceType.QUEEN);
+				{
+					int bi = 0;
+					for (long zarg = game.getPieces(player, PieceType.BISHOP),
+							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
+						bi = Bitboard.getFirstSquareIndex(barg);
+						
+						direct = BitboardGen.getBishopSet(bi, game.getOccupied());
+						indirect = BitboardGen.getBishopSet(bi, game.getOccupied() & ~(direct & suitableBlockers)) & ~direct;
+						var_bitboard_secondary_battery_attackedBy[player][PieceType.BISHOP] |= indirect;
+						
+						///this is wrong: square d5 might be a subject of both direct and indirect battery bishop attack at the same time.
+					}
 				}
-			}
+				//batteries with pawns
+				{
+					int bi = 0;
+					for (long zarg = game.getPieces(player, PieceType.BISHOP),
+							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
+						bi = Bitboard.getFirstSquareIndex(barg);
+
+						wPawns = BitboardGen.getBishopSet(bi, game.getOccupied()) & game.getPieces(Player.WHITE, PieceType.PAWN);
+						bPawns = BitboardGen.getBishopSet(bi, game.getOccupied()) & game.getPieces(Player.BLACK, PieceType.PAWN);
+						direct = BitboardGen.getBishopSet(bi, game.getOccupied());
+						
+						indirect = BitboardGen.getBishopSet(bi, game.getOccupied() & ~(direct & wPawns)) & ~direct;
+						var_bitboard_secondary_battery_attackedBy[player][PieceType.BISHOP] |=
+								indirect & BitboardGen.getMultiplePawnAttackSet(wPawns, Player.WHITE);
+						
+						indirect = BitboardGen.getBishopSet(bi, game.getOccupied() & ~(direct & bPawns)) & ~direct;
+						var_bitboard_secondary_battery_attackedBy[player][PieceType.BISHOP] |=
+								indirect & BitboardGen.getMultiplePawnAttackSet(bPawns, Player.BLACK);
+					}
+				}
+				
+			}///bishops
+			
 			
 		}//players loop
 	}//initialize method
