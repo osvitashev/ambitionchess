@@ -12,9 +12,13 @@ import gamestate.GlobalConstants.Square;
 
 class BasicStaticExchangeEvaluatorTest {
 	
+	private Gamestate test_game = new Gamestate();
+	BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game);
+	
 	void helper_test_getLeastValuableAttacker_mask(long expected, String fen, int sq_target, int player, long clearedLocationsMask) {
-		assertEquals(expected, BasicStaticExchangeEvaluator.static_getLeastValuableAttacker_mask(new Gamestate(fen),
-				sq_target,
+		test_game.loadFromFEN(fen);
+		test_eval.initialize();
+		assertEquals(expected, test_eval.getLeastValuableAttacker_mask(sq_target,
 				player, clearedLocationsMask));
 	}
 
@@ -497,6 +501,132 @@ class BasicStaticExchangeEvaluatorTest {
 		assertEquals(0x0L, eval.getAttackedTargets(Player.BLACK, PieceType.ROOK));
 		assertEquals(0x0L, eval.getAttackedTargets(Player.BLACK, PieceType.QUEEN));
 		assertEquals(0x30203000000L, eval.getAttackedTargets(Player.BLACK, PieceType.KING));
+		
+		//secondary targets for sliding pieces
+		game.loadFromFEN("3b2k1/1q4rr/p7/N3Q3/P2B4/2Kn4/2P1R1q1/8 w - - 0 1");
+		eval.initialize();
+		
+		assertEquals(0x2000a0000L, eval.getAttackedTargets(Player.WHITE, PieceType.PAWN));
+		assertEquals(0x2040004020000L, eval.getAttackedTargets(Player.WHITE, PieceType.KNIGHT));
+		assertEquals(0x1021400142040L, eval.getAttackedTargets(Player.WHITE, PieceType.BISHOP));
+		assertEquals(0x40200000000201L, eval.getSecondaryAttackedTargets(Player.WHITE, PieceType.BISHOP));
+		assertEquals(0x1010106c10L, eval.getAttackedTargets(Player.WHITE, PieceType.ROOK));
+		assertEquals(0x1010100000008300L, eval.getSecondaryAttackedTargets(Player.WHITE, PieceType.ROOK));
+		assertEquals(0x125438ef38509000L, eval.getAttackedTargets(Player.WHITE, PieceType.QUEEN));
+		assertEquals(0x8000000000040010L, eval.getSecondaryAttackedTargets(Player.WHITE, PieceType.QUEEN));
+		assertEquals(0xe0a0e00L, eval.getAttackedTargets(Player.WHITE, PieceType.KING));
+		
+		assertEquals(0x200000000L, eval.getAttackedTargets(Player.BLACK, PieceType.PAWN));
+		assertEquals(0x1422002214L, eval.getAttackedTargets(Player.BLACK, PieceType.KNIGHT));
+		assertEquals(0x14224180000000L, eval.getAttackedTargets(Player.BLACK, PieceType.BISHOP));
+		assertEquals(0x0L, eval.getSecondaryAttackedTargets(Player.BLACK, PieceType.BISHOP));
+		assertEquals(0xc0fec0c0c0c0c080L, eval.getAttackedTargets(Player.BLACK, PieceType.ROOK));
+		assertEquals(0x3f000000000040L, eval.getSecondaryAttackedTargets(Player.BLACK, PieceType.ROOK));
+		assertEquals(0x77f474a52e2f2e2L, eval.getAttackedTargets(Player.BLACK, PieceType.QUEEN));
+		assertEquals(0x4180000000000c80L, eval.getSecondaryAttackedTargets(Player.BLACK, PieceType.QUEEN));
+		assertEquals(0xa0e0000000000000L, eval.getAttackedTargets(Player.BLACK, PieceType.KING));
+		
+		
+		//bish
+		game.loadFromFEN("k7/1pb5/3B4/4B3/1B6/2B3P1/6P1/4B2K w - - 0 1");
+		eval.initialize();
+		assertEquals(0xa05428152a452a11L, eval.getAttackedTargets(Player.WHITE, PieceType.BISHOP));
+		assertEquals(0xa2542001a2418a11L, eval.getSecondaryAttackedTargets(Player.WHITE, PieceType.BISHOP));
+		
+		//rooks
+		game.loadFromFEN("k7/pp1p1p1p/5r2/3r3r/5r2/7r/PP5r/K7 w - - 0 1");
+		eval.initialize();
+		assertEquals(0xa8fffffffffea8L, eval.getAttackedTargets(Player.BLACK, PieceType.ROOK));
+		assertEquals(0xa8a080878020a1a0L, eval.getSecondaryAttackedTargets(Player.BLACK, PieceType.ROOK));
+		
+		//queens
+		game.loadFromFEN("6K1/8/1Q3QQ1/8/3q4/8/5q2/4k3 w - - 0 1");
+		eval.initialize();
+		assertEquals(0xfaf7fff7fa6a6642L, eval.getAttackedTargets(Player.WHITE, PieceType.QUEEN));
+		assertEquals(0xdf0000142221L, eval.getSecondaryAttackedTargets(Player.WHITE, PieceType.QUEEN));
+		
+		assertEquals(0x8082a3cff7cff79L, eval.getAttackedTargets(Player.BLACK, PieceType.QUEEN));
+		assertEquals(0xa061020400000040L, eval.getSecondaryAttackedTargets(Player.BLACK, PieceType.QUEEN));
+		
+		//secondary batteries
+		
+		//bishops and sliding pieces
+		game.loadFromFEN("8/3q3k/2b3R1/1R6/4B3/8/1KQ3q1/8 w - - 0 1");
+		eval.initialize();
+		assertEquals(0x102000000000082L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE, PieceType.BISHOP));
+		assertEquals(0x1000000000204000L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK, PieceType.BISHOP));
+		
+		game.loadFromFEN("8/2kn1p2/2b5/1b1B4/8/5B2/4nK2/8 w - - 0 1");
+		eval.initialize();
+		assertEquals(0x102040000004080L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE, PieceType.BISHOP));
+		assertEquals(0x8000011200000L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK, PieceType.BISHOP));
+
+		game.loadFromFEN("6k1/4b3/8/6n1/3Q3b/B3B1P1/5K2/8 w - - 0 1");
+		eval.initialize();
+		assertEquals(2306126700393529344L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE, PieceType.BISHOP));
+		assertEquals(0x0L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK, PieceType.BISHOP));
+		
+		//bishops and pawns
+		//point-blank
+	}
+	
+	@Test
+	void initialize_temp_evaluateCapture_attack_stack_test() {
+		test_game.loadFromFEN("8/8/8/k7/4p3/4K3/8/8 w - - 0 1");
+		test_eval.initialize();
+		test_eval.initialize_temp_attack_stack(Square.E4, Player.WHITE);
+		assertEquals("White: K | Black: ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
+		
+		test_game.loadFromFEN("8/3n4/8/2k1p1R1/4K3/6B1/8/8 w - - 0 1");
+		test_eval.initialize();
+		test_eval.initialize_temp_attack_stack(Square.E5, Player.WHITE);
+		assertEquals("White: B R K | Black: N ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
+		
+		test_game.loadFromFEN("8/1q6/1kp1b3/3p4/2PnR1Q1/2N5/3K4/8 w - - 0 1");
+		test_eval.initialize();
+		test_eval.initialize_temp_attack_stack(Square.D5, Player.WHITE);
+		assertEquals("White: P N | Black: P B Q ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
+		test_eval.initialize_temp_attack_stack(Square.E4, Player.BLACK);
+		assertEquals("White: N Q | Black: P ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
+		test_eval.initialize_temp_attack_stack(Square.E6, Player.WHITE);
+		assertEquals("White: R Q | Black: N ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
+		test_eval.initialize_temp_attack_stack(Square.C4, Player.BLACK);
+		assertEquals("White: | Black: P B ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
+		test_eval.initialize_temp_attack_stack(Square.D4, Player.WHITE);
+		assertEquals("White: R Q | Black: ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
+		
+		test_game.loadFromFEN("8/2k1nb2/4p3/3b1rq1/4P3/1Q1Q4/B1KR4/3R4 b - - 0 1");
+		test_eval.initialize();
+		test_eval.initialize_temp_attack_stack(Square.D5, Player.WHITE);
+		assertEquals("White: P Q B Q R R | Black: P N B R Q ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
+		
+		test_game.loadFromFEN("8/3rk3/4P3/5b2/1K4Q1/7q/8/8 w - - 0 1");
+		test_eval.initialize();
+		test_eval.initialize_temp_attack_stack(Square.D7, Player.WHITE);
+		assertEquals("White: P Q | Black: B Q K ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
+		
+		/**
+		capturing with a king SHOULD NOT stop generating attackers
+		This can be used to determine overprotected pieces.
+		 */
+		test_game.loadFromFEN("8/8/8/2R5/N1K5/2p5/6k1/8 w - - 0 1");
+		test_eval.initialize();
+		test_eval.initialize_temp_attack_stack(Square.C3, Player.WHITE);
+		assertEquals("White: N K R | Black: ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
+		
+		/**
+		 * A reverse battery / double backstab.
+		 * The rook on c8 does not register as an attacker.
+		 * This is correct, as it would not get used in the exchange.
+		 * However, it does potentially affect overprotection considerations, as lifting one of the pieces
+		 * making up the battery would affect the exchange outcome in an unexpected way.
+		 * Nothing to be done about it, unfortunately.
+		 */
+		test_game.loadFromFEN("2R5/8/2q5/2r5/6K1/2R5/6k1/8 b - - 0 1");
+		test_eval.initialize();
+		test_eval.initialize_temp_attack_stack(Square.C3, Player.BLACK);
+		assertEquals("White: | Black: R Q ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
+		
 	}
 
 }

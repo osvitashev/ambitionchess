@@ -1,7 +1,5 @@
 package gamestate;
 
-import gamestate.GlobalConstants.PieceType;
-
 public class GlobalConstants {
 	public static final class Player {
 		public static boolean validate(int pl) {

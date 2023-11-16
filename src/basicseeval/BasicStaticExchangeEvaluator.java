@@ -6,8 +6,6 @@ import gamestate.Gamestate;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
-import gamestate.MoveGen;
-import gamestate.MoveGen.LegalMoveGenerator;
 
 /*
  * Takes a board state and performs square-centric static exchange evaluation.
@@ -30,12 +28,6 @@ public class BasicStaticExchangeEvaluator {
 		game = g;
 	}
 	
-	/*
-	 * this needs to be broken down by player because for quiet moves same target can be available for both players
-	 */
-	private long [] calculatedMask = new long[2];// [player] - set for squares where the calculation has been done and output can be retrieved
-	private int [][] output_exchange_outcome= new int[2][64];//player/square
-	
 	/**
 	 * returns a mask with either exactly 1 or 0 bits set.
 	 * @param sq
@@ -43,7 +35,7 @@ public class BasicStaticExchangeEvaluator {
 	 * @param clearedLocations
 	 * @return
 	 */
-	static long static_getLeastValuableAttacker_mask(Gamestate game, int sq_target, int player, long clearedLocations) {
+	long getLeastValuableAttacker_mask(int sq_target, int player, long clearedLocations) {
 		assert Square.validate(sq_target);
 		assert Player.validate(player);
 		
@@ -103,24 +95,24 @@ public class BasicStaticExchangeEvaluator {
 	public void initialize() {
 		for(int player : Player.PLAYERS) {
 			for(int type : PieceType.PIECE_TYPES) {
-				input_attacks[player][type] =0;
-				
-				outputCaptureTarget_winning[player][type] =0;
-				outputCaptureTarget_neutral_occupation[player][type] =0;
-				outputCaptureTarget_neutral_nonoccupation[player][type] =0;
+				var_bitboard_attackedBy[player][type] =0;
+				var_bitboard_secondary_attackedBy[player][type] =0;
+				var_bitboard_secondary_battery_attackedBy[player][type] =0;
+				//todo: reset the output variables here.
 			}
-			output_is_calculated[player] =0;
 		}
 		
+		long direct, indirect, suitableBlockers;
+		
 		for (int player : Player.PLAYERS) {
-			input_attacks[player][PieceType.PAWN] |= BitboardGen.getMultiplePawnAttackSet(game.getPieces(player, PieceType.PAWN), player);
+			var_bitboard_attackedBy[player][PieceType.PAWN] |= BitboardGen.getMultiplePawnAttackSet(game.getPieces(player, PieceType.PAWN), player);
 
 			{
 				int bi = 0;
 				for (long zarg = game.getPieces(player, PieceType.KNIGHT),
 						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 					bi = Bitboard.getFirstSquareIndex(barg);
-					input_attacks[player][PieceType.KNIGHT] |= BitboardGen.getKnightSet(bi);
+					var_bitboard_attackedBy[player][PieceType.KNIGHT] |= BitboardGen.getKnightSet(bi);
 				}
 			}
 
@@ -129,7 +121,10 @@ public class BasicStaticExchangeEvaluator {
 				for (long zarg = game.getPieces(player, PieceType.BISHOP),
 						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 					bi = Bitboard.getFirstSquareIndex(barg);
-					input_attacks[player][PieceType.BISHOP] |= BitboardGen.getBishopSet(bi, game.getOccupied());
+					direct = BitboardGen.getBishopSet(bi, game.getOccupied());
+					var_bitboard_attackedBy[player][PieceType.BISHOP] |= direct;
+					indirect = BitboardGen.getBishopSet(bi, game.getOccupied() & ~direct) & ~direct;
+					var_bitboard_secondary_attackedBy[player][PieceType.BISHOP] |= indirect;
 				}
 			}
 
@@ -138,7 +133,10 @@ public class BasicStaticExchangeEvaluator {
 				for (long zarg = game.getPieces(player, PieceType.ROOK),
 						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 					bi = Bitboard.getFirstSquareIndex(barg);
-					input_attacks[player][PieceType.ROOK] |= BitboardGen.getRookSet(bi, game.getOccupied());
+					direct = BitboardGen.getRookSet(bi, game.getOccupied());
+					var_bitboard_attackedBy[player][PieceType.ROOK] |= direct;
+					indirect = BitboardGen.getRookSet(bi, game.getOccupied() & ~direct) & ~direct;
+					var_bitboard_secondary_attackedBy[player][PieceType.ROOK] |= indirect;
 				}
 			}
 
@@ -147,48 +145,229 @@ public class BasicStaticExchangeEvaluator {
 				for (long zarg = game.getPieces(player, PieceType.QUEEN),
 						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 					bi = Bitboard.getFirstSquareIndex(barg);
-					input_attacks[player][PieceType.QUEEN] |= BitboardGen.getQueenSet(bi, game.getOccupied());
+					direct = BitboardGen.getQueenSet(bi, game.getOccupied());
+					var_bitboard_attackedBy[player][PieceType.QUEEN] |= direct;
+					indirect = BitboardGen.getQueenSet(bi, game.getOccupied() & ~direct) & ~direct;
+					var_bitboard_secondary_attackedBy[player][PieceType.QUEEN] |= indirect;
 				}
 			}
 
-			input_attacks[player][PieceType.KING] = BitboardGen.getKingSet(game.getKingSquare(player));
-
-		}
-		
-	}
+			var_bitboard_attackedBy[player][PieceType.KING] = BitboardGen.getKingSet(game.getKingSquare(player));
+			
+			//populate batteries
+			//todo: the next 3 sections can be skipped conditionally....
+			
+			//for bish: do the calculation iff there is an intersection of bish secondary attack and P B R Q...
+			
+			suitableBlockers = game.getPieces(PieceType.BISHOP) | game.getPieces(PieceType.QUEEN);
+			{
+				int bi = 0;
+				for (long zarg = game.getPieces(player, PieceType.BISHOP),
+						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
+					bi = Bitboard.getFirstSquareIndex(barg);
+					
+					direct = BitboardGen.getBishopSet(bi, game.getOccupied());
+					indirect = BitboardGen.getBishopSet(bi, game.getOccupied() & ~(direct & suitableBlockers)) & ~direct;
+					var_bitboard_secondary_battery_attackedBy[player][PieceType.BISHOP] |= indirect;
+					
+					///this is wrong: square d5 might be a subject of both direct and indirect battery bishop attack at the same time.
+				}
+			}
+			
+		}//players loop
+	}//initialize method
 	
-	//for pawns this is attacks, NOT pushes
-	private long input_attacks [][]= new long[2][6];//[player][piece type]
+	/**
+	 * Bitboard for direct attacks [player][attackerType]
+	 * Populated by call to initialize() and is unchanged until the next call.
+	 * For pawns this is attacks, NOT pushes
+	 */
+	private long var_bitboard_attackedBy [][]= new long[2][6];//[player][piece type]
 	
+	/**
+	 * Attack sets resulting from lifting up the first blocker.
+	 * Bitboard for potential discovered attacks [player][attackerType]
+	 * Populated by call to initialize() and is unchanged until the next call.
+	 * Only is populated for B R Q
+	 * The blocker may be ANYTHING!!!
+	 * 
+	 * This MAY be useful for avoiding calling the whole SEE minimax routine for squares which are not contested.
+	 * 
+	 */
+	private long var_bitboard_secondary_attackedBy [][]= new long[2][6];//[player][piece type]
+	
+	/**
+	 * Sliding attack sets resulting from lifting up the first blocker, which is itself a sliding piece or a pawn (diagonal attacks).
+	 * Bitboard for potential discovered attacks [player][attackerType]
+	 * Populated by call to initialize() and is unchanged until the next call.
+	 * Only is populated for B R Q
+	 * The blocker can only be P B R Q
+	 * 
+	 * This MAY be useful for avoiding calling the whole SEE minimax routine for squares which are not contested.
+	 * 
+	 */
+	private long var_bitboard_secondary_battery_attackedBy [][]= new long[2][6];//[player][piece type]
+	
+	/**
+	 * Direct attacks broken down by player and piece type. Multiple pieces of the same type are combined together.
+	 * For pawns this is attacks AND NOT pushes.
+	 * 
+	 * The values are populated by calling initialize()
+	 * @param player
+	 * @param pieceType
+	 * @return
+	 */
 	public long getAttackedTargets(int player, int pieceType) {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
-		return input_attacks[player][pieceType];
+		return var_bitboard_attackedBy[player][pieceType];
 	}
 	
-	private long output_is_calculated [] = new long [2];//breakdown by player
+	/**
+	 * Indirect attacks broken down by player and piece type after the first blocker is lifted.
+	 * Multiple pieces of the same type are combined together.
+	 * Is only populated for B R Q
+	 * 
+	 * The values are populated by calling initialize()
+	 * @param player
+	 * @param pieceType
+	 * @return
+	 */
+	public long getSecondaryAttackedTargets(int player, int pieceType) {
+		assert Player.validate(player);
+		assert PieceType.validate(pieceType);
+		assert pieceType == PieceType.BISHOP || pieceType == PieceType.ROOK || pieceType == PieceType.QUEEN;
+		return var_bitboard_secondary_attackedBy[player][pieceType];
+	}
+	
+	/**
+	 * Indirect attacks broken down by player and piece type after the first blocker is lifted.
+	 * The blockers considered are B R Q as well as PAWNS for diagonal attacks
+	 * Multiple pieces of the same type are combined together.
+	 * Is only populated for B R Q
+	 * 
+	 * The values are populated by calling initialize()
+	 * @param player
+	 * @param pieceType
+	 * @return
+	 */
+	public long getSecondaryBatteryAttackedTargets(int player, int pieceType) {
+		assert Player.validate(player);
+		assert PieceType.validate(pieceType);
+		assert pieceType == PieceType.BISHOP || pieceType == PieceType.ROOK || pieceType == PieceType.QUEEN;
+		return var_bitboard_secondary_battery_attackedBy[player][pieceType];
+	}
+	
 	/**
 	 * denotes capture targets where a given piece type can win material.
 	 * EXCLUDES PAWNS AND KINGS!!!!
-	 */
-	private long outputCaptureTarget_winning [][]= new long[2][6];//[player][piece type]
-	
-	/**
-	 * denotes capture targets which break even and attacker holds the target square.
 	 * 
-	 * EXCLUDES PAWNS AND KINGS!!!
+	 * Either the target is undefended, or the defender would not choose to re-capture.
 	 */
-	private long outputCaptureTarget_neutral_occupation [][]= new long[2][6];//[player][piece type]
+	private long output_capture_uncontestedOrEnprise [][]= new long[2][6];//[player][piece type]
+	
+
 	
 	/**
-	 * denotes capture targets which break even and defender holds the target square.
+	 * populates the attack stack. Does not minimax. there are weird cases with
+	 * reverse batteries and backstabs. a player may be out of attacks, but new
+	 * attacks may become available because of discovered attacks
 	 * 
-	 * EXCLUDES PAWNS AND KINGS!!!
+	 * The purpose of this function is to generate the sequence of attackers used in
+	 * the exchange.
+	 * 
+	 * @param sq
+	 * @param player
 	 */
-	private long outputCaptureTarget_neutral_nonoccupation [][]= new long[2][6];//[player][piece type]
+	void initialize_temp_attack_stack(int sq, int player) {
+		assert Square.validate(sq);
+		assert Player.validate(player);
+		assert game.getPlayerAt(sq) == Player.getOtherPlayer(player);
+		temp_attack_stack_size[0]=0;
+		temp_attack_stack_size[1]=0;
+		int otherPlayer = Player.getOtherPlayer(player);
+		long bboard=0;
+		long clearedLocations = 0;
+		boolean playerDone = false, otherPlayerDone=false;
+		int pieceType;
+		
+		while(!(playerDone && otherPlayerDone)) {
+			if(!playerDone) {
+				bboard = getLeastValuableAttacker_mask(sq, player, clearedLocations);
+				if(bboard != 0l) {
+					//TODO: figure out a way to return both type and location form getLeastValuableAttacker_mask to save the extra conversion.
+					pieceType = game.getPieceAt(Bitboard.getFirstSquareIndex(bboard));
+					clearedLocations |= bboard;
+					add_temp_evaluateCapture_attack_stack(player, pieceType);
+				}
+				else {
+					playerDone=true;
+				}
+			}
+			if(!otherPlayerDone) {
+				bboard = getLeastValuableAttacker_mask(sq, otherPlayer, clearedLocations);
+				if(bboard != 0l) {
+					//TODO: figure out a way to return both type and location form getLeastValuableAttacker_mask to save the extra conversion.
+					pieceType = game.getPieceAt(Bitboard.getFirstSquareIndex(bboard));
+					clearedLocations |= bboard;
+					add_temp_evaluateCapture_attack_stack(otherPlayer, pieceType);
+				}
+				else {
+					otherPlayerDone=true;
+				}
+			}
+		}
+	}
+	
+	private int temp_attack_stack[][]= new int [2][16];
+	private int temp_attack_stack_size [] = new int[2];
+	
+	private void add_temp_evaluateCapture_attack_stack(int player, int pieceType) {
+		assert Player.validate(player);
+		assert PieceType.validate(pieceType);
+		temp_attack_stack[player][temp_attack_stack_size[player]++]=pieceType;
+	}
+	
+	private int get_temp_evaluateCapture_attack_stack(int player, int index) {
+		assert Player.validate(player);
+		assert index < temp_attack_stack_size[player];
+		return temp_attack_stack[player][index];
+	}
 	
 	/**
-	 * updates the internal state variables.
+	 * Should only be used for debugging and testing purposes.
+	 * @return
+	 */
+	String debug_dump_temp_evaluateCapture_attack_stack() {
+		String ret = "White: ";
+		for(int i=0; i<temp_attack_stack_size[0]; ++i)
+			ret+=PieceType.toString(get_temp_evaluateCapture_attack_stack(0, i))+" ";
+		ret+="| Black: ";
+		for(int i=0; i<temp_attack_stack_size[1]; ++i)
+			ret+=PieceType.toString(get_temp_evaluateCapture_attack_stack(1, i))+" ";
+		return ret;
+	}
+	
+	
+	/**
+	 * updates the internal state variables using minimax...
+	 * @param sq
+	 * @param player
+	 * @param attacker_type
+	 */
+	private void evaluateCapture_forcedAttacker(int sq, int player, int attacker_type) {
+		assert Square.validate(sq);
+		assert Player.validate(player);
+		assert PieceType.validate(attacker_type);
+		assert game.getPlayerAt(sq) == Player.getOtherPlayer(player);
+		assert Bitboard.testBit(getAttackedTargets(player, attacker_type), sq);
+		
+
+		
+	}
+	
+	/**
+	 * updates the internal state variables using minimax...
 	 * @param sq
 	 * @param player - player making the capture. NOT THE TARGET
 	 * @param clearedLocations
@@ -199,12 +378,14 @@ public class BasicStaticExchangeEvaluator {
 		assert Player.validate(player);
 		assert game.getPlayerAt(sq) == Player.getOtherPlayer(player);
 		
-		/*
-		 * Need to re-consider the output of this class.
-		 * The question is am answering is whether a given square is a safe target for a given attacker type.
-		 * >this can be restated as: what is the cheapest attacker that can occupy a given target?
-		 * 
-		 */
+		initialize_temp_attack_stack(sq, player);
+
+		for(int attacker_type : PieceType.PIECE_TYPES) {
+			if(Bitboard.testBit(getAttackedTargets(player, attacker_type), sq))
+				evaluateCapture_forcedAttacker(sq, player, attacker_type);
+		}
+		
+		
 	}
 	
 	
