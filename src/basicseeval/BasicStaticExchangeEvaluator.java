@@ -510,7 +510,8 @@ public class BasicStaticExchangeEvaluator {
 	}
 	
 	
-	private int evaluateCapture_forcedAttacker_stack[]=new int[20];
+	private int evaluateCapture_gain_stack[]=new int[32];
+	private int evaluateCapture_gain_stack_size;
 	
 	/**
 	 * updates the internal state variables using minimax...
@@ -522,14 +523,20 @@ public class BasicStaticExchangeEvaluator {
 	 * @param player
 	 * @param attacker_type
 	 */
-	private void evaluateCapture_forcedAttacker(int sq, int player, int attacker_type) {
+	void evaluateCapture_forcedAttacker(int sq, int player, int attacker_type) {
 		assert Square.validate(sq);
 		assert Player.validate(player);
 		assert PieceType.validate(attacker_type);
 		assert game.getPlayerAt(sq) == Player.getOtherPlayer(player);
 		assert Bitboard.testBit(getAttackedTargets(player, attacker_type), sq);
 		
-
+		evaluateCapture_gain_stack_size=0;
+		int d=0;
+		evaluateCapture_gain_stack[d]=getPieceValue(game.getPieceAt(sq));
+		
+		do {
+			//this is a disaster
+		}while(true);
 		
 	}
 	
@@ -578,7 +585,7 @@ public class BasicStaticExchangeEvaluator {
 			outstandingCaptureTargets &= ~unapposedAttacks_black;
 		}
 		
-		//add a logger for the remaining terget count
+		//add a logger for the remaining target count
 		for(int player : Player.PLAYERS) {
 			for(int type : PieceType.PIECE_TYPES) {
 

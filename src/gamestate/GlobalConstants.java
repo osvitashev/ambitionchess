@@ -31,6 +31,7 @@ public class GlobalConstants {
 		}
 
 		public static int getOtherPlayer(int player) {
+			assert Player.validate(player);
 			// TODO: xor assignment instead of conditional
 			return player == BLACK ? WHITE : BLACK;
 		}
