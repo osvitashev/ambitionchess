@@ -643,6 +643,16 @@ class BasicStaticExchangeEvaluatorTest {
 		eval.initialize();
 		assertEquals(0x0L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE, PieceType.QUEEN));
 		assertEquals(0x4100L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK, PieceType.QUEEN));
+		
+		//combined values
+		game.loadFromFEN("1k6/3P4/2b1q1r1/1P2Rp2/2B3N1/1P6/1P2Q1P1/2K5 w - - 0 1");
+		eval.initialize();
+		assertEquals(0x1400b53e55bffe3aL, eval.getAttackedTargets(Player.WHITE));
+		assertEquals(0x557ffc7a54204000L, eval.getAttackedTargets(Player.BLACK));
+		assertEquals(0x503011c300008130L, eval.getSecondaryAttackedTargets(Player.WHITE));
+		assertEquals(0x14008f0051525080L, eval.getSecondaryAttackedTargets(Player.BLACK));
+		assertEquals(0x5030110200000030L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE));
+		assertEquals(0x14008c0050121000L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK));
 	}
 	
 	@Test
@@ -701,7 +711,78 @@ class BasicStaticExchangeEvaluatorTest {
 		test_eval.initialize();
 		test_eval.initialize_temp_attack_stack(Square.C3, Player.BLACK);
 		assertEquals("White: | Black: R Q ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
-		
 	}
-
+	
+	/*
+	 * only contains clean captures with no defensive responses.
+	 */
+	@Test
+	void getOutput_capture_enprise_test() {
+		test_game.loadFromFEN("");
+		test_eval.initialize();
+		test_eval.evaluateCaptures();
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.PAWN));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.KNIGHT));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.BISHOP));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.ROOK));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.QUEEN));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.KING));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.PAWN));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.KNIGHT));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.BISHOP));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.ROOK));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.QUEEN));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.KING));
+		
+		test_game.loadFromFEN("8/8/5k2/5P2/3b4/3K4/8/8 w - - 0 1");
+		test_eval.initialize();
+		test_eval.evaluateCaptures();
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.PAWN));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.KNIGHT));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.BISHOP));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.ROOK));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.QUEEN));
+		assertEquals(0x8000000L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.KING));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.PAWN));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.KNIGHT));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.BISHOP));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.ROOK));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.QUEEN));
+		assertEquals(0x2000000000L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.KING));
+		
+		test_game.loadFromFEN("1k6/1b6/3p3p/2n2NB1/4P3/n1b3P1/1P6/5K2 w - - 0 1");
+		test_eval.initialize();
+		test_eval.evaluateCaptures();
+		assertEquals(0x50000L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.PAWN));
+		assertEquals(0x880000000000L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.KNIGHT));
+		assertEquals(0x800000000000L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.BISHOP));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.ROOK));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.QUEEN));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.KING));
+		assertEquals(0x4000000000L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.PAWN));
+		assertEquals(0x10000000L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.KNIGHT));
+		assertEquals(0x10000200L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.BISHOP));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.ROOK));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.QUEEN));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.KING));
+		
+		test_game.loadFromFEN("2kr4/8/2q1prb1/3p4/5n2/2Q2r2/8/3K1R2 w - - 0 1");
+		test_eval.initialize();
+		test_eval.evaluateCaptures();
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.PAWN));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.KNIGHT));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.BISHOP));
+		assertEquals(0x200000L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.ROOK));
+		assertEquals(0x240000200000L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.QUEEN));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.WHITE, PieceType.KING));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.PAWN));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.KNIGHT));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.BISHOP));
+		assertEquals(0x40020L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.ROOK));
+		assertEquals(0x40000L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.QUEEN));
+		assertEquals(0x0L, test_eval.getOutput_capture_enprise(Player.BLACK, PieceType.KING));
+		
+		
+		// 5k2/8/8/4q3/5P2/2Q3b1/8/6K1 w - - 0 1 - same target is both enprise and exchangeable because of multiple attackers
+	}
 }

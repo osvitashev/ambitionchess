@@ -99,7 +99,12 @@ public class BasicStaticExchangeEvaluator {
 				var_bitboard_secondary_attackedBy[player][type] =0;
 				var_bitboard_secondary_battery_attackedBy[player][type] =0;
 				//todo: reset the output variables here.
+				
+				output_capture_enprise[player][type] =0;
 			}
+			var_combined_bitboard_attackedBy[player] =0;
+			var_combined_bitboard_secondary_attackedBy[player] =0;
+			var_combined_bitboard_secondary_battery_attackedBy[player] =0;
 		}
 		
 		long direct, indirect, suitableBlockers, wPawns, bPawns;
@@ -258,6 +263,12 @@ public class BasicStaticExchangeEvaluator {
 				}
 			}///queens
 			
+			for(int type : PieceType.PIECE_TYPES) {
+				var_combined_bitboard_attackedBy[player] |= var_bitboard_attackedBy[player][type];
+				var_combined_bitboard_secondary_attackedBy[player] |= var_bitboard_secondary_attackedBy[player][type];
+				var_combined_bitboard_secondary_battery_attackedBy[player] |= var_bitboard_secondary_battery_attackedBy[player][type];
+			}
+			
 		}//players loop
 	}//initialize method
 	
@@ -267,6 +278,7 @@ public class BasicStaticExchangeEvaluator {
 	 * For pawns this is attacks, NOT pushes
 	 */
 	private long var_bitboard_attackedBy [][]= new long[2][6];//[player][piece type]
+	private long var_combined_bitboard_attackedBy []= new long[2];
 	
 	/**
 	 * Attack sets resulting from lifting up the first blocker.
@@ -279,6 +291,7 @@ public class BasicStaticExchangeEvaluator {
 	 * 
 	 */
 	private long var_bitboard_secondary_attackedBy [][]= new long[2][6];//[player][piece type]
+	private long var_combined_bitboard_secondary_attackedBy []= new long[2];
 	
 	/**
 	 * Sliding attack sets resulting from lifting up the first blocker, which is itself a sliding piece or a pawn (diagonal attacks).
@@ -291,6 +304,7 @@ public class BasicStaticExchangeEvaluator {
 	 * 
 	 */
 	private long var_bitboard_secondary_battery_attackedBy [][]= new long[2][6];//[player][piece type]
+	private long var_combined_bitboard_secondary_battery_attackedBy  []= new long[2];
 	
 	/**
 	 * Direct attacks broken down by player and piece type. Multiple pieces of the same type are combined together.
@@ -308,6 +322,20 @@ public class BasicStaticExchangeEvaluator {
 	}
 	
 	/**
+	 * Direct attacks broken down by player and piece type. Multiple pieces of the same type are combined together.
+	 * For pawns this is attacks AND NOT pushes.
+	 * 
+	 * The values are populated by calling initialize()
+	 * @param player
+	 * @param pieceType
+	 * @return
+	 */
+	public long getAttackedTargets(int player) {
+		assert Player.validate(player);
+		return var_combined_bitboard_attackedBy[player];
+	}
+	
+	/**
 	 * Indirect attacks broken down by player and piece type after the first blocker is lifted.
 	 * Multiple pieces of the same type are combined together.
 	 * Is only populated for B R Q
@@ -322,6 +350,21 @@ public class BasicStaticExchangeEvaluator {
 		assert PieceType.validate(pieceType);
 		assert pieceType == PieceType.BISHOP || pieceType == PieceType.ROOK || pieceType == PieceType.QUEEN;
 		return var_bitboard_secondary_attackedBy[player][pieceType];
+	}
+
+	/**
+	 * Indirect attacks broken down by player and piece type after the first blocker is lifted.
+	 * Multiple pieces of the same type are combined together.
+	 * Is only populated for B R Q
+	 * 
+	 * The values are populated by calling initialize()
+	 * @param player
+	 * @param pieceType
+	 * @return
+	 */
+	public long getSecondaryAttackedTargets(int player) {
+		assert Player.validate(player);
+		return var_combined_bitboard_secondary_attackedBy[player];
 	}
 	
 	/**
@@ -343,13 +386,39 @@ public class BasicStaticExchangeEvaluator {
 	}
 	
 	/**
-	 * denotes capture targets where a given piece type can win material.
-	 * EXCLUDES PAWNS AND KINGS!!!!
+	 * Indirect attacks broken down by player and piece type after the first blocker is lifted.
+	 * The blockers considered are B R Q as well as PAWNS for diagonal attacks
+	 * Multiple pieces of the same type are combined together.
+	 * Is only populated for B R Q
 	 * 
-	 * Either the target is undefended, or the defender would not choose to re-capture.
+	 * The values are populated by calling initialize()
+	 * @param player
+	 * @param pieceType
+	 * @return
 	 */
-	private long output_capture_uncontestedOrEnprise [][]= new long[2][6];//[player][piece type]
+	public long getSecondaryBatteryAttackedTargets(int player) {
+		assert Player.validate(player);
+		return var_combined_bitboard_secondary_battery_attackedBy[player];
+	}
 	
+	/**
+	 * Captures where the target piece is unprotected and the defender does not have available re-captures.
+	 * 
+	 * [player][piece type]
+	 */
+	private long output_capture_enprise [][]= new long[2][6];
+	
+	/**
+	 * Captures where the target piece is unprotected and the defender does not have available re-captures.
+	 * Does not include quiet moves.
+	 * 
+	 * [player][piece type]
+	 */
+	public long getOutput_capture_enprise(int player, int pieceType) {
+		assert Player.validate(player);
+		assert PieceType.validate(pieceType);
+		return output_capture_enprise[player][pieceType];
+	}
 
 	
 	/**
@@ -359,6 +428,9 @@ public class BasicStaticExchangeEvaluator {
 	 * 
 	 * The purpose of this function is to generate the sequence of attackers used in
 	 * the exchange.
+	 * 
+	 * The function takes a player parameter AND resets attack stacks for BOTH players.
+	 * This is needed for non-capture exchanges.
 	 * 
 	 * @param sq
 	 * @param player
@@ -418,23 +490,34 @@ public class BasicStaticExchangeEvaluator {
 		return temp_attack_stack[player][index];
 	}
 	
+	private int get_temp_evaluateCapture_attack_stack_size(int player) {
+		assert Player.validate(player);
+		return temp_attack_stack_size[player];
+	}
+	
 	/**
 	 * Should only be used for debugging and testing purposes.
 	 * @return
 	 */
 	String debug_dump_temp_evaluateCapture_attack_stack() {
 		String ret = "White: ";
-		for(int i=0; i<temp_attack_stack_size[0]; ++i)
+		for(int i=0; i<get_temp_evaluateCapture_attack_stack_size(0); ++i)
 			ret+=PieceType.toString(get_temp_evaluateCapture_attack_stack(0, i))+" ";
 		ret+="| Black: ";
-		for(int i=0; i<temp_attack_stack_size[1]; ++i)
+		for(int i=0; i<get_temp_evaluateCapture_attack_stack_size(1); ++i)
 			ret+=PieceType.toString(get_temp_evaluateCapture_attack_stack(1, i))+" ";
 		return ret;
 	}
 	
 	
+	private int evaluateCapture_forcedAttacker_stack[]=new int[20];
+	
 	/**
 	 * updates the internal state variables using minimax...
+	 * 
+	 * before this method is called, initialize_temp_attack_stack is guaranteed to have been called.
+	 * also: the target is guaranteed to be attacked by the forced type.
+	 * 
 	 * @param sq
 	 * @param player
 	 * @param attacker_type
@@ -457,7 +540,7 @@ public class BasicStaticExchangeEvaluator {
 	 * @param clearedLocations
 	 * @return
 	 */
-	void evaluateCapture(int sq, int player) {
+	void evaluateCaptures(int sq, int player) {
 		assert Square.validate(sq);
 		assert Player.validate(player);
 		assert game.getPlayerAt(sq) == Player.getOtherPlayer(player);
@@ -470,6 +553,38 @@ public class BasicStaticExchangeEvaluator {
 		}
 		
 		
+	}
+	
+	/**
+	 * initialize() is guaranteed to have been called earlier.
+	 * calculates all of the outputs for all of the 64 squares
+	 * Calculates captures only. NOT QUIET MOVES.
+	 * @return
+	 */
+	public void evaluateCaptures() {
+		long outstandingCaptureTargets =game.getPlayerPieces(Player.WHITE) & getAttackedTargets(Player.BLACK)
+				| game.getPlayerPieces(Player.BLACK) & getAttackedTargets(Player.WHITE);
+		
+		{
+			long unapposedAttacks_white = getAttackedTargets(Player.WHITE) & game.getPlayerPieces(Player.BLACK)
+					& ~(getAttackedTargets(Player.BLACK) | getSecondaryBatteryAttackedTargets(Player.BLACK));
+			long unapposedAttacks_black = getAttackedTargets(Player.BLACK) & game.getPlayerPieces(Player.WHITE)
+					& ~(getAttackedTargets(Player.WHITE) | getSecondaryBatteryAttackedTargets(Player.WHITE));
+			for(int type : PieceType.PIECE_TYPES) {
+				output_capture_enprise[Player.WHITE][type] |= unapposedAttacks_white & getAttackedTargets(Player.WHITE, type);
+				output_capture_enprise[Player.BLACK][type] |= unapposedAttacks_black & getAttackedTargets(Player.BLACK, type);
+			}
+			outstandingCaptureTargets &= ~unapposedAttacks_white;
+			outstandingCaptureTargets &= ~unapposedAttacks_black;
+		}
+		
+		//add a logger for the remaining terget count
+		for(int player : Player.PLAYERS) {
+			for(int type : PieceType.PIECE_TYPES) {
+
+			}
+		}
+		assert outstandingCaptureTargets==0 : "outstandingCaptureTargets is: " + outstandingCaptureTargets;
 	}
 	
 	
