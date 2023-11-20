@@ -6,6 +6,7 @@ import gamestate.Gamestate;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
+import util.AttackerType;
 
 /*
  * Takes a board state and performs square-centric static exchange evaluation.
@@ -33,9 +34,9 @@ public class BasicStaticExchangeEvaluator {
 	 * @param sq
 	 * @param player - player making the capture. NOT THE TARGET
 	 * @param clearedLocations
-	 * @return
+	 * @return AttackerType
 	 */
-	long getLeastValuableAttacker_mask(int sq_target, int player, long clearedLocations) {
+	int getLeastValuableAttacker(int sq_target, int player, long clearedLocations) {
 		assert Square.validate(sq_target);
 		assert Player.validate(player);
 		
@@ -50,43 +51,43 @@ public class BasicStaticExchangeEvaluator {
 					Bitboard.shiftNorth( Bitboard.shiftWest(targetMask));
 			candidate_pawns &= game.getPieces(player, PieceType.PAWN) & ~clearedLocations;
 			if(!Bitboard.isEmpty(candidate_pawns))
-				return Bitboard.isolateLsb(candidate_pawns);
+				return AttackerType.create(PieceType.PAWN, Bitboard.getFirstSquareIndex(candidate_pawns));
 		}
 		
 		{
 			long candidate_knights = BitboardGen.getKnightSet(sq_target) & ~clearedLocations & game.getPieces(player, PieceType.KNIGHT);
 			if(!Bitboard.isEmpty(candidate_knights))
-				return Bitboard.isolateLsb(candidate_knights);
+				return AttackerType.create(PieceType.KNIGHT, Bitboard.getFirstSquareIndex(candidate_knights));
 		}
 		//OPTIMIZE: once pawn and knight attack sets are exhausted, there is no point checking them again. This is not true for sliding pieces.
 		{
 			long candidate_bishops = BitboardGen.getBishopSet(sq_target, game.getOccupied() & ~clearedLocations) & ~clearedLocations
 					& game.getPieces(player, PieceType.BISHOP);
 			if(!Bitboard.isEmpty(candidate_bishops))
-				return Bitboard.isolateLsb(candidate_bishops);
+				return AttackerType.create(PieceType.BISHOP, Bitboard.getFirstSquareIndex(candidate_bishops));
 		}
 		
 		{
 			long candidate_rooks = BitboardGen.getRookSet(sq_target, game.getOccupied() & ~clearedLocations) & ~clearedLocations
 					& game.getPieces(player, PieceType.ROOK);
 			if(!Bitboard.isEmpty(candidate_rooks))
-				return Bitboard.isolateLsb(candidate_rooks);
+				return AttackerType.create(PieceType.ROOK, Bitboard.getFirstSquareIndex(candidate_rooks));
 		}
 		
 		{
 			long candidate_queens = BitboardGen.getQueenSet(sq_target, game.getOccupied() & ~clearedLocations) & ~clearedLocations
 					& game.getPieces(player, PieceType.QUEEN);
 			if(!Bitboard.isEmpty(candidate_queens))
-				return Bitboard.isolateLsb(candidate_queens);
+				return AttackerType.create(PieceType.QUEEN, Bitboard.getFirstSquareIndex(candidate_queens));
 		}
 		
 		{
 			long candidate_kings = BitboardGen.getKingSet(sq_target) & ~clearedLocations & game.getPieces(player, PieceType.KING);
 			if(!Bitboard.isEmpty(candidate_kings))
-				return Bitboard.isolateLsb(candidate_kings);
+				return AttackerType.create(PieceType.KING, Bitboard.getFirstSquareIndex(candidate_kings));
 		}
 		
-		return 0;//fallback
+		return AttackerType.nullValue();//fallback
 	}
 	
 	/**
@@ -442,31 +443,27 @@ public class BasicStaticExchangeEvaluator {
 		temp_attack_stack_size[0]=0;
 		temp_attack_stack_size[1]=0;
 		int otherPlayer = Player.getOtherPlayer(player);
-		long bboard=0;
+		int attacker;
 		long clearedLocations = 0;
 		boolean playerDone = false, otherPlayerDone=false;
 		int pieceType;
 		
 		while(!(playerDone && otherPlayerDone)) {
 			if(!playerDone) {
-				bboard = getLeastValuableAttacker_mask(sq, player, clearedLocations);
-				if(bboard != 0l) {
-					//TODO: figure out a way to return both type and location form getLeastValuableAttacker_mask to save the extra conversion.
-					pieceType = game.getPieceAt(Bitboard.getFirstSquareIndex(bboard));
-					clearedLocations |= bboard;
-					add_temp_evaluateCapture_attack_stack(player, pieceType);
+				attacker = getLeastValuableAttacker(sq, player, clearedLocations);
+				if(attacker != AttackerType.nullValue()) {
+					clearedLocations |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(attacker));
+					add_temp_evaluateCapture_attack_stack(player, attacker);
 				}
 				else {
 					playerDone=true;
 				}
 			}
 			if(!otherPlayerDone) {
-				bboard = getLeastValuableAttacker_mask(sq, otherPlayer, clearedLocations);
-				if(bboard != 0l) {
-					//TODO: figure out a way to return both type and location form getLeastValuableAttacker_mask to save the extra conversion.
-					pieceType = game.getPieceAt(Bitboard.getFirstSquareIndex(bboard));
-					clearedLocations |= bboard;
-					add_temp_evaluateCapture_attack_stack(otherPlayer, pieceType);
+				attacker = getLeastValuableAttacker(sq, otherPlayer, clearedLocations);
+				if(attacker != AttackerType.nullValue()) {
+					clearedLocations |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(attacker));
+					add_temp_evaluateCapture_attack_stack(otherPlayer, attacker);
 				}
 				else {
 					otherPlayerDone=true;
@@ -475,13 +472,12 @@ public class BasicStaticExchangeEvaluator {
 		}
 	}
 	
-	private int temp_attack_stack[][]= new int [2][16];
+	private int temp_attack_stack[][]= new int [2][16];//AttackerType
 	private int temp_attack_stack_size [] = new int[2];
 	
-	private void add_temp_evaluateCapture_attack_stack(int player, int pieceType) {
+	private void add_temp_evaluateCapture_attack_stack(int player, int attackerType) {
 		assert Player.validate(player);
-		assert PieceType.validate(pieceType);
-		temp_attack_stack[player][temp_attack_stack_size[player]++]=pieceType;
+		temp_attack_stack[player][temp_attack_stack_size[player]++]=attackerType;
 	}
 	
 	private int get_temp_evaluateCapture_attack_stack(int player, int index) {
@@ -499,16 +495,15 @@ public class BasicStaticExchangeEvaluator {
 	 * Should only be used for debugging and testing purposes.
 	 * @return
 	 */
-	String debug_dump_temp_evaluateCapture_attack_stack() {
+	String debug_dump_temp_evaluateCapture_attack_stack() {		
 		String ret = "White: ";
 		for(int i=0; i<get_temp_evaluateCapture_attack_stack_size(0); ++i)
-			ret+=PieceType.toString(get_temp_evaluateCapture_attack_stack(0, i))+" ";
+			ret+=PieceType.toString(AttackerType.getAttackerPieceType(get_temp_evaluateCapture_attack_stack(0, i)))+" ";
 		ret+="| Black: ";
 		for(int i=0; i<get_temp_evaluateCapture_attack_stack_size(1); ++i)
-			ret+=PieceType.toString(get_temp_evaluateCapture_attack_stack(1, i))+" ";
+			ret+=PieceType.toString(AttackerType.getAttackerPieceType(get_temp_evaluateCapture_attack_stack(1, i)))+" ";
 		return ret;
 	}
-	
 	
 
 	private int evaluateCapture_occupation_history[]=new int[32];//pieceType
@@ -529,8 +524,7 @@ public class BasicStaticExchangeEvaluator {
 		long clearedSquares =0;
 		int leastValuableAttacker;
 		boolean isForcedAttackerDetected=false;
-		long lva_mask;
-		int nextAttacker;
+		int nextAttackerType;
 		
 		evaluateCapture_occupation_history[d]=game.getPieceAt(sq);
 		d++;
@@ -540,22 +534,24 @@ public class BasicStaticExchangeEvaluator {
 		
 		do {
 			currentPlayer = Player.getOtherPlayer(currentPlayer);
-			lva_mask = getLeastValuableAttacker_mask(sq, currentPlayer, clearedSquares);
+			//todo: this is unnecessary - we already have the attacker stack pre-calculated.
+			//evaluateCapture_occupation_history is different from attacker stack because the forced attacker is swapped to pos[0]
+			leastValuableAttacker = getLeastValuableAttacker(sq, currentPlayer, clearedSquares);
 			
 			
-			if(lva_mask == 0l)
+			if(leastValuableAttacker == AttackerType.nullValue())
 				break;
-			nextAttacker=game.getPieceAt(Bitboard.getFirstSquareIndex(lva_mask));
-			if(!isForcedAttackerDetected && nextAttacker == forced_attacker_type && currentPlayer == player) {//add check for forced attacker
+			nextAttackerType=AttackerType.getAttackerPieceType(leastValuableAttacker);
+			if(!isForcedAttackerDetected && nextAttackerType == forced_attacker_type && currentPlayer == player) {//add check for forced attacker
 				isForcedAttackerDetected=true;
 				//we want to keep same player when calling getLeastValuableAttacker_mask next time
 				currentPlayer = Player.getOtherPlayer(currentPlayer);
-				clearedSquares |= lva_mask;
+				clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(leastValuableAttacker));
 				continue;
 			}
 			
-			clearedSquares |= lva_mask;
-			evaluateCapture_occupation_history[d]=nextAttacker;
+			clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(leastValuableAttacker));
+			evaluateCapture_occupation_history[d]=nextAttackerType;
 			d++;
 			
 		}while(true);

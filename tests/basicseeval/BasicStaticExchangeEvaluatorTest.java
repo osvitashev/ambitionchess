@@ -9,6 +9,7 @@ import gamestate.Gamestate;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
+import util.AttackerType;
 
 class BasicStaticExchangeEvaluatorTest {
 	
@@ -18,17 +19,18 @@ class BasicStaticExchangeEvaluatorTest {
 	void helper_test_getLeastValuableAttacker_mask(long expected, String fen, int sq_target, int player, long clearedLocationsMask) {
 		test_game.loadFromFEN(fen);
 		test_eval.initialize();
-		assertEquals(expected, test_eval.getLeastValuableAttacker_mask(sq_target,
+		
+		assertEquals(expected, test_eval.getLeastValuableAttacker(sq_target,
 				player, clearedLocationsMask));
 	}
 
 	@Test
 	void getLeastValuableAttacker_mask_test() {
-		helper_test_getLeastValuableAttacker_mask(0L, "8/4k3/8/8/8/2K5/8/8 w - - 0 1", Square.E5, Player.WHITE, 0L);
+		helper_test_getLeastValuableAttacker_mask(AttackerType.nullValue(), "8/4k3/8/8/8/2K5/8/8 w - - 0 1", Square.E5, Player.WHITE, 0L);
 		
 		//pawns: 0, 1, 2 attackers
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.E3),//expected
+				AttackerType.create(PieceType.PAWN, Square.E3),//expected
 				"8/4k3/8/6p1/8/1K2P3/8/8 w - - 0 1",
 				Square.D4,//target
 				Player.WHITE,
@@ -36,7 +38,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.G5),//expected
+				AttackerType.create(PieceType.PAWN, Square.G5),//expected
 				"8/4k3/8/4p1p1/8/1K2P3/8/8 w - - 0 1",
 				Square.H4,//target
 				Player.BLACK,
@@ -44,7 +46,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.E5),//expected
+				AttackerType.create(PieceType.PAWN, Square.E5),//expected
 				"8/4k3/8/4p1p1/8/1K2P3/8/8 w - - 0 1",
 				Square.F4,//target
 				Player.BLACK,
@@ -52,7 +54,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.G5),//expected
+				AttackerType.create(PieceType.PAWN, Square.G5),//expected
 				"8/4k3/8/4p1p1/8/1K2P3/8/8 w - - 0 1",
 				Square.F4,//target
 				Player.BLACK,
@@ -60,7 +62,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				0L,//expected
+				AttackerType.nullValue(),//expected
 				"8/4k3/8/4p1p1/8/1K2P3/8/8 w - - 0 1",
 				Square.F4,//target
 				Player.BLACK,
@@ -68,7 +70,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.D4),//expected
+				AttackerType.create(PieceType.PAWN, Square.D4),//expected
 				"8/k7/7P/3n1n2/3p2N1/K3P3/8/8 w - - 0 1",
 				Square.E3,//target
 				Player.BLACK,
@@ -77,7 +79,7 @@ class BasicStaticExchangeEvaluatorTest {
 		
 		//knights
 		helper_test_getLeastValuableAttacker_mask(
-				0L,//expected
+				AttackerType.nullValue(),//expected
 				"8/k7/7P/3n1n2/3p2N1/K3P3/8/8 w - - 0 1",
 				Square.E5,//target
 				Player.BLACK,
@@ -85,7 +87,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.G4),//expected
+				AttackerType.create(PieceType.KNIGHT, Square.G4),//expected
 				"8/k7/7P/3n1n2/3p2N1/K3P3/8/8 w - - 0 1",
 				Square.E5,//target
 				Player.WHITE,
@@ -93,7 +95,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				0L,//expected
+				AttackerType.nullValue(),//expected
 				"8/k7/7P/3n1n2/3p2N1/K3P3/8/8 w - - 0 1",
 				Square.E5,//target
 				Player.WHITE,
@@ -101,7 +103,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.D5),//expected
+				AttackerType.create(PieceType.KNIGHT, Square.D5),//expected
 				"8/k7/7P/3n1n2/3p2N1/K3P3/8/8 w - - 0 1",
 				Square.E3,//target
 				Player.BLACK,
@@ -109,7 +111,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.F5),//expected
+				AttackerType.create(PieceType.KNIGHT, Square.F5),//expected
 				"8/k7/7P/3n1n2/3p2N1/K3P3/8/8 w - - 0 1",
 				Square.E3,//target
 				Player.BLACK,
@@ -117,7 +119,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		//bishops
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.D7),//expected
+				AttackerType.create(PieceType.BISHOP, Square.D7),//expected
 				"4B3/nk1b4/8/1P4r1/B7/8/1KR5/7q w - - 0 1",
 				Square.B5,//target
 				Player.BLACK,
@@ -125,7 +127,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.A4),//expected
+				AttackerType.create(PieceType.BISHOP, Square.A4),//expected
 				"4B3/nk1b4/8/1P4r1/B7/8/1KR5/7q w - - 0 1",
 				Square.B5,//target
 				Player.WHITE,
@@ -133,7 +135,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.A4),//expected
+				AttackerType.create(PieceType.BISHOP, Square.A4),//expected
 				"4B3/nk1b4/8/1P4r1/B7/8/1KR5/7q w - - 0 1",
 				Square.B5,//target
 				Player.WHITE,
@@ -141,7 +143,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				0l,//expected
+				AttackerType.nullValue(),//expected
 				"4B3/nk1b4/8/1P4r1/B7/8/1KR5/7q w - - 0 1",
 				Square.B5,//target
 				Player.WHITE,
@@ -149,7 +151,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.E8),//expected
+				AttackerType.create(PieceType.BISHOP, Square.E8),//expected
 				"4B3/nk1b4/8/1P4r1/B7/8/1KR5/7q w - - 0 1",
 				Square.B5,//target
 				Player.WHITE,
@@ -157,7 +159,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				0l,//expected
+				AttackerType.nullValue(),//expected
 				"4B3/nk1b4/8/1P4r1/B7/8/1KR5/7q w - - 0 1",
 				Square.B5,//target
 				Player.WHITE,
@@ -165,7 +167,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.D7),//expected
+				AttackerType.create(PieceType.BISHOP, Square.D7),//expected
 				"4B3/nk1b4/8/1P4r1/B7/8/1KR5/7q w - - 0 1",
 				Square.A4,//target
 				Player.BLACK,
@@ -173,7 +175,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		//rooks
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.B5),//expected
+				AttackerType.create(PieceType.ROOK, Square.B5),//expected
 				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
 				Square.C5,//target
 				Player.BLACK,
@@ -181,7 +183,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				0l,//expected
+				AttackerType.nullValue(),//expected
 				"8/8/k7/1rp1RRp1/8/6K1/8/8 w - - 0 1",
 				Square.C5,//target
 				Player.BLACK,
@@ -189,7 +191,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.E5),//expected
+				AttackerType.create(PieceType.ROOK, Square.E5),//expected
 				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
 				Square.C5,//target
 				Player.WHITE,
@@ -197,7 +199,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.F5),//expected
+				AttackerType.create(PieceType.ROOK, Square.F5),//expected
 				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
 				Square.C5,//target
 				Player.WHITE,
@@ -205,7 +207,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				0l,//expected
+				AttackerType.nullValue(),//expected
 				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
 				Square.C5,//target
 				Player.WHITE,
@@ -213,7 +215,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				0l,//expected
+				AttackerType.nullValue(),//expected
 				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
 				Square.H5,//target
 				Player.WHITE,
@@ -221,7 +223,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				0l,//expected
+				AttackerType.nullValue(),//expected
 				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
 				Square.H5,//target
 				Player.BLACK,
@@ -229,7 +231,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.F5),//expected
+				AttackerType.create(PieceType.ROOK, Square.F5),//expected
 				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
 				Square.H5,//target
 				Player.WHITE,
@@ -238,7 +240,7 @@ class BasicStaticExchangeEvaluatorTest {
 		//queens
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.C5),//expected
+				AttackerType.create(PieceType.QUEEN, Square.C5),//expected
 				"7k/1p4pp/1P6/1Pq2q2/1p1Q4/8/K7/8 w - - 0 1",
 				Square.B5,//target
 				Player.BLACK,
@@ -246,7 +248,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.F5),//expected
+				AttackerType.create(PieceType.QUEEN, Square.F5),//expected
 				"7k/1p4pp/1P6/1Pq2q2/1p1Q4/8/K7/8 w - - 0 1",
 				Square.B5,//target
 				Player.BLACK,
@@ -254,7 +256,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				0l,//expected
+				AttackerType.nullValue(),//expected
 				"7k/1p4pp/1P6/1Pq2q2/1p1Q4/8/K7/8 w - - 0 1",
 				Square.B5,//target
 				Player.BLACK,
@@ -262,7 +264,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				0l,//expected
+				AttackerType.nullValue(),//expected
 				"7k/1p4pp/1P6/1Pq2q2/1p1Q4/8/K7/8 w - - 0 1",
 				Square.B6,//target
 				Player.WHITE,
@@ -270,7 +272,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.D4),//expected
+				AttackerType.create(PieceType.QUEEN, Square.D4),//expected
 				"7k/1p4pp/1P6/1Pq2q2/1p1Q4/8/K7/8 w - - 0 1",
 				Square.B6,//target
 				Player.WHITE,
@@ -278,14 +280,14 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		//kings
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.C6),//expected
+				AttackerType.create(PieceType.KING, Square.C6),//expected
 				"8/2n5/2k5/8/2K5/8/3P4/8 b - - 0 1",
 				Square.C5,//target
 				Player.BLACK,
 				Bitboard.initFromAlgebraicSquares()//cleared locations
 		);
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.C6),//expected
+				AttackerType.create(PieceType.KING, Square.C6),//expected
 				"8/2n5/2k5/8/2K5/8/3P4/8 b - - 0 1",
 				Square.B6,//target
 				Player.BLACK,
@@ -293,7 +295,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				0l,//expected
+				AttackerType.nullValue(),//expected
 				"8/2n5/2k5/8/2K5/8/3P4/8 b - - 0 1",
 				Square.B6,//target
 				Player.BLACK,
@@ -301,7 +303,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.C4),//expected
+				AttackerType.create(PieceType.KING, Square.C4),//expected
 				"8/2n5/2k5/8/2K5/8/3P4/8 b - - 0 1",
 				Square.C5,//target
 				Player.WHITE,
@@ -309,7 +311,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.C4),//expected
+				AttackerType.create(PieceType.KING, Square.C4),//expected
 				"8/2n5/2k5/8/2K5/8/3P4/8 b - - 0 1",
 				Square.C3,//target
 				Player.WHITE,
@@ -317,7 +319,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				0l,//expected
+				AttackerType.nullValue(),//expected
 				"8/2n5/2k5/8/2K5/8/3P4/8 b - - 0 1",
 				Square.C3,//target
 				Player.WHITE,
@@ -326,7 +328,7 @@ class BasicStaticExchangeEvaluatorTest {
 		
 		//order of attacks - no batteries
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.E3),//expected
+				AttackerType.create(PieceType.PAWN, Square.E3),//expected
 				"6k1/8/1Q3B2/8/3P1R2/3KP3/4N3/8 w - - 0 1",
 				Square.D4,//target
 				Player.WHITE,
@@ -334,7 +336,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.E2),//expected
+				AttackerType.create(PieceType.KNIGHT, Square.E2),//expected
 				"6k1/8/1Q3B2/8/3P1R2/3KP3/4N3/8 w - - 0 1",
 				Square.D4,//target
 				Player.WHITE,
@@ -342,7 +344,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.F6),//expected
+				AttackerType.create(PieceType.BISHOP, Square.F6),//expected
 				"6k1/8/1Q3B2/8/3P1R2/3KP3/4N3/8 w - - 0 1",
 				Square.D4,//target
 				Player.WHITE,
@@ -350,7 +352,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.F4),//expected
+				AttackerType.create(PieceType.ROOK, Square.F4),//expected
 				"6k1/8/1Q3B2/8/3P1R2/3KP3/4N3/8 w - - 0 1",
 				Square.D4,//target
 				Player.WHITE,
@@ -358,7 +360,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.B6),//expected
+				AttackerType.create(PieceType.QUEEN, Square.B6),//expected
 				"6k1/8/1Q3B2/8/3P1R2/3KP3/4N3/8 w - - 0 1",
 				Square.D4,//target
 				Player.WHITE,
@@ -366,7 +368,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.D3),//expected
+				AttackerType.create(PieceType.KING, Square.D3),//expected
 				"6k1/8/1Q3B2/8/3P1R2/3KP3/4N3/8 w - - 0 1",
 				Square.D4,//target
 				Player.WHITE,
@@ -374,7 +376,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				0l,//expected
+				AttackerType.nullValue(),//expected
 				"6k1/8/1Q3B2/8/3P1R2/3KP3/4N3/8 w - - 0 1",
 				Square.D4,//target
 				Player.WHITE,
@@ -382,7 +384,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		//with batteries
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.E6),//expected
+				AttackerType.create(PieceType.PAWN, Square.E6),//expected
 				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
 				Square.D5,//target
 				Player.BLACK,
@@ -390,7 +392,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.C7),//expected
+				AttackerType.create(PieceType.KNIGHT, Square.C7),//expected
 				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
 				Square.D5,//target
 				Player.BLACK,
@@ -398,7 +400,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.F7),//expected
+				AttackerType.create(PieceType.BISHOP, Square.F7),//expected
 				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
 				Square.D5,//target
 				Player.BLACK,
@@ -406,7 +408,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.D6),//expected
+				AttackerType.create(PieceType.ROOK, Square.D6),//expected
 				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
 				Square.D5,//target
 				Player.BLACK,
@@ -414,7 +416,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.F3),//expected
+				AttackerType.create(PieceType.QUEEN, Square.F3),//expected
 				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
 				Square.D5,//target
 				Player.BLACK,
@@ -422,7 +424,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.G2),//expected
+				AttackerType.create(PieceType.QUEEN, Square.G2),//expected
 				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
 				Square.D5,//target
 				Player.BLACK,
@@ -430,7 +432,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.D7),//expected
+				AttackerType.create(PieceType.QUEEN, Square.D7),//expected
 				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
 				Square.D5,//target
 				Player.BLACK,
@@ -438,7 +440,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.D8),//expected
+				AttackerType.create(PieceType.ROOK, Square.D8),//expected
 				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
 				Square.D5,//target
 				Player.BLACK,
@@ -446,7 +448,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				Bitboard.initFromSquare(Square.C6),//expected
+				AttackerType.create(PieceType.KING, Square.C6),//expected
 				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
 				Square.D5,//target
 				Player.BLACK,
@@ -454,7 +456,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		helper_test_getLeastValuableAttacker_mask(
-				0l,//expected
+				AttackerType.nullValue(),//expected
 				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
 				Square.D5,//target
 				Player.BLACK,
