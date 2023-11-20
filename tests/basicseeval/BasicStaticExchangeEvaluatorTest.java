@@ -785,4 +785,22 @@ class BasicStaticExchangeEvaluatorTest {
 		
 		// 5k2/8/8/4q3/5P2/2Q3b1/8/6K1 w - - 0 1 - same target is both enprise and exchangeable because of multiple attackers
 	}
+	
+	@Test
+	void sanity() {
+		test_game.loadFromFEN("8/8/8/5pk1/3pb3/2NK4/8/8 w - - 0 1");
+		test_eval.initialize();
+		test_eval.evaluateCapture_forcedAttacker(Square.D4, Player.WHITE, PieceType.KING);
+		test_eval.evaluateCapture_forcedAttacker(Square.E4, Player.WHITE, PieceType.KNIGHT);
+		
+		test_game.loadFromFEN("4q3/8/RQR2r2/1P3pk1/3pb3/2NK4/8/8 w - - 0 1");
+		test_eval.initialize();
+		test_eval.evaluateCapture_forcedAttacker(Square.C6, Player.BLACK, PieceType.BISHOP);
+		test_eval.evaluateCapture_forcedAttacker(Square.C6, Player.BLACK, PieceType.ROOK);
+		test_eval.evaluateCapture_forcedAttacker(Square.C6, Player.BLACK, PieceType.QUEEN);
+		
+		test_game.loadFromFEN("3r4/3r1k2/3q4/8/3B4/4P3/4K3/8 w - - 0 1");
+		test_eval.initialize();
+		test_eval.evaluateCapture_forcedAttacker(Square.D4, Player.BLACK, PieceType.QUEEN);
+	}
 }

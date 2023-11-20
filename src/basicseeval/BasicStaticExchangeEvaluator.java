@@ -510,34 +510,61 @@ public class BasicStaticExchangeEvaluator {
 	}
 	
 	
-	private int evaluateCapture_gain_stack[]=new int[32];
-	private int evaluateCapture_gain_stack_size;
+
+	private int evaluateCapture_occupation_history[]=new int[32];//pieceType
 	
-	/**
-	 * updates the internal state variables using minimax...
-	 * 
-	 * before this method is called, initialize_temp_attack_stack is guaranteed to have been called.
-	 * also: the target is guaranteed to be attacked by the forced type.
-	 * 
-	 * @param sq
-	 * @param player
-	 * @param attacker_type
-	 */
-	void evaluateCapture_forcedAttacker(int sq, int player, int attacker_type) {
+	//private int evaluateCapture_gain_stack_size;
+	
+	void evaluateCapture_forcedAttacker(int sq, int player, int forced_attacker_type) {
 		assert Square.validate(sq);
 		assert Player.validate(player);
-		assert PieceType.validate(attacker_type);
+		assert PieceType.validate(forced_attacker_type);
 		assert game.getPlayerAt(sq) == Player.getOtherPlayer(player);
-		assert Bitboard.testBit(getAttackedTargets(player, attacker_type), sq);
+		assert Bitboard.testBit(getAttackedTargets(player, forced_attacker_type), sq);
+		//todo: this can also hold code for detecting over-protection
 		
-		evaluateCapture_gain_stack_size=0;
 		int d=0;
-		evaluateCapture_gain_stack[d]=getPieceValue(game.getPieceAt(sq));
+		//int victim=game.getPieceAt(sq);
+		int currentPlayer=player;
+		long clearedSquares =0;
+		int leastValuableAttacker;
+		boolean isForcedAttackerDetected=false;
+		long lva_mask;
+		int nextAttacker;
+		
+		evaluateCapture_occupation_history[d]=game.getPieceAt(sq);
+		d++;
+		evaluateCapture_occupation_history[d]=forced_attacker_type;
+		d++;
+		
 		
 		do {
-			//this is a disaster
+			currentPlayer = Player.getOtherPlayer(currentPlayer);
+			lva_mask = getLeastValuableAttacker_mask(sq, currentPlayer, clearedSquares);
+			
+			
+			if(lva_mask == 0l)
+				break;
+			nextAttacker=game.getPieceAt(Bitboard.getFirstSquareIndex(lva_mask));
+			if(!isForcedAttackerDetected && nextAttacker == forced_attacker_type && currentPlayer == player) {//add check for forced attacker
+				isForcedAttackerDetected=true;
+				//we want to keep same player when calling getLeastValuableAttacker_mask next time
+				currentPlayer = Player.getOtherPlayer(currentPlayer);
+				clearedSquares |= lva_mask;
+				continue;
+			}
+			
+			clearedSquares |= lva_mask;
+			evaluateCapture_occupation_history[d]=nextAttacker;
+			d++;
+			
 		}while(true);
-		
+		// at this point evaluateCapture_occupation_stack contains all of the attackers
+		// which would participate in the exchange while alternating sides.
+		System.out.print("Potential Occupiers of ["+ Square.toString(sq)+"]: ");
+		for(int i=0;i<d;++i)
+			System.out.print((i%2==0 ? "+" : "-") + PieceType.toString(evaluateCapture_occupation_history[i]) + " ");
+		System.out.println();
 	}
 	
 	/**
