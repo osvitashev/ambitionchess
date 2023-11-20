@@ -446,14 +446,13 @@ public class BasicStaticExchangeEvaluator {
 		int attacker;
 		long clearedLocations = 0;
 		boolean playerDone = false, otherPlayerDone=false;
-		int pieceType;
 		
 		while(!(playerDone && otherPlayerDone)) {
 			if(!playerDone) {
 				attacker = getLeastValuableAttacker(sq, player, clearedLocations);
 				if(attacker != AttackerType.nullValue()) {
 					clearedLocations |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(attacker));
-					add_temp_evaluateCapture_attack_stack(player, attacker);
+					temp_attack_stack[player][temp_attack_stack_size[player]++]=attacker;
 				}
 				else {
 					playerDone=true;
@@ -463,7 +462,7 @@ public class BasicStaticExchangeEvaluator {
 				attacker = getLeastValuableAttacker(sq, otherPlayer, clearedLocations);
 				if(attacker != AttackerType.nullValue()) {
 					clearedLocations |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(attacker));
-					add_temp_evaluateCapture_attack_stack(otherPlayer, attacker);
+					temp_attack_stack[otherPlayer][temp_attack_stack_size[otherPlayer]++]=attacker;
 				}
 				else {
 					otherPlayerDone=true;
@@ -475,11 +474,13 @@ public class BasicStaticExchangeEvaluator {
 	private int temp_attack_stack[][]= new int [2][16];//AttackerType
 	private int temp_attack_stack_size [] = new int[2];
 	
-	private void add_temp_evaluateCapture_attack_stack(int player, int attackerType) {
-		assert Player.validate(player);
-		temp_attack_stack[player][temp_attack_stack_size[player]++]=attackerType;
-	}
 	
+	/**
+	 * Returns AttackerType at given index, which contains PieceType and square origin.
+	 * @param player
+	 * @param index
+	 * @return
+	 */
 	private int get_temp_evaluateCapture_attack_stack(int player, int index) {
 		assert Player.validate(player);
 		assert index < temp_attack_stack_size[player];
