@@ -14,7 +14,7 @@ import util.AttackerType;
 class BasicStaticExchangeEvaluatorTest {
 	
 	private Gamestate test_game = new Gamestate();
-	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game);
+	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game, 1);
 	
 	void helper_test_getLeastValuableAttacker_mask(long expected, String fen, int sq_target, int player, long clearedLocationsMask) {
 		test_game.loadFromFEN(fen);
@@ -467,7 +467,7 @@ class BasicStaticExchangeEvaluatorTest {
 	@Test
 	void initialize_test() {
 		Gamestate game = new Gamestate();
-		BasicStaticExchangeEvaluator eval = new BasicStaticExchangeEvaluator(game);
+		BasicStaticExchangeEvaluator eval = new BasicStaticExchangeEvaluator(game, 1);
 		
 		game.loadFromFEN("1k1r4/pp1r1q2/2npb3/6B1/1R1R2b1/2KQN1NP/1P4P1/5Q2 w - - 0 1");
 		eval.initialize();
@@ -792,22 +792,22 @@ class BasicStaticExchangeEvaluatorTest {
 	void sanity() {
 		test_game.loadFromFEN("8/8/8/5pk1/3pb3/2NK4/8/8 w - - 0 1");
 		test_eval.initialize();
-		test_eval.evaluateCapture_forcedAttacker(Square.D4, Player.WHITE, PieceType.KING);
-		test_eval.evaluateCapture_forcedAttacker(Square.E4, Player.WHITE, PieceType.KNIGHT);
+		test_eval.evaluateCapture_forcedAttacker(Square.D4, PieceType.KING);
+		test_eval.evaluateCapture_forcedAttacker(Square.E4, PieceType.KNIGHT);
 		
 		test_game.loadFromFEN("4q3/8/RQR2r2/1P3pk1/3pb3/2NK4/8/8 w - - 0 1");
 		test_eval.initialize();
-		test_eval.evaluateCapture_forcedAttacker(Square.C6, Player.BLACK, PieceType.BISHOP);
-		test_eval.evaluateCapture_forcedAttacker(Square.C6, Player.BLACK, PieceType.ROOK);
-		test_eval.evaluateCapture_forcedAttacker(Square.C6, Player.BLACK, PieceType.QUEEN);
+		test_eval.evaluateCapture_forcedAttacker(Square.C6, PieceType.BISHOP);
+		test_eval.evaluateCapture_forcedAttacker(Square.C6, PieceType.ROOK);
+		test_eval.evaluateCapture_forcedAttacker(Square.C6, PieceType.QUEEN);
 		
 		test_game.loadFromFEN("3r4/3r1k2/3q4/8/3B4/4P3/4K3/8 w - - 0 1");
 		test_eval.initialize();
-		test_eval.evaluateCapture_forcedAttacker(Square.D4, Player.BLACK, PieceType.QUEEN);
+		test_eval.evaluateCapture_forcedAttacker(Square.D4, PieceType.QUEEN);
 		
 		test_game.loadFromFEN("8/5k2/2n5/4P3/3RK3/8/8/8 w - - 0 1");
 		test_eval.initialize();
-		test_eval.evaluateCapture_forcedAttacker(Square.D4, Player.BLACK, PieceType.KNIGHT);
-		test_eval.evaluateCapture_forcedAttacker(Square.E5, Player.BLACK, PieceType.KNIGHT);
+		test_eval.evaluateCapture_forcedAttacker(Square.D4, PieceType.KNIGHT);
+		test_eval.evaluateCapture_forcedAttacker(Square.E5, PieceType.KNIGHT);
 	}
 }

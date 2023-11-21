@@ -35,8 +35,11 @@ public class BasicStaticExchangeEvaluator {
 	private final Gamestate game;
 	
 	//should not be re-initialized. Just reset the game state.
-	BasicStaticExchangeEvaluator(Gamestate g){
-		pieceValues = simpleValues;
+	BasicStaticExchangeEvaluator(Gamestate g, int pieceValuesCode){
+		if(pieceValuesCode == 1)
+			pieceValues = simpleValues;
+		else
+			pieceValues = BerlinerPieceValues;
 		game = g;
 	}
 	
@@ -102,7 +105,13 @@ public class BasicStaticExchangeEvaluator {
 	}
 	
 	/**
-	 * needs to be called after any changes to internal gamestate
+	 * needs to be called after any changes to internal gamestate;
+	 * 
+	 * Populates:
+	 * var_combined_bitboard_attackedBy,
+	 * var_combined_bitboard_secondary_attackedBy,
+	 * var_combined_bitboard_secondary_battery_attackedBy
+	 * 
 	 */
 	public void initialize() {
 		for(int player : Player.PLAYERS) {
@@ -457,7 +466,7 @@ public class BasicStaticExchangeEvaluator {
 		int attacker;
 		long clearedLocations = 0;
 		boolean playerDone = false, otherPlayerDone=false;
-		
+		//idea: maybe, temp_attack_stack entry could hold a flag to indicate attacking through a pawn (push)
 		while(!(playerDone && otherPlayerDone)) {
 			if(!playerDone) {
 				attacker = getLeastValuableAttacker(sq, player, clearedLocations);
@@ -522,15 +531,23 @@ public class BasicStaticExchangeEvaluator {
 	private int temp_evaluateCapture_forcedAttacker_pieceType_attackStack[]=new int[32];//pieceType - both players condensed to same stack.
 	private int temp_evaluateCapture_forcedAttacker_gain [] =new int[32];//integer value change - needed for linear minimax
 	
-	//private int evaluateCapture_gain_stack_size;
-	
-	void evaluateCapture_forcedAttacker(int sq, int player, int forced_attacker_type) {
+	/**
+	 * forces capture by a given piece type then performs linear minimax.
+	 * since the capture is forced, the returned value of {0} denotes a break-even trade.
+	 * 
+	 * @param sq
+	 * @param forced_attacker_type
+	 * @return
+	 */
+	int evaluateCapture_forcedAttacker(int sq, int forced_attacker_type) {
 		assert Square.validate(sq);
-		assert Player.validate(player);
 		assert PieceType.validate(forced_attacker_type);
-		assert game.getPlayerAt(sq) == Player.getOtherPlayer(player);
+		assert game.getPieceAt(sq) != PieceType.NO_PIECE;
+		int player = Player.getOtherPlayer(game.getPlayerAt(sq));
 		assert Bitboard.testBit(getAttackedTargets(player, forced_attacker_type), sq);
 		//todo: this can also hold code for detecting over-protection
+		
+		
 		
 		int d_combinedAttackStackSize=0;
 		//int victim=game.getPieceAt(sq);
@@ -606,7 +623,7 @@ public class BasicStaticExchangeEvaluator {
 		/**
 		 * at this point temp_evaluateCapture_forcedAttacker_gain[0] is the expected exchange value OF the forced capture is taken.
 		 */
-		
+		return temp_evaluateCapture_forcedAttacker_gain[0];
 	}
 	
 	/**
@@ -625,7 +642,7 @@ public class BasicStaticExchangeEvaluator {
 
 		for(int attacker_type : PieceType.PIECE_TYPES) {
 			if(Bitboard.testBit(getAttackedTargets(player, attacker_type), sq))
-				evaluateCapture_forcedAttacker(sq, player, attacker_type);
+				evaluateCapture_forcedAttacker(sq, attacker_type);
 		}
 		
 		
