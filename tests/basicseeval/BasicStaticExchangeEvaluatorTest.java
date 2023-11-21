@@ -14,7 +14,7 @@ import util.AttackerType;
 class BasicStaticExchangeEvaluatorTest {
 	
 	private Gamestate test_game = new Gamestate();
-	BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game);
+	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game);
 	
 	void helper_test_getLeastValuableAttacker_mask(long expected, String fen, int sq_target, int player, long clearedLocationsMask) {
 		test_game.loadFromFEN(fen);
@@ -804,5 +804,10 @@ class BasicStaticExchangeEvaluatorTest {
 		test_game.loadFromFEN("3r4/3r1k2/3q4/8/3B4/4P3/4K3/8 w - - 0 1");
 		test_eval.initialize();
 		test_eval.evaluateCapture_forcedAttacker(Square.D4, Player.BLACK, PieceType.QUEEN);
+		
+		test_game.loadFromFEN("8/5k2/2n5/4P3/3RK3/8/8/8 w - - 0 1");
+		test_eval.initialize();
+		test_eval.evaluateCapture_forcedAttacker(Square.D4, Player.BLACK, PieceType.KNIGHT);
+		test_eval.evaluateCapture_forcedAttacker(Square.E5, Player.BLACK, PieceType.KNIGHT);
 	}
 }

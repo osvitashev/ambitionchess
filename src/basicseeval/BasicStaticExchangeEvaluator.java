@@ -8,24 +8,35 @@ import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
 import util.AttackerType;
 
-/*
+/**
  * Takes a board state and performs square-centric static exchange evaluation.
  * This means we do not take into consideration discovered checks or removal of the guard on other targets.
+ * 
+ * 
+ * A fundamental simplification of this approach is to group pieces of the same type together.
+ * 
+ * Suppose this as the input: 7r/7Q/1k5n/8/1K2n3/4Q3/4r3/8 w - - 0 1
+ * 
+ * see on Qxe4 and Qxh6 yield totally different results because we are forcing the forcing the first attacker of the matching type.
+ * The hope is that such cases would not be any more rare than see being generally incorrect because of conditions elsewhere on the board.
+ * I believe a prerequisite for this type of error is that there is a reverse battery/backstab.
+ * 
  * */
 public class BasicStaticExchangeEvaluator {
-	//private static final int[] BerlinerPieceValues = { 100, 320, 333, 510, 800, 100000  };
+	private static final int[] BerlinerPieceValues = { 100, 320, 333, 510, 800, 100000  };
 	private static final int[] simpleValues = { 100, 300, 300, 500, 800, 100000  };
-	private static final int[] pieceValues = simpleValues;// index matches piece type.
+	private final int[] pieceValues;// index matches piece type.
 	
-	private static int getPieceValue(int pieceType) {
+	private int getPieceValue(int pieceType) {
 		assert PieceType.validate(pieceType);
 		return pieceValues[pieceType];
 	}
 
-	private Gamestate game;
+	private final Gamestate game;
 	
 	//should not be re-initialized. Just reset the game state.
 	BasicStaticExchangeEvaluator(Gamestate g){
+		pieceValues = simpleValues;
 		game = g;
 	}
 	
@@ -507,7 +518,9 @@ public class BasicStaticExchangeEvaluator {
 	}
 	
 
-	private int evaluateCapture_occupation_history[]=new int[32];//pieceType
+	//TODO: this is useful for testing and debugging bu can be removed once unittests are in place.
+	private int temp_evaluateCapture_forcedAttacker_pieceType_attackStack[]=new int[32];//pieceType - both players condensed to same stack.
+	private int temp_evaluateCapture_forcedAttacker_gain [] =new int[32];//integer value change - needed for linear minimax
 	
 	//private int evaluateCapture_gain_stack_size;
 	
@@ -519,7 +532,7 @@ public class BasicStaticExchangeEvaluator {
 		assert Bitboard.testBit(getAttackedTargets(player, forced_attacker_type), sq);
 		//todo: this can also hold code for detecting over-protection
 		
-		int d=0;
+		int d_combinedAttackStackSize=0;
 		//int victim=game.getPieceAt(sq);
 		int currentPlayer=player;
 		long clearedSquares =0;
@@ -527,10 +540,10 @@ public class BasicStaticExchangeEvaluator {
 		boolean isForcedAttackerDetected=false;
 		int nextAttackerType;
 		
-		evaluateCapture_occupation_history[d]=game.getPieceAt(sq);
-		d++;
-		evaluateCapture_occupation_history[d]=forced_attacker_type;
-		d++;
+		temp_evaluateCapture_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize]=game.getPieceAt(sq);
+		d_combinedAttackStackSize++;
+		temp_evaluateCapture_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize]=forced_attacker_type;
+		d_combinedAttackStackSize++;
 		
 		
 		do {
@@ -552,16 +565,48 @@ public class BasicStaticExchangeEvaluator {
 			}
 			
 			clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(leastValuableAttacker));
-			evaluateCapture_occupation_history[d]=nextAttackerType;
-			d++;
+			temp_evaluateCapture_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize]=nextAttackerType;
+			d_combinedAttackStackSize++;
 			
 		}while(true);
+		
+		for (int i = 0; i < d_combinedAttackStackSize; ++i)
+			temp_evaluateCapture_forcedAttacker_gain[i] = getPieceValue(temp_evaluateCapture_forcedAttacker_pieceType_attackStack[i]);
+		
 		// at this point evaluateCapture_occupation_stack contains all of the attackers
 		// which would participate in the exchange while alternating sides.
-		System.out.print("Potential Occupiers of ["+ Square.toString(sq)+"]: ");
-		for(int i=0;i<d;++i)
-			System.out.print((i%2==0 ? "+" : "-") + PieceType.toString(evaluateCapture_occupation_history[i]) + " ");
-		System.out.println();
+		System.out.print(game.toFEN() + " | Potential Occupiers of ["+ Square.toString(sq)+"]: ");
+		for (int i = 0; i < d_combinedAttackStackSize; ++i)
+			System.out.print((i % 2 == 0 ? "+" : "-") + PieceType.toString(temp_evaluateCapture_forcedAttacker_pieceType_attackStack[i]) + " ");
+		System.out.print(" abs values: ");
+		for (int i = 0; i < d_combinedAttackStackSize; ++i)
+			System.out.print(temp_evaluateCapture_forcedAttacker_gain[i] + " ");
+		System.out.print(" | gain: ");
+		{
+			int gain=0;
+			for (int i = 0; i < d_combinedAttackStackSize-1; ++i) {
+				gain+= i%2==0 ? temp_evaluateCapture_forcedAttacker_gain[i] : -temp_evaluateCapture_forcedAttacker_gain[i];
+				temp_evaluateCapture_forcedAttacker_gain[i]=gain;
+			}
+		}
+		d_combinedAttackStackSize--;
+		for (int i = 0; i < d_combinedAttackStackSize; ++i)
+			System.out.print(temp_evaluateCapture_forcedAttacker_gain[i] + " ");
+		//System.out.println(" | d_combinedAttackStackSize:"+ d_combinedAttackStackSize);
+		
+		for (int i = d_combinedAttackStackSize-1; i>0; --i) {
+			if(i%2==1)
+				temp_evaluateCapture_forcedAttacker_gain[i-1]=Math.min(temp_evaluateCapture_forcedAttacker_gain[i-1], temp_evaluateCapture_forcedAttacker_gain[i]);
+			else
+				temp_evaluateCapture_forcedAttacker_gain[i-1]=Math.max(temp_evaluateCapture_forcedAttacker_gain[i-1], temp_evaluateCapture_forcedAttacker_gain[i]);
+		}
+		
+		System.out.println(" | val: "+temp_evaluateCapture_forcedAttacker_gain[0]);
+		
+		/**
+		 * at this point temp_evaluateCapture_forcedAttacker_gain[0] is the expected exchange value OF the forced capture is taken.
+		 */
+		
 	}
 	
 	/**
