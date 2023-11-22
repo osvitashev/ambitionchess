@@ -86,6 +86,67 @@ class BasicStaticExchangeEvaluatorTest_forcedAttacker {
 		assertEquals(-200, expectedOutcome);
 		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.D1, PieceType.ROOK);
 		assertEquals(300, expectedOutcome);
+		
+		//failing case
+		test_game.loadFromFEN("8/4k3/6K1/8/r1Q1n3/8/8/8 w - - 0 1");
+		test_eval.initialize();
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.E4, PieceType.QUEEN);
+		assertEquals(-500, expectedOutcome);//break even
+		
+		test_game.loadFromFEN("8/8/kp6/2p1RR2/8/8/7K/8 w - - 0 1");
+		test_eval.initialize();
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.C5, PieceType.ROOK);
+		assertEquals(-300, expectedOutcome);
+		
+		test_game.loadFromFEN("8/8/kp6/2p1RR2/8/8/5Q1K/8 w - - 0 1");
+		test_eval.initialize();
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.C5, PieceType.ROOK);
+		assertEquals(-300, expectedOutcome);
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.C5, PieceType.QUEEN);
+		assertEquals(-600, expectedOutcome);
+		
+		test_game.loadFromFEN("8/5k2/3p4/2r5/8/2R1B3/4K3/8 w - - 0 1");
+		test_eval.initialize();
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.C5, PieceType.ROOK);
+		assertEquals(100, expectedOutcome);
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.C5, PieceType.BISHOP);
+		assertEquals(300, expectedOutcome);
+		
+		test_game.loadFromFEN("8/8/rk2n3/1P6/2B5/1q6/Q3n3/5K2 w - - 0 1");
+		test_eval.initialize();
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.E6, PieceType.BISHOP);
+		assertEquals(300, expectedOutcome);
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.A6, PieceType.PAWN);
+		assertEquals(500, expectedOutcome);
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.A6, PieceType.QUEEN);
+		assertEquals(500, expectedOutcome);
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.C4, PieceType.QUEEN);
+		assertEquals(-500, expectedOutcome);
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.B3, PieceType.BISHOP);
+		assertEquals(800, expectedOutcome);
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.A2, PieceType.ROOK);
+		assertEquals(800, expectedOutcome);
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.E2, PieceType.QUEEN);
+		assertEquals(300, expectedOutcome);
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.E2, PieceType.KING);
+		assertEquals(300, expectedOutcome);
+		
+		
+		
+		
+		//document known limitations
+		test_game.loadFromFEN("8/4k3/6K1/8/r1Q1n1Q1/4n3/3P1P2/2b5 w - - 0 1");
+		test_eval.initialize();
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.E4, PieceType.QUEEN);
+		assertEquals(0, expectedOutcome);//break even
+
+		
+		
+//		consider: perhaps i do not really need the minimax score in most cases.
+//		i only want to know whether a capture is profitable
+//		using a rook to capture a bishop protected by a pawn is obvioulsy a bad SEE.
+//		This heuristic can be used to avoif having to call ...forcedAttacker alltogether.
+		
 	}
 
 }

@@ -43,6 +43,62 @@ public class BasicStaticExchangeEvaluator {
 		game = g;
 	}
 	
+	private int getLeastValuableAttacker_withType(int sq_target, int player, int pieceType, long clearedLocations) {
+		assert Square.validate(sq_target);
+		assert Player.validate(player);
+		assert PieceType.validate(pieceType);
+
+		switch (pieceType) {
+		case PieceType.PAWN: {
+			long targetMask = Bitboard.initFromSquare(sq_target);
+			long candidate_pawns = 0;
+			if (Player.isWhite(player))
+				candidate_pawns = Bitboard.shiftSouth(Bitboard.shiftEast(targetMask)) | Bitboard.shiftSouth(Bitboard.shiftWest(targetMask));
+			else
+				candidate_pawns = Bitboard.shiftNorth(Bitboard.shiftEast(targetMask)) | Bitboard.shiftNorth(Bitboard.shiftWest(targetMask));
+			candidate_pawns &= game.getPieces(player, PieceType.PAWN) & ~clearedLocations;
+			if (!Bitboard.isEmpty(candidate_pawns))
+				return AttackerType.create(PieceType.PAWN, Bitboard.getFirstSquareIndex(candidate_pawns));
+		}
+			break;
+		case PieceType.KNIGHT: {
+			long candidate_knights = BitboardGen.getKnightSet(sq_target) & ~clearedLocations & game.getPieces(player, PieceType.KNIGHT);
+			if (!Bitboard.isEmpty(candidate_knights))
+				return AttackerType.create(PieceType.KNIGHT, Bitboard.getFirstSquareIndex(candidate_knights));
+		}
+			break;
+		case PieceType.BISHOP: {
+			long candidate_bishops = BitboardGen.getBishopSet(sq_target, game.getOccupied() & ~clearedLocations) & ~clearedLocations
+					& game.getPieces(player, PieceType.BISHOP);
+			if (!Bitboard.isEmpty(candidate_bishops))
+				return AttackerType.create(PieceType.BISHOP, Bitboard.getFirstSquareIndex(candidate_bishops));
+		}
+			break;
+		case PieceType.ROOK: {
+			long candidate_rooks = BitboardGen.getRookSet(sq_target, game.getOccupied() & ~clearedLocations) & ~clearedLocations
+					& game.getPieces(player, PieceType.ROOK);
+			if (!Bitboard.isEmpty(candidate_rooks))
+				return AttackerType.create(PieceType.ROOK, Bitboard.getFirstSquareIndex(candidate_rooks));
+		}
+			break;
+		case PieceType.QUEEN: {
+			long candidate_queens = BitboardGen.getQueenSet(sq_target, game.getOccupied() & ~clearedLocations) & ~clearedLocations
+					& game.getPieces(player, PieceType.QUEEN);
+			if (!Bitboard.isEmpty(candidate_queens))
+				return AttackerType.create(PieceType.QUEEN, Bitboard.getFirstSquareIndex(candidate_queens));
+		}
+			break;
+		case PieceType.KING: {
+			long candidate_kings = BitboardGen.getKingSet(sq_target) & ~clearedLocations & game.getPieces(player, PieceType.KING);
+			if (!Bitboard.isEmpty(candidate_kings))
+				return AttackerType.create(PieceType.KING, Bitboard.getFirstSquareIndex(candidate_kings));
+		}
+		default:
+			break;
+		}
+		return AttackerType.nullValue();// fallback
+	}
+	
 	/**
 	 * returns a mask with either exactly 1 or 0 bits set.
 	 * @param sq
@@ -51,55 +107,35 @@ public class BasicStaticExchangeEvaluator {
 	 * @return AttackerType
 	 */
 	int getLeastValuableAttacker(int sq_target, int player, long clearedLocations) {
+		
+		// OPTIMIZE: once pawn and knight attack sets are exhausted, there is no point
+				// checking them again. This is not true for sliding pieces.
 		assert Square.validate(sq_target);
 		assert Player.validate(player);
 		
-		{
-			long targetMask = Bitboard.initFromSquare(sq_target);
-			long candidate_pawns=0;
-			if(Player.isWhite(player))
-				candidate_pawns= Bitboard.shiftSouth( Bitboard.shiftEast(targetMask)) |
-					Bitboard.shiftSouth( Bitboard.shiftWest(targetMask));
-			else
-				candidate_pawns= Bitboard.shiftNorth( Bitboard.shiftEast(targetMask)) |
-					Bitboard.shiftNorth( Bitboard.shiftWest(targetMask));
-			candidate_pawns &= game.getPieces(player, PieceType.PAWN) & ~clearedLocations;
-			if(!Bitboard.isEmpty(candidate_pawns))
-				return AttackerType.create(PieceType.PAWN, Bitboard.getFirstSquareIndex(candidate_pawns));
-		}
+		int attacker = getLeastValuableAttacker_withType(sq_target, player, PieceType.PAWN, clearedLocations);
+		if(attacker != AttackerType.nullValue())
+			return attacker;
 		
-		{
-			long candidate_knights = BitboardGen.getKnightSet(sq_target) & ~clearedLocations & game.getPieces(player, PieceType.KNIGHT);
-			if(!Bitboard.isEmpty(candidate_knights))
-				return AttackerType.create(PieceType.KNIGHT, Bitboard.getFirstSquareIndex(candidate_knights));
-		}
-		//OPTIMIZE: once pawn and knight attack sets are exhausted, there is no point checking them again. This is not true for sliding pieces.
-		{
-			long candidate_bishops = BitboardGen.getBishopSet(sq_target, game.getOccupied() & ~clearedLocations) & ~clearedLocations
-					& game.getPieces(player, PieceType.BISHOP);
-			if(!Bitboard.isEmpty(candidate_bishops))
-				return AttackerType.create(PieceType.BISHOP, Bitboard.getFirstSquareIndex(candidate_bishops));
-		}
+		attacker = getLeastValuableAttacker_withType(sq_target, player, PieceType.KNIGHT, clearedLocations);
+		if(attacker != AttackerType.nullValue())
+			return attacker;		
 		
-		{
-			long candidate_rooks = BitboardGen.getRookSet(sq_target, game.getOccupied() & ~clearedLocations) & ~clearedLocations
-					& game.getPieces(player, PieceType.ROOK);
-			if(!Bitboard.isEmpty(candidate_rooks))
-				return AttackerType.create(PieceType.ROOK, Bitboard.getFirstSquareIndex(candidate_rooks));
-		}
+		attacker = getLeastValuableAttacker_withType(sq_target, player, PieceType.BISHOP, clearedLocations);
+		if(attacker != AttackerType.nullValue())
+			return attacker;
 		
-		{
-			long candidate_queens = BitboardGen.getQueenSet(sq_target, game.getOccupied() & ~clearedLocations) & ~clearedLocations
-					& game.getPieces(player, PieceType.QUEEN);
-			if(!Bitboard.isEmpty(candidate_queens))
-				return AttackerType.create(PieceType.QUEEN, Bitboard.getFirstSquareIndex(candidate_queens));
-		}
+		attacker = getLeastValuableAttacker_withType(sq_target, player, PieceType.ROOK, clearedLocations);
+		if(attacker != AttackerType.nullValue())
+			return attacker;
 		
-		{
-			long candidate_kings = BitboardGen.getKingSet(sq_target) & ~clearedLocations & game.getPieces(player, PieceType.KING);
-			if(!Bitboard.isEmpty(candidate_kings))
-				return AttackerType.create(PieceType.KING, Bitboard.getFirstSquareIndex(candidate_kings));
-		}
+		attacker = getLeastValuableAttacker_withType(sq_target, player, PieceType.QUEEN, clearedLocations);
+		if(attacker != AttackerType.nullValue())
+			return attacker;
+		
+		attacker = getLeastValuableAttacker_withType(sq_target, player, PieceType.KING, clearedLocations);
+		if(attacker != AttackerType.nullValue())
+			return attacker;
 		
 		return AttackerType.nullValue();//fallback
 	}
@@ -550,17 +586,16 @@ public class BasicStaticExchangeEvaluator {
 		
 		
 		int d_combinedAttackStackSize=0;
-		//int victim=game.getPieceAt(sq);
 		int currentPlayer=player;
 		long clearedSquares =0;
 		int leastValuableAttacker;
 		boolean isForcedAttackerDetected=false;
 		int nextAttackerType;
 		
-		temp_evaluateCapture_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize]=game.getPieceAt(sq);
-		d_combinedAttackStackSize++;
-		temp_evaluateCapture_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize]=forced_attacker_type;
-		d_combinedAttackStackSize++;
+		temp_evaluateCapture_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=game.getPieceAt(sq);
+		temp_evaluateCapture_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=forced_attacker_type;
+		//OPTIMIZE: would be nice to avoid converting BB to something else only to extract the BB again. 
+		clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(getLeastValuableAttacker_withType(sq, currentPlayer, forced_attacker_type, 0l)));
 		
 		
 		do {
@@ -568,22 +603,11 @@ public class BasicStaticExchangeEvaluator {
 			//todo: this is unnecessary - we already have the attacker stack pre-calculated.
 			//evaluateCapture_occupation_history is different from attacker stack because the forced attacker is swapped to pos[0]
 			leastValuableAttacker = getLeastValuableAttacker(sq, currentPlayer, clearedSquares);
-			
-			
 			if(leastValuableAttacker == AttackerType.nullValue())
 				break;
 			nextAttackerType=AttackerType.getAttackerPieceType(leastValuableAttacker);
-			if(!isForcedAttackerDetected && nextAttackerType == forced_attacker_type && currentPlayer == player) {//add check for forced attacker
-				isForcedAttackerDetected=true;
-				//we want to keep same player when calling getLeastValuableAttacker_mask next time
-				currentPlayer = Player.getOtherPlayer(currentPlayer);
-				clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(leastValuableAttacker));
-				continue;
-			}
-			
 			clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(leastValuableAttacker));
-			temp_evaluateCapture_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize]=nextAttackerType;
-			d_combinedAttackStackSize++;
+			temp_evaluateCapture_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=nextAttackerType;
 			
 		}while(true);
 		
