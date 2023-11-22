@@ -475,93 +475,7 @@ public class BasicStaticExchangeEvaluator {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
 		return output_capture_enprise[player][pieceType];
-	}
-
-	
-	/**
-	 * populates the attack stack. Does not minimax. there are weird cases with
-	 * reverse batteries and backstabs. a player may be out of attacks, but new
-	 * attacks may become available because of discovered attacks
-	 * 
-	 * The purpose of this function is to generate the sequence of attackers used in
-	 * the exchange.
-	 * 
-	 * The function takes a player parameter AND resets attack stacks for BOTH players.
-	 * This is needed for non-capture exchanges.
-	 * 
-	 * @param sq
-	 * @param player
-	 */
-	void initialize_temp_attack_stack(int sq, int player) {
-		assert Square.validate(sq);
-		assert Player.validate(player);
-		assert game.getPlayerAt(sq) == Player.getOtherPlayer(player);
-		temp_attack_stack_size[0]=0;
-		temp_attack_stack_size[1]=0;
-		int otherPlayer = Player.getOtherPlayer(player);
-		int attacker;
-		long clearedLocations = 0;
-		boolean playerDone = false, otherPlayerDone=false;
-		//idea: maybe, temp_attack_stack entry could hold a flag to indicate attacking through a pawn (push)
-		while(!(playerDone && otherPlayerDone)) {
-			if(!playerDone) {
-				attacker = getLeastValuableAttacker(sq, player, clearedLocations);
-				if(attacker != AttackerType.nullValue()) {
-					clearedLocations |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(attacker));
-					temp_attack_stack[player][temp_attack_stack_size[player]++]=attacker;
-				}
-				else {
-					playerDone=true;
-				}
-			}
-			if(!otherPlayerDone) {
-				attacker = getLeastValuableAttacker(sq, otherPlayer, clearedLocations);
-				if(attacker != AttackerType.nullValue()) {
-					clearedLocations |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(attacker));
-					temp_attack_stack[otherPlayer][temp_attack_stack_size[otherPlayer]++]=attacker;
-				}
-				else {
-					otherPlayerDone=true;
-				}
-			}
-		}
-	}
-	
-	private int temp_attack_stack[][]= new int [2][16];//AttackerType
-	private int temp_attack_stack_size [] = new int[2];
-	
-	
-	/**
-	 * Returns AttackerType at given index, which contains PieceType and square origin.
-	 * @param player
-	 * @param index
-	 * @return
-	 */
-	private int get_temp_evaluateCapture_attack_stack(int player, int index) {
-		assert Player.validate(player);
-		assert index < temp_attack_stack_size[player];
-		return temp_attack_stack[player][index];
-	}
-	
-	private int get_temp_evaluateCapture_attack_stack_size(int player) {
-		assert Player.validate(player);
-		return temp_attack_stack_size[player];
-	}
-	
-	/**
-	 * Should only be used for debugging and testing purposes.
-	 * @return
-	 */
-	String debug_dump_temp_evaluateCapture_attack_stack() {		
-		String ret = "White: ";
-		for(int i=0; i<get_temp_evaluateCapture_attack_stack_size(0); ++i)
-			ret+=PieceType.toString(AttackerType.getAttackerPieceType(get_temp_evaluateCapture_attack_stack(0, i)))+" ";
-		ret+="| Black: ";
-		for(int i=0; i<get_temp_evaluateCapture_attack_stack_size(1); ++i)
-			ret+=PieceType.toString(AttackerType.getAttackerPieceType(get_temp_evaluateCapture_attack_stack(1, i)))+" ";
-		return ret;
-	}
-	
+	}	
 
 	//TODO: this is useful for testing and debugging bu can be removed once unittests are in place.
 	private int temp_evaluateCapture_forcedAttacker_pieceType_attackStack[]=new int[32];//pieceType - both players condensed to same stack.
@@ -662,8 +576,6 @@ public class BasicStaticExchangeEvaluator {
 		assert Player.validate(player);
 		assert game.getPlayerAt(sq) == Player.getOtherPlayer(player);
 		
-		initialize_temp_attack_stack(sq, player);
-
 		for(int attacker_type : PieceType.PIECE_TYPES) {
 			if(Bitboard.testBit(getAttackedTargets(player, attacker_type), sq))
 				evaluateCapture_forcedAttacker(sq, attacker_type);

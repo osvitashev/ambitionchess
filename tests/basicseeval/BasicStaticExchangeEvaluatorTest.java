@@ -657,64 +657,6 @@ class BasicStaticExchangeEvaluatorTest {
 		assertEquals(0x14008c0050121000L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK));
 	}
 	
-	@Test
-	void initialize_temp_evaluateCapture_attack_stack_test() {
-		test_game.loadFromFEN("8/8/8/k7/4p3/4K3/8/8 w - - 0 1");
-		test_eval.initialize();
-		test_eval.initialize_temp_attack_stack(Square.E4, Player.WHITE);
-		assertEquals("White: K | Black: ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
-		
-		test_game.loadFromFEN("8/3n4/8/2k1p1R1/4K3/6B1/8/8 w - - 0 1");
-		test_eval.initialize();
-		test_eval.initialize_temp_attack_stack(Square.E5, Player.WHITE);
-		assertEquals("White: B R K | Black: N ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
-		
-		test_game.loadFromFEN("8/1q6/1kp1b3/3p4/2PnR1Q1/2N5/3K4/8 w - - 0 1");
-		test_eval.initialize();
-		test_eval.initialize_temp_attack_stack(Square.D5, Player.WHITE);
-		assertEquals("White: P N | Black: P B Q ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
-		test_eval.initialize_temp_attack_stack(Square.E4, Player.BLACK);
-		assertEquals("White: N Q | Black: P ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
-		test_eval.initialize_temp_attack_stack(Square.E6, Player.WHITE);
-		assertEquals("White: R Q | Black: N ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
-		test_eval.initialize_temp_attack_stack(Square.C4, Player.BLACK);
-		assertEquals("White: | Black: P B ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
-		test_eval.initialize_temp_attack_stack(Square.D4, Player.WHITE);
-		assertEquals("White: R Q | Black: ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
-		
-		test_game.loadFromFEN("8/2k1nb2/4p3/3b1rq1/4P3/1Q1Q4/B1KR4/3R4 b - - 0 1");
-		test_eval.initialize();
-		test_eval.initialize_temp_attack_stack(Square.D5, Player.WHITE);
-		assertEquals("White: P Q B Q R R | Black: P N B R Q ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
-		
-		test_game.loadFromFEN("8/3rk3/4P3/5b2/1K4Q1/7q/8/8 w - - 0 1");
-		test_eval.initialize();
-		test_eval.initialize_temp_attack_stack(Square.D7, Player.WHITE);
-		assertEquals("White: P Q | Black: B Q K ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
-		
-		/**
-		capturing with a king SHOULD NOT stop generating attackers
-		This can be used to determine overprotected pieces.
-		 */
-		test_game.loadFromFEN("8/8/8/2R5/N1K5/2p5/6k1/8 w - - 0 1");
-		test_eval.initialize();
-		test_eval.initialize_temp_attack_stack(Square.C3, Player.WHITE);
-		assertEquals("White: N K R | Black: ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
-		
-		/**
-		 * A reverse battery / double backstab.
-		 * The rook on c8 does not register as an attacker.
-		 * This is correct, as it would not get used in the exchange.
-		 * However, it does potentially affect overprotection considerations, as lifting one of the pieces
-		 * making up the battery would affect the exchange outcome in an unexpected way.
-		 * Nothing to be done about it, unfortunately.
-		 */
-		test_game.loadFromFEN("2R5/8/2q5/2r5/6K1/2R5/6k1/8 b - - 0 1");
-		test_eval.initialize();
-		test_eval.initialize_temp_attack_stack(Square.C3, Player.BLACK);
-		assertEquals("White: | Black: R Q ", test_eval.debug_dump_temp_evaluateCapture_attack_stack());
-	}
-	
 	/*
 	 * only contains clean captures with no defensive responses.
 	 */
