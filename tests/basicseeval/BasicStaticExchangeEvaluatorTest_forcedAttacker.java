@@ -131,16 +131,44 @@ class BasicStaticExchangeEvaluatorTest_forcedAttacker {
 		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.E2, PieceType.KING);
 		assertEquals(300, expectedOutcome);
 		
-		
-		
-		
 		//document known limitations
 		test_game.loadFromFEN("8/4k3/6K1/8/r1Q1n1Q1/4n3/3P1P2/2b5 w - - 0 1");
 		test_eval.initialize();
 		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.E4, PieceType.QUEEN);
 		assertEquals(0, expectedOutcome);//break even
-
 		
+		//cases in and into check
+		test_game.loadFromFEN("8/8/6k1/3p4/p1p5/1K6/8/8 w - - 0 1");
+		test_eval.initialize();
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.A4, PieceType.KING);
+		assertEquals(100, expectedOutcome);
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.C4, PieceType.KING);
+		assertEquals(-99900, expectedOutcome);
+		
+		test_game.loadFromFEN("8/2R5/1Nk2p2/2B3n1/5K2/8/8/8 b - - 0 1");
+		test_eval.initialize();
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.C7, PieceType.KING);
+		assertEquals(500, expectedOutcome);
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.C5, PieceType.KING);
+		assertEquals(-99700, expectedOutcome);
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.B6, PieceType.KING);
+		assertEquals(-99700, expectedOutcome);
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.G5, PieceType.KING);
+		assertEquals(-99700, expectedOutcome);
+		
+		test_game.loadFromFEN("8/4k1p1/4Pn2/R3b3/8/N7/b3R1K1/1n2q3 w - - 0 1");
+		test_eval.initialize();
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.E6, PieceType.BISHOP);
+		assertEquals(100, expectedOutcome);
+		
+		test_game.loadFromFEN("4k3/N2p4/2r3q1/2p5/1Nr5/K7/2Q4r/8 w - - 0 1");
+		test_eval.initialize();
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.C6, PieceType.KNIGHT);
+		assertEquals(200, expectedOutcome);
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.C2, PieceType.ROOK);
+		assertEquals(600, expectedOutcome);
+		expectedOutcome = test_eval.evaluateCapture_forcedAttacker(Square.C2, PieceType.QUEEN);
+		assertEquals(300, expectedOutcome);
 		
 //		consider: perhaps i do not really need the minimax score in most cases.
 //		i only want to know whether a capture is profitable

@@ -157,7 +157,9 @@ public class BasicStaticExchangeEvaluator {
 				var_bitboard_secondary_battery_attackedBy[player][type] =0;
 				//todo: reset the output variables here.
 				
-				output_capture_enprise[player][type] =0;
+				output_target_winning[player][type] =0;
+				output_target_neutral[player][type] =0;
+				output_target_losing[player][type] =0;
 			}
 			var_combined_bitboard_attackedBy[player] =0;
 			var_combined_bitboard_secondary_attackedBy[player] =0;
@@ -458,24 +460,36 @@ public class BasicStaticExchangeEvaluator {
 		return var_combined_bitboard_secondary_battery_attackedBy[player];
 	}
 	
-	/**
-	 * Captures where the target piece is unprotected and the defender does not have available re-captures.
-	 * 
-	 * [player][piece type]
-	 */
-	private long output_capture_enprise [][]= new long[2][6];
+	private long output_target_winning [][]= new long[2][6];
+	private long output_target_neutral [][]= new long[2][6];
+	private long output_target_losing [][]= new long[2][6];
 	
 	/**
-	 * Captures where the target piece is unprotected and the defender does not have available re-captures.
-	 * Does not include quiet moves.
-	 * 
-	 * [player][piece type]
+	 * Captures with strictly positive score
 	 */
-	public long getOutput_capture_enprise(int player, int pieceType) {
+	public long getOutput_capture_winning(int player, int pieceType) {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
-		return output_capture_enprise[player][pieceType];
-	}	
+		return output_target_winning[player][pieceType] & game.getOccupied();
+	}
+	
+	/**
+	 * Captures with neutral score
+	 */
+	public long getOutput_capture_neutral(int player, int pieceType) {
+		assert Player.validate(player);
+		assert PieceType.validate(pieceType);
+		return output_target_neutral[player][pieceType] & game.getOccupied();
+	}
+	
+	/**
+	 * Captures with negative score
+	 */
+	public long getOutput_capture_losing(int player, int pieceType) {
+		assert Player.validate(player);
+		assert PieceType.validate(pieceType);
+		return output_target_losing[player][pieceType] & game.getOccupied();
+	}
 
 	//TODO: this is useful for testing and debugging bu can be removed once unittests are in place.
 	private int temp_evaluateCapture_forcedAttacker_pieceType_attackStack[]=new int[32];//pieceType - both players condensed to same stack.
@@ -530,13 +544,13 @@ public class BasicStaticExchangeEvaluator {
 		
 		// at this point evaluateCapture_occupation_stack contains all of the attackers
 		// which would participate in the exchange while alternating sides.
-		System.out.print(game.toFEN() + " | Potential Occupiers of ["+ Square.toString(sq)+"]: ");
-		for (int i = 0; i < d_combinedAttackStackSize; ++i)
-			System.out.print((i % 2 == 0 ? "+" : "-") + PieceType.toString(temp_evaluateCapture_forcedAttacker_pieceType_attackStack[i]) + " ");
-		System.out.print(" abs values: ");
-		for (int i = 0; i < d_combinedAttackStackSize; ++i)
-			System.out.print(temp_evaluateCapture_forcedAttacker_gain[i] + " ");
-		System.out.print(" | gain: ");
+//		System.out.print(game.toFEN() + " | Potential Occupiers of ["+ Square.toString(sq)+"]: ");
+//		for (int i = 0; i < d_combinedAttackStackSize; ++i)
+//			System.out.print((i % 2 == 0 ? "+" : "-") + PieceType.toString(temp_evaluateCapture_forcedAttacker_pieceType_attackStack[i]) + " ");
+//		System.out.print(" abs values: ");
+//		for (int i = 0; i < d_combinedAttackStackSize; ++i)
+//			System.out.print(temp_evaluateCapture_forcedAttacker_gain[i] + " ");
+//		System.out.print(" | gain: ");
 		{
 			int gain=0;
 			for (int i = 0; i < d_combinedAttackStackSize-1; ++i) {
@@ -545,9 +559,8 @@ public class BasicStaticExchangeEvaluator {
 			}
 		}
 		d_combinedAttackStackSize--;
-		for (int i = 0; i < d_combinedAttackStackSize; ++i)
-			System.out.print(temp_evaluateCapture_forcedAttacker_gain[i] + " ");
-		//System.out.println(" | d_combinedAttackStackSize:"+ d_combinedAttackStackSize);
+//		for (int i = 0; i < d_combinedAttackStackSize; ++i)
+//			System.out.print(temp_evaluateCapture_forcedAttacker_gain[i] + " ");
 		
 		for (int i = d_combinedAttackStackSize-1; i>0; --i) {
 			if(i%2==1)
@@ -556,65 +569,38 @@ public class BasicStaticExchangeEvaluator {
 				temp_evaluateCapture_forcedAttacker_gain[i-1]=Math.max(temp_evaluateCapture_forcedAttacker_gain[i-1], temp_evaluateCapture_forcedAttacker_gain[i]);
 		}
 		
-		System.out.println(" | val: "+temp_evaluateCapture_forcedAttacker_gain[0]);
+//		System.out.println(" | val: "+temp_evaluateCapture_forcedAttacker_gain[0]);
 		
 		/**
-		 * at this point temp_evaluateCapture_forcedAttacker_gain[0] is the expected exchange value OF the forced capture is taken.
+		 * at this point temp_evaluateCapture_forcedAttacker_gain[0] is the expected exchange value IF the forced capture is taken.
 		 */
 		return temp_evaluateCapture_forcedAttacker_gain[0];
 	}
 	
-	/**
-	 * updates the internal state variables using minimax...
-	 * @param sq
-	 * @param player - player making the capture. NOT THE TARGET
-	 * @param clearedLocations
-	 * @return
-	 */
-	void evaluateCaptures(int sq, int player) {
-		assert Square.validate(sq);
-		assert Player.validate(player);
-		assert game.getPlayerAt(sq) == Player.getOtherPlayer(player);
-		
-		for(int attacker_type : PieceType.PIECE_TYPES) {
-			if(Bitboard.testBit(getAttackedTargets(player, attacker_type), sq))
-				evaluateCapture_forcedAttacker(sq, attacker_type);
+
+	void evaluateCaptures() {
+		int score;
+
+		// todo: this can be rewritten to avoid the huge nested loops.
+		for (int player : Player.PLAYERS) {
+			for (int attacker_type : PieceType.PIECE_TYPES) {
+				for (int sq : Square.SQUARES) {
+					if (Bitboard.testBit(getAttackedTargets(player, attacker_type), sq) && game.getPlayerAt(sq) == Player.getOtherPlayer(player)) {
+						score = evaluateCapture_forcedAttacker(sq, attacker_type);
+						if(score < 0)
+							output_target_losing[player][attacker_type]|= Bitboard.setBit(output_target_losing[player][attacker_type], sq);
+						else if(score == 0)
+							output_target_neutral[player][attacker_type]|= Bitboard.setBit(output_target_neutral[player][attacker_type], sq);
+						else
+							output_target_winning[player][attacker_type]|= Bitboard.setBit(output_target_winning[player][attacker_type], sq);
+					}
+				}
+			}
 		}
-		
-		
+
 	}
 	
-	/**
-	 * initialize() is guaranteed to have been called earlier.
-	 * calculates all of the outputs for all of the 64 squares
-	 * Calculates captures only. NOT QUIET MOVES.
-	 * @return
-	 */
-	public void evaluateCaptures() {
-		long outstandingCaptureTargets =game.getPlayerPieces(Player.WHITE) & getAttackedTargets(Player.BLACK)
-				| game.getPlayerPieces(Player.BLACK) & getAttackedTargets(Player.WHITE);
-		
-		{
-			long unapposedAttacks_white = getAttackedTargets(Player.WHITE) & game.getPlayerPieces(Player.BLACK)
-					& ~(getAttackedTargets(Player.BLACK) | getSecondaryBatteryAttackedTargets(Player.BLACK));
-			long unapposedAttacks_black = getAttackedTargets(Player.BLACK) & game.getPlayerPieces(Player.WHITE)
-					& ~(getAttackedTargets(Player.WHITE) | getSecondaryBatteryAttackedTargets(Player.WHITE));
-			for(int type : PieceType.PIECE_TYPES) {
-				output_capture_enprise[Player.WHITE][type] |= unapposedAttacks_white & getAttackedTargets(Player.WHITE, type);
-				output_capture_enprise[Player.BLACK][type] |= unapposedAttacks_black & getAttackedTargets(Player.BLACK, type);
-			}
-			outstandingCaptureTargets &= ~unapposedAttacks_white;
-			outstandingCaptureTargets &= ~unapposedAttacks_black;
-		}
-		
-		//add a logger for the remaining target count
-		for(int player : Player.PLAYERS) {
-			for(int type : PieceType.PIECE_TYPES) {
 
-			}
-		}
-		assert outstandingCaptureTargets==0 : "outstandingCaptureTargets is: " + outstandingCaptureTargets;
-	}
 	
 	
 	
