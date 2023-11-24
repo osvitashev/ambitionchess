@@ -492,6 +492,7 @@ public class BasicStaticExchangeEvaluator {
 	}
 
 	//TODO: this is useful for testing and debugging bu can be removed once unittests are in place.
+	//TODO: the two stacks can be combined together: we want to eb able to determine which attackers do make a difference and which do not.
 	private int temp_evaluateCapture_forcedAttacker_pieceType_attackStack[]=new int[32];//pieceType - both players condensed to same stack.
 	private int temp_evaluateCapture_forcedAttacker_gain [] =new int[32];//integer value change - needed for linear minimax
 	
@@ -517,7 +518,6 @@ public class BasicStaticExchangeEvaluator {
 		int currentPlayer=player;
 		long clearedSquares =0;
 		int leastValuableAttacker;
-		boolean isForcedAttackerDetected=false;
 		int nextAttackerType;
 		
 		temp_evaluateCapture_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=game.getPieceAt(sq);
@@ -580,24 +580,34 @@ public class BasicStaticExchangeEvaluator {
 
 	void evaluateCaptures() {
 		int score;
+		long directAttackTargets;
 
-		// todo: this can be rewritten to avoid the huge nested loops.
+
+		//consider: on one hand we want to be using heuristics to avoid calling forced attacker routine, on the other hand, that routine can implement sideeffects such as detecting overprotection.
+		
 		for (int player : Player.PLAYERS) {
-			for (int attacker_type : PieceType.PIECE_TYPES) {
-				for (int sq : Square.SQUARES) {
-					if (Bitboard.testBit(getAttackedTargets(player, attacker_type), sq) && game.getPlayerAt(sq) == Player.getOtherPlayer(player)) {
-						score = evaluateCapture_forcedAttacker(sq, attacker_type);
-						if(score < 0)
-							output_target_losing[player][attacker_type]|= Bitboard.setBit(output_target_losing[player][attacker_type], sq);
-						else if(score == 0)
-							output_target_neutral[player][attacker_type]|= Bitboard.setBit(output_target_neutral[player][attacker_type], sq);
-						else
-							output_target_winning[player][attacker_type]|= Bitboard.setBit(output_target_winning[player][attacker_type], sq);
+			for (int pieceType : PieceType.PIECE_TYPES) {
+				directAttackTargets = getAttackedTargets(player, pieceType);
+				{
+					int bi = 0;
+					for (long zarg = directAttackTargets,
+							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
+						bi = Bitboard.getFirstSquareIndex(barg);
+						if (Bitboard.testBit(getAttackedTargets(player, pieceType), bi) && game.getPlayerAt(bi) == Player.getOtherPlayer(player)) {
+							score = evaluateCapture_forcedAttacker(bi, pieceType);
+							if(score < 0)
+								output_target_losing[player][pieceType]|= Bitboard.setBit(output_target_losing[player][pieceType], bi);
+							else if(score == 0)
+								output_target_neutral[player][pieceType]|= Bitboard.setBit(output_target_neutral[player][pieceType], bi);
+							else
+								output_target_winning[player][pieceType]|= Bitboard.setBit(output_target_winning[player][pieceType], bi);
+						}
 					}
 				}
+				
+				
 			}
 		}
-
 	}
 	
 
