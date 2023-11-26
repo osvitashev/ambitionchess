@@ -505,6 +505,17 @@ public class BasicStaticExchangeEvaluator {
 	 * @return
 	 */
 	int evaluateCapture_forcedAttacker(int sq, int forced_attacker_type) {
+		/**
+		 * this can be re-used for quiet/non-capture moves.
+		 * this method does not currently update any class variables. The return value is the expected pay off.
+		 * The only change needed is to allow the target square to be empty as well as to accept player as a parameter.
+		 * 
+		 * This way evaluating the quiet move for the two players would require two separate calls.
+		 * this is easy to implement, but the issue is that it is expensive.
+		 * we are not re-using any on the knowledge of the attackers and would have to re-do a lot of work.
+		 */
+		
+		
 		assert Square.validate(sq);
 		assert PieceType.validate(forced_attacker_type);
 		assert game.getPieceAt(sq) != PieceType.NO_PIECE;
