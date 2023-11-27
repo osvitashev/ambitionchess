@@ -493,8 +493,8 @@ public class BasicStaticExchangeEvaluator {
 
 	//TODO: this is useful for testing and debugging bu can be removed once unittests are in place.
 	//TODO: the two stacks can be combined together: we want to eb able to determine which attackers do make a difference and which do not.
-	private int temp_evaluateCapture_forcedAttacker_pieceType_attackStack[]=new int[32];//pieceType - both players condensed to same stack.
-	private int temp_evaluateCapture_forcedAttacker_gain [] =new int[32];//integer value change - needed for linear minimax
+	private int temp_evaluate_forcedAttacker_pieceType_attackStack[]=new int[32];//pieceType - both players condensed to same stack.
+	private int temp_evaluate_forcedAttacker_gain [] =new int[32];//integer value change - needed for linear minimax
 	
 	private int forcedAttacker_helper(int d_combinedAttackStackSize, int sq, int currentPlayer, long clearedSquares) {
 		int leastValuableAttacker;
@@ -506,7 +506,7 @@ public class BasicStaticExchangeEvaluator {
 				break;
 			nextAttackerType=AttackerType.getAttackerPieceType(leastValuableAttacker);
 			clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(leastValuableAttacker));
-			temp_evaluateCapture_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=nextAttackerType;
+			temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=nextAttackerType;
 			
 		}while(true);
 		return d_combinedAttackStackSize;
@@ -520,7 +520,7 @@ public class BasicStaticExchangeEvaluator {
 	 * @param forced_attacker_type
 	 * @return
 	 */
-	int evaluateCapture_forcedAttacker(int sq, int forced_attacker_type) {
+	int evaluateCapture_forced(int sq, int forced_attacker_type) {
 		/**
 		 * this can be re-used for quiet/non-capture moves.
 		 * this method does not currently update any class variables. The return value is the expected pay off.
@@ -552,13 +552,13 @@ public class BasicStaticExchangeEvaluator {
 		long clearedSquares =0;
 		
 		
-		temp_evaluateCapture_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=game.getPieceAt(sq);
-		temp_evaluateCapture_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=forced_attacker_type;
+		temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=game.getPieceAt(sq);
+		temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=forced_attacker_type;
 		clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(getLeastValuableAttacker_withType(sq, currentPlayer, forced_attacker_type, 0l)));
 		d_combinedAttackStackSize = forcedAttacker_helper(d_combinedAttackStackSize, sq, currentPlayer, clearedSquares);
 		
 		for (int i = 0; i < d_combinedAttackStackSize; ++i)
-			temp_evaluateCapture_forcedAttacker_gain[i] = getPieceValue(temp_evaluateCapture_forcedAttacker_pieceType_attackStack[i]);
+			temp_evaluate_forcedAttacker_gain[i] = getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[i]);
 		
 		// at this point evaluateCapture_occupation_stack contains all of the attackers
 		// which would participate in the exchange while alternating sides.
@@ -572,8 +572,8 @@ public class BasicStaticExchangeEvaluator {
 		{
 			int gain=0;
 			for (int i = 0; i < d_combinedAttackStackSize-1; ++i) {
-				gain+= i%2==0 ? temp_evaluateCapture_forcedAttacker_gain[i] : -temp_evaluateCapture_forcedAttacker_gain[i];
-				temp_evaluateCapture_forcedAttacker_gain[i]=gain;
+				gain+= i%2==0 ? temp_evaluate_forcedAttacker_gain[i] : -temp_evaluate_forcedAttacker_gain[i];
+				temp_evaluate_forcedAttacker_gain[i]=gain;
 			}
 		}
 		d_combinedAttackStackSize--;
@@ -582,9 +582,9 @@ public class BasicStaticExchangeEvaluator {
 		
 		for (int i = d_combinedAttackStackSize-1; i>0; --i) {
 			if(i%2==1)
-				temp_evaluateCapture_forcedAttacker_gain[i-1]=Math.min(temp_evaluateCapture_forcedAttacker_gain[i-1], temp_evaluateCapture_forcedAttacker_gain[i]);
+				temp_evaluate_forcedAttacker_gain[i-1]=Math.min(temp_evaluate_forcedAttacker_gain[i-1], temp_evaluate_forcedAttacker_gain[i]);
 			else
-				temp_evaluateCapture_forcedAttacker_gain[i-1]=Math.max(temp_evaluateCapture_forcedAttacker_gain[i-1], temp_evaluateCapture_forcedAttacker_gain[i]);
+				temp_evaluate_forcedAttacker_gain[i-1]=Math.max(temp_evaluate_forcedAttacker_gain[i-1], temp_evaluate_forcedAttacker_gain[i]);
 		}
 		
 //		System.out.println(" | val: "+temp_evaluateCapture_forcedAttacker_gain[0]);
@@ -592,10 +592,10 @@ public class BasicStaticExchangeEvaluator {
 		/**
 		 * at this point temp_evaluateCapture_forcedAttacker_gain[0] is the expected exchange value IF the forced capture is taken.
 		 */
-		return temp_evaluateCapture_forcedAttacker_gain[0];
+		return temp_evaluate_forcedAttacker_gain[0];
 	}
 	
-	int evaluateMove_forcedAttacker(int sq, int player, int forced_attacker_type) {
+	int evaluateQuiet_forced(int sq, int player, int forced_attacker_type) {
 		assert Square.validate(sq);
 		assert Player.validate(player);
 		assert game.getPieceAt(sq) == PieceType.NO_PIECE;
@@ -621,8 +621,8 @@ public class BasicStaticExchangeEvaluator {
 		
 		//assert forced_attacker_type != PieceType.PAWN;//temporary. getLeastValuableAttacker_withType does not handle pawns.
 		
-		temp_evaluateCapture_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=0;//skip first piece.
-		temp_evaluateCapture_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=forced_attacker_type;
+		temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=0;//skip first piece.
+		temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=forced_attacker_type;
 		
 		if(forced_attacker_type == PieceType.PAWN) {
 			long targetbb = Bitboard.initFromSquare(sq);
@@ -650,43 +650,43 @@ public class BasicStaticExchangeEvaluator {
 		d_combinedAttackStackSize = forcedAttacker_helper(d_combinedAttackStackSize, sq, currentPlayer, clearedSquares);
 		
 		
-		temp_evaluateCapture_forcedAttacker_gain[0]=0;
+		temp_evaluate_forcedAttacker_gain[0]=0;
 		for (int i = 1; i < d_combinedAttackStackSize; ++i)//this skips the first stack value!
-			temp_evaluateCapture_forcedAttacker_gain[i] = getPieceValue(temp_evaluateCapture_forcedAttacker_pieceType_attackStack[i]);
+			temp_evaluate_forcedAttacker_gain[i] = getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[i]);
 		
 		// at this point evaluateCapture_occupation_stack contains all of the attackers
 		// which would participate in the exchange while alternating sides.
 		System.out.print(game.toFEN() + " | Potential Occupiers of ["+ Square.toString(sq)+"]: (),");
 		for (int i = 1; i < d_combinedAttackStackSize; ++i)
-			System.out.print((i % 2 == 0 ? "+" : "-") + PieceType.toString(temp_evaluateCapture_forcedAttacker_pieceType_attackStack[i]) + " ");
+			System.out.print((i % 2 == 0 ? "+" : "-") + PieceType.toString(temp_evaluate_forcedAttacker_pieceType_attackStack[i]) + " ");
 		System.out.print(" abs values: ");
 		for (int i = 0; i < d_combinedAttackStackSize; ++i)
-			System.out.print(temp_evaluateCapture_forcedAttacker_gain[i] + " ");
+			System.out.print(temp_evaluate_forcedAttacker_gain[i] + " ");
 		System.out.print(" | gain: ");
 		{
 			int gain=0;
 			for (int i = 0; i < d_combinedAttackStackSize-1; ++i) {
-				gain+= i%2==0 ? temp_evaluateCapture_forcedAttacker_gain[i] : -temp_evaluateCapture_forcedAttacker_gain[i];
-				temp_evaluateCapture_forcedAttacker_gain[i]=gain;
+				gain+= i%2==0 ? temp_evaluate_forcedAttacker_gain[i] : -temp_evaluate_forcedAttacker_gain[i];
+				temp_evaluate_forcedAttacker_gain[i]=gain;
 			}
 		}
 		d_combinedAttackStackSize--;
 		for (int i = 0; i < d_combinedAttackStackSize; ++i)
-			System.out.print(temp_evaluateCapture_forcedAttacker_gain[i] + " ");
+			System.out.print(temp_evaluate_forcedAttacker_gain[i] + " ");
 		
 		for (int i = d_combinedAttackStackSize-1; i>0; --i) {
 			if(i%2==1)
-				temp_evaluateCapture_forcedAttacker_gain[i-1]=Math.min(temp_evaluateCapture_forcedAttacker_gain[i-1], temp_evaluateCapture_forcedAttacker_gain[i]);
+				temp_evaluate_forcedAttacker_gain[i-1]=Math.min(temp_evaluate_forcedAttacker_gain[i-1], temp_evaluate_forcedAttacker_gain[i]);
 			else
-				temp_evaluateCapture_forcedAttacker_gain[i-1]=Math.max(temp_evaluateCapture_forcedAttacker_gain[i-1], temp_evaluateCapture_forcedAttacker_gain[i]);
+				temp_evaluate_forcedAttacker_gain[i-1]=Math.max(temp_evaluate_forcedAttacker_gain[i-1], temp_evaluate_forcedAttacker_gain[i]);
 		}
 		
-		System.out.println(" | val: "+temp_evaluateCapture_forcedAttacker_gain[0]);
+		System.out.println(" | val: "+temp_evaluate_forcedAttacker_gain[0]);
 		
 		/**
 		 * at this point temp_evaluateCapture_forcedAttacker_gain[0] is the expected exchange value IF the forced capture is taken.
 		 */
-		return temp_evaluateCapture_forcedAttacker_gain[0];
+		return temp_evaluate_forcedAttacker_gain[0];
 	}
 	
 
@@ -706,7 +706,7 @@ public class BasicStaticExchangeEvaluator {
 							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
 						bi = Bitboard.getFirstSquareIndex(barg);
 						if (Bitboard.testBit(getAttackedTargets(player, pieceType), bi) && game.getPlayerAt(bi) == Player.getOtherPlayer(player)) {
-							score = evaluateCapture_forcedAttacker(bi, pieceType);
+							score = evaluateCapture_forced(bi, pieceType);
 							if(score < 0)
 								output_target_losing[player][pieceType]|= Bitboard.setBit(output_target_losing[player][pieceType], bi);
 							else if(score == 0)

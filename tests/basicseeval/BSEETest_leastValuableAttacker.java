@@ -11,12 +11,12 @@ import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
 import util.AttackerType;
 
-class BasicStaticExchangeEvaluatorTest {
+class BSEETest_leastValuableAttacker {
 	
 	private Gamestate test_game = new Gamestate();
 	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game, 1);
 	
-	void helper_test_getLeastValuableAttacker_mask(long expected, String fen, int sq_target, int player, long clearedLocationsMask) {
+	void helper_test_getLeastValuableAttacker(long expected, String fen, int sq_target, int player, long clearedLocationsMask) {
 		test_game.loadFromFEN(fen);
 		test_eval.initialize();
 		
@@ -26,10 +26,10 @@ class BasicStaticExchangeEvaluatorTest {
 
 	@Test
 	void getLeastValuableAttacker_mask_test() {
-		helper_test_getLeastValuableAttacker_mask(AttackerType.nullValue(), "8/4k3/8/8/8/2K5/8/8 w - - 0 1", Square.E5, Player.WHITE, 0L);
+		helper_test_getLeastValuableAttacker(AttackerType.nullValue(), "8/4k3/8/8/8/2K5/8/8 w - - 0 1", Square.E5, Player.WHITE, 0L);
 		
 		//pawns: 0, 1, 2 attackers
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.PAWN, Square.E3),//expected
 				"8/4k3/8/6p1/8/1K2P3/8/8 w - - 0 1",
 				Square.D4,//target
@@ -37,7 +37,7 @@ class BasicStaticExchangeEvaluatorTest {
 				0L//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.PAWN, Square.G5),//expected
 				"8/4k3/8/4p1p1/8/1K2P3/8/8 w - - 0 1",
 				Square.H4,//target
@@ -45,7 +45,7 @@ class BasicStaticExchangeEvaluatorTest {
 				0L//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.PAWN, Square.E5),//expected
 				"8/4k3/8/4p1p1/8/1K2P3/8/8 w - - 0 1",
 				Square.F4,//target
@@ -53,7 +53,7 @@ class BasicStaticExchangeEvaluatorTest {
 				0L//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.PAWN, Square.G5),//expected
 				"8/4k3/8/4p1p1/8/1K2P3/8/8 w - - 0 1",
 				Square.F4,//target
@@ -61,7 +61,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("e5")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.nullValue(),//expected
 				"8/4k3/8/4p1p1/8/1K2P3/8/8 w - - 0 1",
 				Square.F4,//target
@@ -69,7 +69,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("e5", "g5")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.PAWN, Square.D4),//expected
 				"8/k7/7P/3n1n2/3p2N1/K3P3/8/8 w - - 0 1",
 				Square.E3,//target
@@ -78,7 +78,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		//knights
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.nullValue(),//expected
 				"8/k7/7P/3n1n2/3p2N1/K3P3/8/8 w - - 0 1",
 				Square.E5,//target
@@ -86,7 +86,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares()//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.KNIGHT, Square.G4),//expected
 				"8/k7/7P/3n1n2/3p2N1/K3P3/8/8 w - - 0 1",
 				Square.E5,//target
@@ -94,7 +94,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares()//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.nullValue(),//expected
 				"8/k7/7P/3n1n2/3p2N1/K3P3/8/8 w - - 0 1",
 				Square.E5,//target
@@ -102,7 +102,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("g4")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.KNIGHT, Square.D5),//expected
 				"8/k7/7P/3n1n2/3p2N1/K3P3/8/8 w - - 0 1",
 				Square.E3,//target
@@ -110,7 +110,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("d4")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.KNIGHT, Square.F5),//expected
 				"8/k7/7P/3n1n2/3p2N1/K3P3/8/8 w - - 0 1",
 				Square.E3,//target
@@ -118,7 +118,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("d4", "d5")//cleared locations
 		);
 		//bishops
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.BISHOP, Square.D7),//expected
 				"4B3/nk1b4/8/1P4r1/B7/8/1KR5/7q w - - 0 1",
 				Square.B5,//target
@@ -126,7 +126,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("a7")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.BISHOP, Square.A4),//expected
 				"4B3/nk1b4/8/1P4r1/B7/8/1KR5/7q w - - 0 1",
 				Square.B5,//target
@@ -134,7 +134,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("a7")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.BISHOP, Square.A4),//expected
 				"4B3/nk1b4/8/1P4r1/B7/8/1KR5/7q w - - 0 1",
 				Square.B5,//target
@@ -142,7 +142,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("a7", "d7")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.nullValue(),//expected
 				"4B3/nk1b4/8/1P4r1/B7/8/1KR5/7q w - - 0 1",
 				Square.B5,//target
@@ -150,7 +150,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("a7", "a4")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.BISHOP, Square.E8),//expected
 				"4B3/nk1b4/8/1P4r1/B7/8/1KR5/7q w - - 0 1",
 				Square.B5,//target
@@ -158,7 +158,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("a7", "a4", "d7")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.nullValue(),//expected
 				"4B3/nk1b4/8/1P4r1/B7/8/1KR5/7q w - - 0 1",
 				Square.B5,//target
@@ -166,7 +166,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("a7", "a4", "d7", "e8")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.BISHOP, Square.D7),//expected
 				"4B3/nk1b4/8/1P4r1/B7/8/1KR5/7q w - - 0 1",
 				Square.A4,//target
@@ -174,7 +174,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("a7", "b5", "e8")//cleared locations
 		);
 		//rooks
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.ROOK, Square.B5),//expected
 				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
 				Square.C5,//target
@@ -182,7 +182,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares()//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.nullValue(),//expected
 				"8/8/k7/1rp1RRp1/8/6K1/8/8 w - - 0 1",
 				Square.C5,//target
@@ -190,7 +190,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("b5")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.ROOK, Square.E5),//expected
 				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
 				Square.C5,//target
@@ -198,7 +198,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares()//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.ROOK, Square.F5),//expected
 				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
 				Square.C5,//target
@@ -206,7 +206,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("e5")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.nullValue(),//expected
 				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
 				Square.C5,//target
@@ -214,7 +214,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("e5", "f5")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.nullValue(),//expected
 				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
 				Square.H5,//target
@@ -222,7 +222,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares()//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.nullValue(),//expected
 				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
 				Square.H5,//target
@@ -230,7 +230,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares()//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.ROOK, Square.F5),//expected
 				"2q5/8/1k6/1rp1RRp1/8/6K1/8/8 w - - 0 1",
 				Square.H5,//target
@@ -239,7 +239,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		//queens
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.QUEEN, Square.C5),//expected
 				"7k/1p4pp/1P6/1Pq2q2/1p1Q4/8/K7/8 w - - 0 1",
 				Square.B5,//target
@@ -247,7 +247,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares()//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.QUEEN, Square.F5),//expected
 				"7k/1p4pp/1P6/1Pq2q2/1p1Q4/8/K7/8 w - - 0 1",
 				Square.B5,//target
@@ -255,7 +255,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("c5")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.nullValue(),//expected
 				"7k/1p4pp/1P6/1Pq2q2/1p1Q4/8/K7/8 w - - 0 1",
 				Square.B5,//target
@@ -263,7 +263,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("c5", "f5")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.nullValue(),//expected
 				"7k/1p4pp/1P6/1Pq2q2/1p1Q4/8/K7/8 w - - 0 1",
 				Square.B6,//target
@@ -271,7 +271,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares()//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.QUEEN, Square.D4),//expected
 				"7k/1p4pp/1P6/1Pq2q2/1p1Q4/8/K7/8 w - - 0 1",
 				Square.B6,//target
@@ -279,14 +279,14 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("c5")//cleared locations
 		);
 		//kings
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.KING, Square.C6),//expected
 				"8/2n5/2k5/8/2K5/8/3P4/8 b - - 0 1",
 				Square.C5,//target
 				Player.BLACK,
 				Bitboard.initFromAlgebraicSquares()//cleared locations
 		);
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.KING, Square.C6),//expected
 				"8/2n5/2k5/8/2K5/8/3P4/8 b - - 0 1",
 				Square.B6,//target
@@ -294,7 +294,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("c7")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.nullValue(),//expected
 				"8/2n5/2k5/8/2K5/8/3P4/8 b - - 0 1",
 				Square.B6,//target
@@ -302,7 +302,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("c7", "c6")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.KING, Square.C4),//expected
 				"8/2n5/2k5/8/2K5/8/3P4/8 b - - 0 1",
 				Square.C5,//target
@@ -310,7 +310,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares()//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.KING, Square.C4),//expected
 				"8/2n5/2k5/8/2K5/8/3P4/8 b - - 0 1",
 				Square.C3,//target
@@ -318,7 +318,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("d2")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.nullValue(),//expected
 				"8/2n5/2k5/8/2K5/8/3P4/8 b - - 0 1",
 				Square.C3,//target
@@ -327,7 +327,7 @@ class BasicStaticExchangeEvaluatorTest {
 		);
 		
 		//order of attacks - no batteries
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.PAWN, Square.E3),//expected
 				"6k1/8/1Q3B2/8/3P1R2/3KP3/4N3/8 w - - 0 1",
 				Square.D4,//target
@@ -335,7 +335,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares()//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.KNIGHT, Square.E2),//expected
 				"6k1/8/1Q3B2/8/3P1R2/3KP3/4N3/8 w - - 0 1",
 				Square.D4,//target
@@ -343,7 +343,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("e3")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.BISHOP, Square.F6),//expected
 				"6k1/8/1Q3B2/8/3P1R2/3KP3/4N3/8 w - - 0 1",
 				Square.D4,//target
@@ -351,7 +351,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("e3", "e2")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.ROOK, Square.F4),//expected
 				"6k1/8/1Q3B2/8/3P1R2/3KP3/4N3/8 w - - 0 1",
 				Square.D4,//target
@@ -359,7 +359,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("e3", "e2", "f6")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.QUEEN, Square.B6),//expected
 				"6k1/8/1Q3B2/8/3P1R2/3KP3/4N3/8 w - - 0 1",
 				Square.D4,//target
@@ -367,7 +367,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("e3", "e2", "f6", "f4")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.KING, Square.D3),//expected
 				"6k1/8/1Q3B2/8/3P1R2/3KP3/4N3/8 w - - 0 1",
 				Square.D4,//target
@@ -375,7 +375,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("e3", "e2", "f6", "f4", "b6")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.nullValue(),//expected
 				"6k1/8/1Q3B2/8/3P1R2/3KP3/4N3/8 w - - 0 1",
 				Square.D4,//target
@@ -383,7 +383,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("e3", "e2", "f6", "f4", "b6", "d3")//cleared locations
 		);
 		//with batteries
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.PAWN, Square.E6),//expected
 				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
 				Square.D5,//target
@@ -391,7 +391,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares()//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.KNIGHT, Square.C7),//expected
 				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
 				Square.D5,//target
@@ -399,7 +399,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("e6")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.BISHOP, Square.F7),//expected
 				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
 				Square.D5,//target
@@ -407,7 +407,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("e6", "c7")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.ROOK, Square.D6),//expected
 				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
 				Square.D5,//target
@@ -415,7 +415,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("e6", "c7", "f7")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.QUEEN, Square.F3),//expected
 				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
 				Square.D5,//target
@@ -423,7 +423,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("e6", "c7", "f7", "d6")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.QUEEN, Square.G2),//expected
 				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
 				Square.D5,//target
@@ -431,7 +431,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("e6", "c7", "f7", "d6", "f3")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.QUEEN, Square.D7),//expected
 				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
 				Square.D5,//target
@@ -439,7 +439,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("e6", "c7", "f7", "d6", "f3", "g2")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.ROOK, Square.D8),//expected
 				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
 				Square.D5,//target
@@ -447,7 +447,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("e6", "c7", "f7", "d6", "f3", "g2", "d7")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.create(PieceType.KING, Square.C6),//expected
 				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
 				Square.D5,//target
@@ -455,7 +455,7 @@ class BasicStaticExchangeEvaluatorTest {
 				Bitboard.initFromAlgebraicSquares("e6", "c7", "f7", "d6", "f3", "g2", "d7", "d8")//cleared locations
 		);
 		
-		helper_test_getLeastValuableAttacker_mask(
+		helper_test_getLeastValuableAttacker(
 				AttackerType.nullValue(),//expected
 				"3r4/K1nq1b2/2krp3/3p4/8/5q2/6q1/8 w - - 0 1",
 				Square.D5,//target
@@ -661,22 +661,22 @@ class BasicStaticExchangeEvaluatorTest {
 	void sanity() {
 		test_game.loadFromFEN("8/8/8/5pk1/3pb3/2NK4/8/8 w - - 0 1");
 		test_eval.initialize();
-		test_eval.evaluateCapture_forcedAttacker(Square.D4, PieceType.KING);
-		test_eval.evaluateCapture_forcedAttacker(Square.E4, PieceType.KNIGHT);
+		test_eval.evaluateCapture_forced(Square.D4, PieceType.KING);
+		test_eval.evaluateCapture_forced(Square.E4, PieceType.KNIGHT);
 		
 		test_game.loadFromFEN("4q3/8/RQR2r2/1P3pk1/3pb3/2NK4/8/8 w - - 0 1");
 		test_eval.initialize();
-		test_eval.evaluateCapture_forcedAttacker(Square.C6, PieceType.BISHOP);
-		test_eval.evaluateCapture_forcedAttacker(Square.C6, PieceType.ROOK);
-		test_eval.evaluateCapture_forcedAttacker(Square.C6, PieceType.QUEEN);
+		test_eval.evaluateCapture_forced(Square.C6, PieceType.BISHOP);
+		test_eval.evaluateCapture_forced(Square.C6, PieceType.ROOK);
+		test_eval.evaluateCapture_forced(Square.C6, PieceType.QUEEN);
 		
 		test_game.loadFromFEN("3r4/3r1k2/3q4/8/3B4/4P3/4K3/8 w - - 0 1");
 		test_eval.initialize();
-		test_eval.evaluateCapture_forcedAttacker(Square.D4, PieceType.QUEEN);
+		test_eval.evaluateCapture_forced(Square.D4, PieceType.QUEEN);
 		
 		test_game.loadFromFEN("8/5k2/2n5/4P3/3RK3/8/8/8 w - - 0 1");
 		test_eval.initialize();
-		test_eval.evaluateCapture_forcedAttacker(Square.D4, PieceType.KNIGHT);
-		test_eval.evaluateCapture_forcedAttacker(Square.E5, PieceType.KNIGHT);
+		test_eval.evaluateCapture_forced(Square.D4, PieceType.KNIGHT);
+		test_eval.evaluateCapture_forced(Square.E5, PieceType.KNIGHT);
 	}
 }

@@ -7,7 +7,7 @@ import gamestate.MovePool;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 
-class BasicStaticExchangeEvaluatorTest_capturesSpeedTest {
+class BSEETest_evaluateCaptures_speedtest {
 	private Gamestate test_game = new Gamestate();
 	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game, 1);
 	

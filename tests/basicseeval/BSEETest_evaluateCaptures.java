@@ -9,7 +9,7 @@ import gamestate.Gamestate;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 
-class BasicStaticExchangeEvaluatorTest_getCapturetarget_byPieceType {
+class BSEETest_evaluateCaptures {
 	private Gamestate test_game = new Gamestate();
 	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game, 1);
 	

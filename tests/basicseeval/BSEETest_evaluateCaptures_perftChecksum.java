@@ -13,7 +13,7 @@ import gamestate.MovePool;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 
-class BasicStaticExchangeEvaluatorTest_getCapturetarget_byPieceType_withPerft {
+class BSEETest_evaluateCaptures_perftChecksum {
 	private Gamestate test_game = new Gamestate();
 	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game, 1);
 	
