@@ -142,6 +142,94 @@ class BSEETest_evaluateQuiet_forced {
 		expectedOutcome = test_eval.evaluateQuiet_forced(Square.G5, Player.BLACK, PieceType.PAWN);
 		assertEquals(-100, expectedOutcome);
 		
+		//generic
+		test_game.loadFromFEN("8/ppq2p1k/3q3p/P2n4/N5R1/1K6/1Q1N2P1/6B1 w - - 0 1");
+		test_eval.initialize();
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.A6, Player.WHITE, PieceType.PAWN);
+		assertEquals(-100, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.B6, Player.WHITE, PieceType.KNIGHT);
+		assertEquals(-300, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.C5, Player.WHITE, PieceType.KNIGHT);
+		assertEquals(0, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.B4, Player.WHITE, PieceType.KING);
+		assertEquals(-99700, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.C4, Player.WHITE, PieceType.KING);
+		assertEquals(-99200, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.C2, Player.WHITE, PieceType.KING);
+		assertEquals(-99200, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.A2, Player.WHITE, PieceType.KING);
+		assertEquals(0, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.C4, Player.WHITE, PieceType.KNIGHT);
+		assertEquals(0, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.E4, Player.WHITE, PieceType.KNIGHT);
+		assertEquals(0, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.A3, Player.WHITE, PieceType.QUEEN);
+		assertEquals(0, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.C1, Player.WHITE, PieceType.QUEEN);
+		assertEquals(-800, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.F6, Player.WHITE, PieceType.QUEEN);
+		assertEquals(-800, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.G7, Player.WHITE, PieceType.QUEEN);
+		assertEquals(0, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.H8, Player.WHITE, PieceType.QUEEN);
+		assertEquals(-800, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.B6, Player.WHITE, PieceType.BISHOP);
+		assertEquals(-300, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.C5, Player.WHITE, PieceType.BISHOP);
+		assertEquals(0, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.H2, Player.WHITE, PieceType.BISHOP);
+		assertEquals(-300, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.G3, Player.WHITE, PieceType.PAWN);
+		assertEquals(0, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.G3, Player.WHITE, PieceType.ROOK);
+		assertEquals(-500, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.B4, Player.WHITE, PieceType.ROOK);
+		assertEquals(-500, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.C4, Player.WHITE, PieceType.ROOK);
+		assertEquals(0, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.F4, Player.WHITE, PieceType.ROOK);
+		assertEquals(-500, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.G6, Player.WHITE, PieceType.ROOK);
+		assertEquals(-500, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.G7, Player.WHITE, PieceType.ROOK);
+		assertEquals(0, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.G8, Player.WHITE, PieceType.ROOK);
+		assertEquals(-500, expectedOutcome);
+		
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.A6, Player.BLACK, PieceType.PAWN);
+		assertEquals(0, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.B6, Player.BLACK, PieceType.PAWN);
+		assertEquals(0, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.B5, Player.BLACK, PieceType.PAWN);
+		assertEquals(0, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.F6, Player.BLACK, PieceType.PAWN);
+		assertEquals(0, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.F5, Player.BLACK, PieceType.PAWN);
+		assertEquals(0, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.H5, Player.BLACK, PieceType.PAWN);
+		assertEquals(0, expectedOutcome);
+		
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.G7, Player.BLACK, PieceType.KING);
+		assertEquals(-100000, expectedOutcome);
+		
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.B6, Player.BLACK, PieceType.QUEEN);
+		assertEquals(-700, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.C5, Player.BLACK, PieceType.QUEEN);
+		assertEquals(-800, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.C3, Player.BLACK, PieceType.QUEEN);
+		assertEquals(-800, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.B4, Player.BLACK, PieceType.QUEEN);
+		assertEquals(-600, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.G3, Player.BLACK, PieceType.QUEEN);
+		assertEquals(-300, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.H2, Player.BLACK, PieceType.QUEEN);
+		assertEquals(-500, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.F4, Player.BLACK, PieceType.QUEEN);
+		assertEquals(-300, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.E5, Player.BLACK, PieceType.QUEEN);
+		assertEquals(0, expectedOutcome);
+		expectedOutcome = test_eval.evaluateQuiet_forced(Square.G6, Player.BLACK, PieceType.QUEEN);
+		assertEquals(-300, expectedOutcome);
 		
 	}
 
