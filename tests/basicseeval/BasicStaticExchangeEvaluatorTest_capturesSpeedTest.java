@@ -1,10 +1,4 @@
 package basicseeval;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.nio.ByteBuffer;
-import java.util.zip.CRC32;
-
 import org.junit.jupiter.api.Test;
 
 import gamestate.Gamestate;
@@ -49,10 +43,6 @@ class BasicStaticExchangeEvaluatorTest_capturesSpeedTest {
 		payload();
 		if (depth == 0) {
 			return 1;
-		}
-		long time = 0;
-		if (ply == 1) {
-			time = System.currentTimeMillis();
 		}
 		long nodes = 0;
 		long partialNodes;

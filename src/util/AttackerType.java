@@ -38,6 +38,7 @@ public class AttackerType {
 		assert getAttackerPieceType(attacker) != PieceType.NO_PIECE;
 		return getBits(attacker, 3, 6);
 	}
+	
 }
 
 

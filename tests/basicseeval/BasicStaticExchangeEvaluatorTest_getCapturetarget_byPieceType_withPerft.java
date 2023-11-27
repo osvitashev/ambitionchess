@@ -60,15 +60,6 @@ class BasicStaticExchangeEvaluatorTest_getCapturetarget_byPieceType_withPerft {
 				buffer1.putLong(test_eval.getOutput_capture_winning(player, pieceType));
 				buffer2.putLong(test_eval.getOutput_capture_neutral(player, pieceType));
 				buffer3.putLong(test_eval.getOutput_capture_losing(player, pieceType));
-				
-//				crc.update((int) (test_eval.getOutput_capture_winning(player, pieceType) >>> 32));
-//				crc.update((int) test_eval.getOutput_capture_winning(player, pieceType));
-//				
-//				crc.update((int) (test_eval.getOutput_capture_neutral(player, pieceType) >>> 32));
-//				crc.update((int) test_eval.getOutput_capture_neutral(player, pieceType));
-//				
-//				crc.update((int) (test_eval.getOutput_capture_losing(player, pieceType) >>> 32));
-//				crc.update((int) test_eval.getOutput_capture_losing(player, pieceType));
 			}
 		}
 		
@@ -88,10 +79,6 @@ class BasicStaticExchangeEvaluatorTest_getCapturetarget_byPieceType_withPerft {
 		updateHashValue();
 		if (depth == 0) {
 			return 1;
-		}
-		long time = 0;
-		if (ply == 1) {
-			time = System.currentTimeMillis();
 		}
 		long nodes = 0;
 		long partialNodes;
@@ -160,7 +147,7 @@ class BasicStaticExchangeEvaluatorTest_getCapturetarget_byPieceType_withPerft {
 		test("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 5, "5BF3935CCE30BB531B6A61F8");
 		
 		if(skipAssertions)
-			fail(">>>skipped all asserions!!!!!!");
+			fail(">>>skipped all asserions! This is intentional ONLY IF we are gathering correct values for new testcases.");
 		
 	}
 

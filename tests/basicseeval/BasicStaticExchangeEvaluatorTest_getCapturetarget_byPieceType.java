@@ -8,7 +8,6 @@ import gamestate.Bitboard;
 import gamestate.Gamestate;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
-import util.AttackerType;
 
 class BasicStaticExchangeEvaluatorTest_getCapturetarget_byPieceType {
 	private Gamestate test_game = new Gamestate();

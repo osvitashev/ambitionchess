@@ -8,7 +8,7 @@ import gamestate.Gamestate;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Square;
 
-class BasicStaticExchangeEvaluatorTest_forcedAttacker {
+class BasicStaticExchangeEvaluatorTest_forcedCapture {
 	private Gamestate test_game = new Gamestate();
 	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game, 1);
 	
