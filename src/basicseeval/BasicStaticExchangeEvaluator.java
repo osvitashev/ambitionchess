@@ -490,6 +490,24 @@ public class BasicStaticExchangeEvaluator {
 		assert PieceType.validate(pieceType);
 		return output_target_losing[player][pieceType] & game.getOccupied();
 	}
+	
+	/**
+	 * Quiet with neutral score
+	 */
+	public long getOutput_quiet_neutral(int player, int pieceType) {
+		assert Player.validate(player);
+		assert PieceType.validate(pieceType);
+		return output_target_neutral[player][pieceType] & ~game.getOccupied();
+	}
+	
+	/**
+	 * Quiet with negative score
+	 */
+	public long getOutput_quiet_losing(int player, int pieceType) {
+		assert Player.validate(player);
+		assert PieceType.validate(pieceType);
+		return output_target_losing[player][pieceType] & ~game.getOccupied();
+	}
 
 	//TODO: this is useful for testing and debugging bu can be removed once unittests are in place.
 	//TODO: the two stacks can be combined together: we want to eb able to determine which attackers do make a difference and which do not.
@@ -610,7 +628,7 @@ public class BasicStaticExchangeEvaluator {
 									game.getOccupied()
 							),
 							sq
-					);		
+					) : Square.toString(sq) + " " + Player.toString(player) + " " + PieceType.toString(forced_attacker_type);		
 		
 		
 		//todo: add assertions to make sure forced_attacke_type is applicable.
@@ -716,8 +734,27 @@ public class BasicStaticExchangeEvaluator {
 						}
 					}
 				}
-				
-				
+			}
+		}
+	}
+	
+	void evaluateQuietMoves() {
+		int score;
+		//consider: on one hand we want to be using heuristics to avoid calling forced attacker routine, on the other hand, that routine can implement sideeffects such as detecting overprotection.
+		for (int sq : Square.SQUARES) {
+			for (int player : Player.PLAYERS) {
+				for (int pieceType : PieceType.PIECE_TYPES) {
+					if (game.getPieceAt(sq) == PieceType.NO_PIECE && (pieceType != PieceType.PAWN
+							&& Bitboard.testBit(getAttackedTargets(player, pieceType), sq)
+							|| pieceType == PieceType.PAWN && Bitboard.testBit(
+									BitboardGen.getMultiplePawnPushSet(game.getPieces(player, PieceType.PAWN), player, game.getOccupied()), sq))) {
+						score = evaluateQuiet_forced(sq, player, pieceType);
+						if(score < 0)
+							output_target_losing[player][pieceType]|= Bitboard.setBit(output_target_losing[player][pieceType], sq);
+						else//only two cases - quiet move would never result in positive score.
+							output_target_neutral[player][pieceType]|= Bitboard.setBit(output_target_neutral[player][pieceType], sq);
+					}
+				}
 			}
 		}
 	}
