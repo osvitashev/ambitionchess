@@ -30,15 +30,12 @@ class BSEETest_evaluateCaptures_perftChecksum {
 		crc1 = new CRC32();
 		crc2 = new CRC32();
 		crc3 = new CRC32();
-		
 		crc1.reset();
 		crc2.reset();
 		crc3.reset();
-		
 		buffer1 = ByteBuffer.allocate(2 * 6 * 8);// 2 players * 6 piece types * 3 output types * 8 bytes per long.
 		buffer2 = ByteBuffer.allocate(2 * 6 * 8);// 2 players * 6 piece types * 3 output types * 8 bytes per long.
 		buffer3 = ByteBuffer.allocate(2 * 6 * 8);// 2 players * 6 piece types * 3 output types * 8 bytes per long.
-
 		long t = perft(test_game, depth, 1);
 		checkSum = getChecksum();
 		return t;
@@ -48,7 +45,6 @@ class BSEETest_evaluateCaptures_perftChecksum {
 	private void updateHashValue() {
 		test_eval.initialize();
 		test_eval.evaluateCaptures();
-		
 		buffer1.clear();
 		buffer2.clear();
 		buffer3.clear();
@@ -62,7 +58,6 @@ class BSEETest_evaluateCaptures_perftChecksum {
 				buffer3.putLong(test_eval.getOutput_capture_losing(player, pieceType));
 			}
 		}
-		
 		buffer1.reset();
 		buffer2.reset();
 		buffer3.reset();
@@ -77,30 +72,21 @@ class BSEETest_evaluateCaptures_perftChecksum {
 
 	private long perft(Gamestate board, int depth, int ply) {
 		updateHashValue();
-		if (depth == 0) {
-			return 1;
-		}
 		long nodes = 0;
 		long partialNodes;
-
 		int test_movelist_size_old = movepool.size();
 		test_move_generator.generateLegalMoves(test_game, movepool);
-
 		if (depth == 1) {
 			int ret = movepool.size() - test_movelist_size_old;
 			movepool.resize(test_movelist_size_old);
 			return ret;
 		}
-
 		for (int i = test_movelist_size_old; i < movepool.size(); ++i) {
 			int move = movepool.get(i);
 			board.makeMove(move);
-
 			partialNodes = perft(board, depth - 1, ply + 1);
 			nodes += partialNodes;
-
 			board.unmakeMove(move);
-
 		}
 		movepool.resize(test_movelist_size_old);
 		return nodes;
@@ -272,6 +258,90 @@ class BSEETest_evaluateCaptures_perftChecksum {
 		test("r2krb2/ppq5/2p5/5Q2/3PR3/2P1N2P/PP3PP1/R5K1 w - - 3 29", 2, "DB2A52507A2939FBAB112FC7");
 		test("r2krb2/ppq5/2p5/5Q2/3PR3/2P1N2P/PP3PP1/R5K1 w - - 3 29", 3, "D707357B7333D601C26E4B9F");
 		test("r2krb2/ppq5/2p5/5Q2/3PR3/2P1N2P/PP3PP1/R5K1 w - - 3 29", 4, "BEAB781488AC2C9E49303D93");
+		test("3r1rk1/1bpq1pp1/5bnp/1p1n4/pN4N1/P1B3P1/1P1QRPBP/4R1K1 w - - 0 1", 1, "8A97D25E0F1E64DF51D58AE6");
+		test("3r1rk1/1bpq1pp1/5bnp/1p1n4/pN4N1/P1B3P1/1P1QRPBP/4R1K1 w - - 0 1", 2, "8926656F78CD8F2DBDB3308F");
+		test("3r1rk1/1bpq1pp1/5bnp/1p1n4/pN4N1/P1B3P1/1P1QRPBP/4R1K1 w - - 0 1", 3, "CF5D5F4CF1EDC61E112121C2");
+		test("3r1rk1/1bpq1pp1/5bnp/1p1n4/pN4N1/P1B3P1/1P1QRPBP/4R1K1 w - - 0 1", 4, "17379A41E264F066234FDDCC");
+		test("2k5/1bnpp3/2q2n1p/6rr/PP6/NB2RN2/1B1R1KPP/4Q3 w - - 0 1", 1, "ABA1AA0F4DEC4901A86AFBA4");
+		test("2k5/1bnpp3/2q2n1p/6rr/PP6/NB2RN2/1B1R1KPP/4Q3 w - - 0 1", 2, "F57711A1055E36D66524B74D");
+		test("2k5/1bnpp3/2q2n1p/6rr/PP6/NB2RN2/1B1R1KPP/4Q3 w - - 0 1", 3, "DF99C82162CAA25C8FC62D12");
+		test("2k5/1bnpp3/2q2n1p/6rr/PP6/NB2RN2/1B1R1KPP/4Q3 w - - 0 1", 4, "A4C2D47F91DF14CDBD0BA29D");
+		test("2r1r1k1/1QP2p1p/p3q1p1/3R1p2/8/1P4P1/P3P2P/2R3K1 w - - 1 35", 1, "9D5AE446BAF465AE4DB454A0");
+		test("2r1r1k1/1QP2p1p/p3q1p1/3R1p2/8/1P4P1/P3P2P/2R3K1 w - - 1 35", 2, "02D216AA2370A84661BDDA16");
+		test("2r1r1k1/1QP2p1p/p3q1p1/3R1p2/8/1P4P1/P3P2P/2R3K1 w - - 1 35", 3, "5D2CFD27F4DDEC43DB9142DA");
+		test("2r1r1k1/1QP2p1p/p3q1p1/3R1p2/8/1P4P1/P3P2P/2R3K1 w - - 1 35", 4, "873718F2BDA06152164A0CD8");
+		test("2r5/1p1k1pp1/1p2rn1p/1Nqp4/P2P1Q2/2P4P/1P4P1/R3R2K b - - 0 23", 1, "26BD0B8B7E306BB01090BBF9");
+		test("2r5/1p1k1pp1/1p2rn1p/1Nqp4/P2P1Q2/2P4P/1P4P1/R3R2K b - - 0 23", 2, "AA67D058BDF88448BDF94E60");
+		test("2r5/1p1k1pp1/1p2rn1p/1Nqp4/P2P1Q2/2P4P/1P4P1/R3R2K b - - 0 23", 3, "425E9AC1B5DF96EC27AACCA9");
+		test("2r5/1p1k1pp1/1p2rn1p/1Nqp4/P2P1Q2/2P4P/1P4P1/R3R2K b - - 0 23", 4, "E5D43E4D9D187281CC4EE876");
+		test("r2q1rk1/1pp2p2/p1npbn2/2b1p1B1/4P1P1/2NP3P/PPP2PB1/R2QK2R b KQ - 0 12", 1, "BAF465AE4DEC49014B385DF9");
+		test("r2q1rk1/1pp2p2/p1npbn2/2b1p1B1/4P1P1/2NP3P/PPP2PB1/R2QK2R b KQ - 0 12", 2, "1FCA380508562D73EF0D99C7");
+		test("r2q1rk1/1pp2p2/p1npbn2/2b1p1B1/4P1P1/2NP3P/PPP2PB1/R2QK2R b KQ - 0 12", 3, "809CBD83AA274E5F7BE163F2");
+		test("r2q1rk1/1pp2p2/p1npbn2/2b1p1B1/4P1P1/2NP3P/PPP2PB1/R2QK2R b KQ - 0 12", 4, "4AB41F96628DFAB9B74CE3A9");
+		test("r3r1k1/p2q1ppp/bp1p1B2/2pP1n2/2P1pQ2/4P3/PP1N2PP/1BR1R1K1 b - - 0 20", 1, "2F44804FBAF465AE35AB3ADD");
+		test("r3r1k1/p2q1ppp/bp1p1B2/2pP1n2/2P1pQ2/4P3/PP1N2PP/1BR1R1K1 b - - 0 20", 2, "D9044B8436A6579AFF55387A");
+		test("r3r1k1/p2q1ppp/bp1p1B2/2pP1n2/2P1pQ2/4P3/PP1N2PP/1BR1R1K1 b - - 0 20", 3, "1565AA7C88F16B6919C4FD7D");
+		test("r3r1k1/p2q1ppp/bp1p1B2/2pP1n2/2P1pQ2/4P3/PP1N2PP/1BR1R1K1 b - - 0 20", 4, "860A51B15B574F1DF222E6DC");
+		test("5rk1/pb3ppp/1p5r/3p2q1/3Nn3/P3PBP1/1PQ2P1P/3RR1K1 b - - 0 21", 1, "BAF465AE5F98F8CB02DEB84C");
+		test("5rk1/pb3ppp/1p5r/3p2q1/3Nn3/P3PBP1/1PQ2P1P/3RR1K1 b - - 0 21", 2, "68721D2DC4049335E9A23D37");
+		test("5rk1/pb3ppp/1p5r/3p2q1/3Nn3/P3PBP1/1PQ2P1P/3RR1K1 b - - 0 21", 3, "E87CAAEFE1D8B701FB8FA375");
+		test("5rk1/pb3ppp/1p5r/3p2q1/3Nn3/P3PBP1/1PQ2P1P/3RR1K1 b - - 0 21", 4, "03259707B5E007AEA01804CF");
+		test("5r1k/3Rb1rp/2p1p3/2P1P3/pP2Q3/q3B2P/5P1K/4R3 b - - 2 34", 1, "0F08EEADBAF465AE25DC18F1");
+		test("5r1k/3Rb1rp/2p1p3/2P1P3/pP2Q3/q3B2P/5P1K/4R3 b - - 2 34", 2, "AE3D0F30391BD073F8EA2AA2");
+		test("5r1k/3Rb1rp/2p1p3/2P1P3/pP2Q3/q3B2P/5P1K/4R3 b - - 2 34", 3, "01F1455BA8BBDD55307A896E");
+		test("5r1k/3Rb1rp/2p1p3/2P1P3/pP2Q3/q3B2P/5P1K/4R3 b - - 2 34", 4, "C39E41EEB9A5BCC313114C36");
+		test("r4rk1/3q2pp/2n2p2/3p4/2pP3P/2P1N3/2Q2P1P/R3R1K1 b - - 0 24", 1, "BAF465AEDBC3BD44010054D0");
+		test("r4rk1/3q2pp/2n2p2/3p4/2pP3P/2P1N3/2Q2P1P/R3R1K1 b - - 0 24", 2, "2D8517759A8CDBB0FA6D8FF3");
+		test("r4rk1/3q2pp/2n2p2/3p4/2pP3P/2P1N3/2Q2P1P/R3R1K1 b - - 0 24", 3, "5AFC2A0254F5D971A99E0FE8");
+		test("r4rk1/3q2pp/2n2p2/3p4/2pP3P/2P1N3/2Q2P1P/R3R1K1 b - - 0 24", 4, "11010AA4F0C229E6E3488B73");
+		test("r3r3/1p1kb1pp/4R3/3pR3/n1pP4/PpP3B1/1P3PPP/3N2K1 b - - 2 27", 1, "E6FA81A6BAF465AEC5B62789");
+		test("r3r3/1p1kb1pp/4R3/3pR3/n1pP4/PpP3B1/1P3PPP/3N2K1 b - - 2 27", 2, "312346FACA60E58E53FC7CE1");
+		test("r3r3/1p1kb1pp/4R3/3pR3/n1pP4/PpP3B1/1P3PPP/3N2K1 b - - 2 27", 3, "D0648F5D1139550DF7F69A98");
+		test("r3r3/1p1kb1pp/4R3/3pR3/n1pP4/PpP3B1/1P3PPP/3N2K1 b - - 2 27", 4, "99CCB165CA05B9FBF628EAFF");
+		test("r2r2k1/ppq2pb1/4b1pp/nP1np3/B3N3/B1PP1NP1/2Q2P1P/1R2R1K1 b - - 0 18", 1, "BAF465AEBAF465AEC382B402");
+		test("r2r2k1/ppq2pb1/4b1pp/nP1np3/B3N3/B1PP1NP1/2Q2P1P/1R2R1K1 b - - 0 18", 2, "AC6A3C35F75B98D81B4B885F");
+		test("r2r2k1/ppq2pb1/4b1pp/nP1np3/B3N3/B1PP1NP1/2Q2P1P/1R2R1K1 b - - 0 18", 3, "72605A7435CCA9BD97B1C424");
+		test("r2r2k1/ppq2pb1/4b1pp/nP1np3/B3N3/B1PP1NP1/2Q2P1P/1R2R1K1 b - - 0 18", 4, "9E16FE631ADCC632D0F21F76");
+		test("r1bq1r1k/p3bn1p/2pp1p1N/2p1p2P/2P5/2NP4/PP3PP1/R1BQR1K1 b - - 6 16", 1, "BAF465AE4215481002E9ADBE");
+		test("r1bq1r1k/p3bn1p/2pp1p1N/2p1p2P/2P5/2NP4/PP3PP1/R1BQR1K1 b - - 6 16", 2, "C125718CC784389E2A431AA3");
+		test("r1bq1r1k/p3bn1p/2pp1p1N/2p1p2P/2P5/2NP4/PP3PP1/R1BQR1K1 b - - 6 16", 3, "55F9EDBE7F07FC42186E661F");
+		test("r1bq1r1k/p3bn1p/2pp1p1N/2p1p2P/2P5/2NP4/PP3PP1/R1BQR1K1 b - - 6 16", 4, "D8E4C36CF54C5B76CF8A98F8");
+		test("8/8/2Rb3p/1P1kN3/3P1P2/7P/2p3PK/2r5 w - - 1 38", 1, "7F404D41F1107742DC67BF7A");
+		test("8/8/2Rb3p/1P1kN3/3P1P2/7P/2p3PK/2r5 w - - 1 38", 2, "F043193AF12D6CA0F774D2FA");
+		test("8/8/2Rb3p/1P1kN3/3P1P2/7P/2p3PK/2r5 w - - 1 38", 3, "EE7995AF7402812B960AAF52");
+		test("8/8/2Rb3p/1P1kN3/3P1P2/7P/2p3PK/2r5 w - - 1 38", 4, "8273BEE7B964D9BA5F0C0168");
+		test("8/5kb1/3q3p/p2p1PpP/1PpP4/5P2/PP6/1KN1Q3 b - - 0 35", 1, "CE8A475EBAF465AEBAF465AE");
+		test("8/5kb1/3q3p/p2p1PpP/1PpP4/5P2/PP6/1KN1Q3 b - - 0 35", 2, "0A51E0384217AE37B1C106C2");
+		test("8/5kb1/3q3p/p2p1PpP/1PpP4/5P2/PP6/1KN1Q3 b - - 0 35", 3, "12DA9FAFC9C23E0995491926");
+		test("8/5kb1/3q3p/p2p1PpP/1PpP4/5P2/PP6/1KN1Q3 b - - 0 35", 4, "69C234C470A3ECD7F76E8CB8");
+		test("5r1k/6b1/pp2R1pp/3pP3/3P2Nq/5r1P/PP2QPK1/7R b - - 1 29", 1, "D2205151BAF465AEEBFD415B");
+		test("5r1k/6b1/pp2R1pp/3pP3/3P2Nq/5r1P/PP2QPK1/7R b - - 1 29", 2, "0DB300AACAD93467DFF3E775");
+		test("5r1k/6b1/pp2R1pp/3pP3/3P2Nq/5r1P/PP2QPK1/7R b - - 1 29", 3, "CCC2B05817B1C18AB8D46EBB");
+		test("5r1k/6b1/pp2R1pp/3pP3/3P2Nq/5r1P/PP2QPK1/7R b - - 1 29", 4, "921F62D2707FFF236950E00A");
+		test("5rk1/5ppp/5b2/3P4/8/Q2p1P2/P3qP1P/3R1RK1 b - - 1 22", 1, "F3146E83BAF465AEC4ECC380");
+		test("5rk1/5ppp/5b2/3P4/8/Q2p1P2/P3qP1P/3R1RK1 b - - 1 22", 2, "A45EDAB6980377F8B3F57258");
+		test("5rk1/5ppp/5b2/3P4/8/Q2p1P2/P3qP1P/3R1RK1 b - - 1 22", 3, "FC2A29D68CF6F4E9036FA789");
+		test("5rk1/5ppp/5b2/3P4/8/Q2p1P2/P3qP1P/3R1RK1 b - - 1 22", 4, "EA7DCE093D3BA7ACCE4BBE4B");
+		test("2rqrbk1/5pp1/p2p3p/np6/3pN3/P4P1P/BP1Q1P2/R1B3K1 b - - 2 23", 1, "5ADD0E93BAF465AEE8AE22C7");
+		test("2rqrbk1/5pp1/p2p3p/np6/3pN3/P4P1P/BP1Q1P2/R1B3K1 b - - 2 23", 2, "AEAB961CC37C147A26E1FC35");
+		test("2rqrbk1/5pp1/p2p3p/np6/3pN3/P4P1P/BP1Q1P2/R1B3K1 b - - 2 23", 3, "F7E0072879CE6C3025F1258F");
+		test("2rqrbk1/5pp1/p2p3p/np6/3pN3/P4P1P/BP1Q1P2/R1B3K1 b - - 2 23", 4, "80D9D8BCFC5EB2F4134FEA08");
+		test("rnbq1rk1/2p3b1/pp1p2pp/3Ppn2/2P5/2N4P/PP1BBPPN/R2Q1RK1 b - - 1 13", 1, "BAF465AEBAF465AED076DB90");
+		test("rnbq1rk1/2p3b1/pp1p2pp/3Ppn2/2P5/2N4P/PP1BBPPN/R2Q1RK1 b - - 1 13", 2, "73E915756C34E326CA4B0BF9");
+		test("rnbq1rk1/2p3b1/pp1p2pp/3Ppn2/2P5/2N4P/PP1BBPPN/R2Q1RK1 b - - 1 13", 3, "B77B2DFF89D8A36F1E800DD4");
+		test("rnbq1rk1/2p3b1/pp1p2pp/3Ppn2/2P5/2N4P/PP1BBPPN/R2Q1RK1 b - - 1 13", 4, "D4DB519B8D00BD41E226E763");
+		test("2rq1rk1/1p1bppbp/p2p1np1/n7/3NP3/P1N1BP2/1PPQB1PP/1K1R3R w - - 5 13", 1, "BAF465AEBAF465AE7057DFB7");
+		test("2rq1rk1/1p1bppbp/p2p1np1/n7/3NP3/P1N1BP2/1PPQB1PP/1K1R3R w - - 5 13", 2, "68783DE117E346F5F7C4036D");
+		test("2rq1rk1/1p1bppbp/p2p1np1/n7/3NP3/P1N1BP2/1PPQB1PP/1K1R3R w - - 5 13", 3, "F01877F159E72717FC6D6F76");
+		test("2rq1rk1/1p1bppbp/p2p1np1/n7/3NP3/P1N1BP2/1PPQB1PP/1K1R3R w - - 5 13", 4, "265A0FD3B6A98B91081B15F3");
+		test("r3r1k1/1ppq1p1p/p1n2bp1/3p1b2/3P4/BBP2N1P/P2Q1PPK/4RR2 b - - 3 18", 1, "BAF465AE1F3CF44BAE0F7F01");
+		test("r3r1k1/1ppq1p1p/p1n2bp1/3p1b2/3P4/BBP2N1P/P2Q1PPK/4RR2 b - - 3 18", 2, "E3B0A3BF8B51DED60B485265");
+		test("r3r1k1/1ppq1p1p/p1n2bp1/3p1b2/3P4/BBP2N1P/P2Q1PPK/4RR2 b - - 3 18", 3, "FC47B489FDA5D1CF3935BB8F");
+		test("r3r1k1/1ppq1p1p/p1n2bp1/3p1b2/3P4/BBP2N1P/P2Q1PPK/4RR2 b - - 3 18", 4, "B725AC69845D835463DA6DFE");
+		test("r2q1rk1/p4ppp/2p1pn2/2bp4/8/1P1QPN2/PB3PPP/R3K2R w KQ - 0 14", 1, "BAF465AE4DEC4901AA33CBE6");
+		test("r2q1rk1/p4ppp/2p1pn2/2bp4/8/1P1QPN2/PB3PPP/R3K2R w KQ - 0 14", 2, "8A24B9CBCDF897F651006AFA");
+		test("r2q1rk1/p4ppp/2p1pn2/2bp4/8/1P1QPN2/PB3PPP/R3K2R w KQ - 0 14", 3, "D88628375A020F869F87F8D1");
+		test("r2q1rk1/p4ppp/2p1pn2/2bp4/8/1P1QPN2/PB3PPP/R3K2R w KQ - 0 14", 4, "0F96CD712B26C4F45EA72A2E");
 
 		
 		if(skipAssertions)

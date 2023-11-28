@@ -509,9 +509,13 @@ public class BasicStaticExchangeEvaluator {
 		return output_target_losing[player][pieceType] & ~game.getOccupied();
 	}
 
-	//TODO: this is useful for testing and debugging bu can be removed once unittests are in place.
-	//TODO: the two stacks can be combined together: we want to eb able to determine which attackers do make a difference and which do not.
+	/**
+	 * local to evaluateCapture_forced and evaluateQuiet_forced
+	 */
 	private int temp_evaluate_forcedAttacker_pieceType_attackStack[]=new int[32];//pieceType - both players condensed to same stack.
+	/**
+	 * local to evaluateCapture_forced and evaluateQuiet_forced
+	 */
 	private int temp_evaluate_forcedAttacker_gain [] =new int[32];//integer value change - needed for linear minimax
 	
 	private int forcedAttacker_helper(int d_combinedAttackStackSize, int sq, int currentPlayer, long clearedSquares) {

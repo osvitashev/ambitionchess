@@ -29,13 +29,10 @@ class BSEETest_evaluateQuietMoves_perftChecksum {
 		test_game.loadFromFEN(fen);
 		crc1 = new CRC32();
 		crc2 = new CRC32();
-		
 		crc1.reset();
 		crc2.reset();
-		
 		buffer1 = ByteBuffer.allocate(2 * 6 * 8);// 2 players * 6 piece types * 3 output types * 8 bytes per long.
 		buffer2 = ByteBuffer.allocate(2 * 6 * 8);// 2 players * 6 piece types * 3 output types * 8 bytes per long.
-
 		long t = perft(test_game, depth, 1);
 		checkSum = getChecksum();
 		return t;
@@ -45,7 +42,6 @@ class BSEETest_evaluateQuietMoves_perftChecksum {
 	private void updateHashValue() {
 		test_eval.initialize();
 		test_eval.evaluateQuietMoves();
-		
 		buffer1.clear();
 		buffer2.clear();
 		buffer1.mark();
@@ -56,7 +52,6 @@ class BSEETest_evaluateQuietMoves_perftChecksum {
 				buffer2.putLong(test_eval.getOutput_quiet_losing(player, pieceType));
 			}
 		}
-		
 		buffer1.reset();
 		buffer2.reset();
 		crc1.update(buffer1);
@@ -69,30 +64,21 @@ class BSEETest_evaluateQuietMoves_perftChecksum {
 
 	private long perft(Gamestate board, int depth, int ply) {
 		updateHashValue();
-		if (depth == 0) {
-			return 1;
-		}
 		long nodes = 0;
 		long partialNodes;
-
 		int test_movelist_size_old = movepool.size();
 		test_move_generator.generateLegalMoves(test_game, movepool);
-
 		if (depth == 1) {
 			int ret = movepool.size() - test_movelist_size_old;
 			movepool.resize(test_movelist_size_old);
 			return ret;
 		}
-
 		for (int i = test_movelist_size_old; i < movepool.size(); ++i) {
 			int move = movepool.get(i);
 			board.makeMove(move);
-
 			partialNodes = perft(board, depth - 1, ply + 1);
 			nodes += partialNodes;
-
 			board.unmakeMove(move);
-
 		}
 		movepool.resize(test_movelist_size_old);
 		return nodes;
@@ -107,10 +93,6 @@ class BSEETest_evaluateQuietMoves_perftChecksum {
 		//System.out.println("collected checkSum: " + checkSum);
 		System.out.println("test(\"" +fen +"\", "+ depth+", \""+ checkSum+ "\");");
 	}
-	
-	/**
-	 * todo: investigate why perft(0) and perft(1) are returning same checksum...
-	 */
 	
 	@Test
 	void testWithPerft_quick() {
@@ -264,10 +246,90 @@ class BSEETest_evaluateQuietMoves_perftChecksum {
 		test("r2krb2/ppq5/2p5/5Q2/3PR3/2P1N2P/PP3PP1/R5K1 w - - 3 29", 2, "3101A9B9BBD27CE0");
 		test("r2krb2/ppq5/2p5/5Q2/3PR3/2P1N2P/PP3PP1/R5K1 w - - 3 29", 3, "EAB14C1170553AFB");
 		test("r2krb2/ppq5/2p5/5Q2/3PR3/2P1N2P/PP3PP1/R5K1 w - - 3 29", 4, "C0E44360A8236B72");
-		
-		
-		
-		
+		test("3r1rk1/1bpq1pp1/5bnp/1p1n4/pN4N1/P1B3P1/1P1QRPBP/4R1K1 w - - 0 1", 1, "B61C086023E05D44");
+		test("3r1rk1/1bpq1pp1/5bnp/1p1n4/pN4N1/P1B3P1/1P1QRPBP/4R1K1 w - - 0 1", 2, "4063C73D6F3A05D2");
+		test("3r1rk1/1bpq1pp1/5bnp/1p1n4/pN4N1/P1B3P1/1P1QRPBP/4R1K1 w - - 0 1", 3, "6D9BB0B008947589");
+		test("3r1rk1/1bpq1pp1/5bnp/1p1n4/pN4N1/P1B3P1/1P1QRPBP/4R1K1 w - - 0 1", 4, "D88CC70C75ACBA15");
+		test("2k5/1bnpp3/2q2n1p/6rr/PP6/NB2RN2/1B1R1KPP/4Q3 w - - 0 1", 1, "F7E346C61F5F75DF");
+		test("2k5/1bnpp3/2q2n1p/6rr/PP6/NB2RN2/1B1R1KPP/4Q3 w - - 0 1", 2, "82FF3412F036C828");
+		test("2k5/1bnpp3/2q2n1p/6rr/PP6/NB2RN2/1B1R1KPP/4Q3 w - - 0 1", 3, "0B3CD33FF14AD5DD");
+		test("2k5/1bnpp3/2q2n1p/6rr/PP6/NB2RN2/1B1R1KPP/4Q3 w - - 0 1", 4, "02DE44D76F874A6B");
+		test("2r1r1k1/1QP2p1p/p3q1p1/3R1p2/8/1P4P1/P3P2P/2R3K1 w - - 1 35", 1, "854BDCDABC30C2FD");
+		test("2r1r1k1/1QP2p1p/p3q1p1/3R1p2/8/1P4P1/P3P2P/2R3K1 w - - 1 35", 2, "8E932183DA48186E");
+		test("2r1r1k1/1QP2p1p/p3q1p1/3R1p2/8/1P4P1/P3P2P/2R3K1 w - - 1 35", 3, "8C7571C7840AF7FD");
+		test("2r1r1k1/1QP2p1p/p3q1p1/3R1p2/8/1P4P1/P3P2P/2R3K1 w - - 1 35", 4, "A8972D5CB066789E");
+		test("2r5/1p1k1pp1/1p2rn1p/1Nqp4/P2P1Q2/2P4P/1P4P1/R3R2K b - - 0 23", 1, "87DAC40295C5584A");
+		test("2r5/1p1k1pp1/1p2rn1p/1Nqp4/P2P1Q2/2P4P/1P4P1/R3R2K b - - 0 23", 2, "7819F67A2A913AB1");
+		test("2r5/1p1k1pp1/1p2rn1p/1Nqp4/P2P1Q2/2P4P/1P4P1/R3R2K b - - 0 23", 3, "860C2632004C0F2D");
+		test("2r5/1p1k1pp1/1p2rn1p/1Nqp4/P2P1Q2/2P4P/1P4P1/R3R2K b - - 0 23", 4, "4450A4DC5EAE07CB");
+		test("r2q1rk1/1pp2p2/p1npbn2/2b1p1B1/4P1P1/2NP3P/PPP2PB1/R2QK2R b KQ - 0 12", 1, "EDC8CAA75C6B7CE2");
+		test("r2q1rk1/1pp2p2/p1npbn2/2b1p1B1/4P1P1/2NP3P/PPP2PB1/R2QK2R b KQ - 0 12", 2, "E796CEC15C061F76");
+		test("r2q1rk1/1pp2p2/p1npbn2/2b1p1B1/4P1P1/2NP3P/PPP2PB1/R2QK2R b KQ - 0 12", 3, "7D7FF609F954CC0A");
+		test("r2q1rk1/1pp2p2/p1npbn2/2b1p1B1/4P1P1/2NP3P/PPP2PB1/R2QK2R b KQ - 0 12", 4, "BDEE3464469CF7C0");
+		test("r3r1k1/p2q1ppp/bp1p1B2/2pP1n2/2P1pQ2/4P3/PP1N2PP/1BR1R1K1 b - - 0 20", 1, "E2D83420C072E82D");
+		test("r3r1k1/p2q1ppp/bp1p1B2/2pP1n2/2P1pQ2/4P3/PP1N2PP/1BR1R1K1 b - - 0 20", 2, "A9ED540B0BE202AE");
+		test("r3r1k1/p2q1ppp/bp1p1B2/2pP1n2/2P1pQ2/4P3/PP1N2PP/1BR1R1K1 b - - 0 20", 3, "6DA84022155F0125");
+		test("r3r1k1/p2q1ppp/bp1p1B2/2pP1n2/2P1pQ2/4P3/PP1N2PP/1BR1R1K1 b - - 0 20", 4, "9F11134E8582C66C");
+		test("5rk1/pb3ppp/1p5r/3p2q1/3Nn3/P3PBP1/1PQ2P1P/3RR1K1 b - - 0 21", 1, "1AC1F93B4BD01D08");
+		test("5rk1/pb3ppp/1p5r/3p2q1/3Nn3/P3PBP1/1PQ2P1P/3RR1K1 b - - 0 21", 2, "C45D8C1812BFE4F9");
+		test("5rk1/pb3ppp/1p5r/3p2q1/3Nn3/P3PBP1/1PQ2P1P/3RR1K1 b - - 0 21", 3, "72C139AE116216AA");
+		test("5rk1/pb3ppp/1p5r/3p2q1/3Nn3/P3PBP1/1PQ2P1P/3RR1K1 b - - 0 21", 4, "04A8C89A7D798F10");
+		test("5r1k/3Rb1rp/2p1p3/2P1P3/pP2Q3/q3B2P/5P1K/4R3 b - - 2 34", 1, "81A64F304BF1B43B");
+		test("5r1k/3Rb1rp/2p1p3/2P1P3/pP2Q3/q3B2P/5P1K/4R3 b - - 2 34", 2, "3EF7B5487F0FBCC7");
+		test("5r1k/3Rb1rp/2p1p3/2P1P3/pP2Q3/q3B2P/5P1K/4R3 b - - 2 34", 3, "979ADA35E95018FF");
+		test("5r1k/3Rb1rp/2p1p3/2P1P3/pP2Q3/q3B2P/5P1K/4R3 b - - 2 34", 4, "3DC66E2705F236F6");
+		test("r4rk1/3q2pp/2n2p2/3p4/2pP3P/2P1N3/2Q2P1P/R3R1K1 b - - 0 24", 1, "8CF49FB828285C4C");
+		test("r4rk1/3q2pp/2n2p2/3p4/2pP3P/2P1N3/2Q2P1P/R3R1K1 b - - 0 24", 2, "DDF844135D44A464");
+		test("r4rk1/3q2pp/2n2p2/3p4/2pP3P/2P1N3/2Q2P1P/R3R1K1 b - - 0 24", 3, "0E13190C72529D06");
+		test("r4rk1/3q2pp/2n2p2/3p4/2pP3P/2P1N3/2Q2P1P/R3R1K1 b - - 0 24", 4, "6BA68C00775E0D53");
+		test("r3r3/1p1kb1pp/4R3/3pR3/n1pP4/PpP3B1/1P3PPP/3N2K1 b - - 2 27", 1, "4064274600B0F09D");
+		test("r3r3/1p1kb1pp/4R3/3pR3/n1pP4/PpP3B1/1P3PPP/3N2K1 b - - 2 27", 2, "9F77B613D9B7081F");
+		test("r3r3/1p1kb1pp/4R3/3pR3/n1pP4/PpP3B1/1P3PPP/3N2K1 b - - 2 27", 3, "967E4FE3C314493B");
+		test("r3r3/1p1kb1pp/4R3/3pR3/n1pP4/PpP3B1/1P3PPP/3N2K1 b - - 2 27", 4, "02E48A8EC258BE1F");
+		test("r2r2k1/ppq2pb1/4b1pp/nP1np3/B3N3/B1PP1NP1/2Q2P1P/1R2R1K1 b - - 0 18", 1, "9D2E44F854D02CC6");
+		test("r2r2k1/ppq2pb1/4b1pp/nP1np3/B3N3/B1PP1NP1/2Q2P1P/1R2R1K1 b - - 0 18", 2, "6D0FB74DF0EEB816");
+		test("r2r2k1/ppq2pb1/4b1pp/nP1np3/B3N3/B1PP1NP1/2Q2P1P/1R2R1K1 b - - 0 18", 3, "27439F03E1BF0649");
+		test("r2r2k1/ppq2pb1/4b1pp/nP1np3/B3N3/B1PP1NP1/2Q2P1P/1R2R1K1 b - - 0 18", 4, "4C900E88FECE855B");
+		test("r1bq1r1k/p3bn1p/2pp1p1N/2p1p2P/2P5/2NP4/PP3PP1/R1BQR1K1 b - - 6 16", 1, "B8D7852627FD64D2");
+		test("r1bq1r1k/p3bn1p/2pp1p1N/2p1p2P/2P5/2NP4/PP3PP1/R1BQR1K1 b - - 6 16", 2, "046511D445F46DAB");
+		test("r1bq1r1k/p3bn1p/2pp1p1N/2p1p2P/2P5/2NP4/PP3PP1/R1BQR1K1 b - - 6 16", 3, "91667916F04BCA93");
+		test("r1bq1r1k/p3bn1p/2pp1p1N/2p1p2P/2P5/2NP4/PP3PP1/R1BQR1K1 b - - 6 16", 4, "DF50E0D2FFFDDD80");
+		test("8/8/2Rb3p/1P1kN3/3P1P2/7P/2p3PK/2r5 w - - 1 38", 1, "462792B29E44F5C0");
+		test("8/8/2Rb3p/1P1kN3/3P1P2/7P/2p3PK/2r5 w - - 1 38", 2, "CB2E787B7B096BB6");
+		test("8/8/2Rb3p/1P1kN3/3P1P2/7P/2p3PK/2r5 w - - 1 38", 3, "008E01070034B128");
+		test("8/8/2Rb3p/1P1kN3/3P1P2/7P/2p3PK/2r5 w - - 1 38", 4, "726579365DBF6F41");
+		test("8/5kb1/3q3p/p2p1PpP/1PpP4/5P2/PP6/1KN1Q3 b - - 0 35", 1, "5A7113340871FBA4");
+		test("8/5kb1/3q3p/p2p1PpP/1PpP4/5P2/PP6/1KN1Q3 b - - 0 35", 2, "5C6F6A9A5029F472");
+		test("8/5kb1/3q3p/p2p1PpP/1PpP4/5P2/PP6/1KN1Q3 b - - 0 35", 3, "5374CBDC9BCF87A5");
+		test("8/5kb1/3q3p/p2p1PpP/1PpP4/5P2/PP6/1KN1Q3 b - - 0 35", 4, "71AE38D3B3BE8006");
+		test("5r1k/6b1/pp2R1pp/3pP3/3P2Nq/5r1P/PP2QPK1/7R b - - 1 29", 1, "5F1F2CFD480BAE12");
+		test("5r1k/6b1/pp2R1pp/3pP3/3P2Nq/5r1P/PP2QPK1/7R b - - 1 29", 2, "ABA6976A50DA8669");
+		test("5r1k/6b1/pp2R1pp/3pP3/3P2Nq/5r1P/PP2QPK1/7R b - - 1 29", 3, "D03438A60E33C862");
+		test("5r1k/6b1/pp2R1pp/3pP3/3P2Nq/5r1P/PP2QPK1/7R b - - 1 29", 4, "2D09BB3FEF42A26D");
+		test("5rk1/5ppp/5b2/3P4/8/Q2p1P2/P3qP1P/3R1RK1 b - - 1 22", 1, "191DB1B19FF9D874");
+		test("5rk1/5ppp/5b2/3P4/8/Q2p1P2/P3qP1P/3R1RK1 b - - 1 22", 2, "A9AFCB475E31C2B1");
+		test("5rk1/5ppp/5b2/3P4/8/Q2p1P2/P3qP1P/3R1RK1 b - - 1 22", 3, "6DFB2E66401A8A19");
+		test("5rk1/5ppp/5b2/3P4/8/Q2p1P2/P3qP1P/3R1RK1 b - - 1 22", 4, "90238DAD45C637B6");
+		test("2rqrbk1/5pp1/p2p3p/np6/3pN3/P4P1P/BP1Q1P2/R1B3K1 b - - 2 23", 1, "AE3BAE3FD48A99C2");
+		test("2rqrbk1/5pp1/p2p3p/np6/3pN3/P4P1P/BP1Q1P2/R1B3K1 b - - 2 23", 2, "4261CC243B66F73D");
+		test("2rqrbk1/5pp1/p2p3p/np6/3pN3/P4P1P/BP1Q1P2/R1B3K1 b - - 2 23", 3, "6BC6C8C659DBBEA8");
+		test("2rqrbk1/5pp1/p2p3p/np6/3pN3/P4P1P/BP1Q1P2/R1B3K1 b - - 2 23", 4, "DB8266A1D56ACEBA");
+		test("rnbq1rk1/2p3b1/pp1p2pp/3Ppn2/2P5/2N4P/PP1BBPPN/R2Q1RK1 b - - 1 13", 1, "7949726B839C9E31");
+		test("rnbq1rk1/2p3b1/pp1p2pp/3Ppn2/2P5/2N4P/PP1BBPPN/R2Q1RK1 b - - 1 13", 2, "BA0CCBD98C903EDC");
+		test("rnbq1rk1/2p3b1/pp1p2pp/3Ppn2/2P5/2N4P/PP1BBPPN/R2Q1RK1 b - - 1 13", 3, "2016189378AEAA2F");
+		test("rnbq1rk1/2p3b1/pp1p2pp/3Ppn2/2P5/2N4P/PP1BBPPN/R2Q1RK1 b - - 1 13", 4, "8FDA0F022B1F3FCD");
+		test("2rq1rk1/1p1bppbp/p2p1np1/n7/3NP3/P1N1BP2/1PPQB1PP/1K1R3R w - - 5 13", 1, "C0F612DB7F722F35");
+		test("2rq1rk1/1p1bppbp/p2p1np1/n7/3NP3/P1N1BP2/1PPQB1PP/1K1R3R w - - 5 13", 2, "ABE5FBB7B8898BAB");
+		test("2rq1rk1/1p1bppbp/p2p1np1/n7/3NP3/P1N1BP2/1PPQB1PP/1K1R3R w - - 5 13", 3, "04826DB14686DF7D");
+		test("2rq1rk1/1p1bppbp/p2p1np1/n7/3NP3/P1N1BP2/1PPQB1PP/1K1R3R w - - 5 13", 4, "8B43E19D9D5A99AE");
+		test("r3r1k1/1ppq1p1p/p1n2bp1/3p1b2/3P4/BBP2N1P/P2Q1PPK/4RR2 b - - 3 18", 1, "D665AF42A9605905");
+		test("r3r1k1/1ppq1p1p/p1n2bp1/3p1b2/3P4/BBP2N1P/P2Q1PPK/4RR2 b - - 3 18", 2, "2E4388A214BFE1BF");
+		test("r3r1k1/1ppq1p1p/p1n2bp1/3p1b2/3P4/BBP2N1P/P2Q1PPK/4RR2 b - - 3 18", 3, "8723CCBB7F0FADCE");
+		test("r3r1k1/1ppq1p1p/p1n2bp1/3p1b2/3P4/BBP2N1P/P2Q1PPK/4RR2 b - - 3 18", 4, "FB920040EB61C3E5");
+		test("r2q1rk1/p4ppp/2p1pn2/2bp4/8/1P1QPN2/PB3PPP/R3K2R w KQ - 0 14", 1, "A28CA685AE70835E");
+		test("r2q1rk1/p4ppp/2p1pn2/2bp4/8/1P1QPN2/PB3PPP/R3K2R w KQ - 0 14", 2, "4B2BD6615BB61918");
+		test("r2q1rk1/p4ppp/2p1pn2/2bp4/8/1P1QPN2/PB3PPP/R3K2R w KQ - 0 14", 3, "602E1866CCF074BD");
+		test("r2q1rk1/p4ppp/2p1pn2/2bp4/8/1P1QPN2/PB3PPP/R3K2R w KQ - 0 14", 4, "2B7BC69A45918AFD");
 		
 //		test("", 1, "");
 //		test("", 2, "");

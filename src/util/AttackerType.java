@@ -16,8 +16,12 @@ import gamestate.GlobalConstants.Square;
  *
  */
 public class AttackerType {
+	/**
+	 * PieceValue is set to no_piece.
+	 * Unfortunately, there is no way to do the same with no-square.
+	 * @return
+	 */
 	public static int nullValue() {
-		//TODO: inline this!
 		int val = setBits(0, PieceType.NO_PIECE, 0, 3);
 		return val;
 	}

@@ -826,6 +826,8 @@ public class Gamestate {
 			}
 			// validate enpassant
 			if (getEnpassantSquare() != Square.SQUARE_NONE) {
+				if(!Square.validate(getEnpassantSquare()))
+					throw new RuntimeException("Invalid enpassant square");
 				assert Square.validate(getEnpassantSquare());
 				if (getPlayerToMove() == Player.WHITE && 5 != (getEnpassantSquare() / 8))
 					throw new RuntimeException("Invalid enpassant square");
@@ -856,6 +858,8 @@ public class Gamestate {
 			// validate pawns on first and last ranks
 			if (Bitboard.popcount(getPieces(PieceType.PAWN) & 0xff000000000000ffL) != 0)
 				throw new RuntimeException("Pawns on first or last rank!");
+			if(!Player.validate(getPlayerToMove()))
+				throw new RuntimeException("Invalid getPlayerToMove");
 			assert Player.validate(getPlayerToMove());
 			// validate king denorm
 			if (Bitboard.popcount(getPieces(PieceType.KING)) != 2)
@@ -864,6 +868,10 @@ public class Gamestate {
 				throw new RuntimeException("Error in king denorm!");
 			if (getKingSquare(Player.BLACK) != getFirstSquareIndex(getPieces(Player.BLACK, PieceType.KING)))
 				throw new RuntimeException("Error in king denorm!");
+			if(!Square.validate(getKingSquare(Player.WHITE)))
+				throw new RuntimeException("Invalid getKingSquare");
+			if(!Square.validate(getKingSquare(Player.BLACK)))
+				throw new RuntimeException("Invalid getKingSquare");
 			assert Square.validate(getKingSquare(Player.WHITE));
 			assert Square.validate(getKingSquare(Player.BLACK));
 		} catch (Exception e) {
