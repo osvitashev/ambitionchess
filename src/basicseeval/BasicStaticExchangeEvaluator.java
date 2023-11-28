@@ -674,13 +674,13 @@ public class BasicStaticExchangeEvaluator {
 		
 		// at this point evaluateCapture_occupation_stack contains all of the attackers
 		// which would participate in the exchange while alternating sides.
-		System.out.print(game.toFEN() + " | Potential Occupiers of ["+ Square.toString(sq)+"]: (),");
-		for (int i = 1; i < d_combinedAttackStackSize; ++i)
-			System.out.print((i % 2 == 0 ? "+" : "-") + PieceType.toString(temp_evaluate_forcedAttacker_pieceType_attackStack[i]) + " ");
-		System.out.print(" abs values: ");
-		for (int i = 0; i < d_combinedAttackStackSize; ++i)
-			System.out.print(temp_evaluate_forcedAttacker_gain[i] + " ");
-		System.out.print(" | gain: ");
+//		System.out.print(game.toFEN() + " | Potential Occupiers of ["+ Square.toString(sq)+"]: (),");
+//		for (int i = 1; i < d_combinedAttackStackSize; ++i)
+//			System.out.print((i % 2 == 0 ? "+" : "-") + PieceType.toString(temp_evaluate_forcedAttacker_pieceType_attackStack[i]) + " ");
+//		System.out.print(" abs values: ");
+//		for (int i = 0; i < d_combinedAttackStackSize; ++i)
+//			System.out.print(temp_evaluate_forcedAttacker_gain[i] + " ");
+//		System.out.print(" | gain: ");
 		{
 			int gain=0;
 			for (int i = 0; i < d_combinedAttackStackSize-1; ++i) {
@@ -689,8 +689,8 @@ public class BasicStaticExchangeEvaluator {
 			}
 		}
 		d_combinedAttackStackSize--;
-		for (int i = 0; i < d_combinedAttackStackSize; ++i)
-			System.out.print(temp_evaluate_forcedAttacker_gain[i] + " ");
+//		for (int i = 0; i < d_combinedAttackStackSize; ++i)
+//			System.out.print(temp_evaluate_forcedAttacker_gain[i] + " ");
 		
 		for (int i = d_combinedAttackStackSize-1; i>0; --i) {
 			if(i%2==1)
@@ -699,7 +699,7 @@ public class BasicStaticExchangeEvaluator {
 				temp_evaluate_forcedAttacker_gain[i-1]=Math.max(temp_evaluate_forcedAttacker_gain[i-1], temp_evaluate_forcedAttacker_gain[i]);
 		}
 		
-		System.out.println(" | val: "+temp_evaluate_forcedAttacker_gain[0]);
+//		System.out.println(" | val: "+temp_evaluate_forcedAttacker_gain[0]);
 		
 		/**
 		 * at this point temp_evaluateCapture_forcedAttacker_gain[0] is the expected exchange value IF the forced capture is taken.
@@ -744,6 +744,7 @@ public class BasicStaticExchangeEvaluator {
 		for (int sq : Square.SQUARES) {
 			for (int player : Player.PLAYERS) {
 				for (int pieceType : PieceType.PIECE_TYPES) {
+					//optimize: taking pawns out of this loop to simplify the condition
 					if (game.getPieceAt(sq) == PieceType.NO_PIECE && (pieceType != PieceType.PAWN
 							&& Bitboard.testBit(getAttackedTargets(player, pieceType), sq)
 							|| pieceType == PieceType.PAWN && Bitboard.testBit(
