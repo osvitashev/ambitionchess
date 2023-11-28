@@ -103,7 +103,7 @@ class BSEETest_evaluateCaptures_perftChecksum {
 	}
 	
 	@Test
-	void testWithPerft_quick() {
+	void testWithPerft_captures() {
 		test("qk1n1r2/pb2P3/3n4/8/p1P1Q1P1/7P/1R3KQ1/1R5B w - - 0 1", 1, "A5F49E5DBAF465AE9DCE3ACB");
 		test("qk1n1r2/pb2P3/3n4/8/p1P1Q1P1/7P/1R3KQ1/1R5B w - - 0 1", 2, "100C6C5A228FEA769A4FE718");
 		test("qk1n1r2/pb2P3/3n4/8/p1P1Q1P1/7P/1R3KQ1/1R5B w - - 0 1", 3, "9A944BD17F5C8A8EDE1823A2");

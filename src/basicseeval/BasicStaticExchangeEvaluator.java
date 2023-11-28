@@ -635,13 +635,9 @@ public class BasicStaticExchangeEvaluator {
 					) : Square.toString(sq) + " " + Player.toString(player) + " " + PieceType.toString(forced_attacker_type);		
 		
 		
-		//todo: add assertions to make sure forced_attacke_type is applicable.
-		
 		int d_combinedAttackStackSize=0;
 		int currentPlayer=player;
 		long clearedSquares =0;
-		
-		//assert forced_attacker_type != PieceType.PAWN;//temporary. getLeastValuableAttacker_withType does not handle pawns.
 		
 		temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=0;//skip first piece.
 		temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=forced_attacker_type;
