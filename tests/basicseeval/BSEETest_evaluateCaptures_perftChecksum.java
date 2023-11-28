@@ -117,7 +117,7 @@ class BSEETest_evaluateCaptures_perftChecksum {
 	}
 	
 	@Test
-	void testWithPerft() {
+	void testWithPerft_quick() {
 		test("qk1n1r2/pb2P3/3n4/8/p1P1Q1P1/7P/1R3KQ1/1R5B w - - 0 1", 1, "A5F49E5DBAF465AE9DCE3ACB");
 		test("qk1n1r2/pb2P3/3n4/8/p1P1Q1P1/7P/1R3KQ1/1R5B w - - 0 1", 2, "100C6C5A228FEA769A4FE718");
 		test("qk1n1r2/pb2P3/3n4/8/p1P1Q1P1/7P/1R3KQ1/1R5B w - - 0 1", 3, "9A944BD17F5C8A8EDE1823A2");
@@ -140,14 +140,6 @@ class BSEETest_evaluateCaptures_perftChecksum {
 		test("8/q2rN2p/6p1/4pR1b/R2RkN2/P1Q5/1P2n1K1/6b1 b - - 0 1", 4, "DB158CF41F6E31D0B583B3A9");
 		test("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 3, "F9B094172EE79C127F62CF17");
 		test("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1", 4, "3F330006ADACB2F068A62CB1");
-		
-		if(skipAssertions)
-			fail(">>>skipped all asserions! This is intentional ONLY IF we are gathering correct values for new testcases.");
-		
-	}
-	
-	@Test
-	void testWithPerft_quick() {
 		test("3q3k/p2pP1pp/3Q4/2Pp1p2/R4P1P/Br6/5K2/7R b - - 2 32", 1, "01004DF5BAF465AED900B10A");
 		test("3q3k/p2pP1pp/3Q4/2Pp1p2/R4P1P/Br6/5K2/7R b - - 2 32", 2, "BE328BA923FD4782114FA414");
 		test("3q3k/p2pP1pp/3Q4/2Pp1p2/R4P1P/Br6/5K2/7R b - - 2 32", 3, "C756FA83DAEFC2800D37F969");
@@ -196,6 +188,30 @@ class BSEETest_evaluateCaptures_perftChecksum {
 		test("5rk1/1prq2pp/p3p1bn/2bpP3/P2N1PP1/2BP4/1PP1BR1K/R4Q2 b - - 6 23", 2, "BE3C48B58AFB4D6F92CEB65C");
 		test("5rk1/1prq2pp/p3p1bn/2bpP3/P2N1PP1/2BP4/1PP1BR1K/R4Q2 b - - 6 23", 3, "0B4AA0E808913ADD68D04C90");
 		test("5rk1/1prq2pp/p3p1bn/2bpP3/P2N1PP1/2BP4/1PP1BR1K/R4Q2 b - - 6 23", 4, "3BFABA230EEFCFE528762833");
+		test("1k4B1/3r1Qrp/3pp3/6P1/4P2n/5b2/6Q1/6K1 w - - 0 1", 1, "19AF0A0EBAF465AE2CA302C4");
+		test("1k4B1/3r1Qrp/3pp3/6P1/4P2n/5b2/6Q1/6K1 w - - 0 1", 2, "60E36FAB36D109EACBDB9D63");
+		test("1k4B1/3r1Qrp/3pp3/6P1/4P2n/5b2/6Q1/6K1 w - - 0 1", 3, "71A37F69A95F748766F4AD72");
+		test("1k4B1/3r1Qrp/3pp3/6P1/4P2n/5b2/6Q1/6K1 w - - 0 1", 4, "2B24CF1DE721CA7C8691151C");
+		test("1k6/1q6/8/1rpb1Q2/8/2P5/P1KN2p1/8 w - - 0 1", 1, "55A6D34FBAF465AEE27C00D4");
+		test("1k6/1q6/8/1rpb1Q2/8/2P5/P1KN2p1/8 w - - 0 1", 2, "251975DBE9719EA062640E53");
+		test("1k6/1q6/8/1rpb1Q2/8/2P5/P1KN2p1/8 w - - 0 1", 3, "E346C3084916165DDF97A3F0");
+		test("1k6/1q6/8/1rpb1Q2/8/2P5/P1KN2p1/8 w - - 0 1", 4, "8E1B29720A2983BADC0F6ED6");
+		test("6k1/6b1/8/rQ1R1q1R/8/8/1n6/2K1N3 w - - 0 1", 1, "B6E2968FBAF465AE0600B951");
+		test("6k1/6b1/8/rQ1R1q1R/8/8/1n6/2K1N3 w - - 0 1", 2, "44CB4D893A7A8EE2FFEDFDE9");
+		test("6k1/6b1/8/rQ1R1q1R/8/8/1n6/2K1N3 w - - 0 1", 3, "0689B5F746D9EC52077C0259");
+		test("6k1/6b1/8/rQ1R1q1R/8/8/1n6/2K1N3 w - - 0 1", 4, "2B92EA2AB0063FD69D17411E");
+		test("4k3/2p1pp2/n4p1r/1p1P3p/3P4/1P1P3P/2N4R/1K6 w - - 0 1", 1, "BAF465AEBAF465AEBAF465AE");
+		test("4k3/2p1pp2/n4p1r/1p1P3p/3P4/1P1P3P/2N4R/1K6 w - - 0 1", 2, "8AF9B677D0DDABC04A34291C");
+		test("4k3/2p1pp2/n4p1r/1p1P3p/3P4/1P1P3P/2N4R/1K6 w - - 0 1", 3, "BCCF153872B87ED024827959");
+		test("4k3/2p1pp2/n4p1r/1p1P3p/3P4/1P1P3P/2N4R/1K6 w - - 0 1", 4, "EBA9C4CB1ACC3EE63EEF7355");
+		test("1k6/b7/1q6/6p1/1PPB3p/4q3/5B2/2K3Q1 w - - 0 1", 1, "00CCB226BAF465AE1CD5C3BF");
+		test("1k6/b7/1q6/6p1/1PPB3p/4q3/5B2/2K3Q1 w - - 0 1", 2, "31F049A3C9B0BA713B35BD95");
+		test("1k6/b7/1q6/6p1/1PPB3p/4q3/5B2/2K3Q1 w - - 0 1", 3, "741950D0300924B4E683EEBB");
+		test("1k6/b7/1q6/6p1/1PPB3p/4q3/5B2/2K3Q1 w - - 0 1", 4, "9C96800ABDF720E9B9BEC91B");
+		test("2r5/8/B2n1n2/4pkn1/8/2NK4/4P3/4R3 w - - 0 1", 1, "6F4A213DBAF465AE326E360C");
+		test("2r5/8/B2n1n2/4pkn1/8/2NK4/4P3/4R3 w - - 0 1", 2, "E453F9154718593DA1B68A77");
+		test("2r5/8/B2n1n2/4pkn1/8/2NK4/4P3/4R3 w - - 0 1", 3, "ACC181FECF8C3A18C2E8FE97");
+		test("2r5/8/B2n1n2/4pkn1/8/2NK4/4P3/4R3 w - - 0 1", 4, "BC5D9C60C6F894CB6972D7E0");
 		
 		if(skipAssertions)
 			fail(">>>skipped all asserions! This is intentional ONLY IF we are gathering correct values for new testcases.");

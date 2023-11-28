@@ -112,7 +112,7 @@ public class Gamestate {
 	private void putPieceAt(int piece, int player, int sq) {
 		assert PieceType.validate(piece);
 		assert Player.validate(player);
-		assert Square.validate(sq);
+		assert Square.validate(sq) : "Got: " + sq;
 		playerBB[player] = setBit(playerBB[player], sq);
 		pieceBB[piece] = setBit(pieceBB[piece], sq);
 	}

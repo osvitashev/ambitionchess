@@ -113,37 +113,25 @@ class BSEETest_evaluateQuietMoves_perftChecksum {
 	 */
 	
 	@Test
-	void testWithPerft() {
+	void testWithPerft_quick() {
 		test("qk1n1r2/pb2P3/3n4/8/p1P1Q1P1/7P/1R3KQ1/1R5B w - - 0 1", 1, "0855D79288935B83");
 		test("qk1n1r2/pb2P3/3n4/8/p1P1Q1P1/7P/1R3KQ1/1R5B w - - 0 1", 2, "4EAA953D79962EF1");
 		test("1k1r2q1/pbp3qp/1b1r2q1/1P2n3/1N3nQ1/1P5B/PBP1NPRP/2K1Q1RB w - - 0 1", 1, "05E0039CCD446B8C");
 		test("1k1r2q1/pbp3qp/1b1r2q1/1P2n3/1N3nQ1/1P5B/PBP1NPRP/2K1Q1RB w - - 0 1", 2, "0497B27F6F67A437");
 		test("1k1r2q1/pbp3qp/1b1r2q1/1P2n3/1N3nQ1/1P5B/PBP1NPRP/2K1Q1RB w - - 0 1", 3, "B84AED1F9F7357F9");
 		test("1k1r2q1/pbp3qp/1b1r2q1/1P2n3/1N3nQ1/1P5B/PBP1NPRP/2K1Q1RB w - - 0 1", 4, "FCB9A938222F694B");
-		
-		
 		test("2r5/1k1q4/3n4/b7/8/2N1Q3/4K2B/5R2 w - - 0 1", 1, "D1D23DAB548709AE");
 		test("2r5/1k1q4/3n4/b7/8/2N1Q3/4K2B/5R2 w - - 0 1", 2, "18D53AE08C4A08CE");
 		test("2r5/1k1q4/3n4/b7/8/2N1Q3/4K2B/5R2 w - - 0 1", 3, "DB5B291EB905D6DF");
 		test("2r5/1k1q4/3n4/b7/8/2N1Q3/4K2B/5R2 w - - 0 1", 4, "0E52D21885DA425C");
-		
 		test("6r1/4qppb/k2np3/pp1p3P/2p3P1/P1P2P2/1PNPPQ1B/4K1R1 w - - 0 1", 1, "6A4CFA328F862B74");
 		test("6r1/4qppb/k2np3/pp1p3P/2p3P1/P1P2P2/1PNPPQ1B/4K1R1 w - - 0 1", 2, "9114B74A2BC95358");
 		test("6r1/4qppb/k2np3/pp1p3P/2p3P1/P1P2P2/1PNPPQ1B/4K1R1 w - - 0 1", 3, "F9C18204BB71BD5E");
 		test("6r1/4qppb/k2np3/pp1p3P/2p3P1/P1P2P2/1PNPPQ1B/4K1R1 w - - 0 1", 4, "2A1803BC2BF9D2EC");
-		
 		test("8/2kp1rp1/1np4p/7P/3q4/1PNR1q2/1P1r2B1/1K1R3Q b - - 0 1", 1, "3FE9C22BE8AC4734");
 		test("8/2kp1rp1/1np4p/7P/3q4/1PNR1q2/1P1r2B1/1K1R3Q b - - 0 1", 2, "E4DF76B366843BBB");
 		test("8/2kp1rp1/1np4p/7P/3q4/1PNR1q2/1P1r2B1/1K1R3Q b - - 0 1", 3, "C0861FB1B9C8151D");
 		test("8/2kp1rp1/1np4p/7P/3q4/1PNR1q2/1P1r2B1/1K1R3Q b - - 0 1", 4, "7884ED40A1481CD9");
-		
-		if(skipAssertions)
-			fail(">>>skipped all asserions! This is intentional ONLY IF we are gathering correct values for new testcases.");
-		
-	}
-	
-	@Test
-	void testWithPerft_quick() {
 		test("3q3k/p2pP1pp/3Q4/2Pp1p2/R4P1P/Br6/5K2/7R b - - 2 32", 1, "50F5F9B50BC1FD5F");
 		test("3q3k/p2pP1pp/3Q4/2Pp1p2/R4P1P/Br6/5K2/7R b - - 2 32", 2, "A27AB0C4B0D10D95");
 		test("3q3k/p2pP1pp/3Q4/2Pp1p2/R4P1P/Br6/5K2/7R b - - 2 32", 3, "1D471C49C92B6413");
@@ -192,7 +180,30 @@ class BSEETest_evaluateQuietMoves_perftChecksum {
 		test("5rk1/1prq2pp/p3p1bn/2bpP3/P2N1PP1/2BP4/1PP1BR1K/R4Q2 b - - 6 23", 2, "EB2F021866716E41");
 		test("5rk1/1prq2pp/p3p1bn/2bpP3/P2N1PP1/2BP4/1PP1BR1K/R4Q2 b - - 6 23", 3, "6ED425D3B49BFC37");
 		test("5rk1/1prq2pp/p3p1bn/2bpP3/P2N1PP1/2BP4/1PP1BR1K/R4Q2 b - - 6 23", 4, "856AC6B5E26C1A7F");
-		
+		test("1k4B1/3r1Qrp/3pp3/6P1/4P2n/5b2/6Q1/6K1 w - - 0 1", 1, "CF603DC02C722788");
+		test("1k4B1/3r1Qrp/3pp3/6P1/4P2n/5b2/6Q1/6K1 w - - 0 1", 2, "D25F648A6F8BAC9C");
+		test("1k4B1/3r1Qrp/3pp3/6P1/4P2n/5b2/6Q1/6K1 w - - 0 1", 3, "B311D4355AD69EC5");
+		test("1k4B1/3r1Qrp/3pp3/6P1/4P2n/5b2/6Q1/6K1 w - - 0 1", 4, "5BA36B5044B2DEFB");
+		test("1k6/1q6/8/1rpb1Q2/8/2P5/P1KN2p1/8 w - - 0 1", 1, "3D6A6AF9BAA3EF00");
+		test("1k6/1q6/8/1rpb1Q2/8/2P5/P1KN2p1/8 w - - 0 1", 2, "C699F8BE036E53D5");
+		test("1k6/1q6/8/1rpb1Q2/8/2P5/P1KN2p1/8 w - - 0 1", 3, "7B84305574A47DE9");
+		test("1k6/1q6/8/1rpb1Q2/8/2P5/P1KN2p1/8 w - - 0 1", 4, "F69F58154C1763B5");
+		test("6k1/6b1/8/rQ1R1q1R/8/8/1n6/2K1N3 w - - 0 1", 1, "9E5531CCB56EB8F6");
+		test("6k1/6b1/8/rQ1R1q1R/8/8/1n6/2K1N3 w - - 0 1", 2, "4F4CF55655FB63C6");
+		test("6k1/6b1/8/rQ1R1q1R/8/8/1n6/2K1N3 w - - 0 1", 3, "5704152DF8D9EE63");
+		test("6k1/6b1/8/rQ1R1q1R/8/8/1n6/2K1N3 w - - 0 1", 4, "43A42F5C68EDD29F");
+		test("4k3/2p1pp2/n4p1r/1p1P3p/3P4/1P1P3P/2N4R/1K6 w - - 0 1", 1, "8AAFFF859A63CB27");
+		test("4k3/2p1pp2/n4p1r/1p1P3p/3P4/1P1P3P/2N4R/1K6 w - - 0 1", 2, "68E85107FD81510D");
+		test("4k3/2p1pp2/n4p1r/1p1P3p/3P4/1P1P3P/2N4R/1K6 w - - 0 1", 3, "7BA52C593CE775D4");
+		test("4k3/2p1pp2/n4p1r/1p1P3p/3P4/1P1P3P/2N4R/1K6 w - - 0 1", 4, "EB18B86F1921306F");
+		test("1k6/b7/1q6/6p1/1PPB3p/4q3/5B2/2K3Q1 w - - 0 1", 1, "F5DDAE138516D6F9");
+		test("1k6/b7/1q6/6p1/1PPB3p/4q3/5B2/2K3Q1 w - - 0 1", 2, "EB5749ABC102A5E1");
+		test("1k6/b7/1q6/6p1/1PPB3p/4q3/5B2/2K3Q1 w - - 0 1", 3, "A07357E358521788");
+		test("1k6/b7/1q6/6p1/1PPB3p/4q3/5B2/2K3Q1 w - - 0 1", 4, "F98984C81A984D4D");
+		test("2r5/8/B2n1n2/4pkn1/8/2NK4/4P3/4R3 w - - 0 1", 1, "1F2A5D2B79AD9A0B");
+		test("2r5/8/B2n1n2/4pkn1/8/2NK4/4P3/4R3 w - - 0 1", 2, "0A00C91C3D21751A");
+		test("2r5/8/B2n1n2/4pkn1/8/2NK4/4P3/4R3 w - - 0 1", 3, "9534C5153DEF8D97");
+		test("2r5/8/B2n1n2/4pkn1/8/2NK4/4P3/4R3 w - - 0 1", 4, "E0D05DF1FABC5032");
 		
 	//	test("", 1, "");
 		
