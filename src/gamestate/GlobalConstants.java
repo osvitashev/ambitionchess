@@ -63,7 +63,7 @@ public class GlobalConstants {
 		public static final int NO_PIECE = 6;
 
 		public static String toString(int pt) {
-			assert PieceType.validate(pt);
+			assert PieceType.validate(pt) : "Got: " + pt;
 			String ret = "";
 			if (pt == PieceType.PAWN)
 				ret = "P";
