@@ -533,12 +533,12 @@ public class BasicStaticExchangeEvaluator {
 		int player = Player.getOtherPlayer(game.getPlayerAt(sq));
 		assert Bitboard.testBit(getAttackedTargets(player, forced_attacker_type), sq);
 		
-		int d_combinedAttackStackSize=0;
+		int d_combinedAttackStackSize=2;
 		int currentPlayer=player;
 		long clearedSquares =0;
 		
-		temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=game.getPieceAt(sq);
-		temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=forced_attacker_type;
+		temp_evaluate_forcedAttacker_pieceType_attackStack[0]=game.getPieceAt(sq);
+		temp_evaluate_forcedAttacker_pieceType_attackStack[1]=forced_attacker_type;
 		temp_evaluate_forcedAttacker_gain[0] = getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[0]);
 		temp_evaluate_forcedAttacker_gain[1] = temp_evaluate_forcedAttacker_gain[0] - getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[1]);
 		clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(getLeastValuableAttacker_withType(sq, currentPlayer, forced_attacker_type, 0l)));
@@ -560,6 +560,7 @@ public class BasicStaticExchangeEvaluator {
 			d_combinedAttackStackSize++;
 		} while (true);
 		
+		
 System.out.print(game.toFEN() + " ["+ PieceType.toString(forced_attacker_type) + " to " + Square.toString(sq)+ "] sequence: {");
 for(int i=0; i<d_combinedAttackStackSize;++i)
 	System.out.print(PieceType.toString(temp_evaluate_forcedAttacker_pieceType_attackStack[i]) + " ");
@@ -567,11 +568,10 @@ System.out.print("} values: {");
 for(int i=0; i<d_combinedAttackStackSize;++i)
 	System.out.print(getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[i]) + " ");
 System.out.print("} gains: ");
-for(int i=0; i<d_combinedAttackStackSize;++i)
+for(int i=0; i<d_combinedAttackStackSize-1;++i)
 	System.out.print(temp_evaluate_forcedAttacker_gain[i] + " ");
-		
-		d_combinedAttackStackSize--;
-		for (int i = d_combinedAttackStackSize-1; i>0; --i) {
+
+		for (int i = d_combinedAttackStackSize-2; i>0; --i) {
 			if(i%2==1)
 				temp_evaluate_forcedAttacker_gain[i-1]=Math.min(temp_evaluate_forcedAttacker_gain[i-1], temp_evaluate_forcedAttacker_gain[i]);
 			else
@@ -602,12 +602,12 @@ System.out.println("} returning: "+ temp_evaluate_forcedAttacker_gain[0]);
 					) : Square.toString(sq) + " " + Player.toString(player) + " " + PieceType.toString(forced_attacker_type);		
 		
 		
-		int d_combinedAttackStackSize=0;
+		int d_combinedAttackStackSize=2;
 		int currentPlayer=player;
 		long clearedSquares =0;
 		
-		temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=game.getPieceAt(sq);
-		temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=forced_attacker_type;
+		temp_evaluate_forcedAttacker_pieceType_attackStack[0]=game.getPieceAt(sq);
+		temp_evaluate_forcedAttacker_pieceType_attackStack[1]=forced_attacker_type;
 		temp_evaluate_forcedAttacker_gain[0] = 0;
 		temp_evaluate_forcedAttacker_gain[1] = temp_evaluate_forcedAttacker_gain[0] - getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[1]);
 		
@@ -648,19 +648,19 @@ System.out.println("} returning: "+ temp_evaluate_forcedAttacker_gain[0]);
 							- getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize]);
 			d_combinedAttackStackSize++;
 		} while (true);
-		d_combinedAttackStackSize--;
 		
-System.out.print(game.toFEN() + " ["+ PieceType.toString(forced_attacker_type) + " to " + Square.toString(sq)+ "] sequence: {");
+System.out.print(game.toFEN() + " ["+ PieceType.toString(forced_attacker_type) + " to " + Square.toString(sq)+ "] sequence: {() ");
 for(int i=1; i<d_combinedAttackStackSize;++i)
 	System.out.print(PieceType.toString(temp_evaluate_forcedAttacker_pieceType_attackStack[i]) + " ");
 System.out.print("} values: {0 ");
 for(int i=1; i<d_combinedAttackStackSize;++i)
 	System.out.print(getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[i]) + " ");
 System.out.print("} gains: ");
-for(int i=0; i<d_combinedAttackStackSize;++i)
+for(int i=0; i<d_combinedAttackStackSize-1;++i)
 	System.out.print(temp_evaluate_forcedAttacker_gain[i] + " ");
+
 		
-		for (int i = d_combinedAttackStackSize-1; i>0; --i) {
+		for (int i = d_combinedAttackStackSize-2; i>0; --i) {
 			if(i%2==1)
 				temp_evaluate_forcedAttacker_gain[i-1]=Math.min(temp_evaluate_forcedAttacker_gain[i-1], temp_evaluate_forcedAttacker_gain[i]);
 			else
