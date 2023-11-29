@@ -559,6 +559,17 @@ public class BasicStaticExchangeEvaluator {
 							- getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize]);
 			d_combinedAttackStackSize++;
 		} while (true);
+		
+System.out.print(game.toFEN() + " ["+ PieceType.toString(forced_attacker_type) + " to " + Square.toString(sq)+ "] sequence: {");
+for(int i=0; i<d_combinedAttackStackSize;++i)
+	System.out.print(PieceType.toString(temp_evaluate_forcedAttacker_pieceType_attackStack[i]) + " ");
+System.out.print("} values: {");
+for(int i=0; i<d_combinedAttackStackSize;++i)
+	System.out.print(getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[i]) + " ");
+System.out.print("} gains: ");
+for(int i=0; i<d_combinedAttackStackSize;++i)
+	System.out.print(temp_evaluate_forcedAttacker_gain[i] + " ");
+		
 		d_combinedAttackStackSize--;
 		for (int i = d_combinedAttackStackSize-1; i>0; --i) {
 			if(i%2==1)
@@ -569,6 +580,7 @@ public class BasicStaticExchangeEvaluator {
 		/**
 		 * at this point temp_evaluateCapture_forcedAttacker_gain[0] is the expected exchange value IF the forced capture is taken.
 		 */
+System.out.println("} returning: "+ temp_evaluate_forcedAttacker_gain[0]);
 		return temp_evaluate_forcedAttacker_gain[0];
 	}
 	
@@ -637,6 +649,17 @@ public class BasicStaticExchangeEvaluator {
 			d_combinedAttackStackSize++;
 		} while (true);
 		d_combinedAttackStackSize--;
+		
+System.out.print(game.toFEN() + " ["+ PieceType.toString(forced_attacker_type) + " to " + Square.toString(sq)+ "] sequence: {");
+for(int i=1; i<d_combinedAttackStackSize;++i)
+	System.out.print(PieceType.toString(temp_evaluate_forcedAttacker_pieceType_attackStack[i]) + " ");
+System.out.print("} values: {0 ");
+for(int i=1; i<d_combinedAttackStackSize;++i)
+	System.out.print(getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[i]) + " ");
+System.out.print("} gains: ");
+for(int i=0; i<d_combinedAttackStackSize;++i)
+	System.out.print(temp_evaluate_forcedAttacker_gain[i] + " ");
+		
 		for (int i = d_combinedAttackStackSize-1; i>0; --i) {
 			if(i%2==1)
 				temp_evaluate_forcedAttacker_gain[i-1]=Math.min(temp_evaluate_forcedAttacker_gain[i-1], temp_evaluate_forcedAttacker_gain[i]);
@@ -647,6 +670,7 @@ public class BasicStaticExchangeEvaluator {
 		/**
 		 * at this point temp_evaluateCapture_forcedAttacker_gain[0] is the expected exchange value IF the forced capture is taken.
 		 */
+System.out.println("} returning: "+ temp_evaluate_forcedAttacker_gain[0]);
 		return temp_evaluate_forcedAttacker_gain[0];
 	}
 	

@@ -49,7 +49,7 @@ class BSEETest_evaluateQuietMoves {
 	}
 	
 	@Test
-	void getOutput_capture_withPieceType_test() {
+	void getOutput_quiet_withPieceType_test() {
 		//fail("this is wrong!!!");
 		assertTargets("5r2/2nq1rbp/1R4p1/8/PPk5/2P3K1/1B1n2Q1/8 w - - 0 1",
 				new long[][] {/* neutral */
