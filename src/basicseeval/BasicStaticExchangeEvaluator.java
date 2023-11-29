@@ -537,22 +537,13 @@ public class BasicStaticExchangeEvaluator {
 		int currentPlayer=player;
 		long clearedSquares =0;
 		
-		
 		temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=game.getPieceAt(sq);
 		temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=forced_attacker_type;
-		
 		temp_evaluate_forcedAttacker_gain[0] = getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[0]);
-		temp_evaluate_forcedAttacker_gain[1] = getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[1]);
-		
+		temp_evaluate_forcedAttacker_gain[1] = temp_evaluate_forcedAttacker_gain[0] - getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[1]);
 		clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(getLeastValuableAttacker_withType(sq, currentPlayer, forced_attacker_type, 0l)));
-
-
 		int leastValuableAttacker;
 		int nextAttackerType;
-		int gain=temp_evaluate_forcedAttacker_gain[0];
-		temp_evaluate_forcedAttacker_gain[0]=gain;
-		gain-=temp_evaluate_forcedAttacker_gain[1];
-		temp_evaluate_forcedAttacker_gain[1]=gain;
 		do {
 			currentPlayer = Player.getOtherPlayer(currentPlayer);
 			leastValuableAttacker = getLeastValuableAttacker(sq, currentPlayer, clearedSquares);
@@ -561,27 +552,20 @@ public class BasicStaticExchangeEvaluator {
 			nextAttackerType = AttackerType.getAttackerPieceType(leastValuableAttacker);
 			clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(leastValuableAttacker));
 			temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize] = nextAttackerType;
-			temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize] = getPieceValue(
-					temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize]);
-
-			gain += d_combinedAttackStackSize % 2 == 0 ? temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize]
-					: -temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize];
-			temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize] = gain;
-
+			temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize] = d_combinedAttackStackSize % 2 == 0
+					? temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize - 1]
+							+ getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize])
+					: temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize - 1]
+							- getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize]);
 			d_combinedAttackStackSize++;
-
 		} while (true);
-		
-
 		d_combinedAttackStackSize--;
-		
 		for (int i = d_combinedAttackStackSize-1; i>0; --i) {
 			if(i%2==1)
 				temp_evaluate_forcedAttacker_gain[i-1]=Math.min(temp_evaluate_forcedAttacker_gain[i-1], temp_evaluate_forcedAttacker_gain[i]);
 			else
 				temp_evaluate_forcedAttacker_gain[i-1]=Math.max(temp_evaluate_forcedAttacker_gain[i-1], temp_evaluate_forcedAttacker_gain[i]);
 		}
-				
 		/**
 		 * at this point temp_evaluateCapture_forcedAttacker_gain[0] is the expected exchange value IF the forced capture is taken.
 		 */
