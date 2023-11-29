@@ -549,24 +549,30 @@ public class BasicStaticExchangeEvaluator {
 
 		int leastValuableAttacker;
 		int nextAttackerType;
+		int gain=temp_evaluate_forcedAttacker_gain[0];
+		temp_evaluate_forcedAttacker_gain[0]=gain;
+		gain-=temp_evaluate_forcedAttacker_gain[1];
+		temp_evaluate_forcedAttacker_gain[1]=gain;
 		do {
 			currentPlayer = Player.getOtherPlayer(currentPlayer);
 			leastValuableAttacker = getLeastValuableAttacker(sq, currentPlayer, clearedSquares);
-			if(leastValuableAttacker == AttackerType.nullValue())
+			if (leastValuableAttacker == AttackerType.nullValue())
 				break;
-			nextAttackerType=AttackerType.getAttackerPieceType(leastValuableAttacker);
+			nextAttackerType = AttackerType.getAttackerPieceType(leastValuableAttacker);
 			clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(leastValuableAttacker));
-			temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize]=nextAttackerType;
-			temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize] = getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize]);
+			temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize] = nextAttackerType;
+			temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize] = getPieceValue(
+					temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize]);
+
+			gain += d_combinedAttackStackSize % 2 == 0 ? temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize]
+					: -temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize];
+			temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize] = gain;
+
 			d_combinedAttackStackSize++;
-			
-		}while(true);
+
+		} while (true);
 		
-		int gain=0;
-		for (int i = 0; i < d_combinedAttackStackSize-1; ++i) {
-			gain+= i%2==0 ? temp_evaluate_forcedAttacker_gain[i] : -temp_evaluate_forcedAttacker_gain[i];
-			temp_evaluate_forcedAttacker_gain[i]=gain;
-		}
+
 		d_combinedAttackStackSize--;
 		
 		for (int i = d_combinedAttackStackSize-1; i>0; --i) {
