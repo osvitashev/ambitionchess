@@ -594,11 +594,10 @@ public class BasicStaticExchangeEvaluator {
 		int currentPlayer=player;
 		long clearedSquares =0;
 		
-		temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=0;//skip first piece.
+		temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=game.getPieceAt(sq);
 		temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize++]=forced_attacker_type;
-		
-		temp_evaluate_forcedAttacker_gain[0]=0;
-		temp_evaluate_forcedAttacker_gain[1] = getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[1]);
+		temp_evaluate_forcedAttacker_gain[0] = 0;
+		temp_evaluate_forcedAttacker_gain[1] = temp_evaluate_forcedAttacker_gain[0] - getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[1]);
 		
 		if(forced_attacker_type == PieceType.PAWN) {
 			long targetbb = Bitboard.initFromSquare(sq);
@@ -620,33 +619,24 @@ public class BasicStaticExchangeEvaluator {
 		}
 		else
 			clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(getLeastValuableAttacker_withType(sq, currentPlayer, forced_attacker_type, 0l)));
-		
-		
 		int leastValuableAttacker;
 		int nextAttackerType;
 		do {
 			currentPlayer = Player.getOtherPlayer(currentPlayer);
 			leastValuableAttacker = getLeastValuableAttacker(sq, currentPlayer, clearedSquares);
-			if(leastValuableAttacker == AttackerType.nullValue())
+			if (leastValuableAttacker == AttackerType.nullValue())
 				break;
-			nextAttackerType=AttackerType.getAttackerPieceType(leastValuableAttacker);
+			nextAttackerType = AttackerType.getAttackerPieceType(leastValuableAttacker);
 			clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(leastValuableAttacker));
-			temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize]=nextAttackerType;
-			temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize] = getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize]);
-			
+			temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize] = nextAttackerType;
+			temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize] = d_combinedAttackStackSize % 2 == 0
+					? temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize - 1]
+							+ getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize])
+					: temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize - 1]
+							- getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize]);
 			d_combinedAttackStackSize++;
-		}while(true);
-		
-
-		{
-			int gain=0;
-			for (int i = 0; i < d_combinedAttackStackSize-1; ++i) {
-				gain+= i%2==0 ? temp_evaluate_forcedAttacker_gain[i] : -temp_evaluate_forcedAttacker_gain[i];
-				temp_evaluate_forcedAttacker_gain[i]=gain;
-			}
-		}
+		} while (true);
 		d_combinedAttackStackSize--;
-		
 		for (int i = d_combinedAttackStackSize-1; i>0; --i) {
 			if(i%2==1)
 				temp_evaluate_forcedAttacker_gain[i-1]=Math.min(temp_evaluate_forcedAttacker_gain[i-1], temp_evaluate_forcedAttacker_gain[i]);
