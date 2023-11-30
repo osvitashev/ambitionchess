@@ -573,6 +573,16 @@ public class BasicStaticExchangeEvaluator {
 			temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize] =
 					getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize])
 					- temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize - 1];
+			
+			//this works for perft/ high level tests because it preserves negative/0/positive return value, but it breaks more granular tests because the return value does 
+			
+//			if (Math.max(-temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize - 1],
+//					temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize]) < 0) {
+//				d_combinedAttackStackSize++;
+//				break;
+//			}
+				
+			
 			d_combinedAttackStackSize++;
 		} while (true);
 
