@@ -534,13 +534,11 @@ public class BasicStaticExchangeEvaluator {
 		int currentPlayer=player;
 		long clearedSquares =0;
 		
-		
-		
 		temp_evaluate_forcedAttacker_pieceType_attackStack[0]=game.getPieceAt(sq);
 		temp_evaluate_forcedAttacker_pieceType_attackStack[1]=forced_attacker_type;
 		temp_evaluate_forcedAttacker_gain[0] = game.getPieceAt(sq) == PieceType.NO_PIECE ? 0 : getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[0]);
-		temp_evaluate_forcedAttacker_gain[1] = temp_evaluate_forcedAttacker_gain[0] - getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[1]);
-		
+		temp_evaluate_forcedAttacker_gain[1] =getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[1]) - temp_evaluate_forcedAttacker_gain[0];
+
 		if(forced_attacker_type == PieceType.PAWN && game.getPieceAt(sq) == PieceType.NO_PIECE) {
 			long targetbb = Bitboard.initFromSquare(sq);
 			long pawns = game.getPieces(player, PieceType.PAWN);
@@ -572,15 +570,15 @@ public class BasicStaticExchangeEvaluator {
 			nextAttackerType = AttackerType.getAttackerPieceType(leastValuableAttacker);
 			clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(leastValuableAttacker));
 			temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize] = nextAttackerType;
-			temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize] = d_combinedAttackStackSize % 2 == 0
-					? temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize - 1]
-							+ getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize])
-					: temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize - 1]
-							- getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize]);
+			temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize] =
+					getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize])
+					- temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize - 1];
 			d_combinedAttackStackSize++;
 		} while (true);
 
-//System.out.print(game.toFEN() + " ["+ PieceType.toString(forced_attacker_type) + " to " + Square.toString(sq)+ "] sequence: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "()" : PieceType.toString(temp_evaluate_forcedAttacker_pieceType_attackStack[0])) + " ");
+//System.out.print(game.toFEN() + " ["+ PieceType.toString(forced_attacker_type) +
+//		(game.getPieceAt(sq) == PieceType.NO_PIECE ? " - " : " x " )
+//		+ Square.toString(sq)+ "] sequence: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "()" : PieceType.toString(temp_evaluate_forcedAttacker_pieceType_attackStack[0])) + " ");
 //for(int i=1; i<d_combinedAttackStackSize;++i)
 //	System.out.print(PieceType.toString(temp_evaluate_forcedAttacker_pieceType_attackStack[i]) + " ");
 //System.out.print("} values: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "0" : getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[0])) + " ");
@@ -591,10 +589,7 @@ public class BasicStaticExchangeEvaluator {
 //	System.out.print(temp_evaluate_forcedAttacker_gain[i] + " ");
 
 		for (int i = d_combinedAttackStackSize-2; i>0; --i) {
-			if(i%2==1)
-				temp_evaluate_forcedAttacker_gain[i-1]=Math.min(temp_evaluate_forcedAttacker_gain[i-1], temp_evaluate_forcedAttacker_gain[i]);
-			else
-				temp_evaluate_forcedAttacker_gain[i-1]=Math.max(temp_evaluate_forcedAttacker_gain[i-1], temp_evaluate_forcedAttacker_gain[i]);
+			temp_evaluate_forcedAttacker_gain[i-1]= -Math.max(-temp_evaluate_forcedAttacker_gain[i-1], temp_evaluate_forcedAttacker_gain[i]);
 		}
 
 		/**
