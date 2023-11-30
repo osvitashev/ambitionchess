@@ -11,7 +11,7 @@ import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
 import util.AttackerType;
 
-class BSEETest_leastValuableAttacker {
+class BSEETest_initialize {
 	
 	private Gamestate test_game = new Gamestate();
 	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game, 1);
@@ -655,28 +655,5 @@ class BSEETest_leastValuableAttacker {
 		assertEquals(0x14008f0051525080L, eval.getSecondaryAttackedTargets(Player.BLACK));
 		assertEquals(0x5030110200000030L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE));
 		assertEquals(0x14008c0050121000L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK));
-	}
-	
-	@Test
-	void sanity() {
-		test_game.loadFromFEN("8/8/8/5pk1/3pb3/2NK4/8/8 w - - 0 1");
-		test_eval.initialize();
-		test_eval.evaluateCapture_forced(Square.D4, PieceType.KING);
-		test_eval.evaluateCapture_forced(Square.E4, PieceType.KNIGHT);
-		
-		test_game.loadFromFEN("4q3/8/RQR2r2/1P3pk1/3pb3/2NK4/8/8 w - - 0 1");
-		test_eval.initialize();
-		test_eval.evaluateCapture_forced(Square.C6, PieceType.BISHOP);
-		test_eval.evaluateCapture_forced(Square.C6, PieceType.ROOK);
-		test_eval.evaluateCapture_forced(Square.C6, PieceType.QUEEN);
-		
-		test_game.loadFromFEN("3r4/3r1k2/3q4/8/3B4/4P3/4K3/8 w - - 0 1");
-		test_eval.initialize();
-		test_eval.evaluateCapture_forced(Square.D4, PieceType.QUEEN);
-		
-		test_game.loadFromFEN("8/5k2/2n5/4P3/3RK3/8/8/8 w - - 0 1");
-		test_eval.initialize();
-		test_eval.evaluateCapture_forced(Square.D4, PieceType.KNIGHT);
-		test_eval.evaluateCapture_forced(Square.E5, PieceType.KNIGHT);
 	}
 }

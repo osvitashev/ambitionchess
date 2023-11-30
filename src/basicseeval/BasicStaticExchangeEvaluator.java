@@ -518,100 +518,30 @@ public class BasicStaticExchangeEvaluator {
 	 */
 	private int temp_evaluate_forcedAttacker_gain [] =new int[32];//integer value change - needed for linear minimax
 	
-	/**
-	 * forces capture by a given piece type then performs linear minimax.
-	 * since the capture is forced, the returned value of {0} denotes a break-even trade.
-	 * 
-	 * @param sq
-	 * @param forced_attacker_type
-	 * @return
-	 */
-	int evaluateCapture_forced(int sq, int forced_attacker_type) {		
-		assert Square.validate(sq);
-		assert PieceType.validate(forced_attacker_type);
-		assert game.getPieceAt(sq) != PieceType.NO_PIECE;
-		int player = Player.getOtherPlayer(game.getPlayerAt(sq));
-		assert Bitboard.testBit(getAttackedTargets(player, forced_attacker_type), sq);
-		
-		int d_combinedAttackStackSize=2;
-		int currentPlayer=player;
-		long clearedSquares =0;
-		
-		temp_evaluate_forcedAttacker_pieceType_attackStack[0]=game.getPieceAt(sq);
-		temp_evaluate_forcedAttacker_pieceType_attackStack[1]=forced_attacker_type;
-		temp_evaluate_forcedAttacker_gain[0] = getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[0]);
-		temp_evaluate_forcedAttacker_gain[1] = temp_evaluate_forcedAttacker_gain[0] - getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[1]);
-		clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(getLeastValuableAttacker_withType(sq, currentPlayer, forced_attacker_type, 0l)));
-		int leastValuableAttacker;
-		int nextAttackerType;
-		do {
-			currentPlayer = Player.getOtherPlayer(currentPlayer);
-			leastValuableAttacker = getLeastValuableAttacker(sq, currentPlayer, clearedSquares);
-			if (leastValuableAttacker == AttackerType.nullValue())
-				break;
-			nextAttackerType = AttackerType.getAttackerPieceType(leastValuableAttacker);
-			clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(leastValuableAttacker));
-			temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize] = nextAttackerType;
-			temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize] = d_combinedAttackStackSize % 2 == 0
-					? temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize - 1]
-							+ getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize])
-					: temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize - 1]
-							- getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize]);
-			d_combinedAttackStackSize++;
-		} while (true);
-		
-		
-System.out.print(game.toFEN() + " ["+ PieceType.toString(forced_attacker_type) + " to " + Square.toString(sq)+ "] sequence: {");
-for(int i=0; i<d_combinedAttackStackSize;++i)
-	System.out.print(PieceType.toString(temp_evaluate_forcedAttacker_pieceType_attackStack[i]) + " ");
-System.out.print("} values: {");
-for(int i=0; i<d_combinedAttackStackSize;++i)
-	System.out.print(getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[i]) + " ");
-System.out.print("} gains: ");
-for(int i=0; i<d_combinedAttackStackSize-1;++i)
-	System.out.print(temp_evaluate_forcedAttacker_gain[i] + " ");
-
-		for (int i = d_combinedAttackStackSize-2; i>0; --i) {
-			if(i%2==1)
-				temp_evaluate_forcedAttacker_gain[i-1]=Math.min(temp_evaluate_forcedAttacker_gain[i-1], temp_evaluate_forcedAttacker_gain[i]);
-			else
-				temp_evaluate_forcedAttacker_gain[i-1]=Math.max(temp_evaluate_forcedAttacker_gain[i-1], temp_evaluate_forcedAttacker_gain[i]);
-		}
-		/**
-		 * at this point temp_evaluateCapture_forcedAttacker_gain[0] is the expected exchange value IF the forced capture is taken.
-		 */
-System.out.println("} returning: "+ temp_evaluate_forcedAttacker_gain[0]);
-		return temp_evaluate_forcedAttacker_gain[0];
-	}
 	
-	int evaluateQuiet_forced(int sq, int player, int forced_attacker_type) {
+	//combined implementation!!!
+	int evaluateTarget(int sq, int player, int forced_attacker_type) {
 		assert Square.validate(sq);
 		assert Player.validate(player);
-		assert game.getPieceAt(sq) == PieceType.NO_PIECE;
-		
-		//NOT pawn AND getAttackedTargets OR pawn AND quietPushTarget
-		assert forced_attacker_type != PieceType.PAWN && Bitboard.testBit(getAttackedTargets(player, forced_attacker_type), sq)
-				|| forced_attacker_type == PieceType.PAWN 
-					&& Bitboard.testBit(
-							BitboardGen.getMultiplePawnPushSet(
-									game.getPieces(player, PieceType.PAWN),
-									player,
-									game.getOccupied()
-							),
-							sq
-					) : Square.toString(sq) + " " + Player.toString(player) + " " + PieceType.toString(forced_attacker_type);		
-		
+		assert (game.getPieceAt(sq) == PieceType.NO_PIECE
+				&& (forced_attacker_type != PieceType.PAWN && Bitboard.testBit(getAttackedTargets(player, forced_attacker_type), sq)
+						|| forced_attacker_type == PieceType.PAWN && Bitboard
+								.testBit(BitboardGen.getMultiplePawnPushSet(game.getPieces(player, PieceType.PAWN), player, game.getOccupied()), sq)))
+				|| (game.getPieceAt(sq) != PieceType.NO_PIECE && game.getPlayerAt(sq) == Player.getOtherPlayer(player) && Bitboard.testBit(getAttackedTargets(player, forced_attacker_type), sq))
+				: Square.toString(sq) + " " + Player.toString(player) + " " + PieceType.toString(forced_attacker_type);	
 		
 		int d_combinedAttackStackSize=2;
 		int currentPlayer=player;
 		long clearedSquares =0;
 		
+		
+		
 		temp_evaluate_forcedAttacker_pieceType_attackStack[0]=game.getPieceAt(sq);
 		temp_evaluate_forcedAttacker_pieceType_attackStack[1]=forced_attacker_type;
-		temp_evaluate_forcedAttacker_gain[0] = 0;
+		temp_evaluate_forcedAttacker_gain[0] = game.getPieceAt(sq) == PieceType.NO_PIECE ? 0 : getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[0]);
 		temp_evaluate_forcedAttacker_gain[1] = temp_evaluate_forcedAttacker_gain[0] - getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[1]);
 		
-		if(forced_attacker_type == PieceType.PAWN) {
+		if(forced_attacker_type == PieceType.PAWN && game.getPieceAt(sq) == PieceType.NO_PIECE) {
 			long targetbb = Bitboard.initFromSquare(sq);
 			long pawns = game.getPieces(player, PieceType.PAWN);
 			if(player == Player.WHITE) {
@@ -631,6 +561,7 @@ System.out.println("} returning: "+ temp_evaluate_forcedAttacker_gain[0]);
 		}
 		else
 			clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(getLeastValuableAttacker_withType(sq, currentPlayer, forced_attacker_type, 0l)));
+
 		int leastValuableAttacker;
 		int nextAttackerType;
 		do {
@@ -648,29 +579,28 @@ System.out.println("} returning: "+ temp_evaluate_forcedAttacker_gain[0]);
 							- getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize]);
 			d_combinedAttackStackSize++;
 		} while (true);
-		
-System.out.print(game.toFEN() + " ["+ PieceType.toString(forced_attacker_type) + " to " + Square.toString(sq)+ "] sequence: {() ");
-for(int i=1; i<d_combinedAttackStackSize;++i)
-	System.out.print(PieceType.toString(temp_evaluate_forcedAttacker_pieceType_attackStack[i]) + " ");
-System.out.print("} values: {0 ");
-for(int i=1; i<d_combinedAttackStackSize;++i)
-	System.out.print(getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[i]) + " ");
-System.out.print("} gains: ");
-for(int i=0; i<d_combinedAttackStackSize-1;++i)
-	System.out.print(temp_evaluate_forcedAttacker_gain[i] + " ");
 
-		
+//System.out.print(game.toFEN() + " ["+ PieceType.toString(forced_attacker_type) + " to " + Square.toString(sq)+ "] sequence: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "()" : PieceType.toString(temp_evaluate_forcedAttacker_pieceType_attackStack[0])) + " ");
+//for(int i=1; i<d_combinedAttackStackSize;++i)
+//	System.out.print(PieceType.toString(temp_evaluate_forcedAttacker_pieceType_attackStack[i]) + " ");
+//System.out.print("} values: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "0" : getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[0])) + " ");
+//for(int i=1; i<d_combinedAttackStackSize;++i)
+//	System.out.print(getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[i]) + " ");
+//System.out.print("} gains: ");
+//for(int i=0; i<d_combinedAttackStackSize-1;++i)
+//	System.out.print(temp_evaluate_forcedAttacker_gain[i] + " ");
+
 		for (int i = d_combinedAttackStackSize-2; i>0; --i) {
 			if(i%2==1)
 				temp_evaluate_forcedAttacker_gain[i-1]=Math.min(temp_evaluate_forcedAttacker_gain[i-1], temp_evaluate_forcedAttacker_gain[i]);
 			else
 				temp_evaluate_forcedAttacker_gain[i-1]=Math.max(temp_evaluate_forcedAttacker_gain[i-1], temp_evaluate_forcedAttacker_gain[i]);
 		}
-		
+
 		/**
 		 * at this point temp_evaluateCapture_forcedAttacker_gain[0] is the expected exchange value IF the forced capture is taken.
 		 */
-System.out.println("} returning: "+ temp_evaluate_forcedAttacker_gain[0]);
+//System.out.println("} returning: "+ temp_evaluate_forcedAttacker_gain[0]);
 		return temp_evaluate_forcedAttacker_gain[0];
 	}
 	
@@ -691,7 +621,7 @@ System.out.println("} returning: "+ temp_evaluate_forcedAttacker_gain[0]);
 							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
 						bi = Bitboard.getFirstSquareIndex(barg);
 						if (Bitboard.testBit(getAttackedTargets(player, pieceType), bi) && game.getPlayerAt(bi) == Player.getOtherPlayer(player)) {
-							score = evaluateCapture_forced(bi, pieceType);
+							score = evaluateTarget(bi, player, pieceType);
 							if(score < 0)
 								output_target_losing[player][pieceType]|= Bitboard.setBit(output_target_losing[player][pieceType], bi);
 							else if(score == 0)
@@ -716,7 +646,7 @@ System.out.println("} returning: "+ temp_evaluate_forcedAttacker_gain[0]);
 							&& Bitboard.testBit(getAttackedTargets(player, pieceType), sq)
 							|| pieceType == PieceType.PAWN && Bitboard.testBit(
 									BitboardGen.getMultiplePawnPushSet(game.getPieces(player, PieceType.PAWN), player, game.getOccupied()), sq))) {
-						score = evaluateQuiet_forced(sq, player, pieceType);
+						score = evaluateTarget(sq, player, pieceType);
 						if(score < 0)
 							output_target_losing[player][pieceType]|= Bitboard.setBit(output_target_losing[player][pieceType], sq);
 						else//only two cases - quiet move would never result in positive score.
