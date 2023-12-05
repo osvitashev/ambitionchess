@@ -16,9 +16,17 @@ public class GlobalConstants {
 			String ret = "";
 			if (pl == WHITE)
 				ret = "White";
-			else if (pl == BLACK)
+			else
 				ret = "Black";
 			return ret;
+		}
+		
+		public static String toShortString(int pl) {
+			assert Player.validate(pl);
+			if (pl == WHITE)
+				return "w";
+			else
+				return "b";
 		}
 
 		public static boolean isWhite(int player) {

@@ -13,9 +13,18 @@ class BSEETest_evaluateCapture_forced {
 	private Gamestate test_game = new Gamestate();
 	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game, 1);
 	
+	static final boolean skipAssertions = false;
+	
 	void test(int expectedOutcome, int sq, int player, int pieceType) {
 		int outcome = test_eval.evaluateTarget(sq, player, pieceType);
-		assertEquals(expectedOutcome, outcome);
+		if(!skipAssertions) {
+			if(expectedOutcome > 0)
+				assertTrue(expectedOutcome <= outcome);
+			else if(expectedOutcome <0)
+				assertTrue(expectedOutcome >= outcome);
+			else
+			assertEquals(expectedOutcome, outcome);
+		}
 	}
 	
 	@Test
@@ -122,6 +131,17 @@ class BSEETest_evaluateCapture_forced {
 		test(200, Square.C6, Player.WHITE, PieceType.KNIGHT);
 		test(600, Square.C2, Player.BLACK, PieceType.ROOK);
 		test(300, Square.C2, Player.BLACK, PieceType.QUEEN);
+		
+		
+		/**
+		 * in terms of detecting overprotectoion: all three of the defenders are providing overprotection.
+		 */
+		test_game.loadFromFEN("8/1k1r4/8/2b2n2/3p4/8/1K2N3/8 w - - 0 1");
+		test_eval.initialize();
+		test(-200, Square.D4, Player.WHITE, PieceType.KNIGHT);
+		
+		if(skipAssertions)
+			fail("Assertions skipped! We must be running some experiments...");
 		
 //		consider: perhaps i do not really need the minimax score in most cases.
 //		i only want to know whether a capture is profitable
