@@ -601,9 +601,6 @@ for(int i=0; i<d_combinedAttackStackSize-1;++i)
 		for (int i = d_combinedAttackStackSize-2; i>0; --i) {
 			var_evaluateTarget_gain[i-1]= -Math.max(-var_evaluateTarget_gain[i-1], var_evaluateTarget_gain[i]);
 		}
-
-		
-		
 		/**
 		 * at this point temp_evaluateCapture_forcedAttacker_gain[0] is the expected exchange value IF the forced capture is taken.
 		 */
@@ -615,6 +612,15 @@ System.out.println(" returning: "+ var_evaluateTarget_gain[0]);
 System.out.println();
 
 		return var_evaluateTarget_gain[0];
+	}
+	
+	/**
+	 * assuming we have ran the forced capture routine for the given square and the return value is negative.
+	 * We now want to classify the defenders as either TIED or OVERPROTECTING
+	 * in other words: can a given defender be lifted off the board without changing the predicted exchange outcome?
+	 */
+	void evaluateOverpttection() {
+		//consider: how do we get around the fact that the other routine is attacker-centric?
 	}
 	
 
