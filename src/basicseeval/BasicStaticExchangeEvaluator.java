@@ -512,11 +512,11 @@ public class BasicStaticExchangeEvaluator {
 	/**
 	 * local to evaluateCapture_forced and evaluateQuiet_forced
 	 */
-	private int temp_evaluate_forcedAttacker_pieceType_attackStack[]=new int[32];//pieceType - both players condensed to same stack.
+	private int var_evaluateTarget_attackStack[]=new int[32];//pieceType - both players condensed to same stack.
 	/**
 	 * local to evaluateCapture_forced and evaluateQuiet_forced
 	 */
-	private int temp_evaluate_forcedAttacker_gain [] =new int[32];//integer value change - needed for linear minimax
+	private int var_evaluateTarget_gain [] =new int[32];//integer value change - needed for linear minimax
 		
 	//combined implementation!!!
 	int evaluateTarget(int sq, int player, int forced_attacker_type) {
@@ -533,12 +533,12 @@ public class BasicStaticExchangeEvaluator {
 		int currentPlayer=player;
 		long clearedSquares =0;
 		
-		//all of the temporary and output state variables van be shifted into a separate class using composition
+		//all of the temporary and output state variables can be shifted into a separate class using composition
 		
-		temp_evaluate_forcedAttacker_pieceType_attackStack[0]=game.getPieceAt(sq);
-		temp_evaluate_forcedAttacker_pieceType_attackStack[1]=forced_attacker_type;
-		temp_evaluate_forcedAttacker_gain[0] = game.getPieceAt(sq) == PieceType.NO_PIECE ? 0 : getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[0]);
-		temp_evaluate_forcedAttacker_gain[1] =getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[1]) - temp_evaluate_forcedAttacker_gain[0];
+		var_evaluateTarget_attackStack[0]=game.getPieceAt(sq);
+		var_evaluateTarget_attackStack[1]=forced_attacker_type;
+		var_evaluateTarget_gain[0] = game.getPieceAt(sq) == PieceType.NO_PIECE ? 0 : getPieceValue(var_evaluateTarget_attackStack[0]);
+		var_evaluateTarget_gain[1] =getPieceValue(var_evaluateTarget_attackStack[1]) - var_evaluateTarget_gain[0];
 
 		if(forced_attacker_type == PieceType.PAWN && game.getPieceAt(sq) == PieceType.NO_PIECE) {
 			long targetbb = Bitboard.initFromSquare(sq);
@@ -570,36 +570,36 @@ public class BasicStaticExchangeEvaluator {
 				break;
 			nextAttackerType = AttackerType.getAttackerPieceType(leastValuableAttacker);
 			clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(leastValuableAttacker));
-			temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize] = nextAttackerType;
-			temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize] =
-					getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize])
-					- temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize - 1];
+			var_evaluateTarget_attackStack[d_combinedAttackStackSize] = nextAttackerType;
+			var_evaluateTarget_gain[d_combinedAttackStackSize] =
+					getPieceValue(var_evaluateTarget_attackStack[d_combinedAttackStackSize])
+					- var_evaluateTarget_gain[d_combinedAttackStackSize - 1];
 			
 			//this is the short exit condition. we stop iteration if the last recapture did not make the score worthy of being selected.
 			//existence of this condition does not change the return value being positive/zero/negative.
-			if (Math.max(-temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize - 1],
-					temp_evaluate_forcedAttacker_gain[d_combinedAttackStackSize]) < 0) {
+			if (Math.max(-var_evaluateTarget_gain[d_combinedAttackStackSize - 1],
+					var_evaluateTarget_gain[d_combinedAttackStackSize]) < 0) {
 				d_combinedAttackStackSize++;
 				break;
 			}
 			d_combinedAttackStackSize++;
 		} while (true);
 
-//System.out.print(game.toFEN() + " ["+ Player.toShortString(player)+PieceType.toString(forced_attacker_type) +
-//		(game.getPieceAt(sq) == PieceType.NO_PIECE ? " - " : " x " )
-//		+ Square.toString(sq)+ "] sequence: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "()" : PieceType.toString(temp_evaluate_forcedAttacker_pieceType_attackStack[0])) + " ");
-//for(int i=1; i<d_combinedAttackStackSize;++i)
-//	System.out.print(PieceType.toString(temp_evaluate_forcedAttacker_pieceType_attackStack[i]) + " ");
-//System.out.print("} values: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "0" : getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[0])) + " ");
-//for(int i=1; i<d_combinedAttackStackSize;++i)
-//	System.out.print(getPieceValue(temp_evaluate_forcedAttacker_pieceType_attackStack[i]) + " ");
-//System.out.print("} gains: ");
-//for(int i=0; i<d_combinedAttackStackSize-1;++i)
-//	System.out.print(temp_evaluate_forcedAttacker_gain[i] + " ");
+System.out.print(game.toFEN() + " ["+ Player.toShortString(player)+PieceType.toString(forced_attacker_type) +
+		(game.getPieceAt(sq) == PieceType.NO_PIECE ? " - " : " x " )
+		+ Square.toString(sq)+ "] sequence: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "()" : PieceType.toString(var_evaluateTarget_attackStack[0])) + " ");
+for(int i=1; i<d_combinedAttackStackSize;++i)
+	System.out.print(PieceType.toString(var_evaluateTarget_attackStack[i]) + " ");
+System.out.print("} values: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "0" : getPieceValue(var_evaluateTarget_attackStack[0])) + " ");
+for(int i=1; i<d_combinedAttackStackSize;++i)
+	System.out.print(getPieceValue(var_evaluateTarget_attackStack[i]) + " ");
+System.out.print("} gains: ");
+for(int i=0; i<d_combinedAttackStackSize-1;++i)
+	System.out.print(var_evaluateTarget_gain[i] + " ");
 
 		//minimax backtracking
 		for (int i = d_combinedAttackStackSize-2; i>0; --i) {
-			temp_evaluate_forcedAttacker_gain[i-1]= -Math.max(-temp_evaluate_forcedAttacker_gain[i-1], temp_evaluate_forcedAttacker_gain[i]);
+			var_evaluateTarget_gain[i-1]= -Math.max(-var_evaluateTarget_gain[i-1], var_evaluateTarget_gain[i]);
 		}
 
 		
@@ -608,13 +608,13 @@ public class BasicStaticExchangeEvaluator {
 		 * at this point temp_evaluateCapture_forcedAttacker_gain[0] is the expected exchange value IF the forced capture is taken.
 		 */
 		
-//System.out.println();
-//System.out.print("last attacker: "+ Player.toShortString(Player.getOtherPlayer(currentPlayer))
-//	+ PieceType.toString(temp_evaluate_forcedAttacker_pieceType_attackStack[d_combinedAttackStackSize-1]));
-//System.out.println(" returning: "+ temp_evaluate_forcedAttacker_gain[0]);
-//System.out.println();
+System.out.println();
+System.out.print("last attacker: "+ Player.toShortString(Player.getOtherPlayer(currentPlayer))
+	+ PieceType.toString(var_evaluateTarget_attackStack[d_combinedAttackStackSize-1]));
+System.out.println(" returning: "+ var_evaluateTarget_gain[0]);
+System.out.println();
 
-		return temp_evaluate_forcedAttacker_gain[0];
+		return var_evaluateTarget_gain[0];
 	}
 	
 
