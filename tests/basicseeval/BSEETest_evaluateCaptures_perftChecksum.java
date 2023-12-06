@@ -12,6 +12,7 @@ import gamestate.MoveGen;
 import gamestate.MovePool;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
+import util.HitCounter;
 
 class BSEETest_evaluateCaptures_perftChecksum {
 	private Gamestate test_game = new Gamestate();
@@ -560,7 +561,8 @@ class BSEETest_evaluateCaptures_perftChecksum {
 		test("r2q1rk1/p4ppp/2p1pn2/2bp4/8/1P1QPN2/PB3PPP/R3K2R w KQ - 0 14", 2, "8A24B9CBCDF897F651006AFA");
 		test("r2q1rk1/p4ppp/2p1pn2/2bp4/8/1P1QPN2/PB3PPP/R3K2R w KQ - 0 14", 3, "D88628375A020F869F87F8D1");
 		test("r2q1rk1/p4ppp/2p1pn2/2bp4/8/1P1QPN2/PB3PPP/R3K2R w KQ - 0 14", 4, "0F96CD712B26C4F45EA72A2E");
-
+		
+		System.out.println(HitCounter.dump());
 		
 		if(skipAssertions)
 			fail(">>>skipped all asserions! This is intentional ONLY IF we are gathering correct values for new testcases.");

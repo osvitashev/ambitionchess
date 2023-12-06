@@ -12,6 +12,7 @@ import gamestate.MoveGen;
 import gamestate.MovePool;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
+import util.HitCounter;
 
 class BSEETest_evaluateQuietMoves_perftChecksum {
 	private Gamestate test_game = new Gamestate();
@@ -360,7 +361,7 @@ class BSEETest_evaluateQuietMoves_perftChecksum {
 //		test("", 2, "");
 //		test("", 3, "");
 //		test("", 4, "");
-		
+		System.out.println(HitCounter.dump());
 		
 		if(skipAssertions)
 			fail(">>>skipped all asserions! This is intentional ONLY IF we are gathering correct values for new testcases.");

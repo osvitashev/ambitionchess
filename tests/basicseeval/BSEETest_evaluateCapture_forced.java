@@ -8,6 +8,7 @@ import gamestate.Gamestate;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
+import util.HitCounter;
 
 class BSEETest_evaluateCapture_forced {
 	private Gamestate test_game = new Gamestate();
@@ -16,7 +17,7 @@ class BSEETest_evaluateCapture_forced {
 	static final boolean skipAssertions = false;
 	
 	void test(int expectedOutcome, int sq, int player, int pieceType) {
-		int outcome = test_eval.evaluateTarget(sq, player, pieceType);
+		int outcome = test_eval.evaluateTargetExchange(sq, player, pieceType);
 		if(!skipAssertions) {
 			if(expectedOutcome > 0)
 				assertTrue(expectedOutcome <= outcome);
@@ -139,6 +140,9 @@ class BSEETest_evaluateCapture_forced {
 		test_game.loadFromFEN("8/1k1r4/8/2b2n2/3p4/8/1K2N3/8 w - - 0 1");
 		test_eval.initialize();
 		test(-200, Square.D4, Player.WHITE, PieceType.KNIGHT);
+		
+		System.out.println(HitCounter.dump());
+		
 		
 		if(skipAssertions)
 			fail("Assertions skipped! We must be running some experiments...");

@@ -43,7 +43,6 @@ public class GlobalConstants {
 			// TODO: xor assignment instead of conditional
 			return player == BLACK ? WHITE : BLACK;
 		}
-
 	}
 
 	public static final class PieceType {

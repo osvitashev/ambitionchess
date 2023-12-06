@@ -8,6 +8,7 @@ import gamestate.Gamestate;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
+import util.HitCounter;
 
 class BSEETest_evaluateQuiet_forced {
 	private Gamestate test_game = new Gamestate();
@@ -16,7 +17,7 @@ class BSEETest_evaluateQuiet_forced {
 	static final boolean skipAssertions = false;
 	
 	void test(int expectedOutcome, int sq, int player, int pieceType) {
-		int outcome = test_eval.evaluateTarget(sq, player, pieceType);
+		int outcome = test_eval.evaluateTargetExchange(sq, player, pieceType);
 		if(!skipAssertions) {
 			if(expectedOutcome > 0)
 				assertTrue(expectedOutcome <= outcome);
@@ -149,6 +150,8 @@ class BSEETest_evaluateQuiet_forced {
 		test(-300, Square.F4, Player.BLACK, PieceType.QUEEN);
 		test(0, Square.E5, Player.BLACK, PieceType.QUEEN);
 		test(-300, Square.G6, Player.BLACK, PieceType.QUEEN);
+		
+		System.out.println(HitCounter.dump());
 	}
 
 }
