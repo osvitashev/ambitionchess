@@ -146,7 +146,7 @@ class BSEETest_evaluateCapture_forced {
 		test(-99700, Square.B4, Player.BLACK, PieceType.KING);
 		test(-99700, Square.C6, Player.BLACK, PieceType.KING);
 		
-		//todo: reevaluate this: the fact that king can enter an attacked square is incorrect!
+		//long exchange - positive
 		test_game.loadFromFEN("3r2b1/ppnr4/1N2knpp/2KR1p2/1N6/1B1Q1qp1/PP4bP/3R4 b - - 0 2");
 		test_eval.initialize();
 		test(300, Square.D5, Player.BLACK, PieceType.ROOK);
@@ -156,6 +156,15 @@ class BSEETest_evaluateCapture_forced {
 		test(-99700, Square.C4, Player.BLACK, PieceType.KING);
 		test(-99700, Square.E4, Player.BLACK, PieceType.KING);
 		
+		//long exchange - negative
+		test_game.loadFromFEN("3r2b1/ppnr4/1Np1k1pp/3n1p2/1N1R4/1BKQ1qp1/PP4bP/3R4 w - - 2 2");
+		test_eval.initialize();
+		test(-200, Square.D5, Player.WHITE, PieceType.ROOK);
+		
+		//long exchange - neutral
+		test_game.loadFromFEN("3r2b1/ppnr4/1Np1knpp/2KR4/1N3p2/1B1Q1qp1/PP4bP/3R4 b - - 1 2");
+		test_eval.initialize();
+		test(0, Square.D5, Player.BLACK, PieceType.QUEEN);
 		
 		System.out.println("max sequence length: " + BasicStaticExchangeEvaluator.zmaxLength + " | " +
 				"fen: " + BasicStaticExchangeEvaluator.zFEN + " target: "+Square.toString(BasicStaticExchangeEvaluator.zsq) +

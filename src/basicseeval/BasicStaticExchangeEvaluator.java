@@ -586,7 +586,9 @@ public class BasicStaticExchangeEvaluator {
 			d_combinedAttackStackSize++;
 			//this is the short exit condition. we stop iteration if the last recapture did not make the score worthy of being selected.
 			//existence of this condition does not change the return value being positive/zero/negative.
-			if (Math.max(-var_evaluateTarget_gain[d_combinedAttackStackSize],
+			
+			//pretty sure this condition is incorrect because of wrong offset
+			if (Math.max(-var_evaluateTarget_gain[d_combinedAttackStackSize-2],
 					var_evaluateTarget_gain[d_combinedAttackStackSize-1]) < 0) {
 				break;
 			}
@@ -620,7 +622,7 @@ public class BasicStaticExchangeEvaluator {
 //System.out.println(" returning: "+ var_evaluateTarget_gain[0]);
 //System.out.println();
 
-		if(d_combinedAttackStackSize > zmaxLength) {
+		if(d_combinedAttackStackSize > zmaxLength && var_evaluateTarget_gain[0]==0) {
 			zmaxLength = d_combinedAttackStackSize;
 			zFEN = game.toFEN();
 			zattacker = forced_attacker_type;
@@ -777,20 +779,6 @@ System.out.println();
 						}
 					}
 				}
-			}
-		}
-		//diagnostics!
-		for (int player : Player.PLAYERS) {
-			long temp=0;
-			for (int pieceType : PieceType.PIECE_TYPES) {
-				temp|=output_target_winning[player][pieceType];
-				temp|=output_target_neutral[player][pieceType];
-			}
-			for(int sq : Square.SQUARES) {
-				if(Bitboard.testBit(temp, sq))
-					HitCounter.count("evaluateCaptures: non-negative");
-				else
-					HitCounter.count("evaluateCaptures: negative");
 			}
 		}
 	}
