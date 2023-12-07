@@ -28,7 +28,7 @@ public class Interaction {
 			ret = "{"+Square.toString(sq_prodider) + " overprotects " + Square.toString(sq_target)+"}";
 			break;
 		default:
-			ret="NOT SUPPOETED";
+			ret="NOT SUPPORTED";
 			break;
 		}
 		return ret;
