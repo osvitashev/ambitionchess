@@ -12,6 +12,7 @@ import gamestate.MoveGen;
 import gamestate.MovePool;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
+import gamestate.GlobalConstants.Square;
 import util.HitCounter;
 
 class BSEETest_evaluateQuietMoves_perftChecksum {
@@ -361,7 +362,11 @@ class BSEETest_evaluateQuietMoves_perftChecksum {
 //		test("", 2, "");
 //		test("", 3, "");
 //		test("", 4, "");
-		System.out.println(HitCounter.dump());
+		System.out.println("max sequence length: " + BasicStaticExchangeEvaluator.zmaxLength + " | " +
+				"fen: " + BasicStaticExchangeEvaluator.zFEN + " target: "+Square.toString(BasicStaticExchangeEvaluator.zsq) +
+				" attacker: " + PieceType.toString(BasicStaticExchangeEvaluator.zattacker) +
+				" player: " + Player.toShortString(BasicStaticExchangeEvaluator.zplayer) + 
+				" score: " + BasicStaticExchangeEvaluator.zscore);
 		
 		if(skipAssertions)
 			fail(">>>skipped all asserions! This is intentional ONLY IF we are gathering correct values for new testcases.");

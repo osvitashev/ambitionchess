@@ -565,7 +565,7 @@ class BSEETest_evaluateCaptures_perftChecksum {
 		
 		System.out.println("max sequence length: " + BasicStaticExchangeEvaluator.zmaxLength + " | " +
 				"fen: " + BasicStaticExchangeEvaluator.zFEN + " target: "+Square.toString(BasicStaticExchangeEvaluator.zsq) +
-				" attacker: " + PieceType.toString(BasicStaticExchangeEvaluator.zattacker));
+				" attacker: " + PieceType.toString(BasicStaticExchangeEvaluator.zattacker) + " score: " + BasicStaticExchangeEvaluator.zscore);
 
 		
 		if(skipAssertions)

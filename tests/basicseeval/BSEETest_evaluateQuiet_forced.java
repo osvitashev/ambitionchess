@@ -162,6 +162,16 @@ class BSEETest_evaluateQuiet_forced {
 		test(-100000, Square.E4, Player.WHITE, PieceType.KING);
 		test(-100000, Square.E5, Player.WHITE, PieceType.KING);
 		
+		//long sequences
+		test_game.loadFromFEN("8/2kr1bb1/3r4/1n1p4/1n3q2/1NPQ4/1K1R1BB1/3R4 b - - 3 2");
+		test_eval.initialize();
+		test(-100, Square.D4, Player.BLACK, PieceType.PAWN);
+		
+		test_game.loadFromFEN("8/2kr1bb1/3r1q2/1n1p4/8/1NPQ4/1KnR1BB1/3R4 b - - 3 2");
+		test_eval.initialize();
+		test(0, Square.D4, Player.BLACK, PieceType.PAWN);
+		
+		
 	}
 
 }

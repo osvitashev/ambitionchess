@@ -520,11 +520,8 @@ public class BasicStaticExchangeEvaluator {
 	 */
 	private int var_evaluateTarget_gain [] =new int[32];//integer value change - needed for linear minimax
 	
-	public static int zmaxLength=0;
 	public static String zFEN;
-	public static int zsq;
-	public static int zplayer;
-	public static int zattacker;
+	public static int zmaxLength=0, zsq, zplayer, zattacker, zscore;
 		
 	//combined implementation!!!
 	int evaluateTargetExchange(int sq, int player, int forced_attacker_type) {
@@ -579,20 +576,20 @@ public class BasicStaticExchangeEvaluator {
 			nextAttackerType = AttackerType.getAttackerPieceType(leastValuableAttacker);
 			clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(leastValuableAttacker));
 			var_evaluateTarget_attackStack[d_combinedAttackStackSize] = nextAttackerType;
-			var_evaluateTarget_gain[d_combinedAttackStackSize] =
-					getPieceValue(var_evaluateTarget_attackStack[d_combinedAttackStackSize])
+			var_evaluateTarget_gain[d_combinedAttackStackSize] = getPieceValue(var_evaluateTarget_attackStack[d_combinedAttackStackSize])
 					- var_evaluateTarget_gain[d_combinedAttackStackSize - 1];
 			prevVictim = var_evaluateTarget_attackStack[d_combinedAttackStackSize - 1];
 			d_combinedAttackStackSize++;
-			//this is the short exit condition. we stop iteration if the last recapture did not make the score worthy of being selected.
-			//existence of this condition does not change the return value being positive/zero/negative.
-			
-			//pretty sure this condition is incorrect because of wrong offset
-			if (Math.max(-var_evaluateTarget_gain[d_combinedAttackStackSize-2],
-					var_evaluateTarget_gain[d_combinedAttackStackSize-1]) < 0) {
+			// this is the short exit condition. we stop iteration if the last recapture did
+			// not make the score worthy of being selected.
+			// existence of this condition does not change the return value being
+			// positive/zero/negative.
+
+			// pretty sure this condition is incorrect because of wrong offset
+			if (Math.max(-var_evaluateTarget_gain[d_combinedAttackStackSize - 2], var_evaluateTarget_gain[d_combinedAttackStackSize - 1]) < 0) {
 				break;
 			}
-			if(prevVictim == PieceType.KING)
+			if (prevVictim == PieceType.KING)
 				break;
 		} while (true);
 
@@ -628,6 +625,7 @@ public class BasicStaticExchangeEvaluator {
 			zattacker = forced_attacker_type;
 			zplayer = player;
 			zsq = sq;
+			zscore = var_evaluateTarget_gain[0];
 		}
 		return var_evaluateTarget_gain[0];
 	}
@@ -671,40 +669,38 @@ public class BasicStaticExchangeEvaluator {
 			var_evaluateTarget_gain[0] = getPieceValue(var_evaluateTarget_attackStack[0]);
 	
 			int leastValuableAttacker;
-			int nextAttackerType;
+			int nextAttackerType, prevVictim;
 			do {
 				currentPlayer = Player.getOtherPlayer(currentPlayer);
 				leastValuableAttacker = getLeastValuableAttacker(sq, currentPlayer, clearedSquares);
 				if (currentPlayer == Player.getOtherPlayer(player) && candidateDefenderSquare == Square.SQUARE_NONE
 						&& !Bitboard.testBit(processedDefendersBB, AttackerType.getAttackerSquareFrom(leastValuableAttacker))) {
 					candidateDefenderSquare = AttackerType.getAttackerSquareFrom(leastValuableAttacker);
-					
+
 					clearedSquares |= Bitboard.initFromSquare(candidateDefenderSquare);
 					processedDefendersBB |= Bitboard.initFromSquare(candidateDefenderSquare);
-					//todo: copy over the bugfix for king getting captured
+					// todo: copy over the bugfix for king getting captured
 					leastValuableAttacker = getLeastValuableAttacker(sq, currentPlayer, clearedSquares);
 					if (leastValuableAttacker == AttackerType.nullValue())
 						break;
-				} else {
-					if (leastValuableAttacker == AttackerType.nullValue())
-						break;
-				}
-				
+				} else if (leastValuableAttacker == AttackerType.nullValue())
+					break;
+
 				nextAttackerType = AttackerType.getAttackerPieceType(leastValuableAttacker);
 				clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(leastValuableAttacker));
 				var_evaluateTarget_attackStack[d_combinedAttackStackSize] = nextAttackerType;
-				var_evaluateTarget_gain[d_combinedAttackStackSize] =
-						getPieceValue(var_evaluateTarget_attackStack[d_combinedAttackStackSize])
+				var_evaluateTarget_gain[d_combinedAttackStackSize] = getPieceValue(var_evaluateTarget_attackStack[d_combinedAttackStackSize])
 						- var_evaluateTarget_gain[d_combinedAttackStackSize - 1];
-				
-				//this is the short exit condition. we stop iteration if the last recapture did not make the score worthy of being selected.
-				//existence of this condition does not change the return value being positive/zero/negative.
-				if (Math.max(-var_evaluateTarget_gain[d_combinedAttackStackSize - 1],
-						var_evaluateTarget_gain[d_combinedAttackStackSize]) < 0) {
-					d_combinedAttackStackSize++;
-					break;
-				}
+				prevVictim = var_evaluateTarget_attackStack[d_combinedAttackStackSize - 1];
 				d_combinedAttackStackSize++;
+				// this is the short exit condition. we stop iteration if the last recapture did
+				// not make the score worthy of being selected.
+				// existence of this condition does not change the return value being
+				// positive/zero/negative.
+				if (Math.max(-var_evaluateTarget_gain[d_combinedAttackStackSize - 2], var_evaluateTarget_gain[d_combinedAttackStackSize - 1]) < 0)
+					break;
+				if (prevVictim == PieceType.KING)
+					break;
 			} while (true);
 			
 			if(candidateDefenderSquare == Square.SQUARE_NONE)

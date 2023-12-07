@@ -146,29 +146,34 @@ class BSEETest_evaluateCapture_forced {
 		test(-99700, Square.B4, Player.BLACK, PieceType.KING);
 		test(-99700, Square.C6, Player.BLACK, PieceType.KING);
 		
-		//long exchange - positive
-		test_game.loadFromFEN("3r2b1/ppnr4/1N2knpp/2KR1p2/1N6/1B1Q1qp1/PP4bP/3R4 b - - 0 2");
-		test_eval.initialize();
-		test(300, Square.D5, Player.BLACK, PieceType.ROOK);
-		
 		test_game.loadFromFEN("8/1b6/8/3k4/2P1P3/3K4/8/8 b - - 0 1");
 		test_eval.initialize();
 		test(-99700, Square.C4, Player.BLACK, PieceType.KING);
 		test(-99700, Square.E4, Player.BLACK, PieceType.KING);
 		
-		//long exchange - negative
+		//long exchanges
+		test_game.loadFromFEN("3r2b1/ppnr4/1N2knpp/2KR1p2/1N6/1B1Q1qp1/PP4bP/3R4 b - - 0 2");
+		test_eval.initialize();
+		test(300, Square.D5, Player.BLACK, PieceType.ROOK);
 		test_game.loadFromFEN("3r2b1/ppnr4/1Np1k1pp/3n1p2/1N1R4/1BKQ1qp1/PP4bP/3R4 w - - 2 2");
 		test_eval.initialize();
 		test(-200, Square.D5, Player.WHITE, PieceType.ROOK);
-		
-		//long exchange - neutral
 		test_game.loadFromFEN("3r2b1/ppnr4/1Np1knpp/2KR4/1N3p2/1B1Q1qp1/PP4bP/3R4 b - - 1 2");
 		test_eval.initialize();
 		test(0, Square.D5, Player.BLACK, PieceType.QUEEN);
+		test_game.loadFromFEN("3r2b1/ppnr4/1Np1knpp/2KR4/1N3p2/1B1Q1qp1/PP4bP/3R4 b - - 1 2");
+		test_eval.initialize();
+		test(0, Square.D5, Player.BLACK, PieceType.QUEEN);
+		test_game.loadFromFEN("3r2b1/ppnr4/1N2knpp/2Kp1p2/1N6/1B1Q1qp1/PP4bP/3R4 b - - 1 2");
+		test_eval.initialize();
+		test(-10, Square.D5, Player.WHITE, PieceType.KNIGHT);
 		
 		System.out.println("max sequence length: " + BasicStaticExchangeEvaluator.zmaxLength + " | " +
 				"fen: " + BasicStaticExchangeEvaluator.zFEN + " target: "+Square.toString(BasicStaticExchangeEvaluator.zsq) +
-				" attacker: " + PieceType.toString(BasicStaticExchangeEvaluator.zattacker));
+				" attacker: " + PieceType.toString(BasicStaticExchangeEvaluator.zattacker) +
+				" player: " + Player.toShortString(BasicStaticExchangeEvaluator.zplayer) + 
+				" score: " + BasicStaticExchangeEvaluator.zscore);
+		
 
 		
 		
