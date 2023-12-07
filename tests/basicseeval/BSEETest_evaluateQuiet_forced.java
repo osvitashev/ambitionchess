@@ -151,7 +151,17 @@ class BSEETest_evaluateQuiet_forced {
 		test(0, Square.E5, Player.BLACK, PieceType.QUEEN);
 		test(-300, Square.G6, Player.BLACK, PieceType.QUEEN);
 		
-		System.out.println(HitCounter.dump());
+		test_game.loadFromFEN("4r3/8/2k5/8/R2K4/8/5B2/8 w - - 0 1");
+		test_eval.initialize();
+		test(0, Square.C3, Player.WHITE, PieceType.KING);
+		test(0, Square.C4, Player.WHITE, PieceType.KING);
+		test(-100000, Square.C5, Player.WHITE, PieceType.KING);
+		test(0, Square.D3, Player.WHITE, PieceType.KING);
+		test(-100000, Square.D5, Player.WHITE, PieceType.KING);
+		test(-100000, Square.E3, Player.WHITE, PieceType.KING);
+		test(-100000, Square.E4, Player.WHITE, PieceType.KING);
+		test(-100000, Square.E5, Player.WHITE, PieceType.KING);
+		
 	}
 
 }

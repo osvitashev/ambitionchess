@@ -141,7 +141,26 @@ class BSEETest_evaluateCapture_forced {
 		test_eval.initialize();
 		test(-200, Square.D4, Player.WHITE, PieceType.KNIGHT);
 		
-		System.out.println(HitCounter.dump());
+		test_game.loadFromFEN("8/8/2Pb4/2k5/1N6/1K6/8/2r5 w - - 0 1");
+		test_eval.initialize();
+		test(-99700, Square.B4, Player.BLACK, PieceType.KING);
+		test(-99700, Square.C6, Player.BLACK, PieceType.KING);
+		
+		//todo: reevaluate this: the fact that king can enter an attacked square is incorrect!
+		test_game.loadFromFEN("3r2b1/ppnr4/1N2knpp/2KR1p2/1N6/1B1Q1qp1/PP4bP/3R4 b - - 0 2");
+		test_eval.initialize();
+		test(300, Square.D5, Player.BLACK, PieceType.ROOK);
+		
+		test_game.loadFromFEN("8/1b6/8/3k4/2P1P3/3K4/8/8 b - - 0 1");
+		test_eval.initialize();
+		test(-99700, Square.C4, Player.BLACK, PieceType.KING);
+		test(-99700, Square.E4, Player.BLACK, PieceType.KING);
+		
+		
+		System.out.println("max sequence length: " + BasicStaticExchangeEvaluator.zmaxLength + " | " +
+				"fen: " + BasicStaticExchangeEvaluator.zFEN + " target: "+Square.toString(BasicStaticExchangeEvaluator.zsq) +
+				" attacker: " + PieceType.toString(BasicStaticExchangeEvaluator.zattacker));
+
 		
 		
 		if(skipAssertions)
