@@ -593,17 +593,17 @@ public class BasicStaticExchangeEvaluator {
 				break;
 		} while (true);
 
-//System.out.print(game.toFEN() + " ["+ Player.toShortString(player)+PieceType.toString(forced_attacker_type) +
-//		(game.getPieceAt(sq) == PieceType.NO_PIECE ? " - " : " x " )
-//		+ Square.toString(sq)+ "] sequence: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "()" : PieceType.toString(var_evaluateTarget_attackStack[0])) + " ");
-//for(int i=1; i<d_combinedAttackStackSize;++i)
-//	System.out.print(PieceType.toString(var_evaluateTarget_attackStack[i]) + " ");
-//System.out.print("} values: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "0" : getPieceValue(var_evaluateTarget_attackStack[0])) + " ");
-//for(int i=1; i<d_combinedAttackStackSize;++i)
-//	System.out.print(getPieceValue(var_evaluateTarget_attackStack[i]) + " ");
-//System.out.print("} gains: ");
-//for(int i=0; i<d_combinedAttackStackSize-1;++i)
-//	System.out.print(var_evaluateTarget_gain[i] + " ");
+System.out.print(game.toFEN() + " ["+ Player.toShortString(player)+PieceType.toString(forced_attacker_type) +
+		(game.getPieceAt(sq) == PieceType.NO_PIECE ? " - " : " x " )
+		+ Square.toString(sq)+ "] sequence: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "()" : PieceType.toString(var_evaluateTarget_attackStack[0])) + " ");
+for(int i=1; i<d_combinedAttackStackSize;++i)
+	System.out.print(PieceType.toString(var_evaluateTarget_attackStack[i]) + " ");
+System.out.print("} values: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "0" : getPieceValue(var_evaluateTarget_attackStack[0])) + " ");
+for(int i=1; i<d_combinedAttackStackSize;++i)
+	System.out.print(getPieceValue(var_evaluateTarget_attackStack[i]) + " ");
+System.out.print("} gains: ");
+for(int i=0; i<d_combinedAttackStackSize-1;++i)
+	System.out.print(var_evaluateTarget_gain[i] + " ");
 
 		//minimax backtracking
 		for (int i = d_combinedAttackStackSize-2; i>0; --i) {
@@ -613,11 +613,11 @@ public class BasicStaticExchangeEvaluator {
 		 * at this point temp_evaluateCapture_forcedAttacker_gain[0] is the expected exchange value IF the forced capture is taken.
 		 */
 		
-//System.out.println();
-//System.out.print("last attacker: "+ Player.toShortString(Player.getOtherPlayer(currentPlayer))
-//	+ PieceType.toString(var_evaluateTarget_attackStack[d_combinedAttackStackSize-1]));
-//System.out.println(" returning: "+ var_evaluateTarget_gain[0]);
-//System.out.println();
+System.out.println();
+System.out.print("last attacker: "+ Player.toShortString(Player.getOtherPlayer(currentPlayer))
+	+ PieceType.toString(var_evaluateTarget_attackStack[d_combinedAttackStackSize-1]));
+System.out.println(" returning: "+ var_evaluateTarget_gain[0]);
+System.out.println();
 
 		if(d_combinedAttackStackSize > zmaxLength && var_evaluateTarget_gain[0]==0) {
 			zmaxLength = d_combinedAttackStackSize;
@@ -679,7 +679,6 @@ public class BasicStaticExchangeEvaluator {
 
 					clearedSquares |= Bitboard.initFromSquare(candidateDefenderSquare);
 					processedDefendersBB |= Bitboard.initFromSquare(candidateDefenderSquare);
-					// todo: copy over the bugfix for king getting captured
 					leastValuableAttacker = getLeastValuableAttacker(sq, currentPlayer, clearedSquares);
 					if (leastValuableAttacker == AttackerType.nullValue())
 						break;
