@@ -521,6 +521,9 @@ public class BasicStaticExchangeEvaluator {
 	 */
 	private int var_evaluateTarget_gain [] =new int[32];//integer value change - needed for linear minimax
 	
+	private static final boolean ENABLE_EVALUATE_TARGET_DEBUG_STATEMENTS = false;
+	
+	//these are just used for debugging.
 	public static String zFEN;
 	public static int zmaxLength=0, zsq, zplayer, zattacker, zscore;
 		
@@ -595,6 +598,7 @@ public class BasicStaticExchangeEvaluator {
 				break;
 		} while (true);
 
+if(ENABLE_EVALUATE_TARGET_DEBUG_STATEMENTS) {
 System.out.print(game.toFEN() + " ["+ Player.toShortString(player)+PieceType.toString(forced_attacker_type) +
 		(game.getPieceAt(sq) == PieceType.NO_PIECE ? " - " : " x " )
 		+ Square.toString(sq)+ "] sequence: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "()" : PieceType.toString(var_evaluateTarget_attackStack[0])) + " ");
@@ -606,7 +610,7 @@ for(int i=1; i<d_combinedAttackStackSize;++i)
 System.out.print("} gains: ");
 for(int i=0; i<d_combinedAttackStackSize-1;++i)
 	System.out.print(var_evaluateTarget_gain[i] + " ");
-
+}
 		//minimax backtracking
 		lastOccupierIndex=d_combinedAttackStackSize-1;
 		for (int i = d_combinedAttackStackSize-2; i>0; --i) {
@@ -619,7 +623,7 @@ for(int i=0; i<d_combinedAttackStackSize-1;++i)
 		/**
 		 * at this point temp_evaluateCapture_forcedAttacker_gain[0] is the expected exchange value IF the forced capture is taken.
 		 */
-		
+if(ENABLE_EVALUATE_TARGET_DEBUG_STATEMENTS) {
 System.out.println();
 System.out.print("last attacker: "+ Player.toShortString(Player.getOtherPlayer(currentPlayer))
 	+ PieceType.toString(var_evaluateTarget_attackStack[d_combinedAttackStackSize-1]) +
@@ -627,7 +631,7 @@ System.out.print("last attacker: "+ Player.toShortString(Player.getOtherPlayer(c
 	+ PieceType.toString(lastOccupierPieceType));
 System.out.println(" lastOccupierIndex: "+ lastOccupierIndex + " returning: "+ var_evaluateTarget_gain[0]);
 System.out.println();
-
+}
 		if(d_combinedAttackStackSize > zmaxLength && var_evaluateTarget_gain[0]==0) {
 			zmaxLength = d_combinedAttackStackSize;
 			zFEN = game.toFEN();
@@ -697,7 +701,7 @@ System.out.println();
 			} while (true);
 			if(candidateDefenderSquare == Square.SQUARE_NONE)
 				break;
-	
+if(ENABLE_EVALUATE_TARGET_DEBUG_STATEMENTS) {
 System.out.print(game.toFEN() + " ["+ Player.toShortString(player) + (game.getPieceAt(sq) == PieceType.NO_PIECE ? " - " : " x " ) + Square.toString(sq)+ "] sequence: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "()" : PieceType.toString(var_evaluateTarget_attackStack[0])) + " ");
 for(int i=1; i<d_combinedAttackStackSize;++i)
 	System.out.print(PieceType.toString(var_evaluateTarget_attackStack[i]) + " ");
@@ -707,12 +711,12 @@ for(int i=1; i<d_combinedAttackStackSize;++i)
 System.out.print("} gains: ");
 for(int i=0; i<d_combinedAttackStackSize-1;++i)
 	System.out.print(var_evaluateTarget_gain[i] + " ");
-	
+}
 			//minimax backtracking
 			for (int i = d_combinedAttackStackSize-2; i>0; --i) {
 				var_evaluateTarget_gain[i-1]= -Math.max(-var_evaluateTarget_gain[i-1], var_evaluateTarget_gain[i]);
 			}
-
+if(ENABLE_EVALUATE_TARGET_DEBUG_STATEMENTS) {
 System.out.println();
 System.out.print("last attacker: "+ Player.toShortString(Player.getOtherPlayer(currentPlayer)) + PieceType.toString(var_evaluateTarget_attackStack[d_combinedAttackStackSize-1]));
 System.out.println(" returning: "+ var_evaluateTarget_gain[0]);
@@ -736,6 +740,7 @@ else if(anticipatedOutcome == OutcomeEnum.NEGATIVE) {
 }
 System.out.println(str);
 System.out.println();
+}
 		}//candidate defender loop
 		
 	}
