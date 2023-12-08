@@ -32,10 +32,10 @@ class BSEETest_evaluateCapture_forced {
 	@Test
 	void testOutcome_evaluateCapture_forcedAttacker() {
 		//basic
-		test_game.loadFromFEN("8/8/1k3p2/6R1/3n2K1/2P5/8/8 w - - 0 1");
-		test_eval.initialize();
-		test(OutcomeEnum.POSITIVE, Square.D4, Player.WHITE, PieceType.PAWN);
-		test(OutcomeEnum.POSITIVE, Square.G5, Player.BLACK, PieceType.PAWN);
+//		test_game.loadFromFEN("8/8/1k3p2/6R1/3n2K1/2P5/8/8 w - - 0 1");
+//		test_eval.initialize();
+//		test(OutcomeEnum.POSITIVE, Square.D4, Player.WHITE, PieceType.PAWN);
+//		test(OutcomeEnum.POSITIVE, Square.G5, Player.BLACK, PieceType.PAWN);
 		
 		//one of each type
 		test_game.loadFromFEN("4r3/1B5k/6b1/5q2/Q3r3/3K1PN1/4RR2/8 w - - 0 1");

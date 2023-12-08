@@ -466,6 +466,7 @@ public class BasicStaticExchangeEvaluator {
 	private long output_target_neutral [][]= new long[2][6];
 	private long output_target_losing [][]= new long[2][6];
 	
+	
 	/**
 	 * Captures with strictly positive score
 	 */
@@ -568,6 +569,7 @@ public class BasicStaticExchangeEvaluator {
 
 		int leastValuableAttacker;
 		int nextAttackerType, prevVictim;
+		int lastOccupierIndex, lastOccupierPlayer, lastOccupierPieceType;
 		do {
 			currentPlayer = Player.getOtherPlayer(currentPlayer);
 			leastValuableAttacker = getLeastValuableAttacker(sq, currentPlayer, clearedSquares);
@@ -606,17 +608,24 @@ for(int i=0; i<d_combinedAttackStackSize-1;++i)
 	System.out.print(var_evaluateTarget_gain[i] + " ");
 
 		//minimax backtracking
+		lastOccupierIndex=d_combinedAttackStackSize-1;
 		for (int i = d_combinedAttackStackSize-2; i>0; --i) {
 			var_evaluateTarget_gain[i-1]= -Math.max(-var_evaluateTarget_gain[i-1], var_evaluateTarget_gain[i]);
+			if(var_evaluateTarget_gain[i-1] != -var_evaluateTarget_gain[i])
+				lastOccupierIndex = i;
 		}
+		lastOccupierPlayer = lastOccupierIndex%2 == 1 ? player : Player.getOtherPlayer(player);
+		lastOccupierPieceType = var_evaluateTarget_attackStack[lastOccupierIndex];
 		/**
 		 * at this point temp_evaluateCapture_forcedAttacker_gain[0] is the expected exchange value IF the forced capture is taken.
 		 */
 		
 System.out.println();
 System.out.print("last attacker: "+ Player.toShortString(Player.getOtherPlayer(currentPlayer))
-	+ PieceType.toString(var_evaluateTarget_attackStack[d_combinedAttackStackSize-1]));
-System.out.println(" returning: "+ var_evaluateTarget_gain[0]);
+	+ PieceType.toString(var_evaluateTarget_attackStack[d_combinedAttackStackSize-1]) +
+	" | last expected occupier: "+ Player.toShortString(lastOccupierPlayer)
+	+ PieceType.toString(lastOccupierPieceType));
+System.out.println(" lastOccupierIndex: "+ lastOccupierIndex + " returning: "+ var_evaluateTarget_gain[0]);
 System.out.println();
 
 		if(d_combinedAttackStackSize > zmaxLength && var_evaluateTarget_gain[0]==0) {
@@ -636,23 +645,12 @@ System.out.println();
 	 * in other words: can a given defender be lifted off the board without changing the predicted exchange outcome?
 	 * 
 	 */
-	void evaluateTargetOverpotection(int sq, int player, int anticipatedOutcome) {
+	void evaluateTargetPotection(int sq, int player, int anticipatedOutcome) {
 		assert Square.validate(sq);
 		assert Player.validate(player);
 		assert OutcomeEnum.validate(anticipatedOutcome);
 		
 		long processedDefendersBB=0l;
-		
-		
-		/*
-		 * similar to evaluateTarget, but the strategy for skipping a defender is
-		 * different. might add a parameter to indetify index/ordinal of the defender to
-		 * skip.
-		 * 
-		 * that does not work because the order of defenders is not static (because of
-		 * discovered attacks.) will need to do this keeping track of the squares we
-		 * already considered clearing
-		 */
 		
 		//loop start here
 		while(true)
@@ -662,12 +660,8 @@ System.out.println();
 			int d_combinedAttackStackSize=1;
 			int currentPlayer=Player.getOtherPlayer(player);
 			long clearedSquares =0;
-			
-			//all of the temporary and output state variables can be shifted into a separate class using composition
-			
 			var_evaluateTarget_attackStack[0]=game.getPieceAt(sq);
 			var_evaluateTarget_gain[0] = getPieceValue(var_evaluateTarget_attackStack[0]);
-	
 			int leastValuableAttacker;
 			int nextAttackerType, prevVictim;
 			do {
@@ -701,7 +695,6 @@ System.out.println();
 				if (prevVictim == PieceType.KING)
 					break;
 			} while (true);
-			
 			if(candidateDefenderSquare == Square.SQUARE_NONE)
 				break;
 	
@@ -719,10 +712,7 @@ for(int i=0; i<d_combinedAttackStackSize-1;++i)
 			for (int i = d_combinedAttackStackSize-2; i>0; --i) {
 				var_evaluateTarget_gain[i-1]= -Math.max(-var_evaluateTarget_gain[i-1], var_evaluateTarget_gain[i]);
 			}
-			/**
-			 * at this point temp_evaluateCapture_forcedAttacker_gain[0] is the expected exchange value IF the forced capture is taken.
-			 */
-			
+
 System.out.println();
 System.out.print("last attacker: "+ Player.toShortString(Player.getOtherPlayer(currentPlayer)) + PieceType.toString(var_evaluateTarget_attackStack[d_combinedAttackStackSize-1]));
 System.out.println(" returning: "+ var_evaluateTarget_gain[0]);
