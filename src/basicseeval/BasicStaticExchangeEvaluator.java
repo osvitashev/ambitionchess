@@ -535,11 +535,11 @@ public class BasicStaticExchangeEvaluator {
 	}
 	
 	int get_evaluateTargetExchange_occupierPieceType() {
-		assert PieceType.validate(output_evaluateTargetExchange_occupierPlayer);
-		return output_evaluateTargetExchange_occupierPlayer;
+		assert PieceType.validate(output_evaluateTargetExchange_occupierPieceType);
+		return output_evaluateTargetExchange_occupierPieceType;
 	}
 	
-	int get_evaluateTargetExchange_occupuerPlayer() {
+	int get_evaluateTargetExchange_occupierPlayer() {
 		assert Player.validate(output_evaluateTargetExchange_occupierPlayer);
 		return output_evaluateTargetExchange_occupierPlayer;
 	}
