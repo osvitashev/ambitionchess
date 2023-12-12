@@ -18,7 +18,8 @@ class BSEETest_evaluateQuiet_forced {
 	static final boolean skipAssertions = false;
 	
 	void test(int expectedOutcome, int sq, int player, int pieceType) {
-		int outcome = test_eval.evaluateTargetExchange(sq, player, pieceType);
+		test_eval.evaluateTargetExchange(sq, player, pieceType);
+		int outcome = test_eval.get_evaluateTargetExchange_score();
 		if(!skipAssertions) {
 			if(expectedOutcome > 0)
 				fail();
