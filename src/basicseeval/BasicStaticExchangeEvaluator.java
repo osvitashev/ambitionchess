@@ -109,9 +109,10 @@ public class BasicStaticExchangeEvaluator {
 	 * @return AttackerType
 	 */
 	int getLeastValuableAttacker(int sq_target, int player, long clearedLocations) {
-		
+		//todo: right now these are calculated from game state. The calculation can instead be based on var_bitboard_attackedBy
 		// OPTIMIZE: once pawn and knight attack sets are exhausted, there is no point
 				// checking them again. This is not true for sliding pieces.
+		//consider: another possibility is to remember the last returned type to jump to in on the consecutive call. For the purpose of this, the types can be thought of as a ring.
 		assert Square.validate(sq_target);
 		assert Player.validate(player);
 		
@@ -521,7 +522,7 @@ public class BasicStaticExchangeEvaluator {
 	 */
 	private int var_evaluateTarget_gain [] =new int[32];//integer value change - needed for linear minimax
 	
-	private static final boolean ENABLE_EVALUATE_TARGET_DEBUG_STATEMENTS = false;
+	private static final boolean ENABLE_EVALUATE_TARGET_DEBUG_STATEMENTS = true;
 	
 	//these are just used for debugging.
 	public static String zFEN;
@@ -649,10 +650,11 @@ System.out.println();
 	 * in other words: can a given defender be lifted off the board without changing the predicted exchange outcome?
 	 * 
 	 */
-	void evaluateTargetPotection(int sq, int player, int anticipatedOutcome) {
+	void evaluateTargetPotection(int sq, int player) {
 		assert Square.validate(sq);
 		assert Player.validate(player);
-		assert OutcomeEnum.validate(anticipatedOutcome);
+		assert game.getPieceAt(sq) != PieceType.NO_PIECE;
+		assert game.getPlayerAt(sq) == Player.getOtherPlayer(player);
 		
 		long processedDefendersBB=0l;
 		
@@ -722,22 +724,13 @@ System.out.print("last attacker: "+ Player.toShortString(Player.getOtherPlayer(c
 System.out.println(" returning: "+ var_evaluateTarget_gain[0]);
 String str = "evaluateTargetOverprotection of (" + Square.toString(sq)+") | candidate: "+
 		Square.toString(candidateDefenderSquare) + " value: " + var_evaluateTarget_gain[0] + " | ";
-if(anticipatedOutcome == OutcomeEnum.NEUTRAL) {
-	if(var_evaluateTarget_gain[0] == 0)
-		str+= " NEUTRAL (unchanged) ";
-	else if (var_evaluateTarget_gain[0] > 0)
-		str+= " from NEUTRAL to POSITIVE ";
-	else
-		str+= " from NEUTRAL to NEGATIVE ";
-}
-else if(anticipatedOutcome == OutcomeEnum.NEGATIVE) {
-	if(var_evaluateTarget_gain[0] < 0)
-		str+= " NEGATIVE (unchanged) ";
-	else if (var_evaluateTarget_gain[0] == 0)
-		str+= "from NEGATIVE to NEUTRAL ";
-	else
-		str+= "from NEGATIVE to POSITIVE ";
-}
+
+if(var_evaluateTarget_gain[0] < 0)
+	str+= "new anticipated outcome: negative ";
+else if (var_evaluateTarget_gain[0] == 0)
+	str+= "new anticipated outcome: neutral ";
+else
+	str+= "new anticipated outcome: positive ";
 System.out.println(str);
 System.out.println();
 }
