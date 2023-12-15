@@ -17,6 +17,8 @@ class BSEETest_evaluateQuietMoves {
 		test_eval.initialize();
 		test_eval.evaluateQuietMoves();
 		long expected;
+		//todo: there is currently no check on getOutput_target_isExchangeProcessed
+		
 		for (int player : Player.PLAYERS) {
 			for (int attacker_type : PieceType.PIECE_TYPES) {
 				expected=0;
@@ -42,8 +44,6 @@ class BSEETest_evaluateQuietMoves {
 					assertEquals("", "Losing Targets Failing [" + Player.toString(player) + " " + PieceType.toString(attacker_type) + "]: expected: " + expected
 							+ ", actual: " + test_eval.getOutput_quiet_losing(player, attacker_type));
 				}
-				
-				
 			}
 		}
 	}

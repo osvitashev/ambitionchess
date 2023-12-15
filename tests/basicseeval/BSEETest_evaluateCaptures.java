@@ -17,6 +17,11 @@ class BSEETest_evaluateCaptures {
 		test_game.loadFromFEN(fen);
 		test_eval.initialize();
 		test_eval.evaluateCaptures();
+		assertEquals(test_eval.getAttackedTargets(Player.WHITE) & test_game.getPlayerPieces(Player.BLACK),
+				test_eval.getOutput_target_isExchangeProcessed(Player.WHITE));
+		assertEquals(test_eval.getAttackedTargets(Player.BLACK) & test_game.getPlayerPieces(Player.WHITE),
+				test_eval.getOutput_target_isExchangeProcessed(Player.BLACK));
+
 		long expected;
 		for (int player : Player.PLAYERS) {
 			for (int attacker_type : PieceType.PIECE_TYPES) {
