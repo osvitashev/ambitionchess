@@ -155,7 +155,17 @@ class BSEETest_evaluateTargetTiedUpDefenders {
 		test_eval.evaluateTargetTiedUpDefenders(Square.E6, Player.WHITE);
 		assertDefenderInteractions(new int[] {
 		});
-		
+		//attack with no defenders
+		init("8/8/4k3/8/8/3b2R1/3K4/8 w - - 0 1");
+		test_eval.evaluateTargetTiedUpDefenders(Square.D3, Player.WHITE);
+		assertDefenderInteractions(new int[] {
+		});
+		//no attackers - this throws as assertion error.
+//		init("8/8/4k3/8/8/3b2R1/3K3P/6R1 w - - 0 1");
+//		test_eval.evaluateTargetTiedUpDefenders(Square.G3, Player.BLACK);
+//		assertDefenderInteractions(new int[] {
+//		});
+
 		
 	}
 
