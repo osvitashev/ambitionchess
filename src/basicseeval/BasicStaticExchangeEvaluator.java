@@ -813,19 +813,10 @@ String str = "evaluateTargetOverprotection of (" + Square.toString(sq)+") | natu
 		else if(var_evaluateTarget_gain[0] == 0) {
 			output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createAdequateGuardTiedUp(candidateDefenderSquare, sq);
 		}
-		else{
-			output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createGuardOverprotect(candidateDefenderSquare, sq);
-		}
 	}
 	else if(naturalExchangeOutcome == OutcomeEnum.NEUTRAL) {
 		if(var_evaluateTarget_gain[0] > 0) {
 			output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createAdequateGuardTiedUp(candidateDefenderSquare, sq);
-		}
-		else if(var_evaluateTarget_gain[0] == 0) {
-			output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createGuardOverprotect(candidateDefenderSquare, sq);
-		}
-		else{
-			
 		}
 	}
 

@@ -7,11 +7,10 @@ import gamestate.GlobalConstants.Square;
 
 public class Interaction {
 	
-	private static final int TYPE_GUARD_TIED_UP = 1;
-	private static final int TYPE_GUARD_OVERPROTECTS = 2;
+	private static final int TYPE_GUARD_TIED_UP = 1;//removing this defender results in better score for the attacker.
 	
 	//types width: 6 bits!
-	private static final int[] TYPES = {TYPE_GUARD_TIED_UP, TYPE_GUARD_OVERPROTECTS};
+	private static final int[] TYPES = {TYPE_GUARD_TIED_UP};
 	
 	public static int getType(int interaction) {
 		int ret = getBits(interaction, 0, 6);
@@ -29,11 +28,6 @@ public class Interaction {
 			sq_target = getBits(interaction, 12, 6);
 			ret = "{"+Square.toString(sq_provider) + " guards (is tied up with) " + Square.toString(sq_target)+"}";
 			break;
-		case TYPE_GUARD_OVERPROTECTS:
-			sq_provider = getBits(interaction, 6, 6);
-			sq_target = getBits(interaction, 12, 6);
-			ret = "{"+Square.toString(sq_provider) + " overprotects " + Square.toString(sq_target)+"}";
-			break;
 		default:
 			ret="NOT SUPPORTED";
 			break;
@@ -50,14 +44,6 @@ public class Interaction {
 		return ret;
 	}
 	
-	public static int createGuardOverprotect(int sq_provider, int sq_target) {
-		assert Square.validate(sq_provider);
-		assert Square.validate(sq_target);
-		int ret=setBits(0, TYPE_GUARD_OVERPROTECTS, 0, 6);
-		ret=setBits(ret, sq_provider, 6, 6);
-		ret=setBits(ret, sq_target, 12, 6);
-		return ret;
-	}
 	
 
 	

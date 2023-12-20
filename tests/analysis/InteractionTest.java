@@ -17,8 +17,6 @@ class InteractionTest {
 		interaction = Interaction.createAdequateGuardTiedUp(Square.H8, Square.A1);
 		assertEquals("{h8 guards (is tied up with) a1}", Interaction.toString(interaction));
 		
-		interaction = Interaction.createGuardOverprotect(Square.H8, Square.A1);
-		assertEquals("{h8 overprotects a1}", Interaction.toString(interaction));
 		
 
 	}
