@@ -62,16 +62,16 @@ class BSEETest_evaluateTargetTiedUpDefenders {
 //		test_eval.evaluateTargetTiedUpDefenders(Square.E4, Player.WHITE);
 //		assertDefenderInteractions(new int[] {});
 		//many candidates
-		init("3r2b1/ppnr4/1N2knpp/2Kp1p2/1N6/1B1Q1qp1/PP4bP/3R4 b - - 1 2");
-		test_eval.evaluateTargetTiedUpDefenders(Square.D5, Player.WHITE);
-		assertDefenderInteractions(new int[] {
-				Interaction.createAdequateGuardTiedUp(Square.F6, Square.D5),
-				Interaction.createAdequateGuardTiedUp(Square.C7, Square.D5),
-				Interaction.createGuardOverprotect(Square.D7, Square.D5),
-				Interaction.createGuardOverprotect(Square.D8, Square.D5),
-				Interaction.createGuardOverprotect(Square.F3, Square.D5),
-				Interaction.createGuardOverprotect(Square.G2, Square.D5),
-		});
+//		init("3r2b1/ppnr4/1N2knpp/2Kp1p2/1N6/1B1Q1qp1/PP4bP/3R4 b - - 1 2");
+//		test_eval.evaluateTargetTiedUpDefenders(Square.D5, Player.WHITE);
+//		assertDefenderInteractions(new int[] {
+//				Interaction.createAdequateGuardTiedUp(Square.F6, Square.D5),
+//				Interaction.createAdequateGuardTiedUp(Square.C7, Square.D5),
+//				Interaction.createGuardOverprotect(Square.D7, Square.D5),
+//				Interaction.createGuardOverprotect(Square.D8, Square.D5),
+//				Interaction.createGuardOverprotect(Square.F3, Square.D5),
+//				Interaction.createGuardOverprotect(Square.G2, Square.D5),
+//		});
 //		//single defender
 //		init("8/2k5/8/4p3/1K1b4/8/4N3/8 w - - 0 1");
 //		test_eval.evaluateTargetTiedUpDefenders(Square.D4, Player.WHITE);
@@ -127,20 +127,51 @@ class BSEETest_evaluateTargetTiedUpDefenders {
 		
 		//add cases for the 9 possible transitions!
 		
-//		//negative->negative
-//		init("8/1k1n4/8/r1r5/8/4Q3/5K2/8 w - - 0 1");
-//		test_eval.evaluateTargetTiedUpDefenders(Square.C5, Player.WHITE);
-//		assertDefenderInteractions(new int[] {
-//				Interaction.createGuardOverprotect(Square.D7, Square.C5),
-//		});
+		//negative->negative
+		init("8/1k1n4/8/r1r5/8/4Q3/5K2/8 w - - 0 1");
+		test_eval.evaluateTargetTiedUpDefenders(Square.C5, Player.WHITE);
+		assertDefenderInteractions(new int[] {
+				Interaction.createGuardOverprotect(Square.D7, Square.C5),
+		});
 		//negative->neutral
+		init("3r4/1p2n1k1/p2r4/3b1n2/8/n2Q4/3R4/3R2K1 w - - 0 1");
+		test_eval.evaluateTargetTiedUpDefenders(Square.D5, Player.WHITE);
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.E7, Square.D5),
+		});
+		//negative->positive
+		init("8/8/8/4k3/3R4/4P3/4K3/8 w - - 0 1");
+		test_eval.evaluateTargetTiedUpDefenders(Square.D4, Player.BLACK);
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.E3, Square.D4),
+		});
+		//neutral->negative
+		//this should not really be the case....
 		
-		//double check 3r2b1/ppnr4/1N2knpp/2Kp1p2/1N6/1B1Q1qp1/PP4bP/3R4 b - - 1 2 [w x d5]
+		//neutral->neutral
+		init("8/5k2/8/3N4/1n2PN2/8/8/3K4 w - - 0 1");
+		test_eval.evaluateTargetTiedUpDefenders(Square.D5, Player.BLACK);
+		assertDefenderInteractions(new int[] {
+				Interaction.createGuardOverprotect(Square.E4, Square.D5),
+		});
+		//neutral->positive
+		init("8/4k3/3q4/8/8/2KQ4/8/8 w - - 0 1");
+		test_eval.evaluateTargetTiedUpDefenders(Square.D6, Player.WHITE);
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.E7, Square.D6),
+		});
+		//positive->negative
+		//this should never happen.
 		
+		//positive->neutral
+		//this should never happen
 		
-//		init("3r4/1p2n1k1/p2r4/3b1n2/8/n2Q4/3R4/3R2K1 w - - 0 1");
-//		test(Square.D5, Player.WHITE);
-
+		//positive->positive
+		init("8/1k4n1/4q3/8/8/8/3KR3/8 w - - 0 1");
+		test_eval.evaluateTargetTiedUpDefenders(Square.E6, Player.WHITE);
+		assertDefenderInteractions(new int[] {
+		});
+		
 		
 		//a lot of candidates generated
 //		test_game.loadFromFEN("3r2b1/ppnr4/1N2knpp/2Kp1p2/1N6/1B1Q1qp1/PP4bP/3R4 b - - 1 2");
