@@ -711,18 +711,7 @@ System.out.println();
 		assert game.getPieceAt(sq) != PieceType.NO_PIECE;
 		assert game.getPlayerAt(sq) == Player.getOtherPlayer(player);
 		assert Bitboard.testBit(getOutput_target_isExchangeProcessed(player), sq) : "regular/forced exchange must be evaluated first.";
-//		assert Bitboard.testBit(getOutput_capture_losing(player, PieceType.PAWN), sq)
-//				|| Bitboard.testBit(getOutput_capture_losing(player, PieceType.KNIGHT), sq)
-//				|| Bitboard.testBit(getOutput_capture_losing(player, PieceType.BISHOP), sq)
-//				|| Bitboard.testBit(getOutput_capture_losing(player, PieceType.ROOK), sq)
-//				|| Bitboard.testBit(getOutput_capture_losing(player, PieceType.QUEEN), sq)
-//				|| Bitboard.testBit(getOutput_capture_losing(player, PieceType.KING), sq)
-//				|| Bitboard.testBit(getOutput_capture_neutral(player, PieceType.PAWN), sq)
-//				|| Bitboard.testBit(getOutput_capture_neutral(player, PieceType.KNIGHT), sq)
-//				|| Bitboard.testBit(getOutput_capture_neutral(player, PieceType.BISHOP), sq)
-//				|| Bitboard.testBit(getOutput_capture_neutral(player, PieceType.ROOK), sq)
-//				|| Bitboard.testBit(getOutput_capture_neutral(player, PieceType.QUEEN), sq)
-//				|| Bitboard.testBit(getOutput_capture_neutral(player, PieceType.KING), sq);
+		//consider: adding assertion to filter out exchanges which are initially positive for the attacker.
 		
 		
 		long processedDefendersBB=0l;
@@ -778,7 +767,8 @@ System.out.println();
 				break;
 if(ENABLE_EVALUATE_TARGET_TIEDUP_DEFENDERS_DEBUG_STATEMENTS) {
 System.out.println();
-System.out.print(game.toFEN() + " ["+ Player.toShortString(player) + (game.getPieceAt(sq) == PieceType.NO_PIECE ? " - " : " x " ) + Square.toString(sq)+ "] sequence: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "()" : PieceType.toString(var_evaluateTarget_attackStack[0])) + " ");
+System.out.print(game.toFEN() + " ["+ Player.toShortString(player) + (game.getPieceAt(sq) == PieceType.NO_PIECE ? " - " : " x " ) + Square.toString(sq)+ "] sequence: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "()" :
+	((player==Player.BLACK ? "w" : "b") + PieceType.toString(var_evaluateTarget_attackStack[0]))) + " ");
 for(int i=1; i<d_combinedAttackStackSize;++i)
 	System.out.print((player==Player.BLACK ^ i%2==1 ? "w" : "b") + PieceType.toString(var_evaluateTarget_attackStack[i]) + " ");
 System.out.print("} values: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "0" : getPieceValue(var_evaluateTarget_attackStack[0])) + " ");
@@ -807,8 +797,7 @@ if(ENABLE_EVALUATE_TARGET_TIEDUP_DEFENDERS_DEBUG_STATEMENTS) {
 System.out.println();
 System.out.print("last attacker: "+ Player.toShortString(Player.getOtherPlayer(currentPlayer))
 + PieceType.toString(var_evaluateTarget_attackStack[d_combinedAttackStackSize-1]) +
-" | last expected occupier: "+ Player.toShortString(output_evaluateTargetExchange_occupierPlayer)
-+ PieceType.toString(output_evaluateTargetExchange_occupierPieceType) + " ("+lastOccupierIndex+")");System.out.println(" returning: "+ var_evaluateTarget_gain[0]);
+" | last expected occupier: "+ (player==Player.BLACK ^ lastOccupierIndex%2==1 ? "w" : "b") + PieceType.toString(var_evaluateTarget_attackStack[lastOccupierIndex]) + " ("+lastOccupierIndex+")");System.out.println(" returning: "+ var_evaluateTarget_gain[0]);
 String str = "evaluateTargetOverprotection of (" + Square.toString(sq)+") | natural exchange "+ OutcomeEnum.toString(naturalExchangeOutcome) + " | "+
 		" lifted defender: "+ Square.toString(candidateDefenderSquare) + " value: " + var_evaluateTarget_gain[0] + " | ";
 	
@@ -893,7 +882,19 @@ System.out.println(str);
 		}
 	}
 	
-
+	void evaluateTiedUpDefenders() {
+		for (int player : Player.PLAYERS) {
+			{
+				int bi = 0;
+				for (long zarg = getOutput_target_isExchangeProcessed(player),
+						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
+					bi = Bitboard.getFirstSquareIndex(barg);
+					
+					evaluateTargetTiedUpDefenders(bi, player);
+				}
+			}
+		}
+	}
 	
 	
 	

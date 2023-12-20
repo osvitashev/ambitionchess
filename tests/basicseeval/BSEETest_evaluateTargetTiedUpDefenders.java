@@ -22,8 +22,6 @@ class BSEETest_evaluateTargetTiedUpDefenders {
 		test_eval.evaluateCaptures();
 	}
 	
-	static final boolean skipAssertions = false;
-	
 	String getInteractionsString() {
 		String s="";
 		for(int i=0; i<test_eval.get_output_defenderInteractions_size();++i)
@@ -46,7 +44,7 @@ class BSEETest_evaluateTargetTiedUpDefenders {
 	}
 	
 	@Test
-	void test() {
+	void test_individualTarget() {
 		init("8/2k3n1/4b3/8/8/4Q3/8/4K3 w - - 0 1");
 		test_eval.evaluateTargetTiedUpDefenders(Square.E6, Player.WHITE);
 		assertDefenderInteractions(new int[] {
@@ -166,6 +164,25 @@ class BSEETest_evaluateTargetTiedUpDefenders {
 //		assertDefenderInteractions(new int[] {
 //		});
 
+		
+	}
+	
+	private void init2(String fen) {
+		test_game.loadFromFEN(fen);
+		test_eval.initialize();
+		test_eval.evaluateCaptures();
+		test_eval.evaluateTiedUpDefenders();
+	}
+	
+	@Test
+	void test_position() {
+		init2("1r6/3q4/6r1/1p3b2/k7/1r1Q3P/4P2K/6R1 w - - 0 1");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.A4, Square.B3),
+				Interaction.createAdequateGuardTiedUp(Square.D7, Square.F5),
+				Interaction.createAdequateGuardTiedUp(Square.F5, Square.D7),
+				Interaction.createAdequateGuardTiedUp(Square.H2, Square.G1),
+		});
 		
 	}
 
