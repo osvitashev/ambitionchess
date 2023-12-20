@@ -726,7 +726,8 @@ System.out.println();
 		
 		
 		long processedDefendersBB=0l;
-		int naturalExchangeOutcome;
+		int naturalExchangeOutcome, lastOccupierIndex;
+		
 		
 		//loop start here
 		while(true)
@@ -779,7 +780,7 @@ if(ENABLE_EVALUATE_TARGET_TIEDUP_DEFENDERS_DEBUG_STATEMENTS) {
 System.out.println();
 System.out.print(game.toFEN() + " ["+ Player.toShortString(player) + (game.getPieceAt(sq) == PieceType.NO_PIECE ? " - " : " x " ) + Square.toString(sq)+ "] sequence: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "()" : PieceType.toString(var_evaluateTarget_attackStack[0])) + " ");
 for(int i=1; i<d_combinedAttackStackSize;++i)
-	System.out.print(PieceType.toString(var_evaluateTarget_attackStack[i]) + " ");
+	System.out.print((player==Player.BLACK ^ i%2==1 ? "w" : "b") + PieceType.toString(var_evaluateTarget_attackStack[i]) + " ");
 System.out.print("} values: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "0" : getPieceValue(var_evaluateTarget_attackStack[0])) + " ");
 for(int i=1; i<d_combinedAttackStackSize;++i)
 	System.out.print(getPieceValue(var_evaluateTarget_attackStack[i]) + " ");
@@ -788,8 +789,11 @@ for(int i=0; i<d_combinedAttackStackSize-1;++i)
 	System.out.print(var_evaluateTarget_gain[i] + " ");
 }
 			//minimax backtracking
+			lastOccupierIndex=d_combinedAttackStackSize-1;
 			for (int i = d_combinedAttackStackSize-2; i>0; --i) {
 				var_evaluateTarget_gain[i-1]= -Math.max(-var_evaluateTarget_gain[i-1], var_evaluateTarget_gain[i]);
+				if(var_evaluateTarget_gain[i-1] != -var_evaluateTarget_gain[i])
+					lastOccupierIndex = i;
 			}
 			
 			if(Bitboard.testBit(getOutput_capture_losing(player, var_evaluateTarget_attackStack[1]), sq))
@@ -801,8 +805,10 @@ for(int i=0; i<d_combinedAttackStackSize-1;++i)
 			
 if(ENABLE_EVALUATE_TARGET_TIEDUP_DEFENDERS_DEBUG_STATEMENTS) {
 System.out.println();
-System.out.print("last attacker: "+ Player.toShortString(Player.getOtherPlayer(currentPlayer)) + PieceType.toString(var_evaluateTarget_attackStack[d_combinedAttackStackSize-1]));
-System.out.println(" returning: "+ var_evaluateTarget_gain[0]);
+System.out.print("last attacker: "+ Player.toShortString(Player.getOtherPlayer(currentPlayer))
++ PieceType.toString(var_evaluateTarget_attackStack[d_combinedAttackStackSize-1]) +
+" | last expected occupier: "+ Player.toShortString(output_evaluateTargetExchange_occupierPlayer)
++ PieceType.toString(output_evaluateTargetExchange_occupierPieceType) + " ("+lastOccupierIndex+")");System.out.println(" returning: "+ var_evaluateTarget_gain[0]);
 String str = "evaluateTargetOverprotection of (" + Square.toString(sq)+") | natural exchange "+ OutcomeEnum.toString(naturalExchangeOutcome) + " | "+
 		" lifted defender: "+ Square.toString(candidateDefenderSquare) + " value: " + var_evaluateTarget_gain[0] + " | ";
 	
