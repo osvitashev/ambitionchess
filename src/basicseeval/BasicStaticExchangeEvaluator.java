@@ -636,9 +636,11 @@ public class BasicStaticExchangeEvaluator {
 if(ENABLE_EVALUATE_TARGET_EXCHANGE_DEBUG_STATEMENTS) {
 System.out.print(game.toFEN() + " ["+ Player.toShortString(player)+PieceType.toString(forced_attacker_type) +
 		(game.getPieceAt(sq) == PieceType.NO_PIECE ? " - " : " x " )
-		+ Square.toString(sq)+ "] sequence: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "()" : PieceType.toString(var_evaluateTarget_attackStack[0])) + " ");
+		+ Square.toString(sq)+ "] sequence: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "()" :
+			((player==Player.BLACK ? "w" : "b") + PieceType.toString(var_evaluateTarget_attackStack[0]))) 
+		+ " ");
 for(int i=1; i<d_combinedAttackStackSize;++i)
-	System.out.print(PieceType.toString(var_evaluateTarget_attackStack[i]) + " ");
+	System.out.print((player==Player.BLACK ^ i%2==1 ? "w" : "b") + PieceType.toString(var_evaluateTarget_attackStack[i]) + " ");
 System.out.print("} values: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "0" : getPieceValue(var_evaluateTarget_attackStack[0])) + " ");
 for(int i=1; i<d_combinedAttackStackSize;++i)
 	System.out.print(getPieceValue(var_evaluateTarget_attackStack[i]) + " ");
