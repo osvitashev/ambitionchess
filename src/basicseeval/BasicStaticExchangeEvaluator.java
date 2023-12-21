@@ -540,7 +540,7 @@ public class BasicStaticExchangeEvaluator {
 	private int var_evaluateTarget_gain [] =new int[32];//integer value change - needed for linear minimax
 	
 	private static final boolean ENABLE_EVALUATE_TARGET_EXCHANGE_DEBUG_STATEMENTS = false;
-	private static final boolean ENABLE_EVALUATE_TARGET_TIEDUP_DEFENDERS_DEBUG_STATEMENTS = true;
+	private static final boolean ENABLE_EVALUATE_TARGET_TIEDUP_DEFENDERS_DEBUG_STATEMENTS = false;
 	
 	//these are just used for debugging.
 	public static String zFEN;
@@ -800,21 +800,6 @@ System.out.print("last attacker: "+ Player.toShortString(Player.getOtherPlayer(c
 " | last expected occupier: "+ (player==Player.BLACK ^ lastOccupierIndex%2==1 ? "w" : "b") + PieceType.toString(var_evaluateTarget_attackStack[lastOccupierIndex]) + " ("+lastOccupierIndex+")");System.out.println(" returning: "+ var_evaluateTarget_gain[0]);
 String str = "evaluateTargetOverprotection of (" + Square.toString(sq)+") | natural exchange "+ OutcomeEnum.toString(naturalExchangeOutcome) + " | "+
 		" lifted defender: "+ Square.toString(candidateDefenderSquare) + " value: " + var_evaluateTarget_gain[0] + " | ";
-	
-	if(naturalExchangeOutcome == OutcomeEnum.NEGATIVE) {
-		if(var_evaluateTarget_gain[0] > 0) {
-			output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createAdequateGuardTiedUp(candidateDefenderSquare, sq);
-		}
-		else if(var_evaluateTarget_gain[0] == 0) {
-			output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createAdequateGuardTiedUp(candidateDefenderSquare, sq);
-		}
-	}
-	else if(naturalExchangeOutcome == OutcomeEnum.NEUTRAL) {
-		if(var_evaluateTarget_gain[0] > 0) {
-			output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createAdequateGuardTiedUp(candidateDefenderSquare, sq);
-		}
-	}
-
 if(var_evaluateTarget_gain[0] < 0)
 	str+= "new anticipated outcome: negative ";
 else if (var_evaluateTarget_gain[0] == 0)
@@ -823,6 +808,19 @@ else
 	str+= "new anticipated outcome: positive ";
 System.out.println(str);
 }
+			if(naturalExchangeOutcome == OutcomeEnum.NEGATIVE) {
+				if(var_evaluateTarget_gain[0] > 0) {
+					output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createAdequateGuardTiedUp(candidateDefenderSquare, sq);
+				}
+				else if(var_evaluateTarget_gain[0] == 0) {
+					output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createAdequateGuardTiedUp(candidateDefenderSquare, sq);
+				}
+			}
+			else if(naturalExchangeOutcome == OutcomeEnum.NEUTRAL) {
+				if(var_evaluateTarget_gain[0] > 0) {
+					output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createAdequateGuardTiedUp(candidateDefenderSquare, sq);
+				}
+			}
 		}//candidate defender loop
 		
 	}
