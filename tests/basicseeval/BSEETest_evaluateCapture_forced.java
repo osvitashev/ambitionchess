@@ -186,6 +186,10 @@ class BSEETest_evaluateCapture_forced {
 		test_eval.initialize();
 		testOutcome(OutcomeEnum.NEUTRAL, Square.D5, Player.WHITE, PieceType.KNIGHT);
 		
+		test_game.loadFromFEN("r5k1/1q2r2p/6p1/p2pbp2/1p1PnPPN/1PpQR3/P1P4P/5RK1 w - - 0 26");
+		test_eval.initialize();
+		testOutcome(OutcomeEnum.POSITIVE, Square.F5, Player.WHITE, PieceType.PAWN);
+		
 //		System.out.println("max sequence length: " + BasicStaticExchangeEvaluator.zmaxLength + " | " +
 //				"fen: " + BasicStaticExchangeEvaluator.zFEN + " target: "+Square.toString(BasicStaticExchangeEvaluator.zsq) +
 //				" attacker: " + PieceType.toString(BasicStaticExchangeEvaluator.zattacker) +
@@ -215,39 +219,39 @@ class BSEETest_evaluateCapture_forced {
 		}
 	}
 	
-//	@Test
-//	void testPlayerPieceType_evaluateCapture_forcedAttacker() {
-//		test_game.loadFromFEN("4r3/1B5k/6b1/5q2/Q3r3/3K1PN1/4RR2/8 w - - 0 1");
-//		test_eval.initialize();
-//		testPlayerPieceType(Player.WHITE, PieceType.PAWN, Square.E4, Player.WHITE, PieceType.PAWN);
-//		
-//		test_game.loadFromFEN("4r3/1B5k/6b1/5q2/Q3r3/3K1PN1/4RR2/8 w - - 0 1");
-//		test_eval.initialize();
-//		testPlayerPieceType(Player.WHITE, PieceType.PAWN, Square.E4, Player.WHITE, PieceType.ROOK);
-//		
-//		test_game.loadFromFEN("4r3/1B5k/6b1/5q2/Q3r3/3K1PN1/4RR2/8 w - - 0 1");
-//		test_eval.initialize();
-//		testPlayerPieceType(Player.BLACK, PieceType.ROOK, Square.E4, Player.WHITE, PieceType.KING);
-//		
-//		test_game.loadFromFEN("3r2b1/ppnr4/1N2knpp/2KR1p2/1N6/1B1Q1qp1/PP4bP/3R4 b - - 0 2");
-//		test_eval.initialize();
-//		testPlayerPieceType(Player.BLACK, PieceType.BISHOP, Square.D5, Player.BLACK, PieceType.ROOK);
-//		
-//		test_game.loadFromFEN("3r2b1/ppnr4/1Np1k1pp/3n1p2/1N1R4/1BKQ1qp1/PP4bP/3R4 w - - 2 2");
-//		test_eval.initialize();
-//		testPlayerPieceType(Player.BLACK, PieceType.PAWN, Square.D5, Player.WHITE, PieceType.ROOK);
-//		
-//		//no available recapture
-//		test_game.loadFromFEN("8/8/p1k5/1N4r1/8/6Q1/4K3/8 w - - 0 1");
-//		test_eval.initialize();
-//		testPlayerPieceType(Player.BLACK, PieceType.PAWN, Square.B5, Player.BLACK, PieceType.PAWN);
-//		testPlayerPieceType(Player.BLACK, PieceType.ROOK, Square.B5, Player.BLACK, PieceType.ROOK);
-//		testPlayerPieceType(Player.BLACK, PieceType.KING, Square.B5, Player.BLACK, PieceType.KING);
-//		testPlayerPieceType(Player.BLACK, PieceType.ROOK, Square.G3, Player.BLACK, PieceType.ROOK);
-//		testPlayerPieceType(Player.WHITE, PieceType.QUEEN, Square.G5, Player.WHITE, PieceType.QUEEN);
-//		
-//		if(skipAssertions)
-//			fail("Assertions skipped! We must be running some experiments...");
-//	}
+	@Test
+	void testPlayerPieceType_evaluateCapture_forcedAttacker() {
+		test_game.loadFromFEN("4r3/1B5k/6b1/5q2/Q3r3/3K1PN1/4RR2/8 w - - 0 1");
+		test_eval.initialize();
+		testPlayerPieceType(Player.WHITE, PieceType.PAWN, Square.E4, Player.WHITE, PieceType.PAWN);
+		
+		test_game.loadFromFEN("4r3/1B5k/6b1/5q2/Q3r3/3K1PN1/4RR2/8 w - - 0 1");
+		test_eval.initialize();
+		testPlayerPieceType(Player.WHITE, PieceType.PAWN, Square.E4, Player.WHITE, PieceType.ROOK);
+		
+		test_game.loadFromFEN("4r3/1B5k/6b1/5q2/Q3r3/3K1PN1/4RR2/8 w - - 0 1");
+		test_eval.initialize();
+		testPlayerPieceType(Player.BLACK, PieceType.ROOK, Square.E4, Player.WHITE, PieceType.KING);
+		
+		test_game.loadFromFEN("3r2b1/ppnr4/1N2knpp/2KR1p2/1N6/1B1Q1qp1/PP4bP/3R4 b - - 0 2");
+		test_eval.initialize();
+		testPlayerPieceType(Player.BLACK, PieceType.BISHOP, Square.D5, Player.BLACK, PieceType.ROOK);
+		
+		test_game.loadFromFEN("3r2b1/ppnr4/1Np1k1pp/3n1p2/1N1R4/1BKQ1qp1/PP4bP/3R4 w - - 2 2");
+		test_eval.initialize();
+		testPlayerPieceType(Player.BLACK, PieceType.PAWN, Square.D5, Player.WHITE, PieceType.ROOK);
+		
+		//no available recapture
+		test_game.loadFromFEN("8/8/p1k5/1N4r1/8/6Q1/4K3/8 w - - 0 1");
+		test_eval.initialize();
+		testPlayerPieceType(Player.BLACK, PieceType.PAWN, Square.B5, Player.BLACK, PieceType.PAWN);
+		testPlayerPieceType(Player.BLACK, PieceType.ROOK, Square.B5, Player.BLACK, PieceType.ROOK);
+		testPlayerPieceType(Player.BLACK, PieceType.KING, Square.B5, Player.BLACK, PieceType.KING);
+		testPlayerPieceType(Player.BLACK, PieceType.ROOK, Square.G3, Player.BLACK, PieceType.ROOK);
+		testPlayerPieceType(Player.WHITE, PieceType.QUEEN, Square.G5, Player.WHITE, PieceType.QUEEN);
+		
+		if(skipAssertions)
+			fail("Assertions skipped! We must be running some experiments...");
+	}
 
 }

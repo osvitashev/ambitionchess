@@ -163,6 +163,7 @@ class BSEETest_evaluateTargetTiedUpDefenders {
 //		test_eval.evaluateTargetTiedUpDefenders(Square.G3, Player.BLACK);
 //		assertDefenderInteractions(new int[] {
 //		});
+		
 
 		
 	}
@@ -182,6 +183,177 @@ class BSEETest_evaluateTargetTiedUpDefenders {
 				Interaction.createAdequateGuardTiedUp(Square.D7, Square.F5),
 				Interaction.createAdequateGuardTiedUp(Square.F5, Square.D7),
 				Interaction.createAdequateGuardTiedUp(Square.H2, Square.G1),
+		});
+		init2("3r2k1/5rpp/2pq4/2p2bNn/p1n1n3/P1P3P1/1P3PBP/R2QKR2 b - - 0 1");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.A1, Square.D1),
+				Interaction.createAdequateGuardTiedUp(Square.B2, Square.C3),
+		});
+		init2("1r1nnrk1/p3b1pp/1p1pP1q1/8/2PQ1P2/BP4PP/P4PB1/R3R1K1 w - - 3 23");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.E8, Square.D6),
+				Interaction.createAdequateGuardTiedUp(Square.E7, Square.D6),
+				Interaction.createAdequateGuardTiedUp(Square.F2, Square.G3),
+		});
+		init2("r1bq1rk1/p3ppbp/1p3np1/2p1n3/3p1P2/N1PP2P1/PPQ1P1BP/R1B2RK1 w - - 0 11");
+		assertDefenderInteractions(new int[] {
+		});
+		init2("5rk1/p3ppbp/6p1/2pB4/3p1Pn1/2Pb2P1/PP5P/R1B2RK1 w - - 0 19");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.G1, Square.H2),
+		});
+		init2("2rnn1k1/p3b1pp/1p1pPr2/8/2P2PP1/BP5P/P4PB1/3RR1K1 w - - 0 26");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.E8, Square.D6),
+				Interaction.createAdequateGuardTiedUp(Square.E7, Square.D6),
+				Interaction.createAdequateGuardTiedUp(Square.B3, Square.C4),
+		});
+		init2("1rrqn1k1/5p1p/b2p2pQ/3P4/1p1BP1P1/2p2P1P/1PB5/3N2RK w - - 0 31");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.G8, Square.H7),
+		});
+		init2("8/8/3k2p1/2n1bp2/1pBp1P2/1P2P1P1/P3K3/3N4 b - - 0 45");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.E5, Square.D4),
+		});
+		init2("2rr1bk1/5p1p/3np1p1/1p1p4/3P3P/2N1PB2/PPR2PP1/2R3K1 b - - 1 24");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.D6, Square.B5),
+				Interaction.createAdequateGuardTiedUp(Square.E6, Square.D5),
+		});
+		init2("5k2/2p2r2/1p4Q1/3P2pP/P1P1P3/5pqP/P4R2/5K2 w - - 2 46");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.G3, Square.G5),
+				Interaction.createAdequateGuardTiedUp(Square.C7, Square.B6),
+				Interaction.createAdequateGuardTiedUp(Square.F8, Square.F7),
+				Interaction.createAdequateGuardTiedUp(Square.F1, Square.F2),
+		});
+		init2("4Rnk1/6rp/4Q3/3p1pP1/P1b5/6q1/6B1/1R5K b - - 10 48");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.G8, Square.F8),
+				Interaction.createAdequateGuardTiedUp(Square.H1, Square.G2),
+		});
+		init2("r1b2bk1/ppnq1p1p/2n3p1/1BPp4/8/1NN2P2/PP1Q1BPP/4R2K w - - 3 20");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.C7, Square.D5),
+				Interaction.createAdequateGuardTiedUp(Square.D7, Square.D5),
+				Interaction.createAdequateGuardTiedUp(Square.C3, Square.B5),
+		});
+		init2("8/p3rqpk/1p1R3p/1bp2p1P/4pN2/2QnP3/PP3PP1/1K1R4 w - - 1 27");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.E4, Square.D3),
+				Interaction.createAdequateGuardTiedUp(Square.B5, Square.D3),
+				Interaction.createAdequateGuardTiedUp(Square.A7, Square.B6),
+				Interaction.createAdequateGuardTiedUp(Square.B1, Square.A2),
+				Interaction.createAdequateGuardTiedUp(Square.E3, Square.F4),
+				Interaction.createAdequateGuardTiedUp(Square.F4, Square.H5),
+		});
+		init2("r3r1k1/3q1pbp/2p3p1/4p3/p1P1P3/2Rp1P2/PP4PP/2NQ1RK1 b - - 1 22");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.A8, Square.A4),
+		});
+		init2("4rk2/2p1ppbp/1n1p4/3P1N2/rPPP1P2/p6P/B2R2PK/1R6 b - - 2 27");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.F8, Square.G7),
+				Interaction.createAdequateGuardTiedUp(Square.B1, Square.B4),
+				Interaction.createAdequateGuardTiedUp(Square.A2, Square.C4),
+		});
+		init2("r1b2rk1/ppp2p2/3p1q1p/3Pb1p1/2P1P1B1/2N1Q2P/PP3PP1/R3K2R b KQ - 4 18");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.A8, Square.A7),
+				Interaction.createAdequateGuardTiedUp(Square.B2, Square.C3),
+				Interaction.createAdequateGuardTiedUp(Square.E3, Square.C3),
+				Interaction.createAdequateGuardTiedUp(Square.H3, Square.G4),
+		});
+		init2("8/p2q2k1/1pnr1pp1/3Bp3/2P1P1P1/7R/P4PK1/3Q4 w - - 4 42");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.D1, Square.G4),
+		});
+		init2("2b1r2r/pp4k1/1bp2p2/3p1n2/8/2N2NPB/PP3PP1/3RRK2 b - - 1 30");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.C6, Square.D5),
+				Interaction.createAdequateGuardTiedUp(Square.C8, Square.F5),
+				Interaction.createAdequateGuardTiedUp(Square.H8, Square.E8),
+				Interaction.createAdequateGuardTiedUp(Square.F1, Square.F2),
+				Interaction.createAdequateGuardTiedUp(Square.F2, Square.G3),
+				Interaction.createAdequateGuardTiedUp(Square.G2, Square.H3),
+		});
+		init2("r3nrk1/pp3pbp/1q2p1p1/4B3/1n1P4/1BN2Q1P/PP3PP1/3RR1K1 w - - 6 17");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.B6, Square.B7),
+		});
+		init2("r3r1k1/5pbp/p5p1/P1n1p3/1qB5/4Bb1P/1P2QPP1/R3R1K1 w - - 0 27");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.B4, Square.C5),
+				Interaction.createAdequateGuardTiedUp(Square.C5, Square.A6),
+				Interaction.createAdequateGuardTiedUp(Square.A8, Square.A6),
+				Interaction.createAdequateGuardTiedUp(Square.G8, Square.F7),
+				Interaction.createAdequateGuardTiedUp(Square.E2, Square.B2),
+				Interaction.createAdequateGuardTiedUp(Square.G1, Square.G2),
+				Interaction.createAdequateGuardTiedUp(Square.E2, Square.C4),
+				Interaction.createAdequateGuardTiedUp(Square.A1, Square.A5),
+		});
+		init2("r5k1/1q2r2p/6p1/p2pbp2/1p1PnPPN/1PpQR3/P1P4P/5RK1 w - - 0 26");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.H7, Square.G6),
+				Interaction.createAdequateGuardTiedUp(Square.D3, Square.D4),
+				Interaction.createAdequateGuardTiedUp(Square.F1, Square.F4),
+		});
+		init2("r2r2k1/1b2qppp/3p1b2/p1nP4/2R1PB2/Q4N1P/5PP1/1N2R1K1 w - - 0 26");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.A8, Square.A5),
+				Interaction.createAdequateGuardTiedUp(Square.D6, Square.C5),
+				Interaction.createAdequateGuardTiedUp(Square.E1, Square.E4),
+				Interaction.createAdequateGuardTiedUp(Square.C4, Square.E4),
+				Interaction.createAdequateGuardTiedUp(Square.E4, Square.D5),
+		});
+		init2("6k1/5pp1/1p2p2p/rp1pN3/1R1P2P1/PRn1PP2/2r3P1/5K2 w - - 0 29");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.C2, Square.C3),
+				Interaction.createAdequateGuardTiedUp(Square.C3, Square.B5),
+				Interaction.createAdequateGuardTiedUp(Square.G8, Square.F7),
+				Interaction.createAdequateGuardTiedUp(Square.F1, Square.G2),
+				Interaction.createAdequateGuardTiedUp(Square.B3, Square.A3),
+		});
+		init2("3r2k1/ppp2pp1/2n4p/b1P5/7P/2PqQN2/P2B1PP1/5RK1 w - - 2 23");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.D8, Square.D3),
+				Interaction.createAdequateGuardTiedUp(Square.G7, Square.H6),
+				Interaction.createAdequateGuardTiedUp(Square.G1, Square.F1),
+				Interaction.createAdequateGuardTiedUp(Square.F3, Square.D2),
+				Interaction.createAdequateGuardTiedUp(Square.D2, Square.C3),
+				Interaction.createAdequateGuardTiedUp(Square.E3, Square.C3),
+		});
+		init2("r4r1k/pp1q2bp/3p2p1/2p2b2/2Pn4/2N1BPP1/PP3PBP/2RQR1K1 w - c6 0 19");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.C5, Square.D4),
+				Interaction.createAdequateGuardTiedUp(Square.G7, Square.D4),
+		});
+		init2("r1b1k2r/ppq2ppp/2nbp3/3pN3/3PnB2/2PB1N2/PP3PPP/R2QK2R b KQkq - 2 10");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.D5, Square.E4),
+				Interaction.createAdequateGuardTiedUp(Square.E1, Square.F2),
+				Interaction.createAdequateGuardTiedUp(Square.B2, Square.C3),
+				Interaction.createAdequateGuardTiedUp(Square.D4, Square.E5),//note: e5 is barely adequately guarded and is vulnerable to additional pawn attack
+				Interaction.createAdequateGuardTiedUp(Square.F3, Square.E5),
+				Interaction.createAdequateGuardTiedUp(Square.F4, Square.E5),
+		});
+		init2("4rb2/2k5/2b1p1p1/2p1PpNp/2P2P1P/6P1/P2K4/1R2R3 b - - 0 33");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.E8, Square.E6),
+		});
+		init2("3q1r1k/p5bp/br4p1/3B4/3NQ3/R2n2P1/PP1N1PP1/2R3K1 w - - 1 26");
+		assertDefenderInteractions(new int[] {
+				Interaction.createAdequateGuardTiedUp(Square.B6, Square.A6),
+				Interaction.createAdequateGuardTiedUp(Square.E4, Square.D4),
+				Interaction.createAdequateGuardTiedUp(Square.E4, Square.D5),
+		});
+		
+		
+		
+		//////////control case//////////
+		init2("");
+		assertDefenderInteractions(new int[] {
 		});
 		
 	}
