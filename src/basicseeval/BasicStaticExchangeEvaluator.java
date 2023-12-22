@@ -705,7 +705,7 @@ System.out.println();
 	 * lifts defenders off the board one by one to see if it results in a change of expected score.
 	 * prerequisite: forced evaluation has been previously run for the target square!!!!
 	 */
-	void evaluateTargetTiedUpDefenders(int sq, int player) {
+	void evaluateTargetBoundDefenders(int sq, int player) {
 		assert Square.validate(sq);
 		assert Player.validate(player);
 		assert game.getPieceAt(sq) != PieceType.NO_PIECE;
@@ -888,7 +888,7 @@ System.out.println(str);
 						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
 					bi = Bitboard.getFirstSquareIndex(barg);
 					
-					evaluateTargetTiedUpDefenders(bi, player);
+					evaluateTargetBoundDefenders(bi, player);
 				}
 			}
 		}
