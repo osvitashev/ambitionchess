@@ -880,7 +880,7 @@ System.out.println(str);
 		}
 	}
 	
-	void evaluateTiedUpDefenders() {
+	void evaluateBoundDefenders() {
 		for (int player : Player.PLAYERS) {
 			{
 				int bi = 0;

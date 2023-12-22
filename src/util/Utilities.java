@@ -2,7 +2,8 @@ package util;
 
 import gamestate.GlobalConstants.Player;
 
-public class Utilities {	
+public class Utilities {
+	
 	public static class OutcomeEnum{
 		public static final int NEGATIVE = -1;
 		public static final int NEUTRAL = 0;

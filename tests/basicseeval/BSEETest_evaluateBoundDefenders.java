@@ -12,7 +12,7 @@ import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
 import util.Utilities.OutcomeEnum;
 
-class BSEETest_evaluateTargetTiedUpDefenders {
+class BSEETest_evaluateBoundDefenders {
 	private Gamestate test_game = new Gamestate();
 	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game, 1);
 	
@@ -172,7 +172,7 @@ class BSEETest_evaluateTargetTiedUpDefenders {
 		test_game.loadFromFEN(fen);
 		test_eval.initialize();
 		test_eval.evaluateCaptures();
-		test_eval.evaluateTiedUpDefenders();
+		test_eval.evaluateBoundDefenders();
 	}
 	
 	@Test
