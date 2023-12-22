@@ -810,15 +810,15 @@ System.out.println(str);
 }
 			if(naturalExchangeOutcome == OutcomeEnum.NEGATIVE) {
 				if(var_evaluateTarget_gain[0] > 0) {
-					output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createAdequateGuardTiedUp(candidateDefenderSquare, sq);
+					output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createGuardBound_negativeToPositive(candidateDefenderSquare, sq);
 				}
 				else if(var_evaluateTarget_gain[0] == 0) {
-					output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createAdequateGuardTiedUp(candidateDefenderSquare, sq);
+					output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createGuardBound_negativeToNeutral(candidateDefenderSquare, sq);
 				}
 			}
 			else if(naturalExchangeOutcome == OutcomeEnum.NEUTRAL) {
 				if(var_evaluateTarget_gain[0] > 0) {
-					output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createAdequateGuardTiedUp(candidateDefenderSquare, sq);
+					output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createGuardBound_neutralToPositive(candidateDefenderSquare, sq);
 				}
 			}
 		}//candidate defender loop
