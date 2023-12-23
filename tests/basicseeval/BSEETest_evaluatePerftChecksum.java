@@ -139,9 +139,11 @@ class BSEETest_evaluatePerftChecksum {
 		movepool.resize(test_movelist_size_old);
 	}
 	
-	static boolean SKIP_ASSERTIONS = true;
+	static final boolean SKIP_ASSERTIONS = false;
+	static final int DEPTH_LIMIT = -1;//max depth of cases to execute. intended to quick sanity tests. -1 is for unlimited.
 	
 	void test(String fen, int depth, String expectedChecksum) {
+		if(DEPTH_LIMIT != -1 && depth > DEPTH_LIMIT)return;
 		testPerft(fen, depth);
 		System.out.println("test(\"" +fen +"\", "+ depth+", \""+ checkSum+ "\");");
 		if(!SKIP_ASSERTIONS)
@@ -742,6 +744,8 @@ class BSEETest_evaluatePerftChecksum {
 		
 		if(SKIP_ASSERTIONS)
 			fail(">>>skipped all asserions! This is intentional ONLY IF we are gathering correct values for new testcases.");
+		if(DEPTH_LIMIT != -1)
+			fail(">>>passed all executed test cases, but the depth limit was set to: " + DEPTH_LIMIT);
 		
 	}
 
