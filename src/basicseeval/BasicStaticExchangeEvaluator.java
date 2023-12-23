@@ -338,6 +338,36 @@ public class BasicStaticExchangeEvaluator {
 		}//players loop
 	}//initialize method
 	
+	public String debug_getAllOutputs() {
+		String ret = game.toFEN() + "\n";
+		
+		ret += "direct attacks:\n";
+		ret += "WHITE = "
+				+ "0x"+String.format("%08X", var_combined_bitboard_attackedBy[Player.WHITE]) + "\n";
+		ret += "BLACK = "
+				+ "0x"+String.format("%08X", var_combined_bitboard_attackedBy[Player.BLACK]) + "\n";
+		for (int player : Player.PLAYERS) {
+			for (int pieceType : PieceType.PIECE_TYPES) {
+				ret += "\t"+Player.toShortString(player) + PieceType.toString(pieceType) + " = "
+						+ "0x"+String.format("%08X", var_bitboard_attackedBy[player][pieceType]) + "\n";
+			}
+		}
+		
+		ret += "secondary attacks:\n";
+		ret += "WHITE = "
+				+ "0x"+String.format("%08X", var_combined_bitboard_secondary_attackedBy[Player.WHITE]) + "\n";
+		ret += "BLACK = "
+				+ "0x"+String.format("%08X", var_combined_bitboard_secondary_attackedBy[Player.BLACK]) + "\n";
+		for (int player : Player.PLAYERS) {
+			for (int pieceType : PieceType.PIECE_TYPES) {
+				ret += "\t"+Player.toShortString(player) + PieceType.toString(pieceType) + " = "
+						+ "0x"+String.format("%08X", var_bitboard_secondary_attackedBy[player][pieceType]) + "\n";
+			}
+		}
+		
+		return ret;
+	}
+	
 	/**
 	 * Bitboard for direct attacks [player][attackerType]
 	 * Populated by call to initialize() and is unchanged until the next call.
