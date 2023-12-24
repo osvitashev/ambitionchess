@@ -25,6 +25,15 @@ public class Interaction {
 		return ret;
 	}
 	
+	public static int getTarget(int interaction) {
+		assert  getType(interaction) == TYPE_GUARD_BOUND_SCORE_NEGATIVE_TO_POSITIVE ||
+				getType(interaction) == TYPE_GUARD_BOUND_SCORE_NEGATIVE_TO_NEUTRAL ||
+				getType(interaction) == TYPE_GUARD_BOUND_SCORE_NEUTRAL_TO_POSITIVE;
+		int ret = getBits(interaction, 12, 6);
+		assert Square.validate(ret);
+		return ret;
+	}
+	
 	public static String toString(int interaction) {
 		String ret;
 		int type = getType(interaction);

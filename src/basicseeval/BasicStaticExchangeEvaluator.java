@@ -1,5 +1,7 @@
 package basicseeval;
 
+import java.util.Arrays;
+
 import analysis.Interaction;
 import gamestate.Bitboard;
 import gamestate.BitboardGen;
@@ -340,26 +342,24 @@ public class BasicStaticExchangeEvaluator {
 	
 	public String debug_getAllOutputs() {
 		String ret = game.toFEN() + "\n";
-		
+		//CONSIDER: check the popcount and if it is low, list out individual square strings instead of the hex long.
 		ret += "direct attacks:\n";
-		ret += "WHITE = "
-				+ "0x"+String.format("%08X", getAttackedTargets(Player.WHITE)) + "\n";
-		ret += "BLACK = "
-				+ "0x"+String.format("%08X", getAttackedTargets(Player.BLACK)) + "\n";
 		for (int player : Player.PLAYERS) {
+			ret += (player == Player.WHITE ? "WHITE" : "BLACK") + ": " + "0x"
+					+ String.format("%08X", getAttackedTargets(player)) + "\n";
+
 			for (int pieceType : PieceType.PIECE_TYPES) {
-				if(getAttackedTargets(player,pieceType) !=0l)
-				ret += "\t"+Player.toShortString(player) + PieceType.toString(pieceType) + " = "
-						+ "0x"+String.format("%08X", getAttackedTargets(player,pieceType)) + "\n";
+				if (getAttackedTargets(player, pieceType) != 0l)
+					ret += "\t" + Player.toShortString(player) + PieceType.toString(pieceType) + " = " + "0x"
+							+ String.format("%08X", getAttackedTargets(player, pieceType)) + "\n";
 			}
 		}
 		
 		ret += "secondary attacks:\n";
-		ret += "WHITE = "
-				+ "0x"+String.format("%08X", getSecondaryAttackedTargets(Player.WHITE)) + "\n";
-		ret += "BLACK = "
-				+ "0x"+String.format("%08X", getSecondaryAttackedTargets(Player.BLACK)) + "\n";
 		for (int player : Player.PLAYERS) {
+		ret +=(player == Player.WHITE ? "WHITE" : "BLACK") + ": "
+				+ "0x"+String.format("%08X", getSecondaryAttackedTargets(player)) + "\n";
+		
 			for (int pieceType : PieceType.SLIDING_PIECE_TYPES) {
 				if(getSecondaryAttackedTargets(player,pieceType)!=0l)
 				ret += "\t"+Player.toShortString(player) + PieceType.toString(pieceType) + " = "
@@ -368,17 +368,18 @@ public class BasicStaticExchangeEvaluator {
 		}
 		
 		ret += "secondary batteries:\n";
-		ret += "WHITE = "
-				+ "0x"+String.format("%08X", getSecondaryBatteryAttackedTargets(Player.WHITE)) + "\n";
-		ret += "BLACK = "
-				+ "0x"+String.format("%08X", getSecondaryBatteryAttackedTargets(Player.BLACK)) + "\n";
 		for (int player : Player.PLAYERS) {
+		ret += (player == Player.WHITE ? "WHITE" : "BLACK") + ": "
+				+ "0x"+String.format("%08X", getSecondaryBatteryAttackedTargets(player)) + "\n";
+		
 			for (int pieceType : PieceType.SLIDING_PIECE_TYPES) {
 				if(getSecondaryBatteryAttackedTargets(player,pieceType)!=0l)
 				ret += "\t"+Player.toShortString(player) + PieceType.toString(pieceType) + " = "
 						+ "0x"+String.format("%08X", getSecondaryBatteryAttackedTargets(player,pieceType)) + "\n";
 			}
 		}
+		ret+="Static Exchange Evaluation:\n";
+		//exchanges
 		for (int player : Player.PLAYERS) {
 			ret += (player == Player.WHITE ? "WHITE" : "BLACK")+" processed exchange targets: " + "0x"
 					+ String.format("%08X", getOutput_target_isExchangeProcessed(player)) + "\n";
@@ -397,8 +398,36 @@ public class BasicStaticExchangeEvaluator {
 					ret+="\tcapture losing "+Player.toShortString(player) + PieceType.toString(pieceType)+
 					": 0x"+String.format("%08X", getOutput_capture_losing(player, pieceType)) + "\n";
 			}
+			for (int pieceType : PieceType.PIECE_TYPES) {
+				if(getOutput_quiet_neutral(player, pieceType) !=0l)
+					ret+="\tquiet neutral losing "+Player.toShortString(player) + PieceType.toString(pieceType)+
+					": 0x"+String.format("%08X", getOutput_quiet_neutral(player, pieceType)) + "\n";
+			}
+			for (int pieceType : PieceType.PIECE_TYPES) {
+				if(getOutput_quiet_losing(player, pieceType) !=0l)
+					ret+="\tquiet losing "+Player.toShortString(player) + PieceType.toString(pieceType)+
+					": 0x"+String.format("%08X", getOutput_quiet_losing(player, pieceType)) + "\n";
+			}
 		}
-		
+		{//interactions
+			ret+="Interactions:";
+			int[] defenderInteractions = new int[get_output_defenderInteractions_size()];
+			for(int i =0; i<get_output_defenderInteractions_size();++i) {
+				defenderInteractions[i]=get_output_defenderInteractions(i);
+			}
+			Integer[] objectArray = Arrays.stream(defenderInteractions).boxed().toArray(Integer[]::new);
+			Arrays.sort(objectArray, (a, b) -> Interaction.getTarget(a) - Interaction.getTarget(b));
+			defenderInteractions = Arrays.stream(objectArray).mapToInt(Integer::intValue).toArray();
+			int prevSquare=Square.SQUARE_NONE;
+			for(int i =0; i<get_output_defenderInteractions_size();++i) {
+				if(prevSquare != Interaction.getTarget(defenderInteractions[i]))
+					ret+="\nTo "+Square.toString(Interaction.getTarget(defenderInteractions[i])) +"\n";
+				prevSquare = Interaction.getTarget(defenderInteractions[i]);
+				ret+=Interaction.toString(defenderInteractions[i]) +" ";
+			}
+			
+			ret+="\n";
+		}
 		return ret;
 	}
 	
