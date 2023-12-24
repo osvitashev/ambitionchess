@@ -343,25 +343,59 @@ public class BasicStaticExchangeEvaluator {
 		
 		ret += "direct attacks:\n";
 		ret += "WHITE = "
-				+ "0x"+String.format("%08X", var_combined_bitboard_attackedBy[Player.WHITE]) + "\n";
+				+ "0x"+String.format("%08X", getAttackedTargets(Player.WHITE)) + "\n";
 		ret += "BLACK = "
-				+ "0x"+String.format("%08X", var_combined_bitboard_attackedBy[Player.BLACK]) + "\n";
+				+ "0x"+String.format("%08X", getAttackedTargets(Player.BLACK)) + "\n";
 		for (int player : Player.PLAYERS) {
 			for (int pieceType : PieceType.PIECE_TYPES) {
+				if(getAttackedTargets(player,pieceType) !=0l)
 				ret += "\t"+Player.toShortString(player) + PieceType.toString(pieceType) + " = "
-						+ "0x"+String.format("%08X", var_bitboard_attackedBy[player][pieceType]) + "\n";
+						+ "0x"+String.format("%08X", getAttackedTargets(player,pieceType)) + "\n";
 			}
 		}
 		
 		ret += "secondary attacks:\n";
 		ret += "WHITE = "
-				+ "0x"+String.format("%08X", var_combined_bitboard_secondary_attackedBy[Player.WHITE]) + "\n";
+				+ "0x"+String.format("%08X", getSecondaryAttackedTargets(Player.WHITE)) + "\n";
 		ret += "BLACK = "
-				+ "0x"+String.format("%08X", var_combined_bitboard_secondary_attackedBy[Player.BLACK]) + "\n";
+				+ "0x"+String.format("%08X", getSecondaryAttackedTargets(Player.BLACK)) + "\n";
 		for (int player : Player.PLAYERS) {
-			for (int pieceType : PieceType.PIECE_TYPES) {
+			for (int pieceType : PieceType.SLIDING_PIECE_TYPES) {
+				if(getSecondaryAttackedTargets(player,pieceType)!=0l)
 				ret += "\t"+Player.toShortString(player) + PieceType.toString(pieceType) + " = "
-						+ "0x"+String.format("%08X", var_bitboard_secondary_attackedBy[player][pieceType]) + "\n";
+						+ "0x"+String.format("%08X", getSecondaryAttackedTargets(player,pieceType)) + "\n";
+			}
+		}
+		
+		ret += "secondary batteries:\n";
+		ret += "WHITE = "
+				+ "0x"+String.format("%08X", getSecondaryBatteryAttackedTargets(Player.WHITE)) + "\n";
+		ret += "BLACK = "
+				+ "0x"+String.format("%08X", getSecondaryBatteryAttackedTargets(Player.BLACK)) + "\n";
+		for (int player : Player.PLAYERS) {
+			for (int pieceType : PieceType.SLIDING_PIECE_TYPES) {
+				if(getSecondaryBatteryAttackedTargets(player,pieceType)!=0l)
+				ret += "\t"+Player.toShortString(player) + PieceType.toString(pieceType) + " = "
+						+ "0x"+String.format("%08X", getSecondaryBatteryAttackedTargets(player,pieceType)) + "\n";
+			}
+		}
+		for (int player : Player.PLAYERS) {
+			ret += (player == Player.WHITE ? "WHITE" : "BLACK")+" processed exchange targets: " + "0x"
+					+ String.format("%08X", getOutput_target_isExchangeProcessed(player)) + "\n";
+			for (int pieceType : PieceType.PIECE_TYPES) {
+				if(getOutput_capture_winning(player, pieceType) !=0l)
+					ret+="\tcapture winning "+Player.toShortString(player) + PieceType.toString(pieceType)+
+					": 0x"+String.format("%08X", getOutput_capture_winning(player, pieceType)) + "\n";
+			}
+			for (int pieceType : PieceType.PIECE_TYPES) {
+				if(getOutput_capture_neutral(player, pieceType) !=0l)
+					ret+="\tcapture neutral "+Player.toShortString(player) + PieceType.toString(pieceType)+
+					": 0x"+String.format("%08X", getOutput_capture_neutral(player, pieceType)) + "\n";
+			}
+			for (int pieceType : PieceType.PIECE_TYPES) {
+				if(getOutput_capture_losing(player, pieceType) !=0l)
+					ret+="\tcapture losing "+Player.toShortString(player) + PieceType.toString(pieceType)+
+					": 0x"+String.format("%08X", getOutput_capture_losing(player, pieceType)) + "\n";
 			}
 		}
 		

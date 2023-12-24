@@ -10,16 +10,16 @@ class BSEETest_util {
 	private Gamestate test_game = new Gamestate();
 	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game, 1);
 	
-	void assertHelper(String fen) {
-		test_game.loadFromFEN(fen);
-		test_eval.initialize();
-		
-		System.out.println(test_eval.debug_getAllOutputs());
-	}
-	
 	@Test
 	void test() {
-		assertHelper("2r1k2r/1b2pp1p/p2p1np1/4n3/1q1NP3/2N2P2/1PP1B1PP/2QRK2R b Kk - 1 17");
+		
+		test_game.loadFromFEN("8/2r2k2/pp2np1p/2r2p2/3B4/P2KQ3/1PP3R1/8 w - - 0 1");
+		test_eval.initialize();
+		test_eval.evaluateCaptures();
+		test_eval.evaluateBoundDefenders();
+		test_eval.evaluateQuietMoves();
+		
+		System.out.println(test_eval.debug_getAllOutputs());
 	}
 
 }

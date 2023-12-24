@@ -53,7 +53,7 @@ public class GlobalConstants {
 		 * IMPORTANT: NO_PIECE is not in the collection!
 		 */
 		public static final int[] PIECE_TYPES = { PieceType.PAWN, PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP, PieceType.QUEEN, PieceType.KING };
-
+		public static final int[] SLIDING_PIECE_TYPES = { PieceType.ROOK, PieceType.BISHOP, PieceType.QUEEN };
 		/**
 		 * IMPORTANT: PAWN and NO_PIECE is not in the collection!
 		 */
