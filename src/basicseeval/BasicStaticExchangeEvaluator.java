@@ -150,9 +150,10 @@ public class BasicStaticExchangeEvaluator {
 	 * needs to be called after any changes to internal gamestate;
 	 * 
 	 * Populates:
-	 * var_combined_bitboard_attackedBy,
-	 * var_combined_bitboard_secondary_attackedBy,
-	 * var_combined_bitboard_secondary_battery_attackedBy
+	 * var_bitboard_attackedBy,
+	 * var_bitboard_secondary_attackedBy,
+	 * var_bitboard_secondary_battery_attackedBy
+	 * as well as their aggregates for both players
 	 * 
 	 */
 	public void initialize() {
@@ -340,6 +341,9 @@ public class BasicStaticExchangeEvaluator {
 		}//players loop
 	}//initialize method
 	
+	/**
+	 * @return a formatted string with all of the output variables
+	 */
 	public String debug_getAllOutputs() {
 		String ret = game.toFEN() + "\n";
 		//CONSIDER: check the popcount and if it is low, list out individual square strings instead of the hex long.
@@ -639,20 +643,20 @@ public class BasicStaticExchangeEvaluator {
 	public static String zFEN;
 	public static int zmaxLength=0, zsq, zplayer, zattacker, zscore;
 	
-	private int output_evaluateTargetExchange_score, output_evaluateTargetExchange_occupierPieceType, output_evaluateTargetExchange_occupierPlayer;
+	private int var_evaluateTargetExchange_score, var_evaluateTargetExchange_occupierPieceType, var_evaluateTargetExchange_occupierPlayer;
 	
 	int get_evaluateTargetExchange_score() {
-		return output_evaluateTargetExchange_score;
+		return var_evaluateTargetExchange_score;
 	}
 	
 	int get_evaluateTargetExchange_occupierPieceType() {
-		assert PieceType.validate(output_evaluateTargetExchange_occupierPieceType);
-		return output_evaluateTargetExchange_occupierPieceType;
+		assert PieceType.validate(var_evaluateTargetExchange_occupierPieceType);
+		return var_evaluateTargetExchange_occupierPieceType;
 	}
 	
 	int get_evaluateTargetExchange_occupierPlayer() {
-		assert Player.validate(output_evaluateTargetExchange_occupierPlayer);
-		return output_evaluateTargetExchange_occupierPlayer;
+		assert Player.validate(var_evaluateTargetExchange_occupierPlayer);
+		return var_evaluateTargetExchange_occupierPlayer;
 	}
 	
 	//combined implementation!!!
@@ -748,9 +752,9 @@ for(int i=0; i<d_combinedAttackStackSize-1;++i)
 			if(var_evaluateTarget_gain[i-1] != -var_evaluateTarget_gain[i])
 				lastOccupierIndex = i;
 		}
-		output_evaluateTargetExchange_score = var_evaluateTarget_gain[0];
-		output_evaluateTargetExchange_occupierPlayer = lastOccupierIndex%2 == 1 ? player : Player.getOtherPlayer(player);
-		output_evaluateTargetExchange_occupierPieceType = var_evaluateTarget_attackStack[lastOccupierIndex];
+		var_evaluateTargetExchange_score = var_evaluateTarget_gain[0];
+		var_evaluateTargetExchange_occupierPlayer = lastOccupierIndex%2 == 1 ? player : Player.getOtherPlayer(player);
+		var_evaluateTargetExchange_occupierPieceType = var_evaluateTarget_attackStack[lastOccupierIndex];
 		/**
 		 * at this point temp_evaluateCapture_forcedAttacker_gain[0] is the expected exchange value IF the forced capture is taken.
 		 */
@@ -758,8 +762,8 @@ if(ENABLE_EVALUATE_TARGET_EXCHANGE_DEBUG_STATEMENTS) {
 System.out.println();
 System.out.print("last attacker: "+ Player.toShortString(Player.getOtherPlayer(currentPlayer))
 	+ PieceType.toString(var_evaluateTarget_attackStack[d_combinedAttackStackSize-1]) +
-	" | last expected occupier: "+ Player.toShortString(output_evaluateTargetExchange_occupierPlayer)
-	+ PieceType.toString(output_evaluateTargetExchange_occupierPieceType) + " ("+lastOccupierIndex+")");
+	" | last expected occupier: "+ Player.toShortString(var_evaluateTargetExchange_occupierPlayer)
+	+ PieceType.toString(var_evaluateTargetExchange_occupierPieceType) + " ("+lastOccupierIndex+")");
 System.out.println(" returning: "+ var_evaluateTarget_gain[0]);
 System.out.println();
 }
@@ -769,7 +773,7 @@ System.out.println();
 			zattacker = forced_attacker_type;
 			zplayer = player;
 			zsq = sq;
-			zscore = output_evaluateTargetExchange_score;
+			zscore = var_evaluateTargetExchange_score;
 		}
 	}
 	
@@ -789,8 +793,6 @@ System.out.println();
 		String ret="? ";
 		for(int i=1; i<len;++i)
 			ret+=PieceType.toString(var_evaluateTarget_attackStack[i]) + " ";
-
-		
 		return ret;
 	}
 	
