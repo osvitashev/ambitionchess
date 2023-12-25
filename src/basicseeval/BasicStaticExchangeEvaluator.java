@@ -641,7 +641,6 @@ public class BasicStaticExchangeEvaluator {
 	
 	//these are just used for debugging.
 	public static String zFEN;
-	public static int zmaxLength=0, zsq, zplayer, zattacker, zscore;
 	
 	private int var_evaluateTargetExchange_score, var_evaluateTargetExchange_occupierPieceType, var_evaluateTargetExchange_occupierPlayer;
 	
@@ -767,14 +766,6 @@ System.out.print("last attacker: "+ Player.toShortString(Player.getOtherPlayer(c
 System.out.println(" returning: "+ var_evaluateTarget_gain[0]);
 System.out.println();
 }
-		if(d_combinedAttackStackSize > zmaxLength && var_evaluateTarget_gain[0]==0) {
-			zmaxLength = d_combinedAttackStackSize;
-			zFEN = game.toFEN();
-			zattacker = forced_attacker_type;
-			zplayer = player;
-			zsq = sq;
-			zscore = var_evaluateTargetExchange_score;
-		}
 	}
 	
 	private int output_defenderInteractions[] = new int[100];
