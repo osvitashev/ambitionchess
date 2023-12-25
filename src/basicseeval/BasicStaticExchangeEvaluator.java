@@ -404,7 +404,7 @@ public class BasicStaticExchangeEvaluator {
 			}
 			for (int pieceType : PieceType.PIECE_TYPES) {
 				if(getOutput_quiet_neutral(player, pieceType) !=0l)
-					ret+="\tquiet neutral losing "+Player.toShortString(player) + PieceType.toString(pieceType)+
+					ret+="\tquiet neutral "+Player.toShortString(player) + PieceType.toString(pieceType)+
 					": 0x"+String.format("%08X", getOutput_quiet_neutral(player, pieceType)) + "\n";
 			}
 			for (int pieceType : PieceType.PIECE_TYPES) {
@@ -628,16 +628,16 @@ public class BasicStaticExchangeEvaluator {
 	}
 
 	/**
-	 * local to evaluateCapture_forced and evaluateQuiet_forced
+	 * local to all of the linear minimax swap functions such as evaluateTargetExchange
 	 */
 	private int var_evaluateTarget_attackStack[]=new int[32];//pieceType - both players condensed to same stack.
 	/**
-	 * local to evaluateCapture_forced and evaluateQuiet_forced
+	 * local to all of the linear minimax swap functions such as evaluateTargetExchange
 	 */
 	private int var_evaluateTarget_gain [] =new int[32];//integer value change - needed for linear minimax
 	
-	private static final boolean ENABLE_EVALUATE_TARGET_EXCHANGE_DEBUG_STATEMENTS = false;
-	private static final boolean ENABLE_EVALUATE_TARGET_TIEDUP_DEFENDERS_DEBUG_STATEMENTS = false;
+	private static final boolean ENABLE_EVALUATE_TARGET_EXCHANGE_DEBUG_STATEMENTS = true;
+	private static final boolean ENABLE_EVALUATE_TARGET_BOUND_DEFENDERS_DEBUG_STATEMENTS = false;
 	
 	//these are just used for debugging.
 	public static String zFEN;
@@ -731,7 +731,7 @@ public class BasicStaticExchangeEvaluator {
 		} while (true);
 
 if(ENABLE_EVALUATE_TARGET_EXCHANGE_DEBUG_STATEMENTS) {
-System.out.print(game.toFEN() + " ["+ Player.toShortString(player)+PieceType.toString(forced_attacker_type) +
+System.out.print(game.toFEN() + " ["+ Player.toShortString(player)+PieceType.toString(var_evaluateTarget_attackStack[0]) +
 		(game.getPieceAt(sq) == PieceType.NO_PIECE ? " - " : " x " )
 		+ Square.toString(sq)+ "] sequence: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "()" :
 			((player==Player.BLACK ? "w" : "b") + PieceType.toString(var_evaluateTarget_attackStack[0]))) 
@@ -860,7 +860,7 @@ System.out.println();
 			} while (true);
 			if(candidateDefenderSquare == Square.SQUARE_NONE)
 				break;
-if(ENABLE_EVALUATE_TARGET_TIEDUP_DEFENDERS_DEBUG_STATEMENTS) {
+if(ENABLE_EVALUATE_TARGET_BOUND_DEFENDERS_DEBUG_STATEMENTS) {
 System.out.println();
 System.out.print(game.toFEN() + " ["+ Player.toShortString(player) + (game.getPieceAt(sq) == PieceType.NO_PIECE ? " - " : " x " ) + Square.toString(sq)+ "] sequence: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "()" :
 	((player==Player.BLACK ? "w" : "b") + PieceType.toString(var_evaluateTarget_attackStack[0]))) + " ");
@@ -888,7 +888,7 @@ for(int i=0; i<d_combinedAttackStackSize-1;++i)
 			else
 				naturalExchangeOutcome = OutcomeEnum.POSITIVE;
 			
-if(ENABLE_EVALUATE_TARGET_TIEDUP_DEFENDERS_DEBUG_STATEMENTS) {
+if(ENABLE_EVALUATE_TARGET_BOUND_DEFENDERS_DEBUG_STATEMENTS) {
 System.out.println();
 System.out.print("last attacker: "+ Player.toShortString(Player.getOtherPlayer(currentPlayer))
 + PieceType.toString(var_evaluateTarget_attackStack[d_combinedAttackStackSize-1]) +
