@@ -11,7 +11,7 @@ import gamestate.GlobalConstants.Square;
 import util.HitCounter;
 import util.Utilities.OutcomeEnum;
 
-class BSEETest_evaluateQuiet_forced {
+class BSEETest_evaluateQuiet_target {
 	private Gamestate test_game = new Gamestate();
 	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game, 1);
 	

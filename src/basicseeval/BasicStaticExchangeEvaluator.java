@@ -658,6 +658,7 @@ public class BasicStaticExchangeEvaluator {
 		return var_evaluateTargetExchange_occupierPlayer;
 	}
 	
+
 	//combined implementation!!!
 	void evaluateTargetExchange(int sq, int player, int forced_attacker_type) {
 		assert Square.validate(sq);
