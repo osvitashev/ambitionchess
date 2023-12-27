@@ -630,19 +630,18 @@ public class BasicStaticExchangeEvaluator {
 	/**
 	 * local to all of the linear minimax swap functions such as evaluateTargetExchange
 	 */
-	private int var_evaluateTarget_attackStack[]=new int[32];//pieceType - both players condensed to same stack.
+	private int var_evaluateTarget_attackTypeStack[]=new int[32];//pieceType - both players condensed to same stack.
+	private int var_evaluateTarget_attackSquareStack[]=new int[32];
 	/**
 	 * local to all of the linear minimax swap functions such as evaluateTargetExchange
 	 */
 	private int var_evaluateTarget_gain [] =new int[32];//integer value change - needed for linear minimax
 	
-	private static final boolean ENABLE_EVALUATE_TARGET_EXCHANGE_DEBUG_STATEMENTS = true;
+	private static final boolean ENABLE_EVALUATE_TARGET_EXCHANGE_DEBUG_STATEMENTS = false;
 	private static final boolean ENABLE_EVALUATE_TARGET_BOUND_DEFENDERS_DEBUG_STATEMENTS = false;
 	
-	//these are just used for debugging.
-	public static String zFEN;
-	
-	private int var_evaluateTargetExchange_score, var_evaluateTargetExchange_occupierPieceType, var_evaluateTargetExchange_occupierPlayer;
+	private int var_evaluateTargetExchange_score, var_evaluateTargetExchange_occupierPieceType, var_evaluateTargetExchange_occupierPlayer,
+		var_evaluateTargetExchange_principleLineLastIndex;
 	
 	int get_evaluateTargetExchange_score() {
 		return var_evaluateTargetExchange_score;
@@ -658,30 +657,76 @@ public class BasicStaticExchangeEvaluator {
 		return var_evaluateTargetExchange_occupierPlayer;
 	}
 	
-
-	//combined implementation!!!
-	void evaluateTargetExchange(int sq, int player, int forced_attacker_type) {
+	int get_evaluateTargetExchange_principleLineLastIndex() {
+		return var_evaluateTargetExchange_principleLineLastIndex;
+	}
+	
+	/**
+	 * returns square of the piece at the given index of the principle line of the exchange.
+	 * @param index
+	 * @return square
+	 */
+	int get_evaluateTargetExchange_principleLine_square(int index) {
+		assert index <= get_evaluateTargetExchange_principleLineLastIndex() && index >=0;
+		assert Square.validate(var_evaluateTarget_attackSquareStack[index]);
+		return var_evaluateTarget_attackSquareStack[index];
+	}
+	
+	/**
+	 * 
+	 * @param sq
+	 * @param player
+	 * @param forced_attacker_type PieceType. NO_PIECE indicates that we are evaluating natural attack order.
+	 * @return whether there is an available capture.
+	 */
+	boolean evaluateTargetExchange(int sq, int player, int forced_attacker_type) {
 		assert Square.validate(sq);
 		assert Player.validate(player);
-		assert (game.getPieceAt(sq) == PieceType.NO_PIECE
-				&& (forced_attacker_type != PieceType.PAWN && Bitboard.testBit(getAttackedTargets(player, forced_attacker_type), sq)
-						|| forced_attacker_type == PieceType.PAWN && Bitboard
-								.testBit(BitboardGen.getMultiplePawnPushSet(game.getPieces(player, PieceType.PAWN), player, game.getOccupied()), sq)))
-				|| (game.getPieceAt(sq) != PieceType.NO_PIECE && game.getPlayerAt(sq) == Player.getOtherPlayer(player) && Bitboard.testBit(getAttackedTargets(player, forced_attacker_type), sq))
-				: Square.toString(sq) + " " + Player.toString(player) + " " + PieceType.toString(forced_attacker_type);	
+		assert (
+					game.getPieceAt(sq) == PieceType.NO_PIECE
+					&&
+					(
+						forced_attacker_type == PieceType.NO_PIECE
+						||
+						forced_attacker_type != PieceType.PAWN && Bitboard.testBit(getAttackedTargets(player, forced_attacker_type), sq)
+						||
+						forced_attacker_type == PieceType.PAWN && Bitboard.testBit(BitboardGen.getMultiplePawnPushSet(game.getPieces(player, PieceType.PAWN), player, game.getOccupied()), sq)
+					)
+				)
+				||
+				(
+					game.getPieceAt(sq) != PieceType.NO_PIECE
+					&&
+					(	
+						forced_attacker_type == PieceType.NO_PIECE
+						||
+						(game.getPlayerAt(sq) == Player.getOtherPlayer(player) && Bitboard.testBit(getAttackedTargets(player, forced_attacker_type), sq))
+					)
+				)
+				: Square.toString(sq) + " " + Player.toString(player) + " " + PieceType.toString(forced_attacker_type);
 		
-		int d_combinedAttackStackSize=2;
-		int currentPlayer=player;
+		int d_combinedAttackStackSize=1;
+		int currentPlayer=Player.getOtherPlayer(player);
 		long clearedSquares =0;
+		
+		if(forced_attacker_type != PieceType.NO_PIECE) {
+			d_combinedAttackStackSize++;
+			currentPlayer = player;
+		}
+			
 		
 		//all of the temporary and output state variables can be shifted into a separate class using composition
 		
-		var_evaluateTarget_attackStack[0]=game.getPieceAt(sq);
-		var_evaluateTarget_attackStack[1]=forced_attacker_type;
-		var_evaluateTarget_gain[0] = game.getPieceAt(sq) == PieceType.NO_PIECE ? 0 : getPieceValue(var_evaluateTarget_attackStack[0]);
-		var_evaluateTarget_gain[1] =getPieceValue(var_evaluateTarget_attackStack[1]) - var_evaluateTarget_gain[0];
+		var_evaluateTarget_attackTypeStack[0]=game.getPieceAt(sq);
+		var_evaluateTarget_attackSquareStack[0]=sq;
+		if(forced_attacker_type != PieceType.NO_PIECE)
+			var_evaluateTarget_attackTypeStack[1]=forced_attacker_type;
+		var_evaluateTarget_gain[0] = game.getPieceAt(sq) == PieceType.NO_PIECE ? 0 : getPieceValue(var_evaluateTarget_attackTypeStack[0]);
+		if(forced_attacker_type != PieceType.NO_PIECE)
+			var_evaluateTarget_gain[1] =getPieceValue(var_evaluateTarget_attackTypeStack[1]) - var_evaluateTarget_gain[0];
 
 		if(forced_attacker_type == PieceType.PAWN && game.getPieceAt(sq) == PieceType.NO_PIECE) {
+			//todo: handle squareStack for pawns!!!!!!!!!
 			long targetbb = Bitboard.initFromSquare(sq);
 			long pawns = game.getPieces(player, PieceType.PAWN);
 			if(player == Player.WHITE) {
@@ -699,12 +744,14 @@ public class BasicStaticExchangeEvaluator {
 					clearedSquares |= Bitboard.shiftNorth(targetbb);
 			}
 		}
-		else
-			clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(getLeastValuableAttacker_withType(sq, currentPlayer, forced_attacker_type, 0l)));
-
+		else if(forced_attacker_type != PieceType.NO_PIECE) {
+			int lva = getLeastValuableAttacker_withType(sq, currentPlayer, forced_attacker_type, 0l);
+			var_evaluateTarget_attackSquareStack[1] = AttackerType.getAttackerSquareFrom(lva);
+			clearedSquares |= Bitboard.initFromSquare(var_evaluateTarget_attackSquareStack[1]);
+		}
+			
 		int leastValuableAttacker;
 		int nextAttackerType, prevVictim;
-		int lastOccupierIndex;
 		do {
 			currentPlayer = Player.getOtherPlayer(currentPlayer);
 			leastValuableAttacker = getLeastValuableAttacker(sq, currentPlayer, clearedSquares);
@@ -712,10 +759,11 @@ public class BasicStaticExchangeEvaluator {
 				break;
 			nextAttackerType = AttackerType.getAttackerPieceType(leastValuableAttacker);
 			clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(leastValuableAttacker));
-			var_evaluateTarget_attackStack[d_combinedAttackStackSize] = nextAttackerType;
-			var_evaluateTarget_gain[d_combinedAttackStackSize] = getPieceValue(var_evaluateTarget_attackStack[d_combinedAttackStackSize])
+			var_evaluateTarget_attackTypeStack[d_combinedAttackStackSize] = nextAttackerType;
+			var_evaluateTarget_attackSquareStack[d_combinedAttackStackSize] = AttackerType.getAttackerSquareFrom(leastValuableAttacker);
+			var_evaluateTarget_gain[d_combinedAttackStackSize] = getPieceValue(var_evaluateTarget_attackTypeStack[d_combinedAttackStackSize])
 					- var_evaluateTarget_gain[d_combinedAttackStackSize - 1];
-			prevVictim = var_evaluateTarget_attackStack[d_combinedAttackStackSize - 1];
+			prevVictim = var_evaluateTarget_attackTypeStack[d_combinedAttackStackSize - 1];
 			d_combinedAttackStackSize++;
 			// this is the short exit condition. we stop iteration if the last recapture did
 			// not make the score worthy of being selected.
@@ -729,44 +777,59 @@ public class BasicStaticExchangeEvaluator {
 			if (prevVictim == PieceType.KING)
 				break;
 		} while (true);
+		
+		
+				
 
 if(ENABLE_EVALUATE_TARGET_EXCHANGE_DEBUG_STATEMENTS) {
-System.out.print(game.toFEN() + " ["+ Player.toShortString(player)+PieceType.toString(var_evaluateTarget_attackStack[0]) +
+System.out.print(game.toFEN() + " [" +
+		((forced_attacker_type == PieceType.NO_PIECE) ? "natural " : "forced ")+ Player.toShortString(player) + "??" +
 		(game.getPieceAt(sq) == PieceType.NO_PIECE ? " - " : " x " )
 		+ Square.toString(sq)+ "] sequence: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "()" :
-			((player==Player.BLACK ? "w" : "b") + PieceType.toString(var_evaluateTarget_attackStack[0]))) 
+			((player==Player.BLACK ? "w" : "b") + PieceType.toString(var_evaluateTarget_attackTypeStack[0]))) 
 		+ " ");
 for(int i=1; i<d_combinedAttackStackSize;++i)
-	System.out.print((player==Player.BLACK ^ i%2==1 ? "w" : "b") + PieceType.toString(var_evaluateTarget_attackStack[i]) + " ");
-System.out.print("} values: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "0" : getPieceValue(var_evaluateTarget_attackStack[0])) + " ");
+	System.out.print((player==Player.BLACK ^ i%2==1 ? "w" : "b") + PieceType.toString(var_evaluateTarget_attackTypeStack[i]) + " ");
+System.out.print("} values: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "0" : getPieceValue(var_evaluateTarget_attackTypeStack[0])) + " ");
 for(int i=1; i<d_combinedAttackStackSize;++i)
-	System.out.print(getPieceValue(var_evaluateTarget_attackStack[i]) + " ");
+	System.out.print(getPieceValue(var_evaluateTarget_attackTypeStack[i]) + " ");
 System.out.print("} gains: ");
 for(int i=0; i<d_combinedAttackStackSize-1;++i)
 	System.out.print(var_evaluateTarget_gain[i] + " ");
 }
+		
 		//minimax backtracking
-		lastOccupierIndex=d_combinedAttackStackSize-1;
+		var_evaluateTargetExchange_principleLineLastIndex=d_combinedAttackStackSize-1;
 		for (int i = d_combinedAttackStackSize-2; i>0; --i) {
 			var_evaluateTarget_gain[i-1]= -Math.max(-var_evaluateTarget_gain[i-1], var_evaluateTarget_gain[i]);
 			if(var_evaluateTarget_gain[i-1] != -var_evaluateTarget_gain[i])
-				lastOccupierIndex = i;
+				var_evaluateTargetExchange_principleLineLastIndex = i;
 		}
 		var_evaluateTargetExchange_score = var_evaluateTarget_gain[0];
-		var_evaluateTargetExchange_occupierPlayer = lastOccupierIndex%2 == 1 ? player : Player.getOtherPlayer(player);
-		var_evaluateTargetExchange_occupierPieceType = var_evaluateTarget_attackStack[lastOccupierIndex];
-		/**
+		var_evaluateTargetExchange_occupierPlayer = var_evaluateTargetExchange_principleLineLastIndex%2 == 1 ? player : Player.getOtherPlayer(player);
+		var_evaluateTargetExchange_occupierPieceType = var_evaluateTarget_attackTypeStack[var_evaluateTargetExchange_principleLineLastIndex];
+
+				/**
 		 * at this point temp_evaluateCapture_forcedAttacker_gain[0] is the expected exchange value IF the forced capture is taken.
 		 */
 if(ENABLE_EVALUATE_TARGET_EXCHANGE_DEBUG_STATEMENTS) {
 System.out.println();
 System.out.print("last attacker: "+ Player.toShortString(Player.getOtherPlayer(currentPlayer))
-	+ PieceType.toString(var_evaluateTarget_attackStack[d_combinedAttackStackSize-1]) +
-	" | last expected occupier: "+ Player.toShortString(var_evaluateTargetExchange_occupierPlayer)
-	+ PieceType.toString(var_evaluateTargetExchange_occupierPieceType) + " ("+lastOccupierIndex+")");
+	+ PieceType.toString(var_evaluateTarget_attackTypeStack[d_combinedAttackStackSize-1]));
+System.out.print(" | principal line: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "()" :
+	(Square.toString(var_evaluateTarget_attackSquareStack[0]))) 
++ " ");
+for(int i=1; i<=var_evaluateTargetExchange_principleLineLastIndex;++i)
+	System.out.print(Square.toString(var_evaluateTarget_attackSquareStack[i]) + " ");
+
+	System.out.print("} | last expected occupier: "+ Player.toShortString(var_evaluateTargetExchange_occupierPlayer)
+	+ PieceType.toString(var_evaluateTargetExchange_occupierPieceType) + " ("+var_evaluateTargetExchange_principleLineLastIndex+")");
 System.out.println(" returning: "+ var_evaluateTarget_gain[0]);
 System.out.println();
 }
+		if(var_evaluateTargetExchange_principleLineLastIndex == 0)
+			return false;
+		return true;
 	}
 	
 	private int output_defenderInteractions[] = new int[100];
@@ -784,7 +847,7 @@ System.out.println();
 	private String debug_attackStackToString(int len) {
 		String ret="? ";
 		for(int i=1; i<len;++i)
-			ret+=PieceType.toString(var_evaluateTarget_attackStack[i]) + " ";
+			ret+=PieceType.toString(var_evaluateTarget_attackTypeStack[i]) + " ";
 		return ret;
 	}
 	
@@ -802,7 +865,7 @@ System.out.println();
 		
 		
 		long processedDefendersBB=0l;
-		int naturalExchangeOutcome, lastOccupierIndex;
+		int naturalExchangeOutcome;
 		
 		
 		//loop start here
@@ -813,8 +876,8 @@ System.out.println();
 			int d_combinedAttackStackSize=1;
 			int currentPlayer=Player.getOtherPlayer(player);
 			long clearedSquares =0;
-			var_evaluateTarget_attackStack[0]=game.getPieceAt(sq);
-			var_evaluateTarget_gain[0] = getPieceValue(var_evaluateTarget_attackStack[0]);
+			var_evaluateTarget_attackTypeStack[0]=game.getPieceAt(sq);
+			var_evaluateTarget_gain[0] = getPieceValue(var_evaluateTarget_attackTypeStack[0]);
 			int leastValuableAttacker;
 			int nextAttackerType, prevVictim;
 			do {
@@ -836,10 +899,10 @@ System.out.println();
 
 				nextAttackerType = AttackerType.getAttackerPieceType(leastValuableAttacker);
 				clearedSquares |= Bitboard.initFromSquare(AttackerType.getAttackerSquareFrom(leastValuableAttacker));
-				var_evaluateTarget_attackStack[d_combinedAttackStackSize] = nextAttackerType;
-				var_evaluateTarget_gain[d_combinedAttackStackSize] = getPieceValue(var_evaluateTarget_attackStack[d_combinedAttackStackSize])
+				var_evaluateTarget_attackTypeStack[d_combinedAttackStackSize] = nextAttackerType;
+				var_evaluateTarget_gain[d_combinedAttackStackSize] = getPieceValue(var_evaluateTarget_attackTypeStack[d_combinedAttackStackSize])
 						- var_evaluateTarget_gain[d_combinedAttackStackSize - 1];
-				prevVictim = var_evaluateTarget_attackStack[d_combinedAttackStackSize - 1];
+				prevVictim = var_evaluateTarget_attackTypeStack[d_combinedAttackStackSize - 1];
 				d_combinedAttackStackSize++;
 				// this is the short exit condition. we stop iteration if the last recapture did
 				// not make the score worthy of being selected.
@@ -855,27 +918,27 @@ System.out.println();
 if(ENABLE_EVALUATE_TARGET_BOUND_DEFENDERS_DEBUG_STATEMENTS) {
 System.out.println();
 System.out.print(game.toFEN() + " ["+ Player.toShortString(player) + (game.getPieceAt(sq) == PieceType.NO_PIECE ? " - " : " x " ) + Square.toString(sq)+ "] sequence: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "()" :
-	((player==Player.BLACK ? "w" : "b") + PieceType.toString(var_evaluateTarget_attackStack[0]))) + " ");
+	((player==Player.BLACK ? "w" : "b") + PieceType.toString(var_evaluateTarget_attackTypeStack[0]))) + " ");
 for(int i=1; i<d_combinedAttackStackSize;++i)
-	System.out.print((player==Player.BLACK ^ i%2==1 ? "w" : "b") + PieceType.toString(var_evaluateTarget_attackStack[i]) + " ");
-System.out.print("} values: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "0" : getPieceValue(var_evaluateTarget_attackStack[0])) + " ");
+	System.out.print((player==Player.BLACK ^ i%2==1 ? "w" : "b") + PieceType.toString(var_evaluateTarget_attackTypeStack[i]) + " ");
+System.out.print("} values: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "0" : getPieceValue(var_evaluateTarget_attackTypeStack[0])) + " ");
 for(int i=1; i<d_combinedAttackStackSize;++i)
-	System.out.print(getPieceValue(var_evaluateTarget_attackStack[i]) + " ");
+	System.out.print(getPieceValue(var_evaluateTarget_attackTypeStack[i]) + " ");
 System.out.print("} gains: ");
 for(int i=0; i<d_combinedAttackStackSize-1;++i)
 	System.out.print(var_evaluateTarget_gain[i] + " ");
 }
 			//minimax backtracking
-			lastOccupierIndex=d_combinedAttackStackSize-1;
+			var_evaluateTargetExchange_principleLineLastIndex=d_combinedAttackStackSize-1;
 			for (int i = d_combinedAttackStackSize-2; i>0; --i) {
 				var_evaluateTarget_gain[i-1]= -Math.max(-var_evaluateTarget_gain[i-1], var_evaluateTarget_gain[i]);
 				if(var_evaluateTarget_gain[i-1] != -var_evaluateTarget_gain[i])
-					lastOccupierIndex = i;
+					var_evaluateTargetExchange_principleLineLastIndex = i;
 			}
 			
-			if(Bitboard.testBit(getOutput_capture_losing(player, var_evaluateTarget_attackStack[1]), sq))
+			if(Bitboard.testBit(getOutput_capture_losing(player, var_evaluateTarget_attackTypeStack[1]), sq))
 				naturalExchangeOutcome = OutcomeEnum.NEGATIVE;
-			else if(Bitboard.testBit(getOutput_capture_neutral(player, var_evaluateTarget_attackStack[1]), sq))
+			else if(Bitboard.testBit(getOutput_capture_neutral(player, var_evaluateTarget_attackTypeStack[1]), sq))
 				naturalExchangeOutcome = OutcomeEnum.NEUTRAL;
 			else
 				naturalExchangeOutcome = OutcomeEnum.POSITIVE;
@@ -883,8 +946,8 @@ for(int i=0; i<d_combinedAttackStackSize-1;++i)
 if(ENABLE_EVALUATE_TARGET_BOUND_DEFENDERS_DEBUG_STATEMENTS) {
 System.out.println();
 System.out.print("last attacker: "+ Player.toShortString(Player.getOtherPlayer(currentPlayer))
-+ PieceType.toString(var_evaluateTarget_attackStack[d_combinedAttackStackSize-1]) +
-" | last expected occupier: "+ (player==Player.BLACK ^ lastOccupierIndex%2==1 ? "w" : "b") + PieceType.toString(var_evaluateTarget_attackStack[lastOccupierIndex]) + " ("+lastOccupierIndex+")");System.out.println(" returning: "+ var_evaluateTarget_gain[0]);
++ PieceType.toString(var_evaluateTarget_attackTypeStack[d_combinedAttackStackSize-1]) +
+" | last expected occupier: "+ (player==Player.BLACK ^ var_evaluateTargetExchange_principleLineLastIndex%2==1 ? "w" : "b") + PieceType.toString(var_evaluateTarget_attackTypeStack[var_evaluateTargetExchange_principleLineLastIndex]) + " ("+var_evaluateTargetExchange_principleLineLastIndex+")");System.out.println(" returning: "+ var_evaluateTarget_gain[0]);
 String str = "evaluateTargetOverprotection of (" + Square.toString(sq)+") | natural exchange "+ OutcomeEnum.toString(naturalExchangeOutcome) + " | "+
 		" lifted defender: "+ Square.toString(candidateDefenderSquare) + " value: " + var_evaluateTarget_gain[0] + " | ";
 if(var_evaluateTarget_gain[0] < 0)

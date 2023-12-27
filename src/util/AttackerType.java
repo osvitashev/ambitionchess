@@ -27,7 +27,7 @@ public class AttackerType {
 	}
 	
 	public static int create(int pieceType, int sq) {
-		assert PieceType.validate(pieceType);
+		assert PieceType.validate(pieceType) : "got: " + pieceType;
 		assert Square.validate(pieceType);
 		int val = setBits(0, pieceType, 0, 3);
 		return setBits(val, sq, 3, 6);
