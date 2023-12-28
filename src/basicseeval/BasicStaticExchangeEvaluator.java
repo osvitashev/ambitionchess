@@ -637,7 +637,7 @@ public class BasicStaticExchangeEvaluator {
 	 */
 	private int var_evaluateTarget_gain [] =new int[32];//integer value change - needed for linear minimax
 	
-	private static final boolean ENABLE_EVALUATE_TARGET_EXCHANGE_DEBUG_STATEMENTS = true;
+	private static final boolean ENABLE_EVALUATE_TARGET_EXCHANGE_DEBUG_STATEMENTS = false;
 	private static final boolean ENABLE_EVALUATE_TARGET_BOUND_DEFENDERS_DEBUG_STATEMENTS = false;
 	
 	private int var_evaluateTargetExchange_score, var_evaluateTargetExchange_occupierPieceType, var_evaluateTargetExchange_occupierPlayer,

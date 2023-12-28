@@ -176,22 +176,14 @@ class BSEETest_evaluateQuiet_target {
 		
 	}
 	
-	@Test
-	void testTrace_evaluateQuiet_forcedAttacker() {
-		fail("to be implemented...");
-	
-	}
-	
-	private void testOutcome_naturalOrder(int sq, int player, int expectedOutcome, String[] principleLine) {
-		test_eval.evaluateTargetExchange(sq, player, PieceType.NO_PIECE);
-		int outcome = test_eval.get_evaluateTargetExchange_score();
+	private void testPlayerPieceType(int expectedFinalPlayer, int expectedFinalPieceType, int sq, int player, int pieceType,
+			String[] principleLine) {
+		test_eval.evaluateTargetExchange(sq, player, pieceType);
+		int finalPlayer = test_eval.get_evaluateTargetExchange_occupierPlayer();
+		int finalPieceType = test_eval.get_evaluateTargetExchange_occupierPieceType();
 		if (!skipAssertions) {
-			if (expectedOutcome > 0)
-				assertTrue(outcome > 0);
-			else if (expectedOutcome < 0)
-				assertTrue(outcome < 0);
-			else
-				assertEquals(0, outcome);
+			assertEquals(expectedFinalPlayer, finalPlayer);
+			assertEquals(expectedFinalPieceType, finalPieceType);
 			assertEquals(principleLine.length, test_eval.get_evaluateTargetExchange_principleLineLastIndex() + 1);
 			for (int i = 0; i < principleLine.length; ++i)
 				assertEquals(Square.algebraicStringToSquare(principleLine[i]),
@@ -200,24 +192,24 @@ class BSEETest_evaluateQuiet_target {
 	}
 	
 	@Test
-	void testScore_evaluateQuiet_naturalOrder() {
-		test_game.loadFromFEN("8/3k2n1/4q3/7p/5N2/1p2R2P/2PK3P/8 w - - 0 1");
+	void testTrace_evaluateQuiet_forcedAttacker() {
+		test_game.loadFromFEN("4r3/1B5k/6b1/5q2/Q3r3/3K1PN1/4RR2/8 w - - 0 1");
 		test_eval.initialize();
-		testOutcome_naturalOrder(Square.F5, Player.BLACK, OutcomeEnum.NEUTRAL,new String[] {"f5", "g7"});
-		testOutcome_naturalOrder(Square.E5, Player.BLACK, OutcomeEnum.NEGATIVE,new String[] {"e5", "e6", "e3"});
+		testPlayerPieceType(Player.BLACK, // expectedFinalPlayer
+				PieceType.ROOK,// expectedFinalPieceType
+				Square.E3, // sq
+				Player.WHITE, 
+				PieceType.ROOK, // pieceType
+				new String[] { "e3", "e2", "e4"});
 		
-		test_game.loadFromFEN("5rk1/1prq2pp/p3p1bn/2bpP3/P2N1PP1/2BP4/1PP1BR1K/R4Q2 b - - 6 23");
+		test_game.loadFromFEN("8/6rk/6q1/8/Q1RQ4/2K5/8/8 w - - 0 1");
 		test_eval.initialize();
-		testOutcome_naturalOrder(Square.E4, Player.BLACK, OutcomeEnum.NEUTRAL,new String[] {});
-		//testOutcome_naturalOrder(Square.E4, Player.BLACK, OutcomeEnum.NEUTRAL,new String[] {}); - does not throw error
-		
-		
-		//add pawn pushes!!!
-		
-		//add case with no available attackers??
-		//>> this is questionable, because 
-		
-		
-	}
-
+		testPlayerPieceType(Player.WHITE, // expectedFinalPlayer
+				PieceType.QUEEN,// expectedFinalPieceType
+				Square.G4, // sq
+				Player.WHITE, 
+				PieceType.QUEEN, // pieceType
+				new String[] {"g4", "d4", "g6", "c4", "g7", "a4"});
+	
+	}	
 }
