@@ -17,7 +17,7 @@ class BSEETest_evaluateCapture_target {
 
 	static final boolean skipAssertions = false;
 
-	void testOutcome(int expectedOutcome, int sq, int player, int pieceType) {
+	private void testOutcome(int expectedOutcome, int sq, int player, int pieceType) {
 		test_eval.evaluateTargetExchange(sq, player, pieceType);
 		int outcome = test_eval.get_evaluateTargetExchange_score();
 		if (!skipAssertions) {
@@ -205,7 +205,7 @@ class BSEETest_evaluateCapture_target {
 
 	}
 
-	void testPlayerPieceType(int expectedFinalPlayer, int expectedFinalPieceType, int sq, int player, int pieceType,
+	private void testPlayerPieceType(int expectedFinalPlayer, int expectedFinalPieceType, int sq, int player, int pieceType,
 			String[] principleLine) {
 		test_eval.evaluateTargetExchange(sq, player, pieceType);
 		int finalPlayer = test_eval.get_evaluateTargetExchange_occupierPlayer();
@@ -221,7 +221,7 @@ class BSEETest_evaluateCapture_target {
 	}
 
 	@Test
-	void testPlayerPieceType_evaluateCapture_forcedAttacker() {
+	void testTrace_evaluateCapture_forcedAttacker() {
 		test_game.loadFromFEN("4r3/1B5k/6b1/5q2/Q3r3/3K1PN1/4RR2/8 w - - 0 1");
 		test_eval.initialize();
 		testPlayerPieceType(Player.WHITE, // expectedFinalPlayer
@@ -268,7 +268,7 @@ class BSEETest_evaluateCapture_target {
 			fail("Assertions skipped! We must be running some experiments...");
 	}
 
-	void testOutcome_naturalOrder(int sq, int player, int expectedOutcome, String[] principleLine) {
+	private void testOutcome_naturalOrder(int sq, int player, int expectedOutcome, String[] principleLine) {
 		test_eval.evaluateTargetExchange(sq, player, PieceType.NO_PIECE);
 		int outcome = test_eval.get_evaluateTargetExchange_score();
 		if (!skipAssertions) {
@@ -285,7 +285,7 @@ class BSEETest_evaluateCapture_target {
 		}
 	}
 	
-	void test_naturalOrder_noExhange(int sq, int player, String[] principleLine) {
+	private void test_naturalOrder_noExhange(int sq, int player, String[] principleLine) {
 		boolean outcome = test_eval.evaluateTargetExchange(sq, player, PieceType.NO_PIECE);
 		if (!skipAssertions) {
 			assertEquals(outcome, false);

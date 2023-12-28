@@ -31,7 +31,7 @@ class BSEETest_evaluateQuiet_target {
 	}
 	
 	@Test
-	void testOutcome_evaluateCapture_forcedAttacker() {
+	void testOutcome_evaluateQuiet_forcedAttacker() {
 		//basic
 		test_game.loadFromFEN("1k3r2/8/8/3p4/8/6K1/3P4/3R4 w - - 0 1");
 		test_eval.initialize();
@@ -172,6 +172,50 @@ class BSEETest_evaluateQuiet_target {
 		test_game.loadFromFEN("8/2kr1bb1/3r1q2/1n1p4/8/1NPQ4/1KnR1BB1/3R4 b - - 3 2");
 		test_eval.initialize();
 		test(OutcomeEnum.NEUTRAL, Square.D4, Player.BLACK, PieceType.PAWN);
+		
+		
+	}
+	
+	@Test
+	void testTrace_evaluateQuiet_forcedAttacker() {
+		fail("to be implemented...");
+	
+	}
+	
+	private void testOutcome_naturalOrder(int sq, int player, int expectedOutcome, String[] principleLine) {
+		test_eval.evaluateTargetExchange(sq, player, PieceType.NO_PIECE);
+		int outcome = test_eval.get_evaluateTargetExchange_score();
+		if (!skipAssertions) {
+			if (expectedOutcome > 0)
+				assertTrue(outcome > 0);
+			else if (expectedOutcome < 0)
+				assertTrue(outcome < 0);
+			else
+				assertEquals(0, outcome);
+			assertEquals(principleLine.length, test_eval.get_evaluateTargetExchange_principleLineLastIndex() + 1);
+			for (int i = 0; i < principleLine.length; ++i)
+				assertEquals(Square.algebraicStringToSquare(principleLine[i]),
+						test_eval.get_evaluateTargetExchange_principleLine_square(i));
+		}
+	}
+	
+	@Test
+	void testScore_evaluateQuiet_naturalOrder() {
+		test_game.loadFromFEN("8/3k2n1/4q3/7p/5N2/1p2R2P/2PK3P/8 w - - 0 1");
+		test_eval.initialize();
+		testOutcome_naturalOrder(Square.F5, Player.BLACK, OutcomeEnum.NEUTRAL,new String[] {"f5", "g7"});
+		testOutcome_naturalOrder(Square.E5, Player.BLACK, OutcomeEnum.NEGATIVE,new String[] {"e5", "e6", "e3"});
+		
+		test_game.loadFromFEN("5rk1/1prq2pp/p3p1bn/2bpP3/P2N1PP1/2BP4/1PP1BR1K/R4Q2 b - - 6 23");
+		test_eval.initialize();
+		testOutcome_naturalOrder(Square.E4, Player.BLACK, OutcomeEnum.NEUTRAL,new String[] {});
+		//testOutcome_naturalOrder(Square.E4, Player.BLACK, OutcomeEnum.NEUTRAL,new String[] {}); - does not throw error
+		
+		
+		//add pawn pushes!!!
+		
+		//add case with no available attackers??
+		//>> this is questionable, because 
 		
 		
 	}

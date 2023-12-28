@@ -637,7 +637,7 @@ public class BasicStaticExchangeEvaluator {
 	 */
 	private int var_evaluateTarget_gain [] =new int[32];//integer value change - needed for linear minimax
 	
-	private static final boolean ENABLE_EVALUATE_TARGET_EXCHANGE_DEBUG_STATEMENTS = false;
+	private static final boolean ENABLE_EVALUATE_TARGET_EXCHANGE_DEBUG_STATEMENTS = true;
 	private static final boolean ENABLE_EVALUATE_TARGET_BOUND_DEFENDERS_DEBUG_STATEMENTS = false;
 	
 	private int var_evaluateTargetExchange_score, var_evaluateTargetExchange_occupierPieceType, var_evaluateTargetExchange_occupierPlayer,
@@ -816,10 +816,8 @@ if(ENABLE_EVALUATE_TARGET_EXCHANGE_DEBUG_STATEMENTS) {
 System.out.println();
 System.out.print("last attacker: "+ Player.toShortString(Player.getOtherPlayer(currentPlayer))
 	+ PieceType.toString(var_evaluateTarget_attackTypeStack[d_combinedAttackStackSize-1]));
-System.out.print(" | principal line: {" + (game.getPieceAt(sq) == PieceType.NO_PIECE ? "()" :
-	(Square.toString(var_evaluateTarget_attackSquareStack[0]))) 
-+ " ");
-for(int i=1; i<=var_evaluateTargetExchange_principleLineLastIndex;++i)
+System.out.print(" | principal line: { ");
+for(int i=0; i<=var_evaluateTargetExchange_principleLineLastIndex;++i)
 	System.out.print(Square.toString(var_evaluateTarget_attackSquareStack[i]) + " ");
 
 	System.out.print("} | last expected occupier: "+ Player.toShortString(var_evaluateTargetExchange_occupierPlayer)
