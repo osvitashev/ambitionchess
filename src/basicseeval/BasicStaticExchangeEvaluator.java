@@ -676,8 +676,8 @@ public class BasicStaticExchangeEvaluator {
 	 * 
 	 * @param sq
 	 * @param player
-	 * @param forced_attacker_type PieceType. NO_PIECE indicates that we are evaluating natural attack order.
-	 * @return whether there is an available capture.
+	 * @param forced_attacker_type PieceType. NO_PIECE indicates that we are evaluating natural attack order. Natural atack order is only supposerted for captures.
+	 * @return whether there is an available capture. Available does not mean Viable! Returns false if there are no available attackers.
 	 */
 	boolean evaluateTargetExchange(int sq, int player, int forced_attacker_type) {
 		assert Square.validate(sq);
@@ -709,7 +709,6 @@ public class BasicStaticExchangeEvaluator {
 				)
 			);
 		
-		
 		int d_combinedAttackStackSize=1;
 		int currentPlayer=Player.getOtherPlayer(player);
 		long clearedSquares =0;
@@ -718,10 +717,6 @@ public class BasicStaticExchangeEvaluator {
 			d_combinedAttackStackSize++;
 			currentPlayer = player;
 		}
-			
-		
-		//all of the temporary and output state variables can be shifted into a separate class using composition
-		
 		var_evaluateTarget_attackTypeStack[0]=game.getPieceAt(sq);
 		var_evaluateTarget_attackSquareStack[0]=sq;
 		if(forced_attacker_type != PieceType.NO_PIECE)
@@ -769,21 +764,12 @@ public class BasicStaticExchangeEvaluator {
 					- var_evaluateTarget_gain[d_combinedAttackStackSize - 1];
 			prevVictim = var_evaluateTarget_attackTypeStack[d_combinedAttackStackSize - 1];
 			d_combinedAttackStackSize++;
-			// this is the short exit condition. we stop iteration if the last recapture did
-			// not make the score worthy of being selected.
-			// existence of this condition does not change the return value being
-			// positive/zero/negative.
-
-			// pretty sure this condition is incorrect because of wrong offset
 			if (Math.max(-var_evaluateTarget_gain[d_combinedAttackStackSize - 2], var_evaluateTarget_gain[d_combinedAttackStackSize - 1]) < 0) {
 				break;
 			}
-			if (prevVictim == PieceType.KING)
+			if (prevVictim == PieceType.KING)//needed for the case if king is already captured and it is not valid to try to take the opponent's king as an attemp to save the score.
 				break;
 		} while (true);
-		
-		
-				
 
 if(ENABLE_EVALUATE_TARGET_EXCHANGE_DEBUG_STATEMENTS) {
 System.out.print(game.toFEN() + " [" +
