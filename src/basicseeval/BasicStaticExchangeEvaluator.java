@@ -682,28 +682,33 @@ public class BasicStaticExchangeEvaluator {
 	boolean evaluateTargetExchange(int sq, int player, int forced_attacker_type) {
 		assert Square.validate(sq);
 		assert Player.validate(player);
-		assert (
-					game.getPieceAt(sq) == PieceType.NO_PIECE
-					&&
-					(
-						forced_attacker_type == PieceType.NO_PIECE
-						||
+		assert game.getPieceAt(sq) == PieceType.NO_PIECE ?
+			(//bool expression - quiet move validation
+				((forced_attacker_type == PieceType.NO_PIECE) ?
+					(//natural attack order quiet move -  not currently supported
+						false
+					)
+					:
+					(//quiet move with a specified forced type
 						forced_attacker_type != PieceType.PAWN && Bitboard.testBit(getAttackedTargets(player, forced_attacker_type), sq)
 						||
 						forced_attacker_type == PieceType.PAWN && Bitboard.testBit(BitboardGen.getMultiplePawnPushSet(game.getPieces(player, PieceType.PAWN), player, game.getOccupied()), sq)
 					)
 				)
-				||
-				(
-					game.getPieceAt(sq) != PieceType.NO_PIECE
-					&&
-					(	
-						forced_attacker_type == PieceType.NO_PIECE
-						||
-						(game.getPlayerAt(sq) == Player.getOtherPlayer(player) && Bitboard.testBit(getAttackedTargets(player, forced_attacker_type), sq))
+			)
+			:
+			(//bool expression - capture move validation
+				((forced_attacker_type == PieceType.NO_PIECE) ?
+					(//natural attack order capture move
+						game.getPlayerAt(sq) == Player.getOtherPlayer(player)
+					)
+					:
+					(//capture move with a specified forced type
+						game.getPlayerAt(sq) == Player.getOtherPlayer(player) && Bitboard.testBit(getAttackedTargets(player, forced_attacker_type), sq)
 					)
 				)
-				: Square.toString(sq) + " " + Player.toString(player) + " " + PieceType.toString(forced_attacker_type);
+			);
+		
 		
 		int d_combinedAttackStackSize=1;
 		int currentPlayer=Player.getOtherPlayer(player);
@@ -726,7 +731,6 @@ public class BasicStaticExchangeEvaluator {
 			var_evaluateTarget_gain[1] =getPieceValue(var_evaluateTarget_attackTypeStack[1]) - var_evaluateTarget_gain[0];
 
 		if(forced_attacker_type == PieceType.PAWN && game.getPieceAt(sq) == PieceType.NO_PIECE) {
-			//todo: handle squareStack for pawns!!!!!!!!!
 			long targetbb = Bitboard.initFromSquare(sq);
 			long pawns = game.getPieces(player, PieceType.PAWN);
 			if(player == Player.WHITE) {
