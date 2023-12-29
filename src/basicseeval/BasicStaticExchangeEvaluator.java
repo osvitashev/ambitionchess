@@ -26,7 +26,17 @@ import util.Utilities.OutcomeEnum;
  * The hope is that such cases would not be any more rare than see being generally incorrect because of conditions elsewhere on the board.
  * I believe a prerequisite for this type of error is that there is a reverse battery/backstab.
  * 
- * */
+ * 
+ * 
+ * 
+ * Member naming convention:
+ * variables which follow the pattern of "output_***" are set once by their appropriate method and then should not be reassigned
+ * 	except after a call to initialize()
+ * 
+ * variables which follow the pattern of "var_METHODNAME_***" are effectively local to that method. They are used to retrieve multiple return values
+ * 	from a single method call. As such, successive calls to METHODNAME are expected to wipe out variable content.
+ *
+ */
 public class BasicStaticExchangeEvaluator {
 	private static final int[] BerlinerPieceValues = { 100, 320, 333, 510, 800, 100000  };
 	private static final int[] simpleValues = { 100, 300, 300, 500, 800, 100000  };
@@ -162,31 +172,31 @@ public class BasicStaticExchangeEvaluator {
 		for(int player : Player.PLAYERS) {
 			output_target_isExchangeProcessed[player]=0;
 			for(int type : PieceType.PIECE_TYPES) {
-				var_bitboard_attackedBy[player][type] =0;
-				var_bitboard_secondary_attackedBy[player][type] =0;
-				var_bitboard_secondary_battery_attackedBy[player][type] =0;
+				output_bitboard_attackedBy[player][type] =0;
+				output_bitboard_secondary_attackedBy[player][type] =0;
+				output_bitboard_secondary_battery_attackedBy[player][type] =0;
 				//todo: reset the output variables here.
 				
 				output_target_winning[player][type] =0;
 				output_target_neutral[player][type] =0;
 				output_target_losing[player][type] =0;
 			}
-			var_combined_bitboard_attackedBy[player] =0;
-			var_combined_bitboard_secondary_attackedBy[player] =0;
-			var_combined_bitboard_secondary_battery_attackedBy[player] =0;
+			output_combined_bitboard_attackedBy[player] =0;
+			output_combined_bitboard_secondary_attackedBy[player] =0;
+			output_combined_bitboard_secondary_battery_attackedBy[player] =0;
 		}
 		
 		long direct, indirect, suitableBlockers, wPawns, bPawns;
 		
 		for (int player : Player.PLAYERS) {
-			var_bitboard_attackedBy[player][PieceType.PAWN] |= BitboardGen.getMultiplePawnAttackSet(game.getPieces(player, PieceType.PAWN), player);
+			output_bitboard_attackedBy[player][PieceType.PAWN] |= BitboardGen.getMultiplePawnAttackSet(game.getPieces(player, PieceType.PAWN), player);
 
 			{
 				int bi = 0;
 				for (long zarg = game.getPieces(player, PieceType.KNIGHT),
 						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 					bi = Bitboard.getFirstSquareIndex(barg);
-					var_bitboard_attackedBy[player][PieceType.KNIGHT] |= BitboardGen.getKnightSet(bi);
+					output_bitboard_attackedBy[player][PieceType.KNIGHT] |= BitboardGen.getKnightSet(bi);
 				}
 			}
 
@@ -196,9 +206,9 @@ public class BasicStaticExchangeEvaluator {
 						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 					bi = Bitboard.getFirstSquareIndex(barg);
 					direct = BitboardGen.getBishopSet(bi, game.getOccupied());
-					var_bitboard_attackedBy[player][PieceType.BISHOP] |= direct;
+					output_bitboard_attackedBy[player][PieceType.BISHOP] |= direct;
 					indirect = BitboardGen.getBishopSet(bi, game.getOccupied() & ~direct) & ~direct;
-					var_bitboard_secondary_attackedBy[player][PieceType.BISHOP] |= indirect;
+					output_bitboard_secondary_attackedBy[player][PieceType.BISHOP] |= indirect;
 				}
 			}
 
@@ -208,9 +218,9 @@ public class BasicStaticExchangeEvaluator {
 						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 					bi = Bitboard.getFirstSquareIndex(barg);
 					direct = BitboardGen.getRookSet(bi, game.getOccupied());
-					var_bitboard_attackedBy[player][PieceType.ROOK] |= direct;
+					output_bitboard_attackedBy[player][PieceType.ROOK] |= direct;
 					indirect = BitboardGen.getRookSet(bi, game.getOccupied() & ~direct) & ~direct;
-					var_bitboard_secondary_attackedBy[player][PieceType.ROOK] |= indirect;
+					output_bitboard_secondary_attackedBy[player][PieceType.ROOK] |= indirect;
 				}
 			}
 
@@ -220,13 +230,13 @@ public class BasicStaticExchangeEvaluator {
 						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 					bi = Bitboard.getFirstSquareIndex(barg);
 					direct = BitboardGen.getQueenSet(bi, game.getOccupied());
-					var_bitboard_attackedBy[player][PieceType.QUEEN] |= direct;
+					output_bitboard_attackedBy[player][PieceType.QUEEN] |= direct;
 					indirect = BitboardGen.getQueenSet(bi, game.getOccupied() & ~direct) & ~direct;
-					var_bitboard_secondary_attackedBy[player][PieceType.QUEEN] |= indirect;
+					output_bitboard_secondary_attackedBy[player][PieceType.QUEEN] |= indirect;
 				}
 			}
 
-			var_bitboard_attackedBy[player][PieceType.KING] = BitboardGen.getKingSet(game.getKingSquare(player));
+			output_bitboard_attackedBy[player][PieceType.KING] = BitboardGen.getKingSet(game.getKingSquare(player));
 			
 			//populate batteries
 			//todo: the next 3 sections can be skipped conditionally....
@@ -242,7 +252,7 @@ public class BasicStaticExchangeEvaluator {
 						
 						direct = BitboardGen.getBishopSet(bi, game.getOccupied());
 						indirect = BitboardGen.getBishopSet(bi, game.getOccupied() & ~(direct & suitableBlockers)) & ~direct;
-						var_bitboard_secondary_battery_attackedBy[player][PieceType.BISHOP] |= indirect;
+						output_bitboard_secondary_battery_attackedBy[player][PieceType.BISHOP] |= indirect;
 					}
 				}
 				//batteries with pawns
@@ -257,11 +267,11 @@ public class BasicStaticExchangeEvaluator {
 						direct = BitboardGen.getBishopSet(bi, game.getOccupied());
 						
 						indirect = BitboardGen.getBishopSet(bi, game.getOccupied() & ~(direct & wPawns)) & ~direct;
-						var_bitboard_secondary_battery_attackedBy[player][PieceType.BISHOP] |=
+						output_bitboard_secondary_battery_attackedBy[player][PieceType.BISHOP] |=
 								indirect & BitboardGen.getMultiplePawnAttackSet(wPawns, Player.WHITE);
 						
 						indirect = BitboardGen.getBishopSet(bi, game.getOccupied() & ~(direct & bPawns)) & ~direct;
-						var_bitboard_secondary_battery_attackedBy[player][PieceType.BISHOP] |=
+						output_bitboard_secondary_battery_attackedBy[player][PieceType.BISHOP] |=
 								indirect & BitboardGen.getMultiplePawnAttackSet(bPawns, Player.BLACK);
 					}
 				}
@@ -277,7 +287,7 @@ public class BasicStaticExchangeEvaluator {
 						
 						direct = BitboardGen.getRookSet(bi, game.getOccupied());
 						indirect = BitboardGen.getRookSet(bi, game.getOccupied() & ~(direct & suitableBlockers)) & ~direct;
-						var_bitboard_secondary_battery_attackedBy[player][PieceType.ROOK] |= indirect;
+						output_bitboard_secondary_battery_attackedBy[player][PieceType.ROOK] |= indirect;
 						
 					}
 				}
@@ -293,7 +303,7 @@ public class BasicStaticExchangeEvaluator {
 						
 						direct = BitboardGen.getBishopSet(bi, game.getOccupied());
 						indirect = BitboardGen.getBishopSet(bi, game.getOccupied() & ~(direct & suitableBlockers)) & ~direct;
-						var_bitboard_secondary_battery_attackedBy[player][PieceType.QUEEN] |= indirect;
+						output_bitboard_secondary_battery_attackedBy[player][PieceType.QUEEN] |= indirect;
 					}
 				}
 				//batteries with rooks
@@ -306,7 +316,7 @@ public class BasicStaticExchangeEvaluator {
 						
 						direct = BitboardGen.getRookSet(bi, game.getOccupied());
 						indirect = BitboardGen.getRookSet(bi, game.getOccupied() & ~(direct & suitableBlockers)) & ~direct;
-						var_bitboard_secondary_battery_attackedBy[player][PieceType.QUEEN] |= indirect;
+						output_bitboard_secondary_battery_attackedBy[player][PieceType.QUEEN] |= indirect;
 						
 					}
 				}
@@ -322,22 +332,20 @@ public class BasicStaticExchangeEvaluator {
 						direct = BitboardGen.getBishopSet(bi, game.getOccupied());
 						
 						indirect = BitboardGen.getBishopSet(bi, game.getOccupied() & ~(direct & wPawns)) & ~direct;
-						var_bitboard_secondary_battery_attackedBy[player][PieceType.QUEEN] |=
+						output_bitboard_secondary_battery_attackedBy[player][PieceType.QUEEN] |=
 								indirect & BitboardGen.getMultiplePawnAttackSet(wPawns, Player.WHITE);
 						
 						indirect = BitboardGen.getBishopSet(bi, game.getOccupied() & ~(direct & bPawns)) & ~direct;
-						var_bitboard_secondary_battery_attackedBy[player][PieceType.QUEEN] |=
+						output_bitboard_secondary_battery_attackedBy[player][PieceType.QUEEN] |=
 								indirect & BitboardGen.getMultiplePawnAttackSet(bPawns, Player.BLACK);
 					}
 				}
 			}///queens
-			
 			for(int type : PieceType.PIECE_TYPES) {
-				var_combined_bitboard_attackedBy[player] |= var_bitboard_attackedBy[player][type];
-				var_combined_bitboard_secondary_attackedBy[player] |= var_bitboard_secondary_attackedBy[player][type];
-				var_combined_bitboard_secondary_battery_attackedBy[player] |= var_bitboard_secondary_battery_attackedBy[player][type];
+				output_combined_bitboard_attackedBy[player] |= output_bitboard_attackedBy[player][type];
+				output_combined_bitboard_secondary_attackedBy[player] |= output_bitboard_secondary_attackedBy[player][type];
+				output_combined_bitboard_secondary_battery_attackedBy[player] |= output_bitboard_secondary_battery_attackedBy[player][type];
 			}
-			
 		}//players loop
 	}//initialize method
 	
@@ -478,8 +486,8 @@ public class BasicStaticExchangeEvaluator {
 	 * Populated by call to initialize() and is unchanged until the next call.
 	 * For pawns this is attacks, NOT pushes
 	 */
-	private long var_bitboard_attackedBy [][]= new long[2][6];//[player][piece type]
-	private long var_combined_bitboard_attackedBy []= new long[2];
+	private long output_bitboard_attackedBy [][]= new long[2][6];//[player][piece type]
+	private long output_combined_bitboard_attackedBy []= new long[2];
 	
 	
 	/**
@@ -492,8 +500,8 @@ public class BasicStaticExchangeEvaluator {
 	 * This MAY be useful for avoiding calling the whole SEE minimax routine for squares which are not contested.
 	 * 
 	 */
-	private long var_bitboard_secondary_attackedBy [][]= new long[2][6];//[player][piece type]
-	private long var_combined_bitboard_secondary_attackedBy []= new long[2];
+	private long output_bitboard_secondary_attackedBy [][]= new long[2][6];//[player][piece type]
+	private long output_combined_bitboard_secondary_attackedBy []= new long[2];
 	
 	/**
 	 * Sliding attack sets resulting from lifting up the first blocker, which is itself a sliding piece or a pawn (diagonal attacks).
@@ -505,8 +513,8 @@ public class BasicStaticExchangeEvaluator {
 	 * This MAY be useful for avoiding calling the whole SEE minimax routine for squares which are not contested.
 	 * 
 	 */
-	private long var_bitboard_secondary_battery_attackedBy [][]= new long[2][6];//[player][piece type]
-	private long var_combined_bitboard_secondary_battery_attackedBy  []= new long[2];
+	private long output_bitboard_secondary_battery_attackedBy [][]= new long[2][6];//[player][piece type]
+	private long output_combined_bitboard_secondary_battery_attackedBy  []= new long[2];
 	
 	/**
 	 * Direct attacks broken down by player and piece type. Multiple pieces of the same type are combined together.
@@ -520,7 +528,7 @@ public class BasicStaticExchangeEvaluator {
 	public long getAttackedTargets(int player, int pieceType) {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
-		return var_bitboard_attackedBy[player][pieceType];
+		return output_bitboard_attackedBy[player][pieceType];
 	}
 	
 	/**
@@ -534,7 +542,7 @@ public class BasicStaticExchangeEvaluator {
 	 */
 	public long getAttackedTargets(int player) {
 		assert Player.validate(player);
-		return var_combined_bitboard_attackedBy[player];
+		return output_combined_bitboard_attackedBy[player];
 	}
 	
 	/**
@@ -551,7 +559,7 @@ public class BasicStaticExchangeEvaluator {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
 		assert pieceType == PieceType.BISHOP || pieceType == PieceType.ROOK || pieceType == PieceType.QUEEN;
-		return var_bitboard_secondary_attackedBy[player][pieceType];
+		return output_bitboard_secondary_attackedBy[player][pieceType];
 	}
 
 	/**
@@ -566,7 +574,7 @@ public class BasicStaticExchangeEvaluator {
 	 */
 	public long getSecondaryAttackedTargets(int player) {
 		assert Player.validate(player);
-		return var_combined_bitboard_secondary_attackedBy[player];
+		return output_combined_bitboard_secondary_attackedBy[player];
 	}
 	
 	/**
@@ -584,7 +592,7 @@ public class BasicStaticExchangeEvaluator {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
 		assert pieceType == PieceType.BISHOP || pieceType == PieceType.ROOK || pieceType == PieceType.QUEEN;
-		return var_bitboard_secondary_battery_attackedBy[player][pieceType];
+		return output_bitboard_secondary_battery_attackedBy[player][pieceType];
 	}
 	
 	/**
@@ -600,7 +608,7 @@ public class BasicStaticExchangeEvaluator {
 	 */
 	public long getSecondaryBatteryAttackedTargets(int player) {
 		assert Player.validate(player);
-		return var_combined_bitboard_secondary_battery_attackedBy[player];
+		return output_combined_bitboard_secondary_battery_attackedBy[player];
 	}
 	
 	private long output_target_winning [][]= new long[2][6];
