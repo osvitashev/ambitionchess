@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
+import gamestate.Bitboard;
 import gamestate.Gamestate;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
@@ -18,7 +19,11 @@ class BSEETest_evaluateCapture_target {
 	static final boolean skipAssertions = false;
 
 	private void testOutcome(int expectedOutcome, int sq, int player, int pieceType) {
-		test_eval.evaluateTargetExchange(sq, player, pieceType);
+		testOutcome_withClearedSquares(expectedOutcome, sq, player, pieceType, 0l);
+	}
+	
+	private void testOutcome_withClearedSquares(int expectedOutcome, int sq, int player, int pieceType, long clearedSquares) {
+		test_eval.evaluateTargetExchange(sq, player, clearedSquares, pieceType);
 		int outcome = test_eval.get_evaluateTargetExchange_score();
 		if (!skipAssertions) {
 			if (expectedOutcome > 0)
@@ -189,11 +194,11 @@ class BSEETest_evaluateCapture_target {
 		test_eval.initialize();
 		testOutcome(OutcomeEnum.POSITIVE, Square.F5, Player.WHITE, PieceType.PAWN);
 
-//		System.out.println("max sequence length: " + BasicStaticExchangeEvaluator.zmaxLength + " | " +
-//				"fen: " + BasicStaticExchangeEvaluator.zFEN + " target: "+Square.toString(BasicStaticExchangeEvaluator.zsq) +
-//				" attacker: " + PieceType.toString(BasicStaticExchangeEvaluator.zattacker) +
-//				" player: " + Player.toShortString(BasicStaticExchangeEvaluator.zplayer) + 
-//				" score: " + BasicStaticExchangeEvaluator.zscore);
+		//////test with cleared squares
+//		test_game.loadFromFEN("4rk2/4nppp/8/5n2/8/P2Q4/1PP5/1K6 w - - 0 1");
+//		test_eval.initialize();
+//		//fails because of attack validation!
+//		testOutcome_withClearedSquares(OutcomeEnum.POSITIVE, Square.H7, Player.WHITE, PieceType.QUEEN, Bitboard.initFromAlgebraicSquares("f5"));
 
 		if (skipAssertions)
 			fail("Assertions skipped! We must be running some experiments...");
@@ -207,7 +212,7 @@ class BSEETest_evaluateCapture_target {
 
 	private void testPlayerPieceType(int expectedFinalPlayer, int expectedFinalPieceType, int sq, int player, int pieceType,
 			String[] principleLine) {
-		test_eval.evaluateTargetExchange(sq, player, pieceType);
+		test_eval.evaluateTargetExchange(sq, player, 0l, pieceType);
 		int finalPlayer = test_eval.get_evaluateTargetExchange_occupierPlayer();
 		int finalPieceType = test_eval.get_evaluateTargetExchange_occupierPieceType();
 		if (!skipAssertions) {
@@ -269,7 +274,7 @@ class BSEETest_evaluateCapture_target {
 	}
 
 	private void testOutcome_naturalOrder(int sq, int player, int expectedOutcome, String[] principleLine) {
-		test_eval.evaluateTargetExchange(sq, player, PieceType.NO_PIECE);
+		test_eval.evaluateTargetExchange(sq, player, 0l, PieceType.NO_PIECE);
 		int outcome = test_eval.get_evaluateTargetExchange_score();
 		if (!skipAssertions) {
 			if (expectedOutcome > 0)
@@ -286,9 +291,9 @@ class BSEETest_evaluateCapture_target {
 	}
 	
 	private void test_naturalOrder_noExhange(int sq, int player, String[] principleLine) {
-		boolean outcome = test_eval.evaluateTargetExchange(sq, player, PieceType.NO_PIECE);
+		boolean outcome = test_eval.evaluateTargetExchange(sq, player, 0l, PieceType.NO_PIECE);
 		if (!skipAssertions) {
-			assertEquals(outcome, false);
+			assertEquals(false, outcome);
 			assertEquals(principleLine.length, test_eval.get_evaluateTargetExchange_principleLineLastIndex() + 1);
 			for (int i = 0; i < principleLine.length; ++i)
 				assertEquals(Square.algebraicStringToSquare(principleLine[i]),
@@ -313,6 +318,9 @@ class BSEETest_evaluateCapture_target {
 		// no available attackers
 		test_naturalOrder_noExhange(Square.G7, Player.WHITE,new String[] {"g7"});
 		test_naturalOrder_noExhange(Square.H2, Player.BLACK,new String[] {"h2"});
+		test_game.loadFromFEN("4rk2/4nppp/8/5n2/8/P2Q4/1PP5/1K6 w - - 0 1");
+		test_eval.initialize();
+		test_naturalOrder_noExhange(Square.C2, Player.BLACK,new String[] {"c2"});
 		
 		
 		if (skipAssertions)

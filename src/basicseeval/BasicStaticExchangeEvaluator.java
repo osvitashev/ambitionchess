@@ -341,6 +341,44 @@ public class BasicStaticExchangeEvaluator {
 		}//players loop
 	}//initialize method
 	
+	
+	/**
+	 * 
+	 * @param sq
+	 * @param player
+	 * @param clearedSquares
+	 * @return given the target square and player, returns location of the pawn able to push into the target square. Or SQUARE_NONE if there is no pawn available.
+	 */
+	int getPawnPushSourceSquare(int sq, int player, long clearedSquares) {
+		assert Square.validate(sq);
+		assert Player.validate(player);
+		assert game.getPieceAt(sq) == PieceType.NO_PIECE;
+		long bb = Bitboard.initFromSquare(sq);
+		long empty = game.getEmpty() | clearedSquares;
+		long playerPawns = game.getPieces(player, PieceType.PAWN) & ~clearedSquares;
+		
+		if (player == Player.WHITE) {
+			bb = Bitboard.shiftSouth(bb);
+			if (0l != (bb & playerPawns))
+				return sq - 8;
+			else if (0l != (bb & 0xff0000l) && 0l != (bb & empty)) {
+				bb = Bitboard.shiftSouth(bb);
+				if (0l != (bb & playerPawns))
+					return sq - 16;
+			}
+		} else {
+			bb = Bitboard.shiftNorth(bb);
+			if (0l != (bb & playerPawns))
+				return sq + 8;
+			else if (0l != (bb & 0xff0000000000l) && 0l != (bb & empty)) {
+				bb = Bitboard.shiftNorth(bb);
+				if (0l != (bb & playerPawns))
+					return sq + 16;
+			}
+		}
+		return Square.SQUARE_NONE;
+	}
+	
 	/**
 	 * @return a formatted string with all of the output variables
 	 */
@@ -676,13 +714,14 @@ public class BasicStaticExchangeEvaluator {
 	 * 
 	 * @param sq
 	 * @param player
+	 * @param clearedSquares
 	 * @param forced_attacker_type PieceType. NO_PIECE indicates that we are evaluating natural attack order. Natural atack order is only supposerted for captures.
 	 * @return whether there is an available capture. Available does not mean Viable! Returns false if there are no available attackers.
 	 */
-	boolean evaluateTargetExchange(int sq, int player, int forced_attacker_type) {
+	boolean evaluateTargetExchange(int sq, int player, long clearedSquares,  int forced_attacker_type) {
 		assert Square.validate(sq);
 		assert Player.validate(player);
-		assert game.getPieceAt(sq) == PieceType.NO_PIECE ?
+		assert (game.getPieceAt(sq) == PieceType.NO_PIECE ?
 			(//bool expression - quiet move validation
 				((forced_attacker_type == PieceType.NO_PIECE) ?
 					(//natural attack order quiet move -  not currently supported
@@ -690,9 +729,10 @@ public class BasicStaticExchangeEvaluator {
 					)
 					:
 					(//quiet move with a specified forced type
-						forced_attacker_type != PieceType.PAWN && Bitboard.testBit(getAttackedTargets(player, forced_attacker_type), sq)
-						||
-						forced_attacker_type == PieceType.PAWN && Bitboard.testBit(BitboardGen.getMultiplePawnPushSet(game.getPieces(player, PieceType.PAWN), player, game.getOccupied()), sq)
+						true
+						//forced_attacker_type != PieceType.PAWN && Bitboard.testBit(getAttackedTargets(player, forced_attacker_type), sq)
+						//||
+						//forced_attacker_type == PieceType.PAWN && Bitboard.testBit(BitboardGen.getMultiplePawnPushSet(game.getPieces(player, PieceType.PAWN), player, game.getOccupied()), sq)
 					)
 				)
 			)
@@ -704,14 +744,16 @@ public class BasicStaticExchangeEvaluator {
 					)
 					:
 					(//capture move with a specified forced type
-						game.getPlayerAt(sq) == Player.getOtherPlayer(player) && Bitboard.testBit(getAttackedTargets(player, forced_attacker_type), sq)
+						game.getPlayerAt(sq) == Player.getOtherPlayer(player)
+						//&& Bitboard.testBit(getAttackedTargets(player, forced_attacker_type), sq)
 					)
 				)
-			);
+			)
+		) : "State: fen(" + game.toFEN() + ") sq("+Square.toString(sq)+ ") player(" + Player.toString(player) + ") "+
+			" " + clearedSquares + " " + forced_attacker_type;
 		
 		int d_combinedAttackStackSize=1;
 		int currentPlayer=Player.getOtherPlayer(player);
-		long clearedSquares =0;
 		
 		if(forced_attacker_type != PieceType.NO_PIECE) {
 			d_combinedAttackStackSize++;
@@ -726,25 +768,18 @@ public class BasicStaticExchangeEvaluator {
 			var_evaluateTarget_gain[1] =getPieceValue(var_evaluateTarget_attackTypeStack[1]) - var_evaluateTarget_gain[0];
 
 		if(forced_attacker_type == PieceType.PAWN && game.getPieceAt(sq) == PieceType.NO_PIECE) {
-			long targetbb = Bitboard.initFromSquare(sq);
-			long pawns = game.getPieces(player, PieceType.PAWN);
-			if(player == Player.WHITE) {
-				targetbb = Bitboard.shiftSouth(targetbb);
-				if((pawns & targetbb) != 0)
-					clearedSquares |= targetbb;
-				else
-					clearedSquares |= Bitboard.shiftSouth(targetbb);
-			}
-			else {
-				targetbb = Bitboard.shiftNorth(targetbb);
-				if((pawns & targetbb) != 0)
-					clearedSquares |= targetbb;
-				else
-					clearedSquares |= Bitboard.shiftNorth(targetbb);
-			}
+			int pawnSource = getPawnPushSourceSquare(sq,player, clearedSquares);
+			if (pawnSource == Square.SQUARE_NONE)
+				return false;
+			var_evaluateTarget_attackSquareStack[1] = pawnSource;
+			clearedSquares |= Bitboard.initFromSquare(pawnSource);
+			//dont forget to update var_evaluateTarget_attackSquareStack!!!!
+			//return false is there is no pawn available for the push!!!
 		}
 		else if(forced_attacker_type != PieceType.NO_PIECE) {
-			int lva = getLeastValuableAttacker_withType(sq, currentPlayer, forced_attacker_type, 0l);
+			int lva = getLeastValuableAttacker_withType(sq, currentPlayer, forced_attacker_type, clearedSquares);
+			if (lva == AttackerType.nullValue())
+				return false;
 			var_evaluateTarget_attackSquareStack[1] = AttackerType.getAttackerSquareFrom(lva);
 			clearedSquares |= Bitboard.initFromSquare(var_evaluateTarget_attackSquareStack[1]);
 		}
@@ -965,28 +1000,53 @@ System.out.println(str);
 	
 
 	void evaluateCaptures() {
+//		int score;
+//		long directAttackTargets;
+//		boolean isAvailable;
+//		for (int player : Player.PLAYERS) {
+//			for (int pieceType : PieceType.PIECE_TYPES) {
+//				directAttackTargets = getAttackedTargets(player, pieceType);
+//				{
+//					int bi = 0;
+//					for (long zarg = directAttackTargets,
+//							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
+//						bi = Bitboard.getFirstSquareIndex(barg);
+//						if (Bitboard.testBit(getAttackedTargets(player, pieceType), bi) && game.getPlayerAt(bi) == Player.getOtherPlayer(player)) {
+//							isAvailable=evaluateTargetExchange(bi, player, 0l, pieceType);
+//							if(!isAvailable)
+//								continue;
+//							score = get_evaluateTargetExchange_score();
+//							output_target_isExchangeProcessed[player] = Bitboard.setBit(output_target_isExchangeProcessed[player], bi);
+//							if(score < 0)
+//								output_target_losing[player][pieceType]|= Bitboard.setBit(output_target_losing[player][pieceType], bi);
+//							else if(score == 0)
+//								output_target_neutral[player][pieceType]|= Bitboard.setBit(output_target_neutral[player][pieceType], bi);
+//							else
+//								output_target_winning[player][pieceType]|= Bitboard.setBit(output_target_winning[player][pieceType], bi);
+//						}
+//					}
+//				}
+//			}
+//		}
+		
+		///a brute force implementation  - used to verify correctness and assertions
 		int score;
-		long directAttackTargets;
-		//consider: on one hand we want to be using heuristics to avoid calling forced attacker routine, on the other hand, that routine can implement sideeffects such as detecting overprotection.
+		boolean isAvailable;
 		for (int player : Player.PLAYERS) {
 			for (int pieceType : PieceType.PIECE_TYPES) {
-				directAttackTargets = getAttackedTargets(player, pieceType);
-				{
-					int bi = 0;
-					for (long zarg = directAttackTargets,
-							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
-						bi = Bitboard.getFirstSquareIndex(barg);
-						if (Bitboard.testBit(getAttackedTargets(player, pieceType), bi) && game.getPlayerAt(bi) == Player.getOtherPlayer(player)) {
-							evaluateTargetExchange(bi, player, pieceType);
-							score = get_evaluateTargetExchange_score();
-							output_target_isExchangeProcessed[player] = Bitboard.setBit(output_target_isExchangeProcessed[player], bi);
-							if(score < 0)
-								output_target_losing[player][pieceType]|= Bitboard.setBit(output_target_losing[player][pieceType], bi);
-							else if(score == 0)
-								output_target_neutral[player][pieceType]|= Bitboard.setBit(output_target_neutral[player][pieceType], bi);
-							else
-								output_target_winning[player][pieceType]|= Bitboard.setBit(output_target_winning[player][pieceType], bi);
-						}
+				for (int sq : Square.SQUARES) {
+					if (game.getPlayerAt(sq) == Player.getOtherPlayer(player)) {
+						isAvailable = evaluateTargetExchange(sq, player, 0l, pieceType);
+						if (!isAvailable)
+							continue;
+						score = get_evaluateTargetExchange_score();
+						output_target_isExchangeProcessed[player] = Bitboard.setBit(output_target_isExchangeProcessed[player], sq);
+						if (score < 0)
+							output_target_losing[player][pieceType] |= Bitboard.setBit(output_target_losing[player][pieceType], sq);
+						else if (score == 0)
+							output_target_neutral[player][pieceType] |= Bitboard.setBit(output_target_neutral[player][pieceType], sq);
+						else
+							output_target_winning[player][pieceType] |= Bitboard.setBit(output_target_winning[player][pieceType], sq);
 					}
 				}
 			}
@@ -994,24 +1054,46 @@ System.out.println(str);
 	}
 	
 	void evaluateQuietMoves() {
+//		int score;
+//		//consider: on one hand we want to be using heuristics to avoid calling forced attacker routine, on the other hand, that routine can implement sideeffects such as detecting overprotection.
+//		for (int sq : Square.SQUARES) {
+//			for (int player : Player.PLAYERS) {
+//				for (int pieceType : PieceType.PIECE_TYPES) {
+//					//optimize: taking pawns out of this loop to simplify the condition
+//					if (game.getPieceAt(sq) == PieceType.NO_PIECE && (pieceType != PieceType.PAWN
+//							&& Bitboard.testBit(getAttackedTargets(player, pieceType), sq)
+//							|| pieceType == PieceType.PAWN && Bitboard.testBit(
+//									BitboardGen.getMultiplePawnPushSet(game.getPieces(player, PieceType.PAWN), player, game.getOccupied()), sq))) {
+//						//todo: set getOutput_target_isExchangeProcessed
+//						evaluateTargetExchange(sq, player, 0l, pieceType);
+//						score = get_evaluateTargetExchange_score();
+//						output_target_isExchangeProcessed[player] = Bitboard.setBit(output_target_isExchangeProcessed[player], sq);
+//						if(score < 0)
+//							output_target_losing[player][pieceType]|= Bitboard.setBit(output_target_losing[player][pieceType], sq);
+//						else//only two cases - quiet move would never result in positive score.
+//							output_target_neutral[player][pieceType]|= Bitboard.setBit(output_target_neutral[player][pieceType], sq);
+//					}
+//				}
+//			}
+//		}
+		///a brute force implementation  - used to verify correctness and assertions
 		int score;
-		//consider: on one hand we want to be using heuristics to avoid calling forced attacker routine, on the other hand, that routine can implement sideeffects such as detecting overprotection.
-		for (int sq : Square.SQUARES) {
-			for (int player : Player.PLAYERS) {
-				for (int pieceType : PieceType.PIECE_TYPES) {
-					//optimize: taking pawns out of this loop to simplify the condition
-					if (game.getPieceAt(sq) == PieceType.NO_PIECE && (pieceType != PieceType.PAWN
-							&& Bitboard.testBit(getAttackedTargets(player, pieceType), sq)
-							|| pieceType == PieceType.PAWN && Bitboard.testBit(
-									BitboardGen.getMultiplePawnPushSet(game.getPieces(player, PieceType.PAWN), player, game.getOccupied()), sq))) {
-						//todo: set getOutput_target_isExchangeProcessed
-						evaluateTargetExchange(sq, player, pieceType);
+		boolean isAvailable;
+		for (int player : Player.PLAYERS) {
+			for (int pieceType : PieceType.PIECE_TYPES) {
+				for (int sq : Square.SQUARES) {
+					if (game.getPieceAt(sq) == PieceType.NO_PIECE) {
+						isAvailable = evaluateTargetExchange(sq, player, 0l, pieceType);
+						if (!isAvailable)
+							continue;
 						score = get_evaluateTargetExchange_score();
 						output_target_isExchangeProcessed[player] = Bitboard.setBit(output_target_isExchangeProcessed[player], sq);
-						if(score < 0)
-							output_target_losing[player][pieceType]|= Bitboard.setBit(output_target_losing[player][pieceType], sq);
-						else//only two cases - quiet move would never result in positive score.
-							output_target_neutral[player][pieceType]|= Bitboard.setBit(output_target_neutral[player][pieceType], sq);
+						if (score < 0)
+							output_target_losing[player][pieceType] |= Bitboard.setBit(output_target_losing[player][pieceType], sq);
+						else if (score == 0)
+							output_target_neutral[player][pieceType] |= Bitboard.setBit(output_target_neutral[player][pieceType], sq);
+						else
+							output_target_winning[player][pieceType] |= Bitboard.setBit(output_target_winning[player][pieceType], sq);
 					}
 				}
 			}

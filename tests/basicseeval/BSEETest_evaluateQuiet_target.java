@@ -18,7 +18,7 @@ class BSEETest_evaluateQuiet_target {
 	static final boolean skipAssertions = false;
 	
 	void test(int expectedOutcome, int sq, int player, int pieceType) {
-		test_eval.evaluateTargetExchange(sq, player, pieceType);
+		test_eval.evaluateTargetExchange(sq, player, 0l, pieceType);
 		int outcome = test_eval.get_evaluateTargetExchange_score();
 		if(!skipAssertions) {
 			if(expectedOutcome > 0)
@@ -178,7 +178,7 @@ class BSEETest_evaluateQuiet_target {
 	
 	private void testPlayerPieceType(int expectedFinalPlayer, int expectedFinalPieceType, int sq, int player, int pieceType,
 			String[] principleLine) {
-		test_eval.evaluateTargetExchange(sq, player, pieceType);
+		test_eval.evaluateTargetExchange(sq, player, 0l, pieceType);
 		int finalPlayer = test_eval.get_evaluateTargetExchange_occupierPlayer();
 		int finalPieceType = test_eval.get_evaluateTargetExchange_occupierPieceType();
 		if (!skipAssertions) {
@@ -210,6 +210,146 @@ class BSEETest_evaluateQuiet_target {
 				Player.WHITE, 
 				PieceType.QUEEN, // pieceType
 				new String[] {"g4", "d4", "g6", "c4", "g7", "a4"});
-	
+		
+		test_game.loadFromFEN("1k6/pp1pp1p1/p1p4p/7Q/q7/1P3P2/P1P1PPPP/2K5 w - - 0 1");
+		test_eval.initialize();
+		testPlayerPieceType(Player.BLACK, // expectedFinalPlayer
+				PieceType.QUEEN,// expectedFinalPieceType
+				Square.A3, // sq
+				Player.WHITE, 
+				PieceType.PAWN, // pieceType
+				new String[] {"a3", "a2", "a4"});
+		testPlayerPieceType(Player.BLACK, // expectedFinalPlayer
+				PieceType.QUEEN,// expectedFinalPieceType
+				Square.B4, // sq
+				Player.WHITE, 
+				PieceType.PAWN, // pieceType
+				new String[] {"b4", "b3", "a4"});
+		testPlayerPieceType(Player.WHITE, // expectedFinalPlayer
+				PieceType.PAWN,// expectedFinalPieceType
+				Square.C4, // sq
+				Player.WHITE, 
+				PieceType.PAWN, // pieceType
+				new String[] {"c4", "c2"});
+		testPlayerPieceType(Player.WHITE, // expectedFinalPlayer
+				PieceType.PAWN,// expectedFinalPieceType
+				Square.C3, // sq
+				Player.WHITE, 
+				PieceType.PAWN, // pieceType
+				new String[] {"c3", "c2"});
+		
+		testPlayerPieceType(Player.WHITE, // expectedFinalPlayer
+				PieceType.PAWN,// expectedFinalPieceType
+				Square.E4, // sq
+				Player.WHITE, 
+				PieceType.PAWN, // pieceType
+				new String[] {"e4", "e2"});
+		testPlayerPieceType(Player.WHITE, // expectedFinalPlayer
+				PieceType.PAWN,// expectedFinalPieceType
+				Square.E3, // sq
+				Player.WHITE, 
+				PieceType.PAWN, // pieceType
+				new String[] {"e3", "e2"});
+		
+		testPlayerPieceType(Player.BLACK, // expectedFinalPlayer
+				PieceType.QUEEN,// expectedFinalPieceType
+				Square.F4, // sq
+				Player.WHITE, 
+				PieceType.PAWN, // pieceType
+				new String[] {"f4", "f3", "a4"});
+		
+		testPlayerPieceType(Player.WHITE, // expectedFinalPlayer
+				PieceType.PAWN,// expectedFinalPieceType
+				Square.G4, // sq
+				Player.WHITE, 
+				PieceType.PAWN, // pieceType
+				new String[] {"g4", "g2"});
+		testPlayerPieceType(Player.WHITE, // expectedFinalPlayer
+				PieceType.PAWN,// expectedFinalPieceType
+				Square.G3, // sq
+				Player.WHITE, 
+				PieceType.PAWN, // pieceType
+				new String[] {"g3", "g2"});
+		
+		testPlayerPieceType(Player.WHITE, // expectedFinalPlayer
+				PieceType.PAWN,// expectedFinalPieceType
+				Square.H4, // sq
+				Player.WHITE, 
+				PieceType.PAWN, // pieceType
+				new String[] {"h4", "h2"});
+		testPlayerPieceType(Player.WHITE, // expectedFinalPlayer
+				PieceType.PAWN,// expectedFinalPieceType
+				Square.H3, // sq
+				Player.WHITE, 
+				PieceType.PAWN, // pieceType
+				new String[] {"h3", "h2"});
+		///black
+		testPlayerPieceType(Player.BLACK, // expectedFinalPlayer
+				PieceType.PAWN,// expectedFinalPieceType
+				Square.A5, // sq
+				Player.BLACK, 
+				PieceType.PAWN, // pieceType
+				new String[] {"a5", "a6"});
+		
+		testPlayerPieceType(Player.BLACK, // expectedFinalPlayer
+				PieceType.PAWN,// expectedFinalPieceType
+				Square.B6, // sq
+				Player.BLACK, 
+				PieceType.PAWN, // pieceType
+				new String[] {"b6", "b7"});
+		testPlayerPieceType(Player.BLACK, // expectedFinalPlayer
+				PieceType.PAWN,// expectedFinalPieceType
+				Square.B5, // sq
+				Player.BLACK, 
+				PieceType.PAWN, // pieceType
+				new String[] {"b5", "b7"});
+		
+		testPlayerPieceType(Player.WHITE, // expectedFinalPlayer
+				PieceType.QUEEN,// expectedFinalPieceType
+				Square.C5, // sq
+				Player.BLACK, 
+				PieceType.PAWN, // pieceType
+				new String[] {"c5", "c6", "h5"});
+		
+		testPlayerPieceType(Player.BLACK, // expectedFinalPlayer
+				PieceType.PAWN,// expectedFinalPieceType
+				Square.D6, // sq
+				Player.BLACK, 
+				PieceType.PAWN, // pieceType
+				new String[] {"d6", "d7"});
+		testPlayerPieceType(Player.BLACK, // expectedFinalPlayer
+				PieceType.PAWN,// expectedFinalPieceType
+				Square.D5, // sq
+				Player.BLACK, 
+				PieceType.PAWN, // pieceType
+				new String[] {"d5", "d7"});
+		
+		testPlayerPieceType(Player.BLACK, // expectedFinalPlayer
+				PieceType.PAWN,// expectedFinalPieceType
+				Square.E6, // sq
+				Player.BLACK, 
+				PieceType.PAWN, // pieceType
+				new String[] {"e6", "e7"});
+		testPlayerPieceType(Player.WHITE, // expectedFinalPlayer
+				PieceType.QUEEN,// expectedFinalPieceType
+				Square.E5, // sq
+				Player.BLACK, 
+				PieceType.PAWN, // pieceType
+				new String[] {"e5", "e7", "h5"});
+		
+		testPlayerPieceType(Player.WHITE, // expectedFinalPlayer
+				PieceType.QUEEN,// expectedFinalPieceType
+				Square.G6, // sq
+				Player.BLACK, 
+				PieceType.PAWN, // pieceType
+				new String[] {"g6", "g7", "h5"});
+		testPlayerPieceType(Player.BLACK, // expectedFinalPlayer
+				PieceType.PAWN,// expectedFinalPieceType
+				Square.G5, // sq
+				Player.BLACK, 
+				PieceType.PAWN, // pieceType
+				new String[] {"g5", "g7"});
+		
+		//test no available attackers
 	}	
 }

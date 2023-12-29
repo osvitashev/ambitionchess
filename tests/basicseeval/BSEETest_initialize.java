@@ -656,4 +656,64 @@ class BSEETest_initialize {
 		assertEquals(0x5030110200000030L, eval.getSecondaryBatteryAttackedTargets(Player.WHITE));
 		assertEquals(0x14008c0050121000L, eval.getSecondaryBatteryAttackedTargets(Player.BLACK));
 	}
+	
+	@Test
+	void getPawnPushSource_test() {
+		Gamestate game = new Gamestate();
+		BasicStaticExchangeEvaluator eval = new BasicStaticExchangeEvaluator(game, 1);
+		
+		game.loadFromFEN("5r2/2nq1rbp/1R4p1/8/PPk5/2P3K1/1B1n2Q1/8 w - - 0 1");
+		eval.initialize();
+		assertEquals(Square.A4, eval.getPawnPushSourceSquare(Square.A5, Player.WHITE, 0l));
+		assertEquals(Square.B4, eval.getPawnPushSourceSquare(Square.B5, Player.WHITE, 0l));
+		assertEquals(Square.SQUARE_NONE, eval.getPawnPushSourceSquare(Square.A6, Player.WHITE, 0l));
+		assertEquals(Square.SQUARE_NONE, eval.getPawnPushSourceSquare(Square.A5, Player.BLACK, 0l));
+		assertEquals(Square.SQUARE_NONE, eval.getPawnPushSourceSquare(Square.A6, Player.BLACK, 0l));
+		assertEquals(Square.G6, eval.getPawnPushSourceSquare(Square.G5, Player.BLACK, 0l));
+		assertEquals(Square.H7, eval.getPawnPushSourceSquare(Square.H6, Player.BLACK, 0l));
+		assertEquals(Square.H7, eval.getPawnPushSourceSquare(Square.H5, Player.BLACK, 0l));
+		assertEquals(Square.SQUARE_NONE, eval.getPawnPushSourceSquare(Square.A1, Player.WHITE, 0l));
+		assertEquals(Square.SQUARE_NONE, eval.getPawnPushSourceSquare(Square.A1, Player.BLACK, 0l));
+		assertEquals(Square.SQUARE_NONE, eval.getPawnPushSourceSquare(Square.A8, Player.WHITE, 0l));
+		assertEquals(Square.SQUARE_NONE, eval.getPawnPushSourceSquare(Square.A8, Player.BLACK, 0l));
+		assertEquals(Square.SQUARE_NONE, eval.getPawnPushSourceSquare(Square.H1, Player.WHITE, 0l));
+		assertEquals(Square.SQUARE_NONE, eval.getPawnPushSourceSquare(Square.H1, Player.BLACK, 0l));
+		assertEquals(Square.SQUARE_NONE, eval.getPawnPushSourceSquare(Square.H8, Player.WHITE, 0l));
+		assertEquals(Square.SQUARE_NONE, eval.getPawnPushSourceSquare(Square.H8, Player.BLACK, 0l));
+		
+		game.loadFromFEN("5k2/4pppP/1pp1p3/pp3P2/5PPp/1PPNN3/P1P1P2P/2K5 w - - 0 1");
+		eval.initialize();
+		assertEquals(Square.A2, eval.getPawnPushSourceSquare(Square.A3, Player.WHITE, 0l));
+		assertEquals(Square.A2, eval.getPawnPushSourceSquare(Square.A4, Player.WHITE, 0l));
+		assertEquals(Square.B3, eval.getPawnPushSourceSquare(Square.B4, Player.WHITE, 0l));
+		assertEquals(Square.SQUARE_NONE, eval.getPawnPushSourceSquare(Square.B2, Player.WHITE, 0l));
+		assertEquals(Square.C3, eval.getPawnPushSourceSquare(Square.C4, Player.WHITE, 0l));
+		assertEquals(Square.SQUARE_NONE, eval.getPawnPushSourceSquare(Square.D5, Player.WHITE, 0l));
+		assertEquals(Square.SQUARE_NONE, eval.getPawnPushSourceSquare(Square.D6, Player.WHITE, 0l));
+		assertEquals(Square.SQUARE_NONE, eval.getPawnPushSourceSquare(Square.E4, Player.WHITE, 0l));
+		assertEquals(Square.F5, eval.getPawnPushSourceSquare(Square.F6, Player.WHITE, 0l));
+		assertEquals(Square.G4, eval.getPawnPushSourceSquare(Square.G5, Player.WHITE, 0l));
+		assertEquals(Square.H7, eval.getPawnPushSourceSquare(Square.H8, Player.WHITE, 0l));
+		assertEquals(Square.H2, eval.getPawnPushSourceSquare(Square.H3, Player.WHITE, 0l));
+		assertEquals(Square.SQUARE_NONE, eval.getPawnPushSourceSquare(Square.A3, Player.BLACK, 0l));
+		assertEquals(Square.A5, eval.getPawnPushSourceSquare(Square.A4, Player.BLACK, 0l));
+		assertEquals(Square.SQUARE_NONE, eval.getPawnPushSourceSquare(Square.A6, Player.BLACK, 0l));
+		assertEquals(Square.B5, eval.getPawnPushSourceSquare(Square.B4, Player.BLACK, 0l));
+		assertEquals(Square.SQUARE_NONE, eval.getPawnPushSourceSquare(Square.B7, Player.BLACK, 0l));
+		assertEquals(Square.C6, eval.getPawnPushSourceSquare(Square.C5, Player.BLACK, 0l));
+		assertEquals(Square.SQUARE_NONE, eval.getPawnPushSourceSquare(Square.C4, Player.BLACK, 0l));
+		assertEquals(Square.E6, eval.getPawnPushSourceSquare(Square.E5, Player.BLACK, 0l));
+		assertEquals(Square.F7, eval.getPawnPushSourceSquare(Square.F6, Player.BLACK, 0l));
+		assertEquals(Square.G7, eval.getPawnPushSourceSquare(Square.G6, Player.BLACK, 0l));
+		assertEquals(Square.G7, eval.getPawnPushSourceSquare(Square.G5, Player.BLACK, 0l));
+		assertEquals(Square.H4, eval.getPawnPushSourceSquare(Square.H3, Player.BLACK, 0l));
+		
+		//test cleared squares
+		assertEquals(Square.E2, eval.getPawnPushSourceSquare(Square.E4, Player.WHITE, Bitboard.initFromSquare(Square.E3)));
+		assertEquals(Square.E7, eval.getPawnPushSourceSquare(Square.E5, Player.BLACK, Bitboard.initFromSquare(Square.E6)));
+		
+		assertEquals(Square.SQUARE_NONE, eval.getPawnPushSourceSquare(Square.F6, Player.WHITE, Bitboard.initFromSquare(Square.F5)));
+		assertEquals(Square.SQUARE_NONE, eval.getPawnPushSourceSquare(Square.B4, Player.BLACK, Bitboard.initFromSquare(Square.B5)));
+		
+	}
 }
