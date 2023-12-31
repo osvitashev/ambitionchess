@@ -960,7 +960,62 @@ System.out.println();
 		
 	}
 	
+	private long getSlidingPieceAttackSet(int sq, int pieceType, long clearedSquares) {
+		return 0;
+	}
+	
+	/**
+	 * Tests cases such as putting a knight onto a square attacked by a pawn, or using a queen to capture a bishop defended by a pawn.
+	 * Does not guaranty the target is safe - is meant to be used as a soft optimization check!
+	 * @param attackerPieceType
+	 * @param targetSq
+	 * @return
+	 */
+	boolean isTargetDefinitelyBad(int targetSq, int player, int attackerPieceType) {
+		/**
+		 * this shold not be using get_lva because get_lva will become stateful eventually?
+		 * 
+		 * although, get_lva might become 'soft stateful' using the cyclic check! in which case it should be ok to be used here.
+		 * Also clearedSquares could become a parameter!
+		 */
+		return false;
+	}
+	
+	void evaluateSourcePins(int sq, int player, int pieceType) {
+		assert Square.validate(sq);
+		assert Player.validate(player);
+		assert PieceType.validate(pieceType);
+		assert player == game.getPlayerAt(sq);
+		assert pieceType == game.getPieceAt(sq);
+		assert pieceType == PieceType.ROOK || pieceType == PieceType.BISHOP || pieceType == PieceType.QUEEN;
+		
+		final long boardWithNoEdges = 0x7e7e7e7e7e7e00l;//mask for the board without files a and h and ranks 1 and 8.
+		int otherPlayer = Player.getOtherPlayer(player);
+		
+		
+		long currentAttackSet = getSlidingPieceAttackSet(sq, pieceType, 0l) & boardWithNoEdges;
+		
+		long candidatePinned = currentAttackSet & game.getPlayerPieces(otherPlayer);
+		{//iterate on bit indices
+			int bi = 0;
+			for (long zarg = candidatePinned, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
+				bi = Bitboard.getFirstSquareIndex(barg);
+				long newAttackSet = getSlidingPieceAttackSet(sq, pieceType, barg) & ~currentAttackSet & game.getPlayerPieces(otherPlayer);
+				if(newAttackSet == 0l)
+					continue;
+				
+				assert 1 == Bitboard.popcount(newAttackSet);//lifting the pinned piece can only result in one new victim!
+				int candidateVictimSq = Bitboard.getFirstSquareIndex(newAttackSet);
+				
+				///int lva = getLeastValuableAttacker(candidateVictimSq, player, barg);
+				////dammit...
+				
+			}
+		} //iterate on bit indices
 
+		
+	}
+	
 	void evaluateCaptures() {
 //		int score;
 //		long directAttackTargets;

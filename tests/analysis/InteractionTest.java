@@ -22,6 +22,12 @@ class InteractionTest {
 		
 		interaction = Interaction.createGuardBound_neutralToPositive(Square.D6, Square.C7);
 		assertEquals("{d6 guards c7 (0 to +)}", Interaction.toString(interaction));
+		
+		interaction = Interaction.createPin_positive(Square.B2, Square.C3, Square.E4);
+		assertEquals("{b2 pins c3 to e4 (+)}", Interaction.toString(interaction));
+		
+		interaction = Interaction.createPin_neutral(Square.H5, Square.H7, Square.H8);
+		assertEquals("{h5 pins h7 to h8 (0)}", Interaction.toString(interaction));
 
 	}
 
