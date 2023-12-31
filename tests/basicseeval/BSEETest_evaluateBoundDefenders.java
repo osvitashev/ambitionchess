@@ -348,8 +348,49 @@ class BSEETest_evaluateBoundDefenders {
 				Interaction.createGuardBound_neutralToPositive(Square.E4, Square.D4),
 				Interaction.createGuardBound_negativeToPositive(Square.E4, Square.D5),
 		});
-		
-		
+		//cases that came out of refactoring
+		init2("5Bk1/1Rr2ppp/p7/4p3/3pP1b1/P2P2Pq/2P2Q1P/5RK1 w - - 1 34");
+		assertDefenderInteractions(new int[] {
+				Interaction.createGuardBound_negativeToPositive(Square.E5, Square.D4),
+				Interaction.createGuardBound_negativeToPositive(Square.G8, Square.G7),
+				Interaction.createGuardBound_negativeToPositive(Square.F2, Square.C2),
+		});
+		init2("r1b2rk1/ppp2p2/3p1q1p/3P2p1/2PbP1B1/2N1Q2P/PP3PP1/R3K2R w KQ - 5 19");
+		assertDefenderInteractions(new int[] {
+				Interaction.createGuardBound_negativeToPositive(Square.F6, Square.D4),
+				Interaction.createGuardBound_negativeToPositive(Square.E1, Square.F2),
+				Interaction.createGuardBound_neutralToPositive(Square.B2, Square.C3),
+				Interaction.createGuardBound_neutralToPositive(Square.E3, Square.C3),
+				Interaction.createGuardBound_neutralToPositive(Square.H3, Square.G4),
+		});
+		init2("8/2kp1rp1/1np4p/7P/3q4/1PNR1q2/1r4B1/1K1R3Q w - - 0 2");
+		assertDefenderInteractions(new int[] {
+				Interaction.createGuardBound_negativeToPositive(Square.H1, Square.H5),
+		});
+		init2("5Bk1/1R3ppp/p4r2/4p3/3pP1b1/P2P2Pq/2P2Q1P/5RK1 w - - 1 34");
+		assertDefenderInteractions(new int[] {
+				Interaction.createGuardBound_negativeToPositive(Square.E5, Square.D4),
+				Interaction.createGuardBound_negativeToPositive(Square.G7, Square.F6),
+				Interaction.createGuardBound_negativeToPositive(Square.G8, Square.G7),
+				Interaction.createGuardBound_neutralToPositive(Square.G1, Square.F1),
+		});
+		init2("5Bk1/1Rr2ppp/p7/4p3/3pP1b1/P2P2Pq/2P2Q1P/5RK1 w - - 1 34");
+		assertDefenderInteractions(new int[] {
+				Interaction.createGuardBound_negativeToPositive(Square.E5, Square.D4),
+				Interaction.createGuardBound_negativeToPositive(Square.G8, Square.G7),
+				Interaction.createGuardBound_negativeToPositive(Square.F2, Square.C2),
+		});
+		init2("3r1rk1/1bpq1pp1/5bnQ/1p1n4/pN4N1/P1B3P1/1P2RPBP/4R1K1 b - - 0 1");
+		assertDefenderInteractions(new int[] {
+				Interaction.createGuardBound_neutralToPositive(Square.B7, Square.D5),
+				Interaction.createGuardBound_neutralToPositive(Square.G7, Square.F6),
+				Interaction.createGuardBound_neutralToPositive(Square.D5, Square.F6),
+				Interaction.createGuardBound_negativeToPositive(Square.F7, Square.G6),
+		});
+		init2("5r1k/3R2rp/2p1p3/2b1P3/pP2Q3/q3B2P/5P1K/4R3 w - - 0 35");
+		assertDefenderInteractions(new int[] {
+				Interaction.createGuardBound_neutralToPositive(Square.H8, Square.G7),
+		});
 		
 		//////////control case//////////
 		init2("");
