@@ -83,19 +83,19 @@ class BSEETest_debugUtil {
 				+ "	quiet losing bQ: 0x20201070800\n"
 				+ "Interactions:\n"
 				+ "To b2\n"
-				+ "{e2 guards (bound to) b2 (score: negative->positive)} \n"
+				+ "{e2 guards b2 (- to +)} \n"
 				+ "To g2\n"
-				+ "{g1 guards (bound to) g2 (score: negative->positive)} \n"
+				+ "{g1 guards g2 (- to +)} \n"
 				+ "To c4\n"
-				+ "{e2 guards (bound to) c4 (score: negative->positive)} \n"
+				+ "{e2 guards c4 (- to +)} \n"
 				+ "To a5\n"
-				+ "{a1 guards (bound to) a5 (score: negative->positive)} \n"
+				+ "{a1 guards a5 (- to +)} \n"
 				+ "To c5\n"
-				+ "{b4 guards (bound to) c5 (score: neutral->positive)} \n"
+				+ "{b4 guards c5 (0 to +)} \n"
 				+ "To a6\n"
-				+ "{c5 guards (bound to) a6 (score: negative->positive)} {a8 guards (bound to) a6 (score: negative->positive)} \n"
+				+ "{c5 guards a6 (- to +)} {a8 guards a6 (- to +)} \n"
 				+ "To f7\n"
-				+ "{g8 guards (bound to) f7 (score: negative->positive)} \n";
+				+ "{g8 guards f7 (- to +)} \n";
 		assertEquals(expected, test_eval.debug_getAllOutputs());
 		//System.out.println(test_eval.debug_getAllOutputs());
 		//fail("Add the actual assetion, or just use this as a form of ducumentation...");

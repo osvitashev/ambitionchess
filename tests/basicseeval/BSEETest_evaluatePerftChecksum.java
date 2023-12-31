@@ -164,6 +164,10 @@ class BSEETest_evaluatePerftChecksum {
 			assertEquals(expectedChecksum, checkSum);
 	}
 	
+	/**
+	 * intended for easier tracing of the other test cases...
+	 * Migth be useful to limit the max depth as well...
+	 */
 	@Test
 	void testWithTracing() {
 		//ENABLE_LOGGING = true;

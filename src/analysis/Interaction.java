@@ -42,17 +42,17 @@ public class Interaction {
 		case TYPE_GUARD_BOUND_SCORE_NEGATIVE_TO_POSITIVE:
 			sq_provider = getBits(interaction, 6, 6);
 			sq_target = getBits(interaction, 12, 6);
-			ret = "{"+Square.toString(sq_provider) + " guards (bound to) " + Square.toString(sq_target)+" (score: negative->positive)}";
+			ret = "{"+Square.toString(sq_provider) + " guards " + Square.toString(sq_target)+" (- to +)}";
 			break;
 		case TYPE_GUARD_BOUND_SCORE_NEGATIVE_TO_NEUTRAL:
 			sq_provider = getBits(interaction, 6, 6);
 			sq_target = getBits(interaction, 12, 6);
-			ret = "{"+Square.toString(sq_provider) + " guards (bound to) " + Square.toString(sq_target)+" (score: negative->neutral)}";
+			ret = "{"+Square.toString(sq_provider) + " guards " + Square.toString(sq_target)+" (- to 0)}";
 			break;
 		case TYPE_GUARD_BOUND_SCORE_NEUTRAL_TO_POSITIVE:
 			sq_provider = getBits(interaction, 6, 6);
 			sq_target = getBits(interaction, 12, 6);
-			ret = "{"+Square.toString(sq_provider) + " guards (bound to) " + Square.toString(sq_target)+" (score: neutral->positive)}";
+			ret = "{"+Square.toString(sq_provider) + " guards " + Square.toString(sq_target)+" (0 to +)}";
 			break;
 		default:
 			ret="NOT SUPPORTED";
