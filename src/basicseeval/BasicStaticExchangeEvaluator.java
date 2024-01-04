@@ -168,6 +168,7 @@ public class BasicStaticExchangeEvaluator {
 	 */
 	public void initialize() {
 		output_defenderInteractions_size=0;
+		output_xRayInteractions_size=0;
 		
 		for(int player : Player.PLAYERS) {
 			output_target_isExchangeProcessed[player]=0;
@@ -459,23 +460,40 @@ public class BasicStaticExchangeEvaluator {
 					": 0x"+String.format("%08X", getOutput_quiet_losing(player, pieceType)) + "\n";
 			}
 		}
-		{//interactions
-			ret+="Interactions:";
-			int[] defenderInteractions = new int[get_output_defenderInteractions_size()];
+		{//defensive interactions
+			ret+="<><> Defender Interactions: <><>";
+			int[] tempInteractions = new int[get_output_defenderInteractions_size()];
 			for(int i =0; i<get_output_defenderInteractions_size();++i) {
-				defenderInteractions[i]=get_output_defenderInteractions(i);
+				tempInteractions[i]=get_output_defenderInteractions(i);
 			}
-			Integer[] objectArray = Arrays.stream(defenderInteractions).boxed().toArray(Integer[]::new);
-			Arrays.sort(objectArray, (a, b) -> Interaction.getTarget(a) - Interaction.getTarget(b));
-			defenderInteractions = Arrays.stream(objectArray).mapToInt(Integer::intValue).toArray();
+			Integer[] objectArray = Arrays.stream(tempInteractions).boxed().toArray(Integer[]::new);
+			Arrays.sort(objectArray, (a, b) -> Interaction.debug_getVictimSquare(a) - Interaction.debug_getVictimSquare(b));
+			tempInteractions = Arrays.stream(objectArray).mapToInt(Integer::intValue).toArray();
 			int prevSquare=Square.SQUARE_NONE;
 			for(int i =0; i<get_output_defenderInteractions_size();++i) {
-				if(prevSquare != Interaction.getTarget(defenderInteractions[i]))
-					ret+="\nTo "+Square.toString(Interaction.getTarget(defenderInteractions[i])) +"\n";
-				prevSquare = Interaction.getTarget(defenderInteractions[i]);
-				ret+=Interaction.toString(defenderInteractions[i]) +" ";
+				if(prevSquare != Interaction.debug_getVictimSquare(tempInteractions[i]))
+					ret+="\nTo: "+Square.toString(Interaction.debug_getVictimSquare(tempInteractions[i])) +"\n";
+				prevSquare = Interaction.debug_getVictimSquare(tempInteractions[i]);
+				ret+=Interaction.toString(tempInteractions[i]) +" ";
 			}
-			
+			ret+="\n";
+		}
+		{//Xray interactions
+			ret+="<><> X-Ray Interactions: <><>";
+			int[] tempInteractions = new int[get_output_xRayInteractions_size()];
+			for(int i =0; i<get_output_xRayInteractions_size();++i) {
+				tempInteractions[i]=get_output_xRayInteractions(i);
+			}
+			Integer[] objectArray = Arrays.stream(tempInteractions).boxed().toArray(Integer[]::new);
+			Arrays.sort(objectArray, (a, b) -> Interaction.debug_getVictimSquare(a) - Interaction.debug_getVictimSquare(b));
+			tempInteractions = Arrays.stream(objectArray).mapToInt(Integer::intValue).toArray();
+			int prevSquare=Square.SQUARE_NONE;
+			for(int i =0; i<get_output_xRayInteractions_size();++i) {
+				if(prevSquare != Interaction.debug_getVictimSquare(tempInteractions[i]))
+					ret+="\nTo: "+Square.toString(Interaction.debug_getVictimSquare(tempInteractions[i])) +"\n";
+				prevSquare = Interaction.debug_getVictimSquare(tempInteractions[i]);
+				ret+=Interaction.toString(tempInteractions[i]) +" ";
+			}
 			ret+="\n";
 		}
 		return ret;
@@ -638,6 +656,28 @@ public class BasicStaticExchangeEvaluator {
 	}
 	
 	/**
+	 * union of capture targets with strictly positive score
+	 */
+	public long getOutput_capture_winning_any(int player) {
+		assert Player.validate(player);
+		long ret=0;
+		for(int type : PieceType.PIECE_TYPES)
+			ret |= output_target_winning[player][type];
+		return ret & game.getOccupied();
+	}
+	
+	/**
+	 * union of capture targets with strictly positive score
+	 */
+	public long getOutput_capture_neutral_any(int player) {
+		assert Player.validate(player);
+		long ret=0;
+		for(int type : PieceType.PIECE_TYPES)
+			ret |= output_target_neutral[player][type];
+		return ret & game.getOccupied();
+	}
+	
+	/**
 	 * Captures with neutral score
 	 */
 	public long getOutput_capture_neutral(int player, int pieceType) {
@@ -684,7 +724,6 @@ public class BasicStaticExchangeEvaluator {
 	private int var_evaluateTarget_gain [] =new int[32];//integer value change - needed for linear minimax
 	
 	private static final boolean ENABLE_EVALUATE_TARGET_EXCHANGE_DEBUG_STATEMENTS = false;
-	private static final boolean ENABLE_EVALUATE_TARGET_BOUND_DEFENDERS_DEBUG_STATEMENTS = false;
 	
 	private int var_evaluateTarget_attackStack_lastIndex, var_evaluateTargetExchange_score, var_evaluateTargetExchange_occupierPieceType, var_evaluateTargetExchange_occupierPlayer,
 		var_evaluateTargetExchange_principleLineLastIndex;
@@ -727,6 +766,9 @@ public class BasicStaticExchangeEvaluator {
 	 * @return whether there is an available capture. Available does not mean Viable! Returns false if there are no available attackers.
 	 */
 	boolean evaluateTargetExchange(int sq, int player, long clearedSquares,  int forced_attacker_type) {
+		//todo: split evaluateTargetExchange into two functions so that forced attacker is no longer optional!!!!!
+		
+		//todo: need to handle pawn promotions: promoting to a queen is equivalent to losing 100 points and gaining 800!
 		assert Square.validate(sq);
 		assert Player.validate(player);
 		assert (game.getPieceAt(sq) == PieceType.NO_PIECE ?
@@ -867,6 +909,10 @@ System.out.println();
 	private int output_defenderInteractions[] = new int[100];
 	private int output_defenderInteractions_size;
 	
+	private int output_xRayInteractions[] = new int[100];
+	private int output_xRayInteractions_size;
+	
+	
 	public int get_output_defenderInteractions(int index) {
 		assert index<output_defenderInteractions_size;
 		return output_defenderInteractions[index];
@@ -876,11 +922,13 @@ System.out.println();
 		return output_defenderInteractions_size;
 	}
 	
-	private String debug_attackStackToString(int len) {
-		String ret="? ";
-		for(int i=1; i<len;++i)
-			ret+=PieceType.toString(var_evaluateTarget_attackTypeStack[i]) + " ";
-		return ret;
+	public int get_output_xRayInteractions(int index) {
+		assert index<output_xRayInteractions_size;
+		return output_xRayInteractions[index];
+	}
+	
+	public int get_output_xRayInteractions_size() {
+		return output_xRayInteractions_size;
 	}
 	
 	private int [] var_evaluateTargetBoundDefenders_attackSquareStack = new int[30];
@@ -961,7 +1009,22 @@ System.out.println();
 	}
 	
 	private long getSlidingPieceAttackSet(int sq, int pieceType, long clearedSquares) {
-		return 0;
+		assert Square.validate(sq);
+		assert PieceType.validate(pieceType);
+		assert pieceType == PieceType.ROOK || pieceType == PieceType.BISHOP || pieceType == PieceType.QUEEN;
+		long ret;
+		switch (pieceType) {
+		case PieceType.ROOK:
+			ret=  BitboardGen.getRookSet(sq, game.getOccupied() & ~clearedSquares);
+			break;
+		case PieceType.BISHOP:
+			ret=  BitboardGen.getBishopSet(sq, game.getOccupied() & ~clearedSquares);
+			break;
+		default:
+			ret=  BitboardGen.getQueenSet(sq, game.getOccupied() & ~clearedSquares);
+			break;
+		}
+		return ret;
 	}
 	
 	/**
@@ -981,7 +1044,13 @@ System.out.println();
 		return false;
 	}
 	
-	void evaluateSourcePins(int sq, int player, int pieceType) {
+	/**
+	 * is evaluated from the perspective of a sliding piece attacker!
+	 * @param sq
+	 * @param player
+	 * @param pieceType
+	 */
+	void evaluateTargetXRayInteractions(int sq, int player, int pieceType) {
 		assert Square.validate(sq);
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
@@ -989,13 +1058,15 @@ System.out.println();
 		assert pieceType == game.getPieceAt(sq);
 		assert pieceType == PieceType.ROOK || pieceType == PieceType.BISHOP || pieceType == PieceType.QUEEN;
 		
-		final long boardWithNoEdges = 0x7e7e7e7e7e7e00l;//mask for the board without files a and h and ranks 1 and 8.
 		int otherPlayer = Player.getOtherPlayer(player);
+		long currentlyWinningCaptureTargets = getOutput_capture_winning_any(player);
+		long currentlyNeutralCaptureTargets = getOutput_capture_neutral_any(player) & ~currentlyWinningCaptureTargets;
+		long currentAttackSet = getSlidingPieceAttackSet(sq, pieceType, 0l);
+		long candidatePinned = currentAttackSet;// & game.getPlayerPieces(otherPlayer);
 		
+		//to process discovered threats: same as pins, but with a deiffent candidatePinned
+		//ideally, it would reuse the existing code!
 		
-		long currentAttackSet = getSlidingPieceAttackSet(sq, pieceType, 0l) & boardWithNoEdges;
-		
-		long candidatePinned = currentAttackSet & game.getPlayerPieces(otherPlayer);
 		{//iterate on bit indices
 			int bi = 0;
 			for (long zarg = candidatePinned, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
@@ -1005,10 +1076,41 @@ System.out.println();
 					continue;
 				
 				assert 1 == Bitboard.popcount(newAttackSet);//lifting the pinned piece can only result in one new victim!
-				int candidateVictimSq = Bitboard.getFirstSquareIndex(newAttackSet);
-				
-				///int lva = getLeastValuableAttacker(candidateVictimSq, player, barg);
-				////dammit...
+				if (0 != (newAttackSet & currentlyWinningCaptureTargets)) {
+					//the victim is one where we already have a winning capture - do nothing!
+					continue;
+				}
+				else if(0 != (newAttackSet & currentlyNeutralCaptureTargets)) {
+					//there are no winning captures of the target before the blocking piece is lifted.
+					//but there is a neutral one - proceed only if we are improving the score.
+					int candidateVictimSq = Bitboard.getFirstSquareIndex(newAttackSet);
+					boolean isExchange = evaluateTargetExchange(candidateVictimSq, player, barg, PieceType.NO_PIECE);
+					if (!isExchange)
+						continue;
+					if (var_evaluateTarget_gain[0] > 0) {
+						output_xRayInteractions[output_xRayInteractions_size++] = (otherPlayer == game.getPlayerAt(bi))
+								? Interaction.createPin_positive(sq, bi, candidateVictimSq)
+								: Interaction.createDiscoveredThreat_positive(sq, bi, candidateVictimSq);
+					}
+				}
+				else {
+					//there are no winning or neutral captures of the target before the blocking piece is lifted.
+					//there might be a losing capture, or no captures available - proceed bependingon the new score.
+					int candidateVictimSq = Bitboard.getFirstSquareIndex(newAttackSet);
+					boolean isExchange = evaluateTargetExchange(candidateVictimSq, player, barg, PieceType.NO_PIECE);
+					if (!isExchange)
+						continue;
+					if (var_evaluateTarget_gain[0] > 0) {
+						output_xRayInteractions[output_xRayInteractions_size++] = (otherPlayer == game.getPlayerAt(bi))
+								? Interaction.createPin_positive(sq, bi, candidateVictimSq)
+								: Interaction.createDiscoveredThreat_positive(sq, bi, candidateVictimSq);
+					}
+					else if (var_evaluateTarget_gain[0] == 0) {
+						output_xRayInteractions[output_xRayInteractions_size++] = (otherPlayer == game.getPlayerAt(bi))
+								? Interaction.createPin_neutral(sq, bi, candidateVictimSq)
+								: Interaction.createDiscoveredThreat_neutral(sq, bi, candidateVictimSq);
+					}
+				}
 				
 			}
 		} //iterate on bit indices
@@ -1132,6 +1234,16 @@ System.out.println();
 		}
 	}
 	
+	void evaluateXRayInteractions() {
+		int player, pieceType;
+		for (int sq : Square.SQUARES) {
+			player = game.getPlayerAt(sq);
+			pieceType = game.getPieceAt(sq);
+			if(pieceType == PieceType.BISHOP || pieceType == PieceType.ROOK || pieceType == PieceType.QUEEN) {
+				evaluateTargetXRayInteractions(sq, player, pieceType);
+			}
+		}
+	}
 	
 	
 }

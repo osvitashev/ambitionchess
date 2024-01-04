@@ -14,8 +14,8 @@ public class Interaction {
 	private static final int TYPE_PIN_POSITIVE = 4;
 	private static final int TYPE_PIN_NEUTRAL = 5;
 	
-	private static final int TYPE_DISCOVERED_THREAT_POSITIVE =0;
-	private static final int TYPE_DISCOVERED_THREAT_NEUTRAL =0;
+	private static final int TYPE_DISCOVERED_THREAT_POSITIVE =6;
+	private static final int TYPE_DISCOVERED_THREAT_NEUTRAL =7;
 	
 //	private static final int TYPE_SKEWER_POSITIVE = 6;
 //	private static final int TYPE_SKEWER_NEUTRAL = 7;
@@ -29,26 +29,58 @@ public class Interaction {
 			
 			TYPE_PIN_POSITIVE,
 			TYPE_PIN_NEUTRAL,
+			
+			TYPE_DISCOVERED_THREAT_POSITIVE,
+			TYPE_DISCOVERED_THREAT_NEUTRAL
 //			TYPE_SKEWER_POSITIVE,//todo: skewer is not the correct name here. What this actually is - a threat of discovered attack!
 //			TYPE_SKEWER_NEUTRAL,
 		};
 	
-	public static int getType(int interaction) {
-		int ret = getBits(interaction, 0, 6);
-		assert 0 < ret && ret <=TYPES.length;
-		return ret;
+	public static boolean validateInteraction(int interaction) {
+		int val = getBits(interaction, 0, 6);
+		return 0 < val && val <=TYPES.length;
 	}
 	
-	public static int getTarget(int interaction) {
-		assert  getType(interaction) == TYPE_BOUND_GUARD_SCORE_NEGATIVE_TO_POSITIVE ||
+	public static int getType(int interaction) {
+		validateInteraction(interaction);
+		return getBits(interaction, 0, 6);
+	}
+	
+	public static int debug_getVictimSquare(int interaction) {
+		assert (
+				getType(interaction) == TYPE_BOUND_GUARD_SCORE_NEGATIVE_TO_POSITIVE ||
 				getType(interaction) == TYPE_BOUND_GUARD_SCORE_NEGATIVE_TO_NEUTRAL ||
-				getType(interaction) == TYPE_BOUND_GUARD_SCORE_NEUTRAL_TO_POSITIVE;
-		int ret = getBits(interaction, 12, 6);
+				getType(interaction) == TYPE_BOUND_GUARD_SCORE_NEUTRAL_TO_POSITIVE
+			)
+			||
+			(
+				getType(interaction) == TYPE_PIN_POSITIVE ||
+				getType(interaction) == TYPE_PIN_NEUTRAL ||
+				getType(interaction) == TYPE_DISCOVERED_THREAT_POSITIVE ||
+				getType(interaction) == TYPE_DISCOVERED_THREAT_NEUTRAL
+			);
+		int ret=-1;
+		if(
+			getType(interaction) == TYPE_BOUND_GUARD_SCORE_NEGATIVE_TO_POSITIVE ||
+			getType(interaction) == TYPE_BOUND_GUARD_SCORE_NEGATIVE_TO_NEUTRAL ||
+			getType(interaction) == TYPE_BOUND_GUARD_SCORE_NEUTRAL_TO_POSITIVE) {
+			ret = getBits(interaction, 12, 6);
+		}
+		else if(
+			getType(interaction) == TYPE_PIN_POSITIVE ||
+			getType(interaction) == TYPE_PIN_NEUTRAL ||
+			getType(interaction) == TYPE_DISCOVERED_THREAT_POSITIVE ||
+			getType(interaction) == TYPE_DISCOVERED_THREAT_NEUTRAL
+			) {
+			ret = getBits(interaction, 18, 6);
+		}
+			
 		assert Square.validate(ret);
 		return ret;
 	}
 	
 	public static String toString(int interaction) {
+		assert validateInteraction(interaction);
 		String ret;
 		int type = getType(interaction);
 		int sq_provider, sq_target;
@@ -70,7 +102,6 @@ public class Interaction {
 			sq_target = getBits(interaction, 12, 6);
 			ret = "{"+Square.toString(sq_provider) + " guards " + Square.toString(sq_target)+" (0 to +)}";
 			break;
-			
 		case TYPE_PIN_POSITIVE:
 			sq_attacker = getBits(interaction, 6, 6);
 			sq_pinned = getBits(interaction, 12, 6);
@@ -83,6 +114,19 @@ public class Interaction {
 			sq_victim = getBits(interaction, 18, 6);
 			ret = "{" + Square.toString(sq_attacker) + " pins " + Square.toString(sq_pinned) + " to " + Square.toString(sq_victim) + " (0)}";
 			break;
+		case TYPE_DISCOVERED_THREAT_POSITIVE:
+			sq_attacker = getBits(interaction, 6, 6);
+			sq_pinned = getBits(interaction, 12, 6);
+			sq_victim = getBits(interaction, 18, 6);
+			ret = "{" + Square.toString(sq_attacker) + " via " + Square.toString(sq_pinned) + " threatens " + Square.toString(sq_victim) + " (+)}";
+			break;
+		case TYPE_DISCOVERED_THREAT_NEUTRAL:
+			sq_attacker = getBits(interaction, 6, 6);
+			sq_pinned = getBits(interaction, 12, 6);
+			sq_victim = getBits(interaction, 18, 6);
+			ret = "{" + Square.toString(sq_attacker) + " via " + Square.toString(sq_pinned) + " threatens " + Square.toString(sq_victim) + " (0)}";
+			break;
+			
 		default:
 			ret="NOT SUPPORTED";
 			break;
@@ -117,6 +161,11 @@ public class Interaction {
 		return ret;
 	}
 	
+	public static int createPin_positive(String sq_attacker, String sq_pinned, String sq_victim) {
+		return createPin_positive(Square.algebraicStringToSquare(sq_attacker), Square.algebraicStringToSquare(sq_pinned),
+				Square.algebraicStringToSquare(sq_victim));
+	}
+	
 	public static int createPin_positive(int sq_attacker, int sq_pinned, int sq_victim) {
 		assert Square.validate(sq_attacker);
 		assert Square.validate(sq_pinned);
@@ -126,6 +175,11 @@ public class Interaction {
 		ret=setBits(ret, sq_pinned, 12, 6);
 		ret=setBits(ret, sq_victim, 18, 6);
 		return ret;
+	}
+	
+	public static int createPin_neutral(String sq_attacker, String sq_pinned, String sq_victim) {
+		return createPin_neutral(Square.algebraicStringToSquare(sq_attacker), Square.algebraicStringToSquare(sq_pinned),
+				Square.algebraicStringToSquare(sq_victim));
 	}
 	
 	public static int createPin_neutral(int sq_attacker, int sq_pinned, int sq_victim) {
@@ -139,6 +193,37 @@ public class Interaction {
 		return ret;
 	}
 	
+	public static int createDiscoveredThreat_neutral(String sq_attacker, String sq_pinned, String sq_victim) {
+		return createDiscoveredThreat_neutral(Square.algebraicStringToSquare(sq_attacker), Square.algebraicStringToSquare(sq_pinned),
+				Square.algebraicStringToSquare(sq_victim));
+	}
+	
+	public static int createDiscoveredThreat_neutral(int sq_attacker, int sq_pinned, int sq_victim) {
+		assert Square.validate(sq_attacker);
+		assert Square.validate(sq_pinned);
+		assert Square.validate(sq_victim);
+		int ret=setBits(0, TYPE_DISCOVERED_THREAT_NEUTRAL, 0, 6);
+		ret=setBits(ret, sq_attacker, 6, 6);
+		ret=setBits(ret, sq_pinned, 12, 6);
+		ret=setBits(ret, sq_victim, 18, 6);
+		return ret;
+	}
+	
+	public static int createDiscoveredThreat_positive(String sq_attacker, String sq_pinned, String sq_victim) {
+		return createDiscoveredThreat_positive(Square.algebraicStringToSquare(sq_attacker), Square.algebraicStringToSquare(sq_pinned),
+				Square.algebraicStringToSquare(sq_victim));
+	}
+	
+	public static int createDiscoveredThreat_positive(int sq_attacker, int sq_pinned, int sq_victim) {
+		assert Square.validate(sq_attacker);
+		assert Square.validate(sq_pinned);
+		assert Square.validate(sq_victim);
+		int ret=setBits(0, TYPE_DISCOVERED_THREAT_POSITIVE, 0, 6);
+		ret=setBits(ret, sq_attacker, 6, 6);
+		ret=setBits(ret, sq_pinned, 12, 6);
+		ret=setBits(ret, sq_victim, 18, 6);
+		return ret;
+	}
 
 	
 }

@@ -322,6 +322,10 @@ class BSEETest_evaluateCapture_target {
 		test_eval.initialize();
 		test_naturalOrder_noExhange(Square.C2, Player.BLACK,new String[] {"c2"});
 		
+		test_game.loadFromFEN("r5k1/5ppp/8/8/1pP5/P7/1PN2PP1/6K1 w - - 0 1");
+		test_eval.initialize();
+		testOutcome_naturalOrder(Square.A3, Player.BLACK, OutcomeEnum.NEUTRAL,new String[] {"a3", "b4", "b2"});
+		
 		
 		if (skipAssertions)
 			fail("Assertions skipped! We must be running some experiments...");

@@ -25,10 +25,13 @@ class InteractionTest {
 		
 		interaction = Interaction.createPin_positive(Square.B2, Square.C3, Square.E4);
 		assertEquals("{b2 pins c3 to e4 (+)}", Interaction.toString(interaction));
-		
 		interaction = Interaction.createPin_neutral(Square.H5, Square.H7, Square.H8);
 		assertEquals("{h5 pins h7 to h8 (0)}", Interaction.toString(interaction));
-
+		
+		interaction = Interaction.createDiscoveredThreat_neutral(Square.B2, Square.C3, Square.E4);
+		assertEquals("{b2 via c3 threatens e4 (0)}", Interaction.toString(interaction));
+		interaction = Interaction.createDiscoveredThreat_positive(Square.H5, Square.H7, Square.H8);
+		assertEquals("{h5 via h7 threatens h8 (+)}", Interaction.toString(interaction));
 	}
 
 }
