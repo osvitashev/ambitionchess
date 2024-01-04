@@ -254,6 +254,7 @@ class BSEETest_evaluateCapture_target {
 		test_eval.initialize();
 		testPlayerPieceType(Player.BLACK, PieceType.PAWN, Square.D5, Player.WHITE, PieceType.ROOK,
 				new String[] { "d5", "d4", "c6" });
+		
 
 		// no available recapture
 		test_game.loadFromFEN("8/8/p1k5/1N4r1/8/6Q1/4K3/8 w - - 0 1");
@@ -268,6 +269,11 @@ class BSEETest_evaluateCapture_target {
 				new String[] { "g3", "g5" });
 		testPlayerPieceType(Player.WHITE, PieceType.QUEEN, Square.G5, Player.WHITE, PieceType.QUEEN,
 				new String[] { "g5", "g3" });
+		
+		test_game.loadFromFEN("2k5/3B1br1/2P3q1/3n3N/6P1/1Nn4b/1K6/3rb1R1 b - - 0 1");
+		test_eval.initialize();
+		test_naturalOrder_noExhange(Square.B2, Player.BLACK, PieceType.PAWN);
+		test_naturalOrder_noExhange(Square.B4, Player.BLACK, PieceType.PAWN);
 
 		if (skipAssertions)
 			fail("Assertions skipped! We must be running some experiments...");
@@ -290,15 +296,9 @@ class BSEETest_evaluateCapture_target {
 		}
 	}
 	
-	private void test_naturalOrder_noExhange(int sq, int player, String[] principleLine) {
-		boolean outcome = test_eval.evaluateTargetExchange(sq, player, 0l, PieceType.NO_PIECE);
-		if (!skipAssertions) {
-			assertEquals(false, outcome);
-			assertEquals(principleLine.length, test_eval.get_evaluateTargetExchange_principleLineLastIndex() + 1);
-			for (int i = 0; i < principleLine.length; ++i)
-				assertEquals(Square.algebraicStringToSquare(principleLine[i]),
-						test_eval.get_evaluateTargetExchange_principleLine_square(i));
-		}
+	private void test_naturalOrder_noExhange(int sq, int player, int pieceType) {
+		boolean outcome = test_eval.evaluateTargetExchange(sq, player, 0l, pieceType);
+		assertEquals(false, outcome);
 	}
 
 	@Test
@@ -316,11 +316,11 @@ class BSEETest_evaluateCapture_target {
 		testOutcome_naturalOrder(Square.E3, Player.BLACK, OutcomeEnum.NEGATIVE,new String[] {"e3", "e6", "d2"  });
 		testOutcome_naturalOrder(Square.C2, Player.BLACK, OutcomeEnum.NEUTRAL,new String[] {"c2", "b3", "d2"});
 		// no available attackers
-		test_naturalOrder_noExhange(Square.G7, Player.WHITE,new String[] {"g7"});
-		test_naturalOrder_noExhange(Square.H2, Player.BLACK,new String[] {"h2"});
+		test_naturalOrder_noExhange(Square.G7, Player.WHITE, PieceType.NO_PIECE);
+		test_naturalOrder_noExhange(Square.H2, Player.BLACK, PieceType.NO_PIECE);
 		test_game.loadFromFEN("4rk2/4nppp/8/5n2/8/P2Q4/1PP5/1K6 w - - 0 1");
 		test_eval.initialize();
-		test_naturalOrder_noExhange(Square.C2, Player.BLACK,new String[] {"c2"});
+		test_naturalOrder_noExhange(Square.C2, Player.BLACK, PieceType.NO_PIECE);
 		
 		test_game.loadFromFEN("r5k1/5ppp/8/8/1pP5/P7/1PN2PP1/6K1 w - - 0 1");
 		test_eval.initialize();

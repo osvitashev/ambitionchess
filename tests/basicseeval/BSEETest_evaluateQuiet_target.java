@@ -350,6 +350,15 @@ class BSEETest_evaluateQuiet_target {
 				PieceType.PAWN, // pieceType
 				new String[] {"g5", "g7"});
 		
+		test_game.loadFromFEN("8/pkp5/1p6/PK6/8/8/8/8 w - - 0 1");
+		test_eval.initialize();
+		testPlayerPieceType(Player.BLACK, PieceType.PAWN, Square.A6, Player.BLACK, PieceType.PAWN,
+				new String[] { "a6", "a7" });
+		testPlayerPieceType(Player.BLACK, PieceType.PAWN, Square.C6, Player.BLACK, PieceType.PAWN,
+				new String[] { "c6", "c7" });
+		testPlayerPieceType(Player.BLACK, PieceType.PAWN, Square.C5, Player.BLACK, PieceType.PAWN,
+				new String[] { "c5", "c7" });
+		
 		//test no available attackers
 	}	
 }
