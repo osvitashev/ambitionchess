@@ -1085,8 +1085,7 @@ System.out.println();
 					//but there is a neutral one - proceed only if we are improving the score.
 					int candidateVictimSq = Bitboard.getFirstSquareIndex(newAttackSet);
 					boolean isExchange = evaluateTargetExchange(candidateVictimSq, player, barg, PieceType.NO_PIECE);
-					if (!isExchange)
-						continue;
+					assert(isExchange) : "This is a sanity check: candidateVictimSq is within the new attack set of a sliding piece";
 					if (var_evaluateTarget_gain[0] > 0) {
 						output_xRayInteractions[output_xRayInteractions_size++] = (otherPlayer == game.getPlayerAt(bi))
 								? Interaction.createPin_positive(sq, bi, candidateVictimSq)
@@ -1098,8 +1097,7 @@ System.out.println();
 					//there might be a losing capture, or no captures available - proceed bependingon the new score.
 					int candidateVictimSq = Bitboard.getFirstSquareIndex(newAttackSet);
 					boolean isExchange = evaluateTargetExchange(candidateVictimSq, player, barg, PieceType.NO_PIECE);
-					if (!isExchange)
-						continue;
+					assert(isExchange) : "This is a sanity check: candidateVictimSq is within the new attack set of a sliding piece";
 					if (var_evaluateTarget_gain[0] > 0) {
 						output_xRayInteractions[output_xRayInteractions_size++] = (otherPlayer == game.getPlayerAt(bi))
 								? Interaction.createPin_positive(sq, bi, candidateVictimSq)
