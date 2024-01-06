@@ -19,6 +19,9 @@ public class TargetStaticExchangeEvaluator {
 	
 	private static final boolean ENABLE_EVALUATE_TARGET_EXCHANGE_DEBUG_STATEMENTS = false;
 	
+	///whether the last call to evaluateTargetExchange returned true. If it did not, none of the calls to getter methods are valid.
+	private boolean lastCalltoEvaluateTargetExchange = false;
+	
 	private int var_evaluateTarget_attackStack_lastIndex, var_evaluateTargetExchange_score, var_evaluateTargetExchange_occupierPieceType, var_evaluateTargetExchange_occupierPlayer,
 		var_evaluateTargetExchange_principleLineLastIndex;
 	
@@ -32,41 +35,50 @@ public class TargetStaticExchangeEvaluator {
 	}
 
 int get_evaluateTargetExchange_score() {
-	//refactor: this should be same as targetSEE.getGain()!!!!
+	//todo: this should be same as targetSEE.getGain()!!!!
+	assert lastCalltoEvaluateTargetExchange;
 	return var_evaluateTargetExchange_score;
 }
 
 int get_evaluateTargetExchange_occupierPieceType() {
+	assert lastCalltoEvaluateTargetExchange;
 	assert PieceType.validate(var_evaluateTargetExchange_occupierPieceType);
 	return var_evaluateTargetExchange_occupierPieceType;
 }
 
 int get_evaluateTargetExchange_occupierPlayer() {
+	assert lastCalltoEvaluateTargetExchange;
 	assert Player.validate(var_evaluateTargetExchange_occupierPlayer);
 	return var_evaluateTargetExchange_occupierPlayer;
 }
 
 int get_evaluateTargetExchange_principleLineLastIndex() {
+	assert lastCalltoEvaluateTargetExchange;
 	return var_evaluateTargetExchange_principleLineLastIndex;
 }
 
 int getGain() {
+	assert lastCalltoEvaluateTargetExchange;
 	return var_evaluateTarget_gain[0];
 }
 
 int getAttackerSquare() {
+	assert lastCalltoEvaluateTargetExchange;
 	return var_evaluateTarget_attackSquareStack[1];
 }
 
 int getAttackerType() {
+	assert lastCalltoEvaluateTargetExchange;
 	return var_evaluateTarget_attackTypeStack[1];
 }
 
 int get_evaluateTarget_attackStack_lastIndex() {
+	assert lastCalltoEvaluateTargetExchange;
 	return var_evaluateTarget_attackStack_lastIndex;
 }
 
 int get_evaluateTarget_attackSquareStack(int i) {
+	assert lastCalltoEvaluateTargetExchange;
 	return var_evaluateTarget_attackSquareStack[i];
 }
 
@@ -76,6 +88,7 @@ int get_evaluateTarget_attackSquareStack(int i) {
  * @return square
  */
 int get_evaluateTargetExchange_principleLine_square(int index) {
+	assert lastCalltoEvaluateTargetExchange;
 	assert index <= get_evaluateTargetExchange_principleLineLastIndex() && index >=0;
 	assert Square.validate(var_evaluateTarget_attackSquareStack[index]);
 	return var_evaluateTarget_attackSquareStack[index];
@@ -222,6 +235,7 @@ int get_evaluateTargetExchange_principleLine_square(int index) {
 	 * @return whether there is an available capture. Available does not mean Viable! Returns false if there are no available attackers.
 	 */
 	boolean evaluateTargetExchange(int sq, int player, long clearedSquares,  int forced_attacker_type) {
+		lastCalltoEvaluateTargetExchange = false;
 		//todo: split evaluateTargetExchange into two functions so that forced attacker is no longer optional!!!!!
 		
 		//todo: need to handle pawn promotions: promoting to a queen is equivalent to losing 100 points and gaining 800!
@@ -357,8 +371,12 @@ for(int i=0; i<=var_evaluateTargetExchange_principleLineLastIndex;++i)
 System.out.println(" returning: "+ var_evaluateTarget_gain[0]);
 System.out.println();
 }
-		if(var_evaluateTargetExchange_principleLineLastIndex == 0)
+		if(var_evaluateTargetExchange_principleLineLastIndex == 0) {
 			return false;
-		return true;
+		}
+		else {
+			lastCalltoEvaluateTargetExchange = true;
+			return true;
+		}
 	}
 }
