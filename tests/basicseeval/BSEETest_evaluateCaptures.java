@@ -11,7 +11,7 @@ import gamestate.GlobalConstants.Player;
 
 class BSEETest_evaluateCaptures {
 	private Gamestate test_game = new Gamestate();
-	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game, new TargetStaticExchangeEvaluator(test_game));
+	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game);
 	
 	void assertCaptures(String fen, long [][] winning_targets, long [][] neutral_targets, long [][] losing_targets) {
 		test_game.loadFromFEN(fen);

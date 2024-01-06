@@ -184,10 +184,7 @@ int get_evaluateTargetExchange_principleLine_square(int index) {
 	 * @return AttackerType
 	 */
 	int getLeastValuableAttacker(int sq_target, int player, long clearedLocations) {
-		//todo: right now these are calculated from game state. The calculation can instead be based on var_bitboard_attackedBy
-		// OPTIMIZE: once pawn and knight attack sets are exhausted, there is no point
-				// checking them again. This is not true for sliding pieces.
-		//consider: another possibility is to remember the last returned type to jump to in on the consecutive call. For the purpose of this, the types can be thought of as a ring.
+		//todo: add a hint parameter - effectively the last value returned by this call. It is caller's responsibility to set it!
 		assert Square.validate(sq_target);
 		assert Player.validate(player);
 		

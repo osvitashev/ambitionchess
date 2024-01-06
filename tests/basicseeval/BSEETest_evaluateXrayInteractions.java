@@ -1,21 +1,17 @@
 package basicseeval;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.Arrays;
-
 import org.junit.jupiter.api.Test;
-
 import analysis.Interaction;
 import gamestate.Gamestate;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
-import util.Utilities.OutcomeEnum;
 
 class BSEETest_evaluateXrayInteractions {
 	private Gamestate test_game = new Gamestate();
-	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game, new TargetStaticExchangeEvaluator(test_game));
+	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game);
 	
 	private void init(String fen) {
 		test_game.loadFromFEN(fen);

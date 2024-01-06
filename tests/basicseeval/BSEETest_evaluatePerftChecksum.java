@@ -12,17 +12,13 @@ import analysis.Interaction;
 import gamestate.Gamestate;
 import gamestate.MoveGen;
 import gamestate.MovePool;
-import gamestate.GlobalConstants.MoveType;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
-import gamestate.GlobalConstants.Square;
-import gamestate.Move;
-import util.HitCounter;
-import util.SimplePRNG;
+
 
 class BSEETest_evaluatePerftChecksum {
 	private Gamestate test_game = new Gamestate();
-	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game, new TargetStaticExchangeEvaluator(test_game));
+	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game);
 	
 	private MovePool movepool = new MovePool();
 	private MoveGen test_move_generator = new MoveGen();

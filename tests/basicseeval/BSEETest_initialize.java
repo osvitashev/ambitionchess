@@ -15,11 +15,9 @@ class BSEETest_initialize {
 	
 	private Gamestate test_game = new Gamestate();
 	TargetStaticExchangeEvaluator tSee = new TargetStaticExchangeEvaluator(test_game);
-	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game, tSee);
 	
 	void helper_test_getLeastValuableAttacker(long expected, String fen, int sq_target, int player, long clearedLocationsMask) {
 		test_game.loadFromFEN(fen);
-		test_eval.initialize();
 		
 		assertEquals(expected, tSee.getLeastValuableAttacker(sq_target,
 				player, clearedLocationsMask));
@@ -468,7 +466,7 @@ class BSEETest_initialize {
 	@Test
 	void initialize_test() {
 		Gamestate game = new Gamestate();
-		BasicStaticExchangeEvaluator eval = new BasicStaticExchangeEvaluator(game, new TargetStaticExchangeEvaluator(test_game));
+		BasicStaticExchangeEvaluator eval = new BasicStaticExchangeEvaluator(game);
 		
 		game.loadFromFEN("1k1r4/pp1r1q2/2npb3/6B1/1R1R2b1/2KQN1NP/1P4P1/5Q2 w - - 0 1");
 		eval.initialize();
@@ -661,7 +659,7 @@ class BSEETest_initialize {
 	@Test
 	void getPawnPushSource_test() {
 		Gamestate game = new Gamestate();
-		BasicStaticExchangeEvaluator eval = new BasicStaticExchangeEvaluator(game, new TargetStaticExchangeEvaluator(test_game));
+		BasicStaticExchangeEvaluator eval = new BasicStaticExchangeEvaluator(game);
 		
 		game.loadFromFEN("5r2/2nq1rbp/1R4p1/8/PPk5/2P3K1/1B1n2Q1/8 w - - 0 1");
 		eval.initialize();

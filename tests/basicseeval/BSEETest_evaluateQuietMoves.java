@@ -10,7 +10,7 @@ import gamestate.GlobalConstants.Player;
 
 class BSEETest_evaluateQuietMoves {
 	private Gamestate test_game = new Gamestate();
-	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game, new TargetStaticExchangeEvaluator(test_game));
+	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game);
 	
 	void assertTargets(String fen,long [][] neutral_targets, long [][] losing_targets) {
 		test_game.loadFromFEN(fen);

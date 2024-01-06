@@ -9,9 +9,6 @@ import gamestate.Gamestate;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
-import util.AttackerType;
-import util.HitCounter;
-import util.Utilities.OutcomeEnum;
 
 /**
  * Takes a board state and performs square-centric static exchange evaluation.
@@ -42,9 +39,9 @@ public class BasicStaticExchangeEvaluator {
 	private final TargetStaticExchangeEvaluator targetSEE;
 	
 	//should not be re-initialized. Just reset the game state.
-	BasicStaticExchangeEvaluator(Gamestate g, TargetStaticExchangeEvaluator tSEE){
+	BasicStaticExchangeEvaluator(Gamestate g){
 		game = g;
-		targetSEE = tSEE;
+		targetSEE = new TargetStaticExchangeEvaluator(g);
 	}
 	
 	
@@ -605,29 +602,12 @@ public class BasicStaticExchangeEvaluator {
 		assert PieceType.validate(pieceType);
 		return output_target_losing[player][pieceType] & ~game.getOccupied();
 	}
-
-	/**
-	 * local to all of the linear minimax swap functions such as evaluateTargetExchange
-	 */
-//	private int var_evaluateTarget_attackTypeStack[]=new int[32];//pieceType - both players condensed to same stack.
-//	private int var_evaluateTarget_attackSquareStack[]=new int[32];
-//	/**
-//	 * local to all of the linear minimax swap functions such as evaluateTargetExchange
-//	 */
-//	private int var_evaluateTarget_gain [] =new int[32];//integer value change - needed for linear minimax
-	
-	private static final boolean ENABLE_EVALUATE_TARGET_EXCHANGE_DEBUG_STATEMENTS = false;
-	
-	
-	
-	
 	
 	private int output_defenderInteractions[] = new int[100];
 	private int output_defenderInteractions_size;
 	
 	private int output_xRayInteractions[] = new int[100];
 	private int output_xRayInteractions_size;
-	
 	
 	public int get_output_defenderInteractions(int index) {
 		assert index<output_defenderInteractions_size;

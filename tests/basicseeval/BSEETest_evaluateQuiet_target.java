@@ -8,7 +8,6 @@ import gamestate.Gamestate;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
-import util.HitCounter;
 import util.Utilities.OutcomeEnum;
 
 class BSEETest_evaluateQuiet_target {

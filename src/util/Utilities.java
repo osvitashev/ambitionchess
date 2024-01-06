@@ -1,6 +1,5 @@
 package util;
 
-import gamestate.GlobalConstants.Player;
 
 public class Utilities {
 	
