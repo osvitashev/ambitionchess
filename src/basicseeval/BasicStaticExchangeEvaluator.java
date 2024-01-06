@@ -758,11 +758,8 @@ public class BasicStaticExchangeEvaluator {
 		long currentlyWinningCaptureTargets = getOutput_capture_winning_any(player);
 		long currentlyNeutralCaptureTargets = getOutput_capture_neutral_any(player) & ~currentlyWinningCaptureTargets;
 		long currentAttackSet = getSlidingPieceAttackSet(sq, pieceType, 0l);
-		long candidatePinned = currentAttackSet;// & game.getPlayerPieces(otherPlayer);
-		
-		//to process discovered threats: same as pins, but with a deiffent candidatePinned
-		//ideally, it would reuse the existing code!
-		
+		long candidatePinned = currentAttackSet;
+
 		{//iterate on bit indices
 			int bi = 0;
 			for (long zarg = candidatePinned, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
@@ -781,8 +778,7 @@ public class BasicStaticExchangeEvaluator {
 					//but there is a neutral one - proceed only if we are improving the score.
 					int candidateVictimSq = Bitboard.getFirstSquareIndex(newAttackSet);
 					boolean isExchange = targetSEE.evaluateTargetExchange(candidateVictimSq, player, barg, PieceType.NO_PIECE);
-			//		if (!isExchange)
-			//			continue;
+					assert(isExchange) : "This is a sanity check: candidateVictimSq is within the new attack set of a sliding piece";
 					if (targetSEE.getGain() > 0) {
 						output_xRayInteractions[output_xRayInteractions_size++] = (otherPlayer == game.getPlayerAt(bi))
 								? Interaction.createPin_positive(sq, bi, candidateVictimSq)
@@ -794,8 +790,7 @@ public class BasicStaticExchangeEvaluator {
 					//there might be a losing capture, or no captures available - proceed bependingon the new score.
 					int candidateVictimSq = Bitboard.getFirstSquareIndex(newAttackSet);
 					boolean isExchange = targetSEE.evaluateTargetExchange(candidateVictimSq, player, barg, PieceType.NO_PIECE);
-					if (!isExchange)
-						continue;
+					assert(isExchange) : "This is a sanity check: candidateVictimSq is within the new attack set of a sliding piece";
 					if (targetSEE.getGain() > 0) {
 						output_xRayInteractions[output_xRayInteractions_size++] = (otherPlayer == game.getPlayerAt(bi))
 								? Interaction.createPin_positive(sq, bi, candidateVictimSq)

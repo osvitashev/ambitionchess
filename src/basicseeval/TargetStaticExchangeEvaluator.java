@@ -70,8 +70,6 @@ int get_evaluateTarget_attackSquareStack(int i) {
 	return var_evaluateTarget_attackSquareStack[i];
 }
 
-
-
 /**
  * returns square of the piece at the given index of the principle line of the exchange.
  * @param index
