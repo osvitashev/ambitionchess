@@ -15,7 +15,7 @@ import util.Utilities.OutcomeEnum;
 
 class BSEETest_evaluateXrayInteractions {
 	private Gamestate test_game = new Gamestate();
-	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game, 1);
+	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game, new TargetStaticExchangeEvaluator(test_game));
 	
 	private void init(String fen) {
 		test_game.loadFromFEN(fen);
