@@ -19,7 +19,7 @@ class BSEETest_initialize {
 	void helper_test_getLeastValuableAttacker(long expected, String fen, int sq_target, int player, long clearedLocationsMask) {
 		test_game.loadFromFEN(fen);
 		
-		assertEquals(expected, tSee.getLeastValuableAttacker(sq_target,
+		assertEquals(expected, tSee.calculateLeastValuableAttacker(sq_target,
 				player, clearedLocationsMask));
 	}
 

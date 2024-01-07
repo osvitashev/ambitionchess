@@ -23,7 +23,7 @@ class BSEETest_evaluateCapture_target {
 	
 	private void testOutcome_withClearedSquares(int expectedOutcome, int sq, int player, int pieceType, long clearedSquares) {
 		test_eval.evaluateTargetExchange(sq, player, clearedSquares, pieceType);
-		int outcome = test_eval.getGain();
+		int outcome = test_eval.getExpectedGain();
 		if (!skipAssertions) {
 			if (expectedOutcome > 0)
 				assertTrue(outcome > 0);
@@ -187,15 +187,15 @@ class BSEETest_evaluateCapture_target {
 	private void testPlayerPieceType(int expectedFinalPlayer, int expectedFinalPieceType, int sq, int player, int pieceType,
 			String[] principleLine) {
 		test_eval.evaluateTargetExchange(sq, player, 0l, pieceType);
-		int finalPlayer = test_eval.get_evaluateTargetExchange_occupierPlayer();
-		int finalPieceType = test_eval.get_evaluateTargetExchange_occupierPieceType();
+		int finalPlayer = test_eval.get_evaluateTargetExchange_lastExpectedOccupier_player();
+		int finalPieceType = test_eval.get_evaluateTargetExchange_lastExpectedOccupier_pieceType();
 		if (!skipAssertions) {
 			assertEquals(expectedFinalPlayer, finalPlayer);
 			assertEquals(expectedFinalPieceType, finalPieceType);
-			assertEquals(principleLine.length, test_eval.get_evaluateTargetExchange_principleLineLastIndex() + 1);
+			assertEquals(principleLine.length, test_eval.get_evaluateTargetExchange_principalLineLastIndex() + 1);
 			for (int i = 0; i < principleLine.length; ++i)
 				assertEquals(Square.algebraicStringToSquare(principleLine[i]),
-						test_eval.get_evaluateTargetExchange_principleLine_square(i));
+						test_eval.get_evaluateTargetExchange_principalLine_square(i));
 		}
 	}
 
@@ -248,7 +248,7 @@ class BSEETest_evaluateCapture_target {
 
 	private void testOutcome_naturalOrder(int sq, int player, int expectedOutcome, String[] principleLine) {
 		test_eval.evaluateTargetExchange(sq, player, 0l, PieceType.NO_PIECE);
-		int outcome = test_eval.getGain();
+		int outcome = test_eval.getExpectedGain();
 		if (!skipAssertions) {
 			if (expectedOutcome > 0)
 				assertTrue(outcome > 0);
@@ -256,10 +256,10 @@ class BSEETest_evaluateCapture_target {
 				assertTrue(outcome < 0);
 			else
 				assertEquals(0, outcome);
-			assertEquals(principleLine.length, test_eval.get_evaluateTargetExchange_principleLineLastIndex() + 1);
+			assertEquals(principleLine.length, test_eval.get_evaluateTargetExchange_principalLineLastIndex() + 1);
 			for (int i = 0; i < principleLine.length; ++i)
 				assertEquals(Square.algebraicStringToSquare(principleLine[i]),
-						test_eval.get_evaluateTargetExchange_principleLine_square(i));
+						test_eval.get_evaluateTargetExchange_principalLine_square(i));
 		}
 	}
 	

@@ -642,7 +642,7 @@ public class BasicStaticExchangeEvaluator {
 		if(!isExchange)
 			return;
 		
-		int oldScore=targetSEE.getGain();
+		int oldScore=targetSEE.getExpectedGain();
 		if(oldScore>0)
 			return;
 		
@@ -687,15 +687,15 @@ public class BasicStaticExchangeEvaluator {
 				continue;
 			
 			if(oldScore<0) {
-				if(targetSEE.getGain() > 0) {
+				if(targetSEE.getExpectedGain() > 0) {
 					output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createGuardBound_negativeToPositive(liftedSquare, sq);
 				}
-				else if(targetSEE.getGain() == 0) {
+				else if(targetSEE.getExpectedGain() == 0) {
 					output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createGuardBound_negativeToNeutral(liftedSquare, sq);
 				}
 			}
 			else if(oldScore==0) {
-				if(targetSEE.getGain() > 0) {
+				if(targetSEE.getExpectedGain() > 0) {
 					output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createGuardBound_neutralToPositive(liftedSquare, sq);
 				}
 			}
@@ -778,7 +778,7 @@ public class BasicStaticExchangeEvaluator {
 					int candidateVictimSq = Bitboard.getFirstSquareIndex(newAttackSet);
 					boolean isExchange = targetSEE.evaluateTargetExchange(candidateVictimSq, player, barg, PieceType.NO_PIECE);
 					assert(isExchange) : "This is a sanity check: candidateVictimSq is within the new attack set of a sliding piece";
-					if (targetSEE.getGain() > 0) {
+					if (targetSEE.getExpectedGain() > 0) {
 						output_xRayInteractions[output_xRayInteractions_size++] = (otherPlayer == game.getPlayerAt(bi))
 								? Interaction.createPin_positive(sq, bi, candidateVictimSq)
 								: Interaction.createDiscoveredThreat_positive(sq, bi, candidateVictimSq);
@@ -790,12 +790,12 @@ public class BasicStaticExchangeEvaluator {
 					int candidateVictimSq = Bitboard.getFirstSquareIndex(newAttackSet);
 					boolean isExchange = targetSEE.evaluateTargetExchange(candidateVictimSq, player, barg, PieceType.NO_PIECE);
 					assert(isExchange) : "This is a sanity check: candidateVictimSq is within the new attack set of a sliding piece";
-					if (targetSEE.getGain() > 0) {
+					if (targetSEE.getExpectedGain() > 0) {
 						output_xRayInteractions[output_xRayInteractions_size++] = (otherPlayer == game.getPlayerAt(bi))
 								? Interaction.createPin_positive(sq, bi, candidateVictimSq)
 								: Interaction.createDiscoveredThreat_positive(sq, bi, candidateVictimSq);
 					}
-					else if (targetSEE.getGain() == 0) {
+					else if (targetSEE.getExpectedGain() == 0) {
 						output_xRayInteractions[output_xRayInteractions_size++] = (otherPlayer == game.getPlayerAt(bi))
 								? Interaction.createPin_neutral(sq, bi, candidateVictimSq)
 								: Interaction.createDiscoveredThreat_neutral(sq, bi, candidateVictimSq);
@@ -848,7 +848,7 @@ public class BasicStaticExchangeEvaluator {
 						isAvailable = targetSEE.evaluateTargetExchange(sq, player, 0l, pieceType);
 						if (!isAvailable)
 							continue;
-						score = targetSEE.getGain();
+						score = targetSEE.getExpectedGain();
 						output_target_isExchangeProcessed[player] = Bitboard.setBit(output_target_isExchangeProcessed[player], sq);
 						if (score < 0)
 							output_target_losing[player][pieceType] |= Bitboard.setBit(output_target_losing[player][pieceType], sq);
@@ -895,7 +895,7 @@ public class BasicStaticExchangeEvaluator {
 						isAvailable = targetSEE.evaluateTargetExchange(sq, player, 0l, pieceType);
 						if (!isAvailable)
 							continue;
-						score = targetSEE.getGain();
+						score = targetSEE.getExpectedGain();
 						output_target_isExchangeProcessed[player] = Bitboard.setBit(output_target_isExchangeProcessed[player], sq);
 						if (score < 0)
 							output_target_losing[player][pieceType] |= Bitboard.setBit(output_target_losing[player][pieceType], sq);
