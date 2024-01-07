@@ -49,50 +49,50 @@ public class TargetStaticExchangeEvaluator {
 		return pieceValues[pieceType];
 	}
 
-	int get_evaluateTargetExchange_lastExpectedOccupier_pieceType() {
+	public int get_output_lastExpectedOccupier_pieceType() {
 		assert Player.validate(arg_player_evaluateTargetExchange);
 		assert PieceType.validate(var_evaluateTarget_attackTypeStack[var_evaluateTargetExchange_principalLineLastIndex]);
 		return var_evaluateTarget_attackTypeStack[var_evaluateTargetExchange_principalLineLastIndex];
 	}
 	
-	int get_evaluateTargetExchange_lastExpectedOccupier_player() {
+	public int get_output_lastExpectedOccupier_player() {
 		assert Player.validate(arg_player_evaluateTargetExchange);
 		int temp = var_evaluateTargetExchange_principalLineLastIndex%2 == 1 ? arg_player_evaluateTargetExchange : Player.getOtherPlayer(arg_player_evaluateTargetExchange);
 		assert Player.validate(temp);
 		return temp;
 	}
 	
-	int get_evaluateTargetExchange_principalLineLastIndex() {
+	public int get_output_principalLineLastIndex() {
 		assert Player.validate(arg_player_evaluateTargetExchange);
 		return var_evaluateTargetExchange_principalLineLastIndex;
 	}
 	
-	int getExpectedGain() {
+	public int get_output_ExpectedGain() {
 		assert Player.validate(arg_player_evaluateTargetExchange);
 		return var_evaluateTarget_gain[0];
 	}
 	
-	int getFirstAttackerSquare() {
+	public int get_output_FirstAttackerSquare() {
 		assert Player.validate(arg_player_evaluateTargetExchange);
 		return var_evaluateTarget_attackSquareStack[1];
 	}
 	
-	int getFirstAttackerType() {
+	public int get_output_FirstAttackerType() {
 		assert Player.validate(arg_player_evaluateTargetExchange);
 		return var_evaluateTarget_attackTypeStack[1];
 	}
 	
-	int get_evaluateTarget_attackStack_lastIndex() {
+	public int get_output_attackStack_lastIndex() {
 		assert Player.validate(arg_player_evaluateTargetExchange);
 		return var_evaluateTarget_attackStack_lastIndex;
 	}
 	
-	int get_evaluateTarget_attackSquareStack(int i) {
+	public int get_output_attackSquareStack(int i) {
 		assert Player.validate(arg_player_evaluateTargetExchange);
 		return var_evaluateTarget_attackSquareStack[i];
 	}
 	
-	long get_evaluateTarget_attackStackSquares() {
+	public long get_output_attackStackSquares() {
 		assert Player.validate(arg_player_evaluateTargetExchange);
 		return var_attackStackSquares;
 	}
@@ -102,9 +102,9 @@ public class TargetStaticExchangeEvaluator {
 	 * @param index
 	 * @return square
 	 */
-	int get_evaluateTargetExchange_principalLine_square(int index) {
+	public int get_output_principalLine_square(int index) {
 		assert Player.validate(arg_player_evaluateTargetExchange);
-		assert index <= get_evaluateTargetExchange_principalLineLastIndex() && index >=0;
+		assert index <= get_output_principalLineLastIndex() && index >=0;
 		assert Square.validate(var_evaluateTarget_attackSquareStack[index]);
 		return var_evaluateTarget_attackSquareStack[index];
 	}

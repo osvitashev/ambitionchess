@@ -19,7 +19,7 @@ class BSEETest_evaluateQuiet_target {
 	
 	void test(int expectedOutcome, int sq, int player, int pieceType) {
 		test_eval.evaluateTargetExchange(sq, player, 0l, pieceType);
-		int outcome = test_eval.getExpectedGain();
+		int outcome = test_eval.get_output_ExpectedGain();
 		if(!skipAssertions) {
 			if(expectedOutcome > 0)
 				fail();
@@ -170,15 +170,15 @@ class BSEETest_evaluateQuiet_target {
 	private void testPlayerPieceType(int expectedFinalPlayer, int expectedFinalPieceType, int sq, int player, int pieceType,
 			String[] principleLine) {
 		test_eval.evaluateTargetExchange(sq, player, 0l, pieceType);
-		int finalPlayer = test_eval.get_evaluateTargetExchange_lastExpectedOccupier_player();
-		int finalPieceType = test_eval.get_evaluateTargetExchange_lastExpectedOccupier_pieceType();
+		int finalPlayer = test_eval.get_output_lastExpectedOccupier_player();
+		int finalPieceType = test_eval.get_output_lastExpectedOccupier_pieceType();
 		if (!skipAssertions) {
 			assertEquals(expectedFinalPlayer, finalPlayer);
 			assertEquals(expectedFinalPieceType, finalPieceType);
-			assertEquals(principleLine.length, test_eval.get_evaluateTargetExchange_principalLineLastIndex() + 1);
+			assertEquals(principleLine.length, test_eval.get_output_principalLineLastIndex() + 1);
 			for (int i = 0; i < principleLine.length; ++i)
 				assertEquals(Square.algebraicStringToSquare(principleLine[i]),
-						test_eval.get_evaluateTargetExchange_principalLine_square(i));
+						test_eval.get_output_principalLine_square(i));
 		}
 	}
 	
