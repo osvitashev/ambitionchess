@@ -28,9 +28,9 @@ class BSEETest_evaluateQuietMoves {
 						break;
 					}
 				}
-				if(expected != test_eval.getOutput_quiet_neutral(player, attacker_type)) {
+				if(expected != test_eval.get_output_quiet_neutral(player, attacker_type)) {
 					assertEquals("", "Neutral Targets Failing [" + Player.toString(player) + " " + PieceType.toString(attacker_type) + "]: expected: " + expected
-							+ ", actual: " + test_eval.getOutput_quiet_neutral(player, attacker_type));
+							+ ", actual: " + test_eval.get_output_quiet_neutral(player, attacker_type));
 				}
 				
 				expected=0;
@@ -40,9 +40,9 @@ class BSEETest_evaluateQuietMoves {
 						break;
 					}
 				}
-				if(expected != test_eval.getOutput_quiet_losing(player, attacker_type)) {
+				if(expected != test_eval.get_output_quiet_losing(player, attacker_type)) {
 					assertEquals("", "Losing Targets Failing [" + Player.toString(player) + " " + PieceType.toString(attacker_type) + "]: expected: " + expected
-							+ ", actual: " + test_eval.getOutput_quiet_losing(player, attacker_type));
+							+ ", actual: " + test_eval.get_output_quiet_losing(player, attacker_type));
 				}
 			}
 		}

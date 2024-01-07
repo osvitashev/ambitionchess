@@ -106,7 +106,7 @@ class BSEETest_debugUtil {
 				+ "{h3 pins g4 to d7 (+)} \n";
 		
 		//System.out.println(test_eval.debug_getAllOutputs());
-		assertEquals(expected, test_eval.debug_getAllOutputs());
+		assertEquals(expected, test_eval.debug_allOutputsToString());
 		//fail("Add the actual assetion, or just use this as a form of ducumentation...");
 	}
 

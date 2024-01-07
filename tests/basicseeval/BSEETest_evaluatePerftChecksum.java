@@ -75,9 +75,9 @@ class BSEETest_evaluatePerftChecksum {
 		buffer_capture_losing.mark();
 		for (int player : Player.PLAYERS) {
 			for (int pieceType : PieceType.PIECE_TYPES) {
-				buffer_capture_winning.putLong(test_eval.getOutput_capture_winning(player, pieceType));
-				buffer_capture_neutral.putLong(test_eval.getOutput_capture_neutral(player, pieceType));
-				buffer_capture_losing.putLong(test_eval.getOutput_capture_losing(player, pieceType));
+				buffer_capture_winning.putLong(test_eval.get_output_capture_winning(player, pieceType));
+				buffer_capture_neutral.putLong(test_eval.get_output_capture_neutral(player, pieceType));
+				buffer_capture_losing.putLong(test_eval.get_output_capture_losing(player, pieceType));
 			}
 		}
 		buffer_capture_winning.reset();
@@ -124,8 +124,8 @@ class BSEETest_evaluatePerftChecksum {
 		buffer_quiet_losing.mark();
 		for (int player : Player.PLAYERS) {
 			for (int pieceType : PieceType.PIECE_TYPES) {
-				buffer_quiet_neutral.putLong(test_eval.getOutput_quiet_neutral(player, pieceType));
-				buffer_quiet_losing.putLong(test_eval.getOutput_quiet_losing(player, pieceType));
+				buffer_quiet_neutral.putLong(test_eval.get_output_quiet_neutral(player, pieceType));
+				buffer_quiet_losing.putLong(test_eval.get_output_quiet_losing(player, pieceType));
 			}
 		}
 		buffer_quiet_neutral.reset();

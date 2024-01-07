@@ -40,7 +40,7 @@ public class BasicStaticExchangeEvaluator {
 	private final TargetStaticExchangeEvaluator targetSEE;
 	
 	//should not be re-initialized. Just reset the game state.
-	BasicStaticExchangeEvaluator(Gamestate g){
+	public BasicStaticExchangeEvaluator(Gamestate g){
 		game = g;
 		targetSEE = new TargetStaticExchangeEvaluator(g);
 	}
@@ -60,12 +60,11 @@ public class BasicStaticExchangeEvaluator {
 		output_xRayInteractions_size=0;
 		
 		for(int player : Player.PLAYERS) {
-			output_target_isExchangeProcessed[player]=0;
+			var_target_isExchangeProcessed[player]=0;
 			for(int type : PieceType.PIECE_TYPES) {
 				output_bitboard_attackedBy[player][type] =0;
 				output_bitboard_secondary_attackedBy[player][type] =0;
 				output_bitboard_secondary_battery_attackedBy[player][type] =0;
-				//todo: reset the output variables here.
 				
 				output_target_winning[player][type] =0;
 				output_target_neutral[player][type] =0;
@@ -128,7 +127,6 @@ public class BasicStaticExchangeEvaluator {
 
 			output_bitboard_attackedBy[player][PieceType.KING] = BitboardGen.getKingSet(game.getKingSquare(player));
 			
-			//populate batteries
 			//todo: the next 3 sections can be skipped conditionally....
 			
 			{//bishops
@@ -167,6 +165,7 @@ public class BasicStaticExchangeEvaluator {
 				}
 			}///bishops
 			{//rooks - does not take into account pawn pushes for now - so it is only sliders.
+				//todo: maybe include rook/queen batteries with pawn pushes?
 				//batteries with sliding pieces
 				suitableBlockers = game.getPieces(PieceType.ROOK) | game.getPieces(PieceType.QUEEN);
 				{
@@ -280,73 +279,73 @@ public class BasicStaticExchangeEvaluator {
 	/**
 	 * @return a formatted string with all of the output variables
 	 */
-	public String debug_getAllOutputs() {
+	public String debug_allOutputsToString() {
 		String ret = game.toFEN() + "\n";
 		//CONSIDER: check the popcount and if it is low, list out individual square strings instead of the hex long.
 		ret += "direct attacks:\n";
 		for (int player : Player.PLAYERS) {
 			ret += (player == Player.WHITE ? "WHITE" : "BLACK") + ": " + "0x"
-					+ String.format("%08X", getAttackedTargets(player)) + "\n";
+					+ String.format("%08X", get_output_attackedTargets(player)) + "\n";
 
 			for (int pieceType : PieceType.PIECE_TYPES) {
-				if (getAttackedTargets(player, pieceType) != 0l)
+				if (get_output_attackedTargets(player, pieceType) != 0l)
 					ret += "\t" + Player.toShortString(player) + PieceType.toString(pieceType) + " = " + "0x"
-							+ String.format("%08X", getAttackedTargets(player, pieceType)) + "\n";
+							+ String.format("%08X", get_output_attackedTargets(player, pieceType)) + "\n";
 			}
 		}
 		
 		ret += "secondary attacks:\n";
 		for (int player : Player.PLAYERS) {
 		ret +=(player == Player.WHITE ? "WHITE" : "BLACK") + ": "
-				+ "0x"+String.format("%08X", getSecondaryAttackedTargets(player)) + "\n";
+				+ "0x"+String.format("%08X", get_output_secondaryAttackedTargets(player)) + "\n";
 		
 			for (int pieceType : PieceType.SLIDING_PIECE_TYPES) {
-				if(getSecondaryAttackedTargets(player,pieceType)!=0l)
+				if(get_output_secondaryAttackedTargets(player,pieceType)!=0l)
 				ret += "\t"+Player.toShortString(player) + PieceType.toString(pieceType) + " = "
-						+ "0x"+String.format("%08X", getSecondaryAttackedTargets(player,pieceType)) + "\n";
+						+ "0x"+String.format("%08X", get_output_secondaryAttackedTargets(player,pieceType)) + "\n";
 			}
 		}
 		
 		ret += "secondary batteries:\n";
 		for (int player : Player.PLAYERS) {
 		ret += (player == Player.WHITE ? "WHITE" : "BLACK") + ": "
-				+ "0x"+String.format("%08X", getSecondaryBatteryAttackedTargets(player)) + "\n";
+				+ "0x"+String.format("%08X", get_output_secondaryBatteryAttackedTargets(player)) + "\n";
 		
 			for (int pieceType : PieceType.SLIDING_PIECE_TYPES) {
-				if(getSecondaryBatteryAttackedTargets(player,pieceType)!=0l)
+				if(get_output_secondaryBatteryAttackedTargets(player,pieceType)!=0l)
 				ret += "\t"+Player.toShortString(player) + PieceType.toString(pieceType) + " = "
-						+ "0x"+String.format("%08X", getSecondaryBatteryAttackedTargets(player,pieceType)) + "\n";
+						+ "0x"+String.format("%08X", get_output_secondaryBatteryAttackedTargets(player,pieceType)) + "\n";
 			}
 		}
 		ret+="Static Exchange Evaluation:\n";
 		//exchanges
 		for (int player : Player.PLAYERS) {
 			ret += (player == Player.WHITE ? "WHITE" : "BLACK")+" processed exchange targets: " + "0x"
-					+ String.format("%08X", getOutput_target_isExchangeProcessed(player)) + "\n";
+					+ String.format("%08X", get_var_target_isExchangeProcessed(player)) + "\n";
 			for (int pieceType : PieceType.PIECE_TYPES) {
-				if(getOutput_capture_winning(player, pieceType) !=0l)
+				if(get_output_capture_winning(player, pieceType) !=0l)
 					ret+="\tcapture winning "+Player.toShortString(player) + PieceType.toString(pieceType)+
-					": 0x"+String.format("%08X", getOutput_capture_winning(player, pieceType)) + "\n";
+					": 0x"+String.format("%08X", get_output_capture_winning(player, pieceType)) + "\n";
 			}
 			for (int pieceType : PieceType.PIECE_TYPES) {
-				if(getOutput_capture_neutral(player, pieceType) !=0l)
+				if(get_output_capture_neutral(player, pieceType) !=0l)
 					ret+="\tcapture neutral "+Player.toShortString(player) + PieceType.toString(pieceType)+
-					": 0x"+String.format("%08X", getOutput_capture_neutral(player, pieceType)) + "\n";
+					": 0x"+String.format("%08X", get_output_capture_neutral(player, pieceType)) + "\n";
 			}
 			for (int pieceType : PieceType.PIECE_TYPES) {
-				if(getOutput_capture_losing(player, pieceType) !=0l)
+				if(get_output_capture_losing(player, pieceType) !=0l)
 					ret+="\tcapture losing "+Player.toShortString(player) + PieceType.toString(pieceType)+
-					": 0x"+String.format("%08X", getOutput_capture_losing(player, pieceType)) + "\n";
+					": 0x"+String.format("%08X", get_output_capture_losing(player, pieceType)) + "\n";
 			}
 			for (int pieceType : PieceType.PIECE_TYPES) {
-				if(getOutput_quiet_neutral(player, pieceType) !=0l)
+				if(get_output_quiet_neutral(player, pieceType) !=0l)
 					ret+="\tquiet neutral "+Player.toShortString(player) + PieceType.toString(pieceType)+
-					": 0x"+String.format("%08X", getOutput_quiet_neutral(player, pieceType)) + "\n";
+					": 0x"+String.format("%08X", get_output_quiet_neutral(player, pieceType)) + "\n";
 			}
 			for (int pieceType : PieceType.PIECE_TYPES) {
-				if(getOutput_quiet_losing(player, pieceType) !=0l)
+				if(get_output_quiet_losing(player, pieceType) !=0l)
 					ret+="\tquiet losing "+Player.toShortString(player) + PieceType.toString(pieceType)+
-					": 0x"+String.format("%08X", getOutput_quiet_losing(player, pieceType)) + "\n";
+					": 0x"+String.format("%08X", get_output_quiet_losing(player, pieceType)) + "\n";
 			}
 		}
 		{//defensive interactions
@@ -432,7 +431,7 @@ public class BasicStaticExchangeEvaluator {
 	 * @param pieceType
 	 * @return
 	 */
-	public long getAttackedTargets(int player, int pieceType) {
+	public long get_output_attackedTargets(int player, int pieceType) {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
 		return output_bitboard_attackedBy[player][pieceType];
@@ -447,7 +446,7 @@ public class BasicStaticExchangeEvaluator {
 	 * @param pieceType
 	 * @return
 	 */
-	public long getAttackedTargets(int player) {
+	public long get_output_attackedTargets(int player) {
 		assert Player.validate(player);
 		return output_combined_bitboard_attackedBy[player];
 	}
@@ -462,7 +461,7 @@ public class BasicStaticExchangeEvaluator {
 	 * @param pieceType
 	 * @return
 	 */
-	public long getSecondaryAttackedTargets(int player, int pieceType) {
+	public long get_output_secondaryAttackedTargets(int player, int pieceType) {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
 		assert pieceType == PieceType.BISHOP || pieceType == PieceType.ROOK || pieceType == PieceType.QUEEN;
@@ -479,7 +478,7 @@ public class BasicStaticExchangeEvaluator {
 	 * @param pieceType
 	 * @return
 	 */
-	public long getSecondaryAttackedTargets(int player) {
+	public long get_output_secondaryAttackedTargets(int player) {
 		assert Player.validate(player);
 		return output_combined_bitboard_secondary_attackedBy[player];
 	}
@@ -495,7 +494,7 @@ public class BasicStaticExchangeEvaluator {
 	 * @param pieceType
 	 * @return
 	 */
-	public long getSecondaryBatteryAttackedTargets(int player, int pieceType) {
+	public long get_output_secondaryBatteryAttackedTargets(int player, int pieceType) {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
 		assert pieceType == PieceType.BISHOP || pieceType == PieceType.ROOK || pieceType == PieceType.QUEEN;
@@ -513,7 +512,7 @@ public class BasicStaticExchangeEvaluator {
 	 * @param pieceType
 	 * @return
 	 */
-	public long getSecondaryBatteryAttackedTargets(int player) {
+	public long get_output_secondaryBatteryAttackedTargets(int player) {
 		assert Player.validate(player);
 		return output_combined_bitboard_secondary_battery_attackedBy[player];
 	}
@@ -522,23 +521,23 @@ public class BasicStaticExchangeEvaluator {
 	private long output_target_neutral [][]= new long[2][6];
 	private long output_target_losing [][]= new long[2][6];
 	
-	private long output_target_isExchangeProcessed []= new long[2];
+	private long var_target_isExchangeProcessed []= new long[2];
 	
 	/**
 	 * true if evaluateTargetExchange has been called for a given square. Is a prerequisite for output_target_winning, output_target_neutral, output_target_losing.
 	 * @param player
 	 * @return
 	 */
-	public long getOutput_target_isExchangeProcessed(int player) {
+	long get_var_target_isExchangeProcessed(int player) {
 		assert Player.validate(player);
-		return output_target_isExchangeProcessed[player];
+		return var_target_isExchangeProcessed[player];
 	}
 	
 	
 	/**
 	 * Captures with strictly positive score
 	 */
-	public long getOutput_capture_winning(int player, int pieceType) {
+	public long get_output_capture_winning(int player, int pieceType) {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
 		return output_target_winning[player][pieceType] & game.getOccupied();
@@ -547,7 +546,7 @@ public class BasicStaticExchangeEvaluator {
 	/**
 	 * union of capture targets with strictly positive score
 	 */
-	public long getOutput_capture_winning_any(int player) {
+	public long get_output_capture_winning_any(int player) {
 		assert Player.validate(player);
 		long ret=0;
 		for(int type : PieceType.PIECE_TYPES)
@@ -558,7 +557,7 @@ public class BasicStaticExchangeEvaluator {
 	/**
 	 * union of capture targets with strictly positive score
 	 */
-	public long getOutput_capture_neutral_any(int player) {
+	public long get_output_capture_neutral_any(int player) {
 		assert Player.validate(player);
 		long ret=0;
 		for(int type : PieceType.PIECE_TYPES)
@@ -569,7 +568,7 @@ public class BasicStaticExchangeEvaluator {
 	/**
 	 * Captures with neutral score
 	 */
-	public long getOutput_capture_neutral(int player, int pieceType) {
+	public long get_output_capture_neutral(int player, int pieceType) {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
 		return output_target_neutral[player][pieceType] & game.getOccupied();
@@ -578,7 +577,7 @@ public class BasicStaticExchangeEvaluator {
 	/**
 	 * Captures with negative score
 	 */
-	public long getOutput_capture_losing(int player, int pieceType) {
+	public long get_output_capture_losing(int player, int pieceType) {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
 		return output_target_losing[player][pieceType] & game.getOccupied();
@@ -587,7 +586,7 @@ public class BasicStaticExchangeEvaluator {
 	/**
 	 * Quiet with neutral score
 	 */
-	public long getOutput_quiet_neutral(int player, int pieceType) {
+	public long get_output_quiet_neutral(int player, int pieceType) {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
 		return output_target_neutral[player][pieceType] & ~game.getOccupied();
@@ -596,7 +595,7 @@ public class BasicStaticExchangeEvaluator {
 	/**
 	 * Quiet with negative score
 	 */
-	public long getOutput_quiet_losing(int player, int pieceType) {
+	public long get_output_quiet_losing(int player, int pieceType) {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
 		return output_target_losing[player][pieceType] & ~game.getOccupied();
@@ -759,8 +758,8 @@ public class BasicStaticExchangeEvaluator {
 		assert pieceType == PieceType.ROOK || pieceType == PieceType.BISHOP || pieceType == PieceType.QUEEN;
 		
 		int otherPlayer = Player.getOtherPlayer(player);
-		long currentlyWinningCaptureTargets = getOutput_capture_winning_any(player);
-		long currentlyNeutralCaptureTargets = getOutput_capture_neutral_any(player) & ~currentlyWinningCaptureTargets;
+		long currentlyWinningCaptureTargets = get_output_capture_winning_any(player);
+		long currentlyNeutralCaptureTargets = get_output_capture_neutral_any(player) & ~currentlyWinningCaptureTargets;
 		long currentAttackSet = getSlidingPieceAttackSet(sq, pieceType, 0l);
 		long candidatePinned = currentAttackSet;
 
@@ -854,7 +853,7 @@ public class BasicStaticExchangeEvaluator {
 						if (!isAvailable)
 							continue;
 						score = targetSEE.get_output_ExpectedGain();
-						output_target_isExchangeProcessed[player] = Bitboard.setBit(output_target_isExchangeProcessed[player], sq);
+						var_target_isExchangeProcessed[player] = Bitboard.setBit(var_target_isExchangeProcessed[player], sq);
 						if (score < 0)
 							output_target_losing[player][pieceType] |= Bitboard.setBit(output_target_losing[player][pieceType], sq);
 						else if (score == 0)
@@ -901,7 +900,7 @@ public class BasicStaticExchangeEvaluator {
 						if (!isAvailable)
 							continue;
 						score = targetSEE.get_output_ExpectedGain();
-						output_target_isExchangeProcessed[player] = Bitboard.setBit(output_target_isExchangeProcessed[player], sq);
+						var_target_isExchangeProcessed[player] = Bitboard.setBit(var_target_isExchangeProcessed[player], sq);
 						if (score < 0)
 							output_target_losing[player][pieceType] |= Bitboard.setBit(output_target_losing[player][pieceType], sq);
 						else if (score == 0)
@@ -919,7 +918,7 @@ public class BasicStaticExchangeEvaluator {
 			{
 				//todo: try using flat square iterator
 				int bi = 0;
-				for (long zarg = getOutput_target_isExchangeProcessed(player),
+				for (long zarg = get_var_target_isExchangeProcessed(player),
 						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
 					bi = Bitboard.getFirstSquareIndex(barg);
 					

@@ -17,10 +17,10 @@ class BSEETest_evaluateCaptures {
 		test_game.loadFromFEN(fen);
 		test_eval.initialize();
 		test_eval.evaluateCaptures();
-		assertEquals(test_eval.getAttackedTargets(Player.WHITE) & test_game.getPlayerPieces(Player.BLACK),
-				test_eval.getOutput_target_isExchangeProcessed(Player.WHITE));
-		assertEquals(test_eval.getAttackedTargets(Player.BLACK) & test_game.getPlayerPieces(Player.WHITE),
-				test_eval.getOutput_target_isExchangeProcessed(Player.BLACK));
+		assertEquals(test_eval.get_output_attackedTargets(Player.WHITE) & test_game.getPlayerPieces(Player.BLACK),
+				test_eval.get_var_target_isExchangeProcessed(Player.WHITE));
+		assertEquals(test_eval.get_output_attackedTargets(Player.BLACK) & test_game.getPlayerPieces(Player.WHITE),
+				test_eval.get_var_target_isExchangeProcessed(Player.BLACK));
 
 		long expected;
 		for (int player : Player.PLAYERS) {
@@ -32,9 +32,9 @@ class BSEETest_evaluateCaptures {
 						break;
 					}
 				}
-				if(expected != test_eval.getOutput_capture_winning(player, attacker_type)) {
+				if(expected != test_eval.get_output_capture_winning(player, attacker_type)) {
 					assertEquals("", "Winning Captures Failing  [" + Player.toString(player) + " " + PieceType.toString(attacker_type) + "]: expected: " + expected
-							+ ", actual: " + test_eval.getOutput_capture_winning(player, attacker_type));
+							+ ", actual: " + test_eval.get_output_capture_winning(player, attacker_type));
 				}
 				
 				expected=0;
@@ -44,9 +44,9 @@ class BSEETest_evaluateCaptures {
 						break;
 					}
 				}
-				if(expected != test_eval.getOutput_capture_neutral(player, attacker_type)) {
+				if(expected != test_eval.get_output_capture_neutral(player, attacker_type)) {
 					assertEquals("", "Neutral Captures Failing [" + Player.toString(player) + " " + PieceType.toString(attacker_type) + "]: expected: " + expected
-							+ ", actual: " + test_eval.getOutput_capture_neutral(player, attacker_type));
+							+ ", actual: " + test_eval.get_output_capture_neutral(player, attacker_type));
 				}
 				
 				expected=0;
@@ -56,9 +56,9 @@ class BSEETest_evaluateCaptures {
 						break;
 					}
 				}
-				if(expected != test_eval.getOutput_capture_losing(player, attacker_type)) {
+				if(expected != test_eval.get_output_capture_losing(player, attacker_type)) {
 					assertEquals("", "Losing Captures Failing [" + Player.toString(player) + " " + PieceType.toString(attacker_type) + "]: expected: " + expected
-							+ ", actual: " + test_eval.getOutput_capture_losing(player, attacker_type));
+							+ ", actual: " + test_eval.get_output_capture_losing(player, attacker_type));
 				}
 				
 				
