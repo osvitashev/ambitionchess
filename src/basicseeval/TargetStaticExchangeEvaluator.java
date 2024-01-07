@@ -8,6 +8,11 @@ import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
 import util.AttackerType;
 
+/**
+ * this is effectively a command class build around evaluateTargetExchange function.
+ * 
+ *
+ */
 public class TargetStaticExchangeEvaluator {
 	private final int[] pieceValues = { 100, 300, 300, 500, 800, 100000  };// index matches piece type.
 	
@@ -236,6 +241,19 @@ public class TargetStaticExchangeEvaluator {
 	 * @return whether there is an available capture. Available does not mean Viable! Returns false if there are no available attackers.
 	 */
 	public boolean evaluateTargetExchange(int sq, int player, long clearedSquares,  int forced_attacker_type) {
+		/**
+		 * refactor! this could become more clean if the function is split into three:
+		 * private evaluateTargetExchange(square, player, clearedSquares)
+		 * 		would contain much of the code of the current implementation - minus the forced_attacker_type handling
+		 * 		importantly, the private function does not reset the state when it is called!
+		 * 
+		 * public evaluateTargetExchange_natural(square, player, clearedSquares)
+		 * 		clears state and then calls the private function
+		 * 
+		 * public evaluateTargetExchange_forced(square, player, clearedSquares, forced_type)
+		 * 		clears state, then processes forced_type, then invokes the standard private version of the function!
+		 */
+		
 		arg_player_evaluateTargetExchange=Player.NO_PLAYER;
 		//todo: split evaluateTargetExchange into two functions so that forced attacker is no longer optional!!!!!
 		
