@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
+import gamestate.Bitboard;
 import gamestate.Gamestate;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
@@ -207,36 +208,50 @@ class BSEETest_evaluateCapture_target {
 				Player.WHITE, // sq
 				PieceType.PAWN, // pieceType
 				new String[] { "e4", "f3" });
+		assertEquals("{f3 g3 e8 }", Bitboard.toListString(test_eval.get_evaluateTarget_attackStackSquares()));
 
 		test_game.loadFromFEN("4r3/1B5k/6b1/5q2/Q3r3/3K1PN1/4RR2/8 w - - 0 1");
 		testPlayerPieceType(Player.WHITE, PieceType.PAWN, Square.E4, Player.WHITE, PieceType.ROOK,
 				new String[] { "e4", "e2", "e8", "f3" });
+		assertEquals("{e2 f3 e8 }", Bitboard.toListString(test_eval.get_evaluateTarget_attackStackSquares()));
 
 		test_game.loadFromFEN("4r3/1B5k/6b1/5q2/Q3r3/3K1PN1/4RR2/8 w - - 0 1");
 		testPlayerPieceType(Player.BLACK, PieceType.ROOK, Square.E4, Player.WHITE, PieceType.KING,
 				new String[] { "e4", "d3", "e8" });
+		assertEquals("{d3 e8 }", Bitboard.toListString(test_eval.get_evaluateTarget_attackStackSquares()));
 
 		test_game.loadFromFEN("3r2b1/ppnr4/1N2knpp/2KR1p2/1N6/1B1Q1qp1/PP4bP/3R4 b - - 0 2");
 		testPlayerPieceType(Player.BLACK, PieceType.BISHOP, Square.D5, Player.BLACK, PieceType.ROOK,
 				new String[] { "d5", "d7", "b4", "f6", "b6", "c7", "b3", "d8", "d3", "f3", "d1", "g2" });
+		assertEquals("{d1 g2 b3 d3 f3 b4 c5 b6 e6 f6 c7 d7 d8 }", Bitboard.toListString(test_eval.get_evaluateTarget_attackStackSquares()));
 
 		test_game.loadFromFEN("3r2b1/ppnr4/1Np1k1pp/3n1p2/1N1R4/1BKQ1qp1/PP4bP/3R4 w - - 2 2");
 		testPlayerPieceType(Player.BLACK, PieceType.PAWN, Square.D5, Player.WHITE, PieceType.ROOK,
 				new String[] { "d5", "d4", "c6" });
+		assertEquals("{d4 c6 }", Bitboard.toListString(test_eval.get_evaluateTarget_attackStackSquares()));
 		
 
 		// no available recapture
 		test_game.loadFromFEN("8/8/p1k5/1N4r1/8/6Q1/4K3/8 w - - 0 1");
 		testPlayerPieceType(Player.BLACK, PieceType.PAWN, Square.B5, Player.BLACK, PieceType.PAWN,
 				new String[] { "b5", "a6" });
+		assertEquals("{a6 }", Bitboard.toListString(test_eval.get_evaluateTarget_attackStackSquares()));
+
 		testPlayerPieceType(Player.BLACK, PieceType.ROOK, Square.B5, Player.BLACK, PieceType.ROOK,
 				new String[] { "b5", "g5" });
+		assertEquals("{g5 }", Bitboard.toListString(test_eval.get_evaluateTarget_attackStackSquares()));
+
 		testPlayerPieceType(Player.BLACK, PieceType.KING, Square.B5, Player.BLACK, PieceType.KING,
 				new String[] { "b5", "c6" });
+		assertEquals("{c6 }", Bitboard.toListString(test_eval.get_evaluateTarget_attackStackSquares()));
+
 		testPlayerPieceType(Player.BLACK, PieceType.ROOK, Square.G3, Player.BLACK, PieceType.ROOK,
 				new String[] { "g3", "g5" });
+		assertEquals("{g5 }", Bitboard.toListString(test_eval.get_evaluateTarget_attackStackSquares()));
+
 		testPlayerPieceType(Player.WHITE, PieceType.QUEEN, Square.G5, Player.WHITE, PieceType.QUEEN,
 				new String[] { "g5", "g3" });
+		assertEquals("{g3 }", Bitboard.toListString(test_eval.get_evaluateTarget_attackStackSquares()));
 		
 		test_game.loadFromFEN("2k5/3B1br1/2P3q1/3n3N/6P1/1Nn4b/1K6/3rb1R1 b - - 0 1");
 		test_naturalOrder_noExhange(Square.B2, Player.BLACK, PieceType.PAWN);
@@ -276,6 +291,8 @@ class BSEETest_evaluateCapture_target {
 
 		test_game.loadFromFEN("8/3k2n1/4q3/7p/5N2/1p2R2P/2PK3P/8 w - - 0 1");
 		testOutcome_naturalOrder(Square.B3, Player.WHITE, OutcomeEnum.POSITIVE,new String[] {"b3", "c2"});
+		assertEquals("{c2 e3 e6 }", Bitboard.toListString(test_eval.get_evaluateTarget_attackStackSquares()));
+
 		testOutcome_naturalOrder(Square.H5, Player.WHITE, OutcomeEnum.NEGATIVE,new String[] {"h5", "f4", "g7"});
 		testOutcome_naturalOrder(Square.E6, Player.WHITE, OutcomeEnum.POSITIVE,new String[] {"e6", "f4" });
 		testOutcome_naturalOrder(Square.E3, Player.BLACK, OutcomeEnum.NEGATIVE,new String[] {"e3", "e6", "d2"  });
@@ -288,6 +305,8 @@ class BSEETest_evaluateCapture_target {
 		
 		test_game.loadFromFEN("r5k1/5ppp/8/8/1pP5/P7/1PN2PP1/6K1 w - - 0 1");
 		testOutcome_naturalOrder(Square.A3, Player.BLACK, OutcomeEnum.NEUTRAL,new String[] {"a3", "b4", "b2"});
+		assertEquals("{b2 c2 b4 a8 }", Bitboard.toListString(test_eval.get_evaluateTarget_attackStackSquares()));
+
 		
 		
 		if (skipAssertions)

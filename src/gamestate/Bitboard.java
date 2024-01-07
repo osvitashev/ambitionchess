@@ -95,7 +95,7 @@ public final class Bitboard {
 	}
 
 	/**
-	 * Expensive.
+	 * Expensive. Not intended to be used outside of tests!
 	 */
 	public static long initFromAlgebraicSquares(String... args) {
 		long ret = 0;
@@ -105,6 +105,19 @@ public final class Bitboard {
 			if (sq != Square.SQUARE_NONE)
 				ret = setBit(ret, sq);
 		}
+		return ret;
+	}
+	
+	public static String toListString(long bb) {
+		String ret="{";
+		{//iterate on bit indices
+			int bi = 0;
+			for (long zarg = bb, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
+				bi = Bitboard.getFirstSquareIndex(barg);
+				ret += Square.toString(bi) + " ";
+			}
+		} //iterate on bit indices
+		ret+= "}";
 		return ret;
 	}
 

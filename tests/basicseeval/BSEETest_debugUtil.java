@@ -82,7 +82,7 @@ class BSEETest_debugUtil {
 				+ "To: e1\n"
 				+ "{d1 guards e1 (- to +)} \n"
 				+ "To: g4\n"
-				+ "{d7 guards g4 (- to +)} {g1 guards g4 (- to +)} \n"
+				+ "{g1 guards g4 (- to +)} {d7 guards g4 (- to +)} \n"
 				+ "To: h5\n"
 				+ "{g4 guards h5 (- to +)} \n"
 				+ "To: c6\n"

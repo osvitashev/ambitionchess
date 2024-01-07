@@ -626,8 +626,6 @@ public class BasicStaticExchangeEvaluator {
 		return output_xRayInteractions_size;
 	}
 	
-	private int [] var_evaluateTargetBoundDefenders_attackSquareStack = new int[30];
-	
 	/**
 	 * lifts defenders off the board one by one to see if it results in a change of expected score.
 	 */
@@ -647,60 +645,67 @@ public class BasicStaticExchangeEvaluator {
 			return;
 		
 		//consider: it would be nice to not have to do this calculation here. This could be kept from the regular exchange evaluation.
-		int temp_evaluateTarget_attackStack_lastIndex = targetSEE.get_evaluateTarget_attackStack_lastIndex();
-		for(int i=0; i<=temp_evaluateTarget_attackStack_lastIndex;++i)
-			var_evaluateTargetBoundDefenders_attackSquareStack[i]=targetSEE.get_evaluateTarget_attackSquareStack(i);
+//		int temp_evaluateTarget_attackStack_lastIndex = targetSEE.get_evaluateTarget_attackStack_lastIndex();
+//		for(int i=0; i<=temp_evaluateTarget_attackStack_lastIndex;++i)
+//			var_evaluateTargetBoundDefenders_attackSquareStack[i]=targetSEE.get_evaluateTarget_attackSquareStack(i);
 		
-		for(int i=2/* i=0 is the the target square!*/, liftedSquare; i<=temp_evaluateTarget_attackStack_lastIndex; i+=2) {
-			liftedSquare = var_evaluateTargetBoundDefenders_attackSquareStack[i];
-			isExchange = targetSEE.evaluateTargetExchange(sq, player, Bitboard.initFromSquare(liftedSquare), PieceType.NO_PIECE);
-			if(!isExchange)
-				continue;
-			
-			/**
-			 * skip if the first attacker does not attack the target directly in natural exchange.
-			 * isExchange check has passed, so we are guaranteed at least two items in the stack
-			 */
-			int candidateSquare = targetSEE.getFirstAttackerSquare();
-			int candidatePieceType = targetSEE.getFirstAttackerType();
-			long candidateAttackSet;
-			switch (candidatePieceType) {
-				case PieceType.PAWN:
-					candidateAttackSet = BitboardGen.getPawnAttackSet(candidateSquare, player);
-					break;
-				case PieceType.KNIGHT:
-					candidateAttackSet = BitboardGen.getKnightSet(candidateSquare);
-					break;
-				case PieceType.BISHOP:
-					candidateAttackSet = BitboardGen.getBishopSet(candidateSquare, game.getOccupied());
-					break;
-				case PieceType.ROOK:
-					candidateAttackSet = BitboardGen.getRookSet(candidateSquare, game.getOccupied());
-					break;
-				case PieceType.QUEEN:
-					candidateAttackSet = BitboardGen.getQueenSet(candidateSquare, game.getOccupied());
-					break;
-				default:
-					candidateAttackSet = BitboardGen.getKingSet(candidateSquare);
-			}
-			if(!Bitboard.testBit(candidateAttackSet, sq))
-				continue;
-			
-			if(oldScore<0) {
-				if(targetSEE.getExpectedGain() > 0) {
-					output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createGuardBound_negativeToPositive(liftedSquare, sq);
+		long candidateLiftedSquares = targetSEE.get_evaluateTarget_attackStackSquares() & game.getPlayerPieces(Player.getOtherPlayer(player));
+		{//iterate on bit indices
+			int bi = 0;
+			int liftedSquare;
+			for (long zarg = candidateLiftedSquares, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
+				bi = Bitboard.getFirstSquareIndex(barg);
+				
+				liftedSquare = bi;
+				
+				isExchange = targetSEE.evaluateTargetExchange(sq, player, barg, PieceType.NO_PIECE);
+				if(!isExchange)
+					continue;
+				
+				/**
+				 * skip if the first attacker does not attack the target directly in natural exchange.
+				 * isExchange check has passed, so we are guaranteed at least two items in the stack
+				 */
+				int candidateSquare = targetSEE.getFirstAttackerSquare();
+				int candidatePieceType = targetSEE.getFirstAttackerType();
+				long candidateAttackSet;
+				switch (candidatePieceType) {
+					case PieceType.PAWN:
+						candidateAttackSet = BitboardGen.getPawnAttackSet(candidateSquare, player);
+						break;
+					case PieceType.KNIGHT:
+						candidateAttackSet = BitboardGen.getKnightSet(candidateSquare);
+						break;
+					case PieceType.BISHOP:
+						candidateAttackSet = BitboardGen.getBishopSet(candidateSquare, game.getOccupied());
+						break;
+					case PieceType.ROOK:
+						candidateAttackSet = BitboardGen.getRookSet(candidateSquare, game.getOccupied());
+						break;
+					case PieceType.QUEEN:
+						candidateAttackSet = BitboardGen.getQueenSet(candidateSquare, game.getOccupied());
+						break;
+					default:
+						candidateAttackSet = BitboardGen.getKingSet(candidateSquare);
 				}
-				else if(targetSEE.getExpectedGain() == 0) {
-					output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createGuardBound_negativeToNeutral(liftedSquare, sq);
+				if(!Bitboard.testBit(candidateAttackSet, sq))
+					continue;
+				
+				if(oldScore<0) {
+					if(targetSEE.getExpectedGain() > 0) {
+						output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createGuardBound_negativeToPositive(liftedSquare, sq);
+					}
+					else if(targetSEE.getExpectedGain() == 0) {
+						output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createGuardBound_negativeToNeutral(liftedSquare, sq);
+					}
+				}
+				else if(oldScore==0) {
+					if(targetSEE.getExpectedGain() > 0) {
+						output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createGuardBound_neutralToPositive(liftedSquare, sq);
+					}
 				}
 			}
-			else if(oldScore==0) {
-				if(targetSEE.getExpectedGain() > 0) {
-					output_defenderInteractions[output_defenderInteractions_size++]=Interaction.createGuardBound_neutralToPositive(liftedSquare, sq);
-				}
-			}
-		}
-		
+		} //iterate on bit indices
 	}
 	
 	private long getSlidingPieceAttackSet(int sq, int pieceType, long clearedSquares) {
@@ -767,7 +772,7 @@ public class BasicStaticExchangeEvaluator {
 				if(newAttackSet == 0l)
 					continue;
 				
-				assert 1 == Bitboard.popcount(newAttackSet);//lifting the pinned piece can only result in one new victim!
+				assert Bitboard.hasOnly1Bit(newAttackSet);//lifting the pinned piece can only result in one new victim!
 				if (0 != (newAttackSet & currentlyWinningCaptureTargets)) {
 					//the victim is one where we already have a winning capture - do nothing!
 					continue;

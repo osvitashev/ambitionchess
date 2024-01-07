@@ -32,6 +32,10 @@ public class TargetStaticExchangeEvaluator {
 	 */
 	private int arg_player_evaluateTargetExchange = Player.NO_PLAYER;
 	private long arg_clearedSquares_evaluateTargetExchange;
+	/**
+	 * Squares comprising attackStack. Does NOT include the target square itself.
+	 */
+	private long var_attackStackSquares;
 	
 	
 	private int var_evaluateTarget_attackStack_lastIndex, var_evaluateTargetExchange_principalLineLastIndex;
@@ -86,6 +90,11 @@ public class TargetStaticExchangeEvaluator {
 	int get_evaluateTarget_attackSquareStack(int i) {
 		assert Player.validate(arg_player_evaluateTargetExchange);
 		return var_evaluateTarget_attackSquareStack[i];
+	}
+	
+	long get_evaluateTarget_attackStackSquares() {
+		assert Player.validate(arg_player_evaluateTargetExchange);
+		return var_attackStackSquares;
 	}
 	
 	/**
@@ -379,8 +388,8 @@ System.out.print(" | principal line: { ");
 for(int i=0; i<=var_evaluateTargetExchange_principalLineLastIndex;++i)
 	System.out.print(Square.toString(var_evaluateTarget_attackSquareStack[i]) + " ");
 
-	System.out.print("} | last expected occupier: "+ Player.toShortString(get_evaluateTargetExchange_lastExpectedOccupier_player())
-	+ PieceType.toString(get_evaluateTargetExchange_lastExpectedOccupier_pieceType()) + " ("+var_evaluateTargetExchange_principalLineLastIndex+")");
+	System.out.print("} | last expected occupier: "+ Player.toShortString(var_evaluateTargetExchange_principalLineLastIndex%2 == 1 ? player : Player.getOtherPlayer(player))
+	+ PieceType.toString(var_evaluateTarget_attackTypeStack[var_evaluateTargetExchange_principalLineLastIndex]) + " ("+var_evaluateTargetExchange_principalLineLastIndex+")");
 System.out.println(" returning: "+ var_evaluateTarget_gain[0]);
 System.out.println();
 }
@@ -389,6 +398,8 @@ System.out.println();
 		}
 		else {
 			arg_player_evaluateTargetExchange=player;//acts as valid=true flag!
+			var_attackStackSquares = clearedSquares & ~arg_clearedSquares_evaluateTargetExchange;
+			
 			return true;
 		}
 	}
