@@ -36,6 +36,7 @@ import gamestate.GlobalConstants.Square;
  */
 public class BasicStaticExchangeEvaluator {
 	private final Gamestate game;
+	//private to this object. If we need a more light weight evaluator for static exchange - we can create a stand-alone instance of TargetStaticExchangeEvaluator
 	private final TargetStaticExchangeEvaluator targetSEE;
 	
 	//should not be re-initialized. Just reset the game state.
@@ -43,8 +44,6 @@ public class BasicStaticExchangeEvaluator {
 		game = g;
 		targetSEE = new TargetStaticExchangeEvaluator(g);
 	}
-	
-	
 	
 	/**
 	 * needs to be called after any changes to internal gamestate;
@@ -662,8 +661,8 @@ public class BasicStaticExchangeEvaluator {
 			 * skip if the first attacker does not attack the target directly in natural exchange.
 			 * isExchange check has passed, so we are guaranteed at least two items in the stack
 			 */
-			int candidateSquare = targetSEE.getAttackerSquare();
-			int candidatePieceType = targetSEE.getAttackerType();
+			int candidateSquare = targetSEE.getFirstAttackerSquare();
+			int candidatePieceType = targetSEE.getFirstAttackerType();
 			long candidateAttackSet;
 			switch (candidatePieceType) {
 				case PieceType.PAWN:
@@ -849,7 +848,7 @@ public class BasicStaticExchangeEvaluator {
 						isAvailable = targetSEE.evaluateTargetExchange(sq, player, 0l, pieceType);
 						if (!isAvailable)
 							continue;
-						score = targetSEE.get_evaluateTargetExchange_score();
+						score = targetSEE.getGain();
 						output_target_isExchangeProcessed[player] = Bitboard.setBit(output_target_isExchangeProcessed[player], sq);
 						if (score < 0)
 							output_target_losing[player][pieceType] |= Bitboard.setBit(output_target_losing[player][pieceType], sq);
@@ -896,7 +895,7 @@ public class BasicStaticExchangeEvaluator {
 						isAvailable = targetSEE.evaluateTargetExchange(sq, player, 0l, pieceType);
 						if (!isAvailable)
 							continue;
-						score = targetSEE.get_evaluateTargetExchange_score();
+						score = targetSEE.getGain();
 						output_target_isExchangeProcessed[player] = Bitboard.setBit(output_target_isExchangeProcessed[player], sq);
 						if (score < 0)
 							output_target_losing[player][pieceType] |= Bitboard.setBit(output_target_losing[player][pieceType], sq);

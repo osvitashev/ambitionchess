@@ -19,7 +19,7 @@ class BSEETest_evaluateQuiet_target {
 	
 	void test(int expectedOutcome, int sq, int player, int pieceType) {
 		test_eval.evaluateTargetExchange(sq, player, 0l, pieceType);
-		int outcome = test_eval.get_evaluateTargetExchange_score();
+		int outcome = test_eval.getGain();
 		if(!skipAssertions) {
 			if(expectedOutcome > 0)
 				fail();

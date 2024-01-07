@@ -22,7 +22,7 @@ public class TargetStaticExchangeEvaluator {
 	///whether the last call to evaluateTargetExchange returned true. If it did not, none of the calls to getter methods are valid.
 	private boolean lastCalltoEvaluateTargetExchange = false;
 	
-	private int var_evaluateTarget_attackStack_lastIndex, var_evaluateTargetExchange_score, var_evaluateTargetExchange_occupierPieceType, var_evaluateTargetExchange_occupierPlayer,
+	private int var_evaluateTarget_attackStack_lastIndex, var_evaluateTargetExchange_occupierPieceType, var_evaluateTargetExchange_occupierPlayer,
 		var_evaluateTargetExchange_principleLineLastIndex;
 	
 	TargetStaticExchangeEvaluator(Gamestate g){
@@ -33,12 +33,6 @@ public class TargetStaticExchangeEvaluator {
 		assert PieceType.validate(pieceType);
 		return pieceValues[pieceType];
 	}
-
-int get_evaluateTargetExchange_score() {
-	//todo: this should be same as targetSEE.getGain()!!!!
-	assert lastCalltoEvaluateTargetExchange;
-	return var_evaluateTargetExchange_score;
-}
 
 int get_evaluateTargetExchange_occupierPieceType() {
 	assert lastCalltoEvaluateTargetExchange;
@@ -62,12 +56,12 @@ int getGain() {
 	return var_evaluateTarget_gain[0];
 }
 
-int getAttackerSquare() {
+int getFirstAttackerSquare() {
 	assert lastCalltoEvaluateTargetExchange;
 	return var_evaluateTarget_attackSquareStack[1];
 }
 
-int getAttackerType() {
+int getFirstAttackerType() {
 	assert lastCalltoEvaluateTargetExchange;
 	return var_evaluateTarget_attackTypeStack[1];
 }
@@ -351,7 +345,6 @@ for(int i=0; i<var_evaluateTarget_attackStack_lastIndex-1;++i)
 			if(var_evaluateTarget_gain[i-1] != -var_evaluateTarget_gain[i])
 				var_evaluateTargetExchange_principleLineLastIndex = i;
 		}
-		var_evaluateTargetExchange_score = var_evaluateTarget_gain[0];
 		var_evaluateTargetExchange_occupierPlayer = var_evaluateTargetExchange_principleLineLastIndex%2 == 1 ? player : Player.getOtherPlayer(player);
 		var_evaluateTargetExchange_occupierPieceType = var_evaluateTarget_attackTypeStack[var_evaluateTargetExchange_principleLineLastIndex];
 

@@ -23,7 +23,7 @@ class BSEETest_evaluateCapture_target {
 	
 	private void testOutcome_withClearedSquares(int expectedOutcome, int sq, int player, int pieceType, long clearedSquares) {
 		test_eval.evaluateTargetExchange(sq, player, clearedSquares, pieceType);
-		int outcome = test_eval.get_evaluateTargetExchange_score();
+		int outcome = test_eval.getGain();
 		if (!skipAssertions) {
 			if (expectedOutcome > 0)
 				assertTrue(outcome > 0);
@@ -248,7 +248,7 @@ class BSEETest_evaluateCapture_target {
 
 	private void testOutcome_naturalOrder(int sq, int player, int expectedOutcome, String[] principleLine) {
 		test_eval.evaluateTargetExchange(sq, player, 0l, PieceType.NO_PIECE);
-		int outcome = test_eval.get_evaluateTargetExchange_score();
+		int outcome = test_eval.getGain();
 		if (!skipAssertions) {
 			if (expectedOutcome > 0)
 				assertTrue(outcome > 0);
