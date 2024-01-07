@@ -193,7 +193,7 @@ class BSEETest_evaluateCapture_target {
 		if (!skipAssertions) {
 			assertEquals(expectedFinalPlayer, finalPlayer);
 			assertEquals(expectedFinalPieceType, finalPieceType);
-			assertEquals(principleLine.length, test_eval.get_output_principalLineLastIndex() + 1);
+			assertEquals(principleLine.length, test_eval.get_output_principalLine_length());
 			for (int i = 0; i < principleLine.length; ++i)
 				assertEquals(Square.algebraicStringToSquare(principleLine[i]),
 						test_eval.get_output_principalLine_square(i));
@@ -271,7 +271,7 @@ class BSEETest_evaluateCapture_target {
 				assertTrue(outcome < 0);
 			else
 				assertEquals(0, outcome);
-			assertEquals(principleLine.length, test_eval.get_output_principalLineLastIndex() + 1);
+			assertEquals(principleLine.length, test_eval.get_output_principalLine_length());
 			for (int i = 0; i < principleLine.length; ++i)
 				assertEquals(Square.algebraicStringToSquare(principleLine[i]),
 						test_eval.get_output_principalLine_square(i));

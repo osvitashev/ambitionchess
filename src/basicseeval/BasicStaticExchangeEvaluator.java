@@ -625,15 +625,54 @@ public class BasicStaticExchangeEvaluator {
 		return output_xRayInteractions_size;
 	}
 	
+	private long getSlidingPieceAttackSet(int sq, int pieceType, long clearedSquares) {
+		assert Square.validate(sq);
+		assert PieceType.validate(pieceType);
+		assert pieceType == PieceType.ROOK || pieceType == PieceType.BISHOP || pieceType == PieceType.QUEEN;
+		long ret;
+		switch (pieceType) {
+		case PieceType.ROOK:
+			ret=  BitboardGen.getRookSet(sq, game.getOccupied() & ~clearedSquares);
+			break;
+		case PieceType.BISHOP:
+			ret=  BitboardGen.getBishopSet(sq, game.getOccupied() & ~clearedSquares);
+			break;
+		default:
+			ret=  BitboardGen.getQueenSet(sq, game.getOccupied() & ~clearedSquares);
+			break;
+		}
+		return ret;
+	}
+	
+	/**
+	 * Tests cases such as putting a knight onto a square attacked by a pawn, or using a queen to capture a bishop defended by a pawn.
+	 * Does not guaranty the target is safe - is meant to be used as a soft optimization check!
+	 * @param attackerPieceType
+	 * @param targetSq
+	 * @return
+	 */
+	boolean isTargetDefinitelyBad(int targetSq, int player, int attackerPieceType) {
+		/**
+		 * this shold not be using get_lva because get_lva will become stateful eventually?
+		 * 
+		 * although, get_lva might become 'soft stateful' using the cyclic check! in which case it should be ok to be used here.
+		 * Also clearedSquares could become a parameter!
+		 */
+		//todo: implement this as an optimization check!
+		return false;
+	}
+	
 	/**
 	 * lifts defenders off the board one by one to see if it results in a change of expected score.
+	 * performs a natural order exchange first - and so does not rely on evaluateCaptures having been caleed first.
+	 * @param sq - target being defended
+	 * @param player - player threatening capture
 	 */
 	void evaluateTargetBoundDefenders(int sq, int player) {
 		assert Square.validate(sq);
 		assert Player.validate(player);
 		assert game.getPieceAt(sq) != PieceType.NO_PIECE;
 		assert game.getPlayerAt(sq) == Player.getOtherPlayer(player);
-		//consider: adding assertion to filter out exchanges which are initially positive for the attacker.
 		
 		boolean isExchange = targetSEE.evaluateTargetExchange(sq, player, 0l, PieceType.NO_PIECE);
 		if(!isExchange)
@@ -642,11 +681,6 @@ public class BasicStaticExchangeEvaluator {
 		int oldScore=targetSEE.get_output_ExpectedGain();
 		if(oldScore>0)
 			return;
-		
-		//consider: it would be nice to not have to do this calculation here. This could be kept from the regular exchange evaluation.
-//		int temp_evaluateTarget_attackStack_lastIndex = targetSEE.get_evaluateTarget_attackStack_lastIndex();
-//		for(int i=0; i<=temp_evaluateTarget_attackStack_lastIndex;++i)
-//			var_evaluateTargetBoundDefenders_attackSquareStack[i]=targetSEE.get_evaluateTarget_attackSquareStack(i);
 		
 		long candidateLiftedSquares = targetSEE.get_output_attackStackSquares() & game.getPlayerPieces(Player.getOtherPlayer(player));
 		{//iterate on bit indices
@@ -707,47 +741,11 @@ public class BasicStaticExchangeEvaluator {
 		} //iterate on bit indices
 	}
 	
-	private long getSlidingPieceAttackSet(int sq, int pieceType, long clearedSquares) {
-		assert Square.validate(sq);
-		assert PieceType.validate(pieceType);
-		assert pieceType == PieceType.ROOK || pieceType == PieceType.BISHOP || pieceType == PieceType.QUEEN;
-		long ret;
-		switch (pieceType) {
-		case PieceType.ROOK:
-			ret=  BitboardGen.getRookSet(sq, game.getOccupied() & ~clearedSquares);
-			break;
-		case PieceType.BISHOP:
-			ret=  BitboardGen.getBishopSet(sq, game.getOccupied() & ~clearedSquares);
-			break;
-		default:
-			ret=  BitboardGen.getQueenSet(sq, game.getOccupied() & ~clearedSquares);
-			break;
-		}
-		return ret;
-	}
-	
-	/**
-	 * Tests cases such as putting a knight onto a square attacked by a pawn, or using a queen to capture a bishop defended by a pawn.
-	 * Does not guaranty the target is safe - is meant to be used as a soft optimization check!
-	 * @param attackerPieceType
-	 * @param targetSq
-	 * @return
-	 */
-	boolean isTargetDefinitelyBad(int targetSq, int player, int attackerPieceType) {
-		/**
-		 * this shold not be using get_lva because get_lva will become stateful eventually?
-		 * 
-		 * although, get_lva might become 'soft stateful' using the cyclic check! in which case it should be ok to be used here.
-		 * Also clearedSquares could become a parameter!
-		 */
-		return false;
-	}
-	
 	/**
 	 * is evaluated from the perspective of a sliding piece attacker!
-	 * @param sq
-	 * @param player
-	 * @param pieceType
+	 * @param sq the from_sq
+	 * @param player player performing the attack
+	 * @param pieceType bish/rook/queen
 	 */
 	void evaluateTargetXRayInteractions(int sq, int player, int pieceType) {
 		assert Square.validate(sq);
@@ -790,7 +788,7 @@ public class BasicStaticExchangeEvaluator {
 				}
 				else {
 					//there are no winning or neutral captures of the target before the blocking piece is lifted.
-					//there might be a losing capture, or no captures available - proceed bependingon the new score.
+					//there might be a losing capture, or no captures available - proceed depending on the new score.
 					int candidateVictimSq = Bitboard.getFirstSquareIndex(newAttackSet);
 					boolean isExchange = targetSEE.evaluateTargetExchange(candidateVictimSq, player, barg, PieceType.NO_PIECE);
 					assert(isExchange) : "This is a sanity check: candidateVictimSq is within the new attack set of a sliding piece";
@@ -805,44 +803,13 @@ public class BasicStaticExchangeEvaluator {
 								: Interaction.createDiscoveredThreat_neutral(sq, bi, candidateVictimSq);
 					}
 				}
-				
 			}
 		} //iterate on bit indices
-
-		
 	}
 	
 	void evaluateCaptures() {
-//		int score;
-//		long directAttackTargets;
-//		boolean isAvailable;
-//		for (int player : Player.PLAYERS) {
-//			for (int pieceType : PieceType.PIECE_TYPES) {
-//				directAttackTargets = getAttackedTargets(player, pieceType);
-//				{
-//					int bi = 0;
-//					for (long zarg = directAttackTargets,
-//							barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
-//						bi = Bitboard.getFirstSquareIndex(barg);
-//						if (Bitboard.testBit(getAttackedTargets(player, pieceType), bi) && game.getPlayerAt(bi) == Player.getOtherPlayer(player)) {
-//							isAvailable=evaluateTargetExchange(bi, player, 0l, pieceType);
-//							if(!isAvailable)
-//								continue;
-//							score = get_evaluateTargetExchange_score();
-//							output_target_isExchangeProcessed[player] = Bitboard.setBit(output_target_isExchangeProcessed[player], bi);
-//							if(score < 0)
-//								output_target_losing[player][pieceType]|= Bitboard.setBit(output_target_losing[player][pieceType], bi);
-//							else if(score == 0)
-//								output_target_neutral[player][pieceType]|= Bitboard.setBit(output_target_neutral[player][pieceType], bi);
-//							else
-//								output_target_winning[player][pieceType]|= Bitboard.setBit(output_target_winning[player][pieceType], bi);
-//						}
-//					}
-//				}
-//			}
-//		}
-		
 		///a brute force implementation  - used to verify correctness and assertions
+		//todo: make the iteration smarter and avoid brute force!
 		int score;
 		boolean isAvailable;
 		for (int player : Player.PLAYERS) {
@@ -867,29 +834,8 @@ public class BasicStaticExchangeEvaluator {
 	}
 	
 	void evaluateQuietMoves() {
-//		int score;
-//		//consider: on one hand we want to be using heuristics to avoid calling forced attacker routine, on the other hand, that routine can implement sideeffects such as detecting overprotection.
-//		for (int sq : Square.SQUARES) {
-//			for (int player : Player.PLAYERS) {
-//				for (int pieceType : PieceType.PIECE_TYPES) {
-//					//optimize: taking pawns out of this loop to simplify the condition
-//					if (game.getPieceAt(sq) == PieceType.NO_PIECE && (pieceType != PieceType.PAWN
-//							&& Bitboard.testBit(getAttackedTargets(player, pieceType), sq)
-//							|| pieceType == PieceType.PAWN && Bitboard.testBit(
-//									BitboardGen.getMultiplePawnPushSet(game.getPieces(player, PieceType.PAWN), player, game.getOccupied()), sq))) {
-//						//todo: set getOutput_target_isExchangeProcessed
-//						evaluateTargetExchange(sq, player, 0l, pieceType);
-//						score = get_evaluateTargetExchange_score();
-//						output_target_isExchangeProcessed[player] = Bitboard.setBit(output_target_isExchangeProcessed[player], sq);
-//						if(score < 0)
-//							output_target_losing[player][pieceType]|= Bitboard.setBit(output_target_losing[player][pieceType], sq);
-//						else//only two cases - quiet move would never result in positive score.
-//							output_target_neutral[player][pieceType]|= Bitboard.setBit(output_target_neutral[player][pieceType], sq);
-//					}
-//				}
-//			}
-//		}
 		///a brute force implementation  - used to verify correctness and assertions
+		//todo: avoid brute forcing approach
 		int score;
 		boolean isAvailable;
 		for (int player : Player.PLAYERS) {

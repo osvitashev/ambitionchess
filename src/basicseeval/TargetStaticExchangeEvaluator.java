@@ -62,9 +62,9 @@ public class TargetStaticExchangeEvaluator {
 		return temp;
 	}
 	
-	public int get_output_principalLineLastIndex() {
+	public int get_output_principalLine_length() {
 		assert Player.validate(arg_player_evaluateTargetExchange);
-		return var_evaluateTargetExchange_principalLineLastIndex;
+		return var_evaluateTargetExchange_principalLineLastIndex + 1;
 	}
 	
 	public int get_output_ExpectedGain() {
@@ -82,9 +82,9 @@ public class TargetStaticExchangeEvaluator {
 		return var_evaluateTarget_attackTypeStack[1];
 	}
 	
-	public int get_output_attackStack_lastIndex() {
+	public int get_output_attackStack_length() {
 		assert Player.validate(arg_player_evaluateTargetExchange);
-		return var_evaluateTarget_attackStack_lastIndex;
+		return var_evaluateTarget_attackStack_lastIndex + 1;
 	}
 	
 	public int get_output_attackSquareStack(int i) {
@@ -104,7 +104,7 @@ public class TargetStaticExchangeEvaluator {
 	 */
 	public int get_output_principalLine_square(int index) {
 		assert Player.validate(arg_player_evaluateTargetExchange);
-		assert index <= get_output_principalLineLastIndex() && index >=0;
+		assert index < get_output_principalLine_length() && index >=0;
 		assert Square.validate(var_evaluateTarget_attackSquareStack[index]);
 		return var_evaluateTarget_attackSquareStack[index];
 	}

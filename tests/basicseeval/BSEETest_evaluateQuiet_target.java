@@ -175,7 +175,7 @@ class BSEETest_evaluateQuiet_target {
 		if (!skipAssertions) {
 			assertEquals(expectedFinalPlayer, finalPlayer);
 			assertEquals(expectedFinalPieceType, finalPieceType);
-			assertEquals(principleLine.length, test_eval.get_output_principalLineLastIndex() + 1);
+			assertEquals(principleLine.length, test_eval.get_output_principalLine_length());
 			for (int i = 0; i < principleLine.length; ++i)
 				assertEquals(Square.algebraicStringToSquare(principleLine[i]),
 						test_eval.get_output_principalLine_square(i));
