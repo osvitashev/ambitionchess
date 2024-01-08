@@ -127,6 +127,8 @@ class BitboardTest {
 		v = initFromAlgebraicSquares("f1", "h1", "c6", "a8", "h8");
 		test = prettyPrint(v);
 		assertEquals(ans, test);
+		v = initFromAlgebraicSquares("a1", "h1", "c6", "a8", "h8");
+		assertEquals("{a1 h1 c6 a8 h8 }", Bitboard.toListString(v));
 	}
 
 	@Test

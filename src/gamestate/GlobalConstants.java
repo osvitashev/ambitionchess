@@ -1,7 +1,5 @@
 package gamestate;
 
-import gamestate.GlobalConstants.PieceType;
-
 public class GlobalConstants {
 	public static final class Player {
 		public static boolean validate(int pl) {
@@ -18,9 +16,17 @@ public class GlobalConstants {
 			String ret = "";
 			if (pl == WHITE)
 				ret = "White";
-			else if (pl == BLACK)
+			else
 				ret = "Black";
 			return ret;
+		}
+		
+		public static String toShortString(int pl) {
+			assert Player.validate(pl);
+			if (pl == WHITE)
+				return "w";
+			else
+				return "b";
 		}
 
 		public static boolean isWhite(int player) {
@@ -33,18 +39,26 @@ public class GlobalConstants {
 		}
 
 		public static int getOtherPlayer(int player) {
+			assert Player.validate(player);
 			// TODO: xor assignment instead of conditional
 			return player == BLACK ? WHITE : BLACK;
 		}
-
 	}
 
 	public static final class PieceType {
 		public static boolean validate(int pt) {
 			return pt>=PAWN && pt<=KING;
 		}
-// IMPORTANT: NO_PIECE is not in the collection!
+		/**
+		 * IMPORTANT: NO_PIECE is not in the collection!
+		 */
 		public static final int[] PIECE_TYPES = { PieceType.PAWN, PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP, PieceType.QUEEN, PieceType.KING };
+		public static final int[] SLIDING_PIECE_TYPES = { PieceType.ROOK, PieceType.BISHOP, PieceType.QUEEN };
+		/**
+		 * IMPORTANT: PAWN and NO_PIECE is not in the collection!
+		 */
+		public static final int[] NON_PAWN_PIECE_TYPES = { PieceType.ROOK, PieceType.KNIGHT, PieceType.BISHOP, PieceType.QUEEN, PieceType.KING };
+
 		// it may be useful to have piece codes roughly approximating the order of value
 		// of pieces: p<n<b<r<q<k
 		public static final int PAWN = 0;
@@ -56,7 +70,7 @@ public class GlobalConstants {
 		public static final int NO_PIECE = 6;
 
 		public static String toString(int pt) {
-			assert PieceType.validate(pt);
+			assert PieceType.validate(pt) : "Got: " + pt;
 			String ret = "";
 			if (pt == PieceType.PAWN)
 				ret = "P";
