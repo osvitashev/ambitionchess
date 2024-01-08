@@ -11,7 +11,7 @@ import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
 import util.Utilities.OutcomeEnum;
 
-class BSEETest_evaluateCapture_target {
+class Test_evaluateCapture_target {
 	private Gamestate test_game = new Gamestate();
 	private TargetStaticExchangeEvaluator test_eval = new TargetStaticExchangeEvaluator(test_game);
 	//private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game, test_target_eval);

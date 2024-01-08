@@ -34,13 +34,13 @@ import gamestate.GlobalConstants.Square;
  * 	from a single method call. As such, successive calls to METHODNAME are expected to wipe out variable content.
  *
  */
-public class BasicStaticExchangeEvaluator {
+public class BroadStaticExchangeEvaluator {
 	private final Gamestate game;
 	//private to this object. If we need a more light weight evaluator for static exchange - we can create a stand-alone instance of TargetStaticExchangeEvaluator
 	private final TargetStaticExchangeEvaluator targetSEE;
 	
 	//should not be re-initialized. Just reset the game state.
-	public BasicStaticExchangeEvaluator(Gamestate g){
+	public BroadStaticExchangeEvaluator(Gamestate g){
 		game = g;
 		targetSEE = new TargetStaticExchangeEvaluator(g);
 	}
@@ -807,7 +807,7 @@ public class BasicStaticExchangeEvaluator {
 		} //iterate on bit indices
 	}
 	
-	void evaluateCaptures() {
+	public void evaluateCaptures() {
 		///a brute force implementation  - used to verify correctness and assertions
 		//todo: make the iteration smarter and avoid brute force!
 		int score;
@@ -833,7 +833,7 @@ public class BasicStaticExchangeEvaluator {
 		}
 	}
 	
-	void evaluateQuietMoves() {
+	public void evaluateQuietMoves() {
 		///a brute force implementation  - used to verify correctness and assertions
 		//todo: avoid brute forcing approach
 		int score;
@@ -859,7 +859,7 @@ public class BasicStaticExchangeEvaluator {
 		}
 	}
 	
-	void evaluateBoundDefenders() {
+	public void evaluateBoundDefenders() {
 		for (int player : Player.PLAYERS) {
 			{
 				//todo: try using flat square iterator
@@ -874,7 +874,7 @@ public class BasicStaticExchangeEvaluator {
 		}
 	}
 	
-	void evaluateXRayInteractions() {
+	public void evaluateXRayInteractions() {
 		int player, pieceType;
 		for (int sq : Square.SQUARES) {
 			player = game.getPlayerAt(sq);

@@ -11,7 +11,7 @@ import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
 import util.AttackerType;
 
-class BSEETest_initialize {
+class Test_initialize {
 	
 	private Gamestate test_game = new Gamestate();
 	TargetStaticExchangeEvaluator tSee = new TargetStaticExchangeEvaluator(test_game);
@@ -466,7 +466,7 @@ class BSEETest_initialize {
 	@Test
 	void initialize_test() {
 		Gamestate game = new Gamestate();
-		BasicStaticExchangeEvaluator eval = new BasicStaticExchangeEvaluator(game);
+		BroadStaticExchangeEvaluator eval = new BroadStaticExchangeEvaluator(game);
 		
 		game.loadFromFEN("1k1r4/pp1r1q2/2npb3/6B1/1R1R2b1/2KQN1NP/1P4P1/5Q2 w - - 0 1");
 		eval.initialize();
@@ -659,7 +659,7 @@ class BSEETest_initialize {
 	@Test
 	void getPawnPushSource_test() {
 		Gamestate game = new Gamestate();
-		BasicStaticExchangeEvaluator eval = new BasicStaticExchangeEvaluator(game);
+		BroadStaticExchangeEvaluator eval = new BroadStaticExchangeEvaluator(game);
 		
 		game.loadFromFEN("5r2/2nq1rbp/1R4p1/8/PPk5/2P3K1/1B1n2Q1/8 w - - 0 1");
 		eval.initialize();

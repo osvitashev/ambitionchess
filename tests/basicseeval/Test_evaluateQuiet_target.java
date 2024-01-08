@@ -10,7 +10,7 @@ import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
 import util.Utilities.OutcomeEnum;
 
-class BSEETest_evaluateQuiet_target {
+class Test_evaluateQuiet_target {
 	private Gamestate test_game = new Gamestate();
 	private TargetStaticExchangeEvaluator test_eval = new TargetStaticExchangeEvaluator(test_game);
 	//private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game, tSee);

@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import gamestate.Gamestate;
 
-class BSEETest_debugUtil {
+class Test_debugUtil {
 	private Gamestate test_game = new Gamestate();
-	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game);
+	private BroadStaticExchangeEvaluator test_eval = new BroadStaticExchangeEvaluator(test_game);
 	
 	@Test
 	void test() {

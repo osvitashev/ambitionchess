@@ -9,9 +9,9 @@ import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
 
-class BSEETest_evaluateXrayInteractions {
+class Test_evaluateXrayInteractions {
 	private Gamestate test_game = new Gamestate();
-	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game);
+	private BroadStaticExchangeEvaluator test_eval = new BroadStaticExchangeEvaluator(test_game);
 	
 	private void init(String fen) {
 		test_game.loadFromFEN(fen);

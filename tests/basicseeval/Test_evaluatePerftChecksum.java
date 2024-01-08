@@ -16,9 +16,9 @@ import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 
 
-class BSEETest_evaluatePerftChecksum {
+class Test_evaluatePerftChecksum {
 	private Gamestate test_game = new Gamestate();
-	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game);
+	private BroadStaticExchangeEvaluator test_eval = new BroadStaticExchangeEvaluator(test_game);
 	
 	private MovePool movepool = new MovePool();
 	private MoveGen test_move_generator = new MoveGen();

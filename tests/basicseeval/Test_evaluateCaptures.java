@@ -9,9 +9,9 @@ import gamestate.Gamestate;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 
-class BSEETest_evaluateCaptures {
+class Test_evaluateCaptures {
 	private Gamestate test_game = new Gamestate();
-	private BasicStaticExchangeEvaluator test_eval = new BasicStaticExchangeEvaluator(test_game);
+	private BroadStaticExchangeEvaluator test_eval = new BroadStaticExchangeEvaluator(test_game);
 	
 	void assertCaptures(String fen, long [][] winning_targets, long [][] neutral_targets, long [][] losing_targets) {
 		test_game.loadFromFEN(fen);
