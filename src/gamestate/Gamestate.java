@@ -6,6 +6,7 @@ import static gamestate.GlobalConstants.*;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 import gamestate.GlobalConstants.Square;
+import util.SimplePRNG;
 
 /**
  * Represents Board state. Essentially a wrapper around FEN notation with added
@@ -14,6 +15,42 @@ import gamestate.GlobalConstants.Square;
  *
  */
 public class Gamestate {
+	
+	private long zobristHash=0xe55fb052677c430cl;//arbitrary initial value
+	
+	public long getZobristHash() {
+		return zobristHash;
+	}
+	
+	private static final long [][][] zobristHashValue_playerPieceSquare;
+	private static final long zobristHashValue_isSideToMoveBlack;
+	private static final long [] zobristHashValue_playerKingCastle;
+	private static final long [] zobristHashValue_playerQueenCastle;
+	private static final long [] zobristHashValue_enpassantTarget;
+	static {
+		zobristHashValue_playerPieceSquare = new long [2][6][64];
+		SimplePRNG ran = new SimplePRNG(0xeb8c8c2cef3e88f4l);//generator seed
+		for(int player : Player.PLAYERS)
+			for(int type : PieceType.PIECE_TYPES)
+				for(int sq : Square.SQUARES)
+					zobristHashValue_playerPieceSquare[player][type][sq]=ran.nextLong();
+		
+		zobristHashValue_isSideToMoveBlack=ran.nextLong();
+		
+		zobristHashValue_playerKingCastle = new long [2];
+		zobristHashValue_playerQueenCastle = new long [2];
+		
+		zobristHashValue_playerKingCastle[0]=ran.nextLong();
+		zobristHashValue_playerQueenCastle[0]=ran.nextLong();
+		
+		zobristHashValue_playerKingCastle[1]=ran.nextLong();
+		zobristHashValue_playerQueenCastle[1]=ran.nextLong();
+		
+		zobristHashValue_enpassantTarget = new long [64];
+		for(int sq : Square.SQUARES)
+			zobristHashValue_enpassantTarget[sq]=ran.nextLong();
+	}
+	
 	private long[] playerBB = new long[Player.PLAYERS.length];
 	private long[] pieceBB = new long[PieceType.PIECE_TYPES.length];
 
@@ -39,7 +76,6 @@ public class Gamestate {
 	 * true if the current player to move is in check updated on load and makeMove()
 	 */
 	private boolean isCheck = false;
-	
 	
 	private int[] undoStack = new int[200];
 	private int undoStack_sze = 0;
@@ -115,28 +151,22 @@ public class Gamestate {
 		assert Square.validate(sq) : "Got: " + sq;
 		playerBB[player] = setBit(playerBB[player], sq);
 		pieceBB[piece] = setBit(pieceBB[piece], sq);
+		
+		zobristHash^=zobristHashValue_playerPieceSquare[player][piece][sq];
+		//todo: currently this is getting called from makeDirtyMove which gets undone when validating move. Need a way to only do this when we truly want to update the game state!
 	}
 
-//	/**
-//	 * It is preferred to use method taking piece type argument instead for
-//	 * performance reasons.
-//	 * 
-//	 * @param sq
-//	 */
-//	private void clearPieceAt(int sq) {
-//		assert Square.validate(sq);
-//		playerBB[Player.WHITE] = clearBit(playerBB[Player.WHITE], sq);
-//		playerBB[Player.BLACK] = clearBit(playerBB[Player.BLACK], sq);
-//		for (int i = 0; i < PieceType.PIECE_TYPES.length; ++i)
-//			pieceBB[PieceType.PIECE_TYPES[i]] = clearBit(pieceBB[PieceType.PIECE_TYPES[i]], sq);
-//	}
-
-	private void clearPieceAt(int pt, int sq) {
+	private void clearPieceAt(int pieceType, int player, int sq) {
 		assert Square.validate(sq);
-		assert PieceType.validate(pt);
-		playerBB[Player.WHITE] = clearBit(playerBB[Player.WHITE], sq);
-		playerBB[Player.BLACK] = clearBit(playerBB[Player.BLACK], sq);
-		pieceBB[pt] = clearBit(pieceBB[pt], sq);
+		assert PieceType.validate(pieceType);
+		assert getPieceAt(sq) == pieceType;
+		assert getPlayerAt(sq) == player;
+		
+		playerBB[player] = clearBit(playerBB[player], sq);
+		pieceBB[pieceType] = clearBit(pieceBB[pieceType], sq);
+		
+		zobristHash^=zobristHashValue_playerPieceSquare[player][pieceType][sq];
+		//todo:  Need a way to only do this when we truly want to update the game state as opposed to move validation!
 	}
 
 	public int getPieceAt(int sq) {
@@ -308,42 +338,43 @@ public class Gamestate {
 	 */
 	void makeDirtyMove(int move) {
 		int player = Move.getPlayer(move);
+		int otherPlayer = Player.getOtherPlayer(player);
 		switch (Move.getMoveType(move)) {
 		case MoveType.PROMO_CAPTURE:
-			clearPieceAt(Move.getPieceCapturedType(move), Move.getSquareTo(move));
-			clearPieceAt(PieceType.PAWN, Move.getSquareFrom(move));
+			clearPieceAt(Move.getPieceCapturedType(move), otherPlayer, Move.getSquareTo(move));
+			clearPieceAt(PieceType.PAWN, player, Move.getSquareFrom(move));
 			putPieceAt(Move.getPiecePromotedType(move), player, Move.getSquareTo(move));
 			break;
 		case MoveType.PROMO:
-			clearPieceAt(PieceType.PAWN, Move.getSquareFrom(move));
+			clearPieceAt(PieceType.PAWN, player, Move.getSquareFrom(move));
 			putPieceAt(Move.getPiecePromotedType(move), player, Move.getSquareTo(move));
 			break;
 		case MoveType.CAPTURE:
-			clearPieceAt(Move.getPieceType(move), Move.getSquareFrom(move));
-			clearPieceAt(Move.getPieceCapturedType(move), Move.getSquareTo(move));
+			clearPieceAt(Move.getPieceType(move), player, Move.getSquareFrom(move));
+			clearPieceAt(Move.getPieceCapturedType(move), otherPlayer, Move.getSquareTo(move));
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareTo(move));
 			// TODO: add more distinction for the king update
 			setKingSquare(getFirstSquareIndex(getPieces(player, PieceType.KING)), player);
 			break;
 		case MoveType.ENPASSANT:
-			clearPieceAt(Move.getPieceType(move), Move.getSquareFrom(move));
+			clearPieceAt(Move.getPieceType(move), player, Move.getSquareFrom(move));
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareTo(move));
 			if (player == Player.WHITE)
-				clearPieceAt(Move.getPieceCapturedType(move), Move.getSquareTo(move) - 8);
+				clearPieceAt(Move.getPieceCapturedType(move), otherPlayer, Move.getSquareTo(move) - 8);
 			else
-				clearPieceAt(Move.getPieceCapturedType(move), Move.getSquareTo(move) + 8);
+				clearPieceAt(Move.getPieceCapturedType(move), otherPlayer, Move.getSquareTo(move) + 8);
 			break;
 		case MoveType.CASTLE_KING:
 			if (player == Player.WHITE) {
 				setKingSquare(Square.G1, player);
-				clearPieceAt(PieceType.KING, Square.E1);
-				clearPieceAt(PieceType.ROOK, Square.H1);
+				clearPieceAt(PieceType.KING, player, Square.E1);
+				clearPieceAt(PieceType.ROOK, player, Square.H1);
 				putPieceAt(PieceType.KING, player, Square.G1);
 				putPieceAt(PieceType.ROOK, player, Square.F1);
 			} else {
 				setKingSquare(Square.G8, player);
-				clearPieceAt(PieceType.KING, Square.E8);
-				clearPieceAt(PieceType.ROOK, Square.H8);
+				clearPieceAt(PieceType.KING, player, Square.E8);
+				clearPieceAt(PieceType.ROOK, player, Square.H8);
 				putPieceAt(PieceType.KING, player, Square.G8);
 				putPieceAt(PieceType.ROOK, player, Square.F8);
 			}
@@ -351,26 +382,26 @@ public class Gamestate {
 		case MoveType.CASTLE_QUEEN:
 			if (player == Player.WHITE) {
 				setKingSquare(Square.C1, player);
-				clearPieceAt(PieceType.KING, Square.E1);
-				clearPieceAt(PieceType.ROOK, Square.A1);
+				clearPieceAt(PieceType.KING, player, Square.E1);
+				clearPieceAt(PieceType.ROOK, player, Square.A1);
 				putPieceAt(PieceType.KING, player, Square.C1);
 				putPieceAt(PieceType.ROOK, player, Square.D1);
 			} else {
 				setKingSquare(Square.C8, player);
-				clearPieceAt(PieceType.KING, Square.E8);
-				clearPieceAt(PieceType.ROOK, Square.A8);
+				clearPieceAt(PieceType.KING, player, Square.E8);
+				clearPieceAt(PieceType.ROOK, player, Square.A8);
 				putPieceAt(PieceType.KING, player, Square.C8);
 				putPieceAt(PieceType.ROOK, player, Square.D8);
 			}
 			break;
 		case MoveType.NORMAL:
-			clearPieceAt(Move.getPieceType(move), Move.getSquareFrom(move));
+			clearPieceAt(Move.getPieceType(move), player, Move.getSquareFrom(move));
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareTo(move));
 			// TODO: more detection before king update
 			setKingSquare(getFirstSquareIndex(getPieces(player, PieceType.KING)), player);
 			break;
 		case MoveType.DOUBLE_PUSH:
-			clearPieceAt(Move.getPieceType(move), Move.getSquareFrom(move));
+			clearPieceAt(Move.getPieceType(move), player, Move.getSquareFrom(move));
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareTo(move));
 			break;
 		}
@@ -382,23 +413,23 @@ public class Gamestate {
 		int otherPlayer = Player.getOtherPlayer(player);
 		switch (Move.getMoveType(move)) {
 		case MoveType.PROMO_CAPTURE:
-			clearPieceAt(Move.getPiecePromotedType(move), Move.getSquareTo(move));
+			clearPieceAt(Move.getPiecePromotedType(move), player, Move.getSquareTo(move));
 			putPieceAt(Move.getPieceCapturedType(move), otherPlayer, Move.getSquareTo(move));
 			putPieceAt(PieceType.PAWN, player, Move.getSquareFrom(move));
 			break;
 		case MoveType.PROMO:
-			clearPieceAt(Move.getPiecePromotedType(move), Move.getSquareTo(move));
+			clearPieceAt(Move.getPiecePromotedType(move), player, Move.getSquareTo(move));
 			putPieceAt(PieceType.PAWN, player, Move.getSquareFrom(move));
 			break;
 		case MoveType.CAPTURE:
-			clearPieceAt(Move.getPieceType(move), Move.getSquareTo(move));
+			clearPieceAt(Move.getPieceType(move), player, Move.getSquareTo(move));
 			putPieceAt(Move.getPieceCapturedType(move), otherPlayer, Move.getSquareTo(move));
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareFrom(move));
 			// TODO: add more distinction for the king update
 			setKingSquare(getFirstSquareIndex(getPieces(player, PieceType.KING)), player);
 			break;
 		case MoveType.ENPASSANT:
-			clearPieceAt(PieceType.PAWN, Move.getSquareTo(move));
+			clearPieceAt(PieceType.PAWN, player, Move.getSquareTo(move));
 			putPieceAt(PieceType.PAWN, player, Move.getSquareFrom(move));
 			if (player == Player.WHITE)
 				putPieceAt(PieceType.PAWN, otherPlayer, Move.getSquareTo(move) - 8);
@@ -408,14 +439,14 @@ public class Gamestate {
 		case MoveType.CASTLE_KING:
 			if (player == Player.WHITE) {
 				setKingSquare(Square.E1, player);
-				clearPieceAt(PieceType.KING, Square.G1);
-				clearPieceAt(PieceType.ROOK, Square.F1);
+				clearPieceAt(PieceType.KING, player, Square.G1);
+				clearPieceAt(PieceType.ROOK, player, Square.F1);
 				putPieceAt(PieceType.KING, player, Square.E1);
 				putPieceAt(PieceType.ROOK, player, Square.H1);
 			} else {
 				setKingSquare(Square.E8, player);
-				clearPieceAt(PieceType.KING, Square.G8);
-				clearPieceAt(PieceType.ROOK, Square.F8);
+				clearPieceAt(PieceType.KING, player, Square.G8);
+				clearPieceAt(PieceType.ROOK, player, Square.F8);
 				putPieceAt(PieceType.KING, player, Square.E8);
 				putPieceAt(PieceType.ROOK, player, Square.H8);
 			}
@@ -423,26 +454,26 @@ public class Gamestate {
 		case MoveType.CASTLE_QUEEN:
 			if (player == Player.WHITE) {
 				setKingSquare(Square.E1, player);
-				clearPieceAt(PieceType.KING, Square.C1);
-				clearPieceAt(PieceType.ROOK, Square.D1);
+				clearPieceAt(PieceType.KING, player, Square.C1);
+				clearPieceAt(PieceType.ROOK, player, Square.D1);
 				putPieceAt(PieceType.KING, player, Square.E1);
 				putPieceAt(PieceType.ROOK, player, Square.A1);
 			} else {
 				setKingSquare(Square.E8, player);
-				clearPieceAt(PieceType.KING, Square.C8);
-				clearPieceAt(PieceType.ROOK, Square.D8);
+				clearPieceAt(PieceType.KING, player, Square.C8);
+				clearPieceAt(PieceType.ROOK, player, Square.D8);
 				putPieceAt(PieceType.KING, player, Square.E8);
 				putPieceAt(PieceType.ROOK, player, Square.A8);
 			}
 			break;
 		case MoveType.NORMAL:
-			clearPieceAt(Move.getPieceType(move), Move.getSquareTo(move));
+			clearPieceAt(Move.getPieceType(move), player, Move.getSquareTo(move));
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareFrom(move));
 			// TODO: add more distinction for the king update
 			setKingSquare(getFirstSquareIndex(getPieces(player, PieceType.KING)), player);
 			break;
 		case MoveType.DOUBLE_PUSH:
-			clearPieceAt(PieceType.PAWN, Move.getSquareTo(move));
+			clearPieceAt(PieceType.PAWN, player, Move.getSquareTo(move));
 			putPieceAt(PieceType.PAWN, player, Move.getSquareFrom(move));
 			break;
 		}
@@ -483,8 +514,10 @@ public class Gamestate {
 
 		if (Move.getMoveType(move) == MoveType.DOUBLE_PUSH) {
 			enpassantSq = (Move.getSquareTo(move) + Move.getSquareFrom(move)) / 2;
-		} else
+		} else {
 			enpassantSq = Square.SQUARE_NONE;
+		}
+			
 
 		if (Move.getPlayer(move) == Player.WHITE) {
 			if (Move.getPieceType(move) == PieceType.KING || Move.getMoveType(move) == MoveType.CASTLE_KING || Move.getMoveType(move) == MoveType.CASTLE_QUEEN) {
@@ -514,6 +547,28 @@ public class Gamestate {
 			else if (Move.getSquareTo(move) == Square.H1)
 				castling_WK = false;
 		}
+		
+		if(playerToMove == Player.BLACK)
+			zobristHash ^= zobristHashValue_isSideToMoveBlack;
+		//todo: streamline with side-to-move!
+		if(UndoInfo.getCastlingWK(undoinfo) != castling_WK)
+			zobristHash ^= zobristHashValue_playerKingCastle[Player.WHITE];
+		if(UndoInfo.getCastlingBK(undoinfo) != castling_BK)
+			zobristHash ^= zobristHashValue_playerKingCastle[Player.BLACK];
+		if(UndoInfo.getCastlingWQ(undoinfo) != castling_WQ)
+			zobristHash ^= zobristHashValue_playerQueenCastle[Player.WHITE];
+		if(UndoInfo.getCastlingBQ(undoinfo) != castling_BQ)
+			zobristHash ^= zobristHashValue_playerQueenCastle[Player.BLACK];
+		
+		//could be because of double push, or any other move clearing out the value
+		if(UndoInfo.getIsEnpassantAvailable(undoinfo)) {
+			zobristHash ^= zobristHashValue_enpassantTarget[UndoInfo.getEnpassantSquare(undoinfo)];
+		}
+		if(enpassantSq != Square.SQUARE_NONE) {
+			zobristHash ^= zobristHashValue_enpassantTarget[enpassantSq];
+		}
+		
+
 
 		gamePlyCount += 1;
 		isCheck = Move.getCheck(move);
@@ -521,14 +576,40 @@ public class Gamestate {
 	}
 
 	public void unmakeMove(int move) {
+	
+		if(playerToMove == Player.BLACK)//for unmake we are doing this in reverse order - before updating player to move!
+			zobristHash ^= zobristHashValue_isSideToMoveBlack;
+		
 		unmakeDirtyMove(move);
 		int undoinfo = undoStack[undoStack_sze - 1];
+		int old_enpassantSq = enpassantSq;
+		
+		//could be because of double push, or any other move clearing out the value
+		if(UndoInfo.getIsEnpassantAvailable(undoinfo)) {
+			zobristHash ^= zobristHashValue_enpassantTarget[UndoInfo.getEnpassantSquare(undoinfo)];
+		}
+		if(enpassantSq != Square.SQUARE_NONE) {
+			zobristHash ^= zobristHashValue_enpassantTarget[enpassantSq];
+		}
+		//todo: streamline with side-to-move!
+		if(UndoInfo.getCastlingWK(undoinfo) != castling_WK)
+			zobristHash ^= zobristHashValue_playerKingCastle[Player.WHITE];
+		if(UndoInfo.getCastlingBK(undoinfo) != castling_BK)
+			zobristHash ^= zobristHashValue_playerKingCastle[Player.BLACK];
+		if(UndoInfo.getCastlingWQ(undoinfo) != castling_WQ)
+			zobristHash ^= zobristHashValue_playerQueenCastle[Player.WHITE];
+		if(UndoInfo.getCastlingBQ(undoinfo) != castling_BQ)
+			zobristHash ^= zobristHashValue_playerQueenCastle[Player.BLACK];
+		
 		undoStack_sze -= 1;
 		quietHalfmoveClock = UndoInfo.getHalfmoveCounter(undoinfo);
-		if (UndoInfo.getIsEnpassantAvailable(undoinfo))
+		if (UndoInfo.getIsEnpassantAvailable(undoinfo)) {
 			enpassantSq = UndoInfo.getEnpassantSquare(undoinfo);
-		else
+		}
+		else {
 			enpassantSq = Square.SQUARE_NONE;
+		}
+			
 		castling_WK = UndoInfo.getCastlingWK(undoinfo);
 		castling_WQ = UndoInfo.getCastlingWQ(undoinfo);
 		castling_BK = UndoInfo.getCastlingBK(undoinfo);
@@ -698,9 +779,25 @@ public class Gamestate {
 				}
 			}
 		}
+		if(playerToMove == Player.BLACK)
+			zobristHash ^= zobristHashValue_isSideToMoveBlack;
+		//todo: streamline with side-to-move!
+		if(castling_WK)
+			zobristHash ^= zobristHashValue_playerKingCastle[Player.WHITE];
+		if(castling_BK)
+			zobristHash ^= zobristHashValue_playerKingCastle[Player.BLACK];
+		if(castling_WQ)
+			zobristHash ^= zobristHashValue_playerQueenCastle[Player.WHITE];
+		if(castling_BQ)
+			zobristHash ^= zobristHashValue_playerQueenCastle[Player.BLACK];
+		if(enpassantSq != Square.SQUARE_NONE) {
+			zobristHash ^= zobristHashValue_enpassantTarget[enpassantSq];
+		}
+		
+		
+		
 		// needed in case board is in an invalid state which will lead to more errors
 		// this will be handled by the validation step.
-		
 		if(getPieces(Player.WHITE, PieceType.KING) == 0)
 			throw new RuntimeException("Invalid Game State!");
 		else
@@ -875,8 +972,8 @@ public class Gamestate {
 			assert Square.validate(getKingSquare(Player.WHITE));
 			assert Square.validate(getKingSquare(Player.BLACK));
 		} catch (Exception e) {
-			// uncomment when troubleshooting!
-			// e.printStackTrace();
+			 //uncomment when troubleshooting!
+			 //e.printStackTrace();
 			throw new RuntimeException("Invalid Game State!");
 		}
 	}

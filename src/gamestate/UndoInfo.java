@@ -49,6 +49,7 @@ public class UndoInfo {
 	}
 
 	public static int getEnpassantSquare(int info) {
+		assert  UndoInfo.getIsEnpassantAvailable(info);
 		return getBits(info, 8, 6);
 	}
 
