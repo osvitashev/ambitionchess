@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-class StateTransitionTest {
+class StateTransitionWithZobristTest {
 	
 	private static MovePool test_movepool = new MovePool();
 	private static Gamestate test_board = new Gamestate();
@@ -24,21 +24,22 @@ class StateTransitionTest {
 		test_move_generator.generateLegalMoves(test_board, test_movepool);
 		boolean found = false;
 		String oldFEN= game.toFEN();
+		long oldZobristHash = game.getZobristHash();
 		for (int i = test_movelist_size_old; i < test_movepool.size(); ++i) {
 			if(Move.toUCINotation(test_movepool.get(i)).equals(moveToFENMapping.get(0).getKey())) {
 				found = true;
 				int move = test_movepool.get(i);
-				//System.out.println("making: " + uci_moves.get(0));
 				game.makeMove(move);
-				assertEquals(moveToFENMapping.get(0).getValue(), game.toFEN());
+				assertEquals(moveToFENMapping.get(0).getValue(), game.toFEN(), " with: " + moveToFENMapping.get(0).getKey());
 				processMoveSequence(game, moveToFENMapping.subList(1, moveToFENMapping.size()));
 				
 				game.unmakeMove(move);
-				assertEquals(oldFEN, game.toFEN());
+				assertEquals(oldFEN, game.toFEN(), " with: " + moveToFENMapping.get(0).getKey());
+				assertEquals(oldZobristHash, game.getZobristHash(), " with: " + moveToFENMapping.get(0).getKey());
 				break;
 			}
 		}
-		assertEquals(true, found);
+		assertEquals(true, found, " with: " + moveToFENMapping.get(0).getKey());
 		test_movepool.resize(test_movelist_size_old);
 	}
 	
@@ -52,7 +53,8 @@ class StateTransitionTest {
 	            new SimpleEntry<>("b3c3","8/8/3n4/4k3/2P5/2K5/8/8 b - - 2 4"),
 	            new SimpleEntry<>("d6c4","8/8/8/4k3/2n5/2K5/8/8 w - - 0 5"),
 	            new SimpleEntry<>("c3c4","8/8/8/4k3/2K5/8/8/8 b - - 0 5"),
-	            new SimpleEntry<>("e5e4","8/8/8/8/2K1k3/8/8/8 w - - 1 6")
+	            new SimpleEntry<>("e5e4","8/8/8/8/2K1k3/8/8/8 w - - 1 6"),
+	            new SimpleEntry<>("c4b4","8/8/8/8/1K2k3/8/8/8 b - - 2 6")
 	            // more entries
 	        ));
 		
@@ -92,6 +94,22 @@ class StateTransitionTest {
 	            ,new SimpleEntry<>("a1h1", "8/1pp1kpp1/8/1p4p1/6P1/1PP2PP1/4K3/7r w - - 0 4")
 	            // more entries
 	        ));
+		
+		processMoveSequence(test_board.loadFromFEN("r3k2r/ppp2ppp/3p4/4p3/8/3P4/PPP2PPP/R3K2R w KQkq - 0 1"), List.of(
+	            new SimpleEntry<>("a1b1", "r3k2r/ppp2ppp/3p4/4p3/8/3P4/PPP2PPP/1R2K2R b Kkq - 1 1")
+	            ,new SimpleEntry<>("a8b8", "1r2k2r/ppp2ppp/3p4/4p3/8/3P4/PPP2PPP/1R2K2R w Kk - 2 2")
+	            ,new SimpleEntry<>("b1a1", "1r2k2r/ppp2ppp/3p4/4p3/8/3P4/PPP2PPP/R3K2R b Kk - 3 2")
+	            ,new SimpleEntry<>("b8a8", "r3k2r/ppp2ppp/3p4/4p3/8/3P4/PPP2PPP/R3K2R w Kk - 4 3")
+	            ,new SimpleEntry<>("h1g1", "r3k2r/ppp2ppp/3p4/4p3/8/3P4/PPP2PPP/R3K1R1 b k - 5 3")
+	            ,new SimpleEntry<>("h8g8", "r3k1r1/ppp2ppp/3p4/4p3/8/3P4/PPP2PPP/R3K1R1 w - - 6 4")
+	            ,new SimpleEntry<>("g1h1", "r3k1r1/ppp2ppp/3p4/4p3/8/3P4/PPP2PPP/R3K2R b - - 7 4")
+	            ,new SimpleEntry<>("g8h8", "r3k2r/ppp2ppp/3p4/4p3/8/3P4/PPP2PPP/R3K2R w - - 8 5")
+	            ,new SimpleEntry<>("a2a3", "r3k2r/ppp2ppp/3p4/4p3/8/P2P4/1PP2PPP/R3K2R b - - 0 5")
+	            // more entries
+	        ));
+		
+		
+		
 		//promotion and capture promotion
 		processMoveSequence(test_board.loadFromFEN("r1b1kb1r/1P1pp1P1/8/8/8/8/1p1PP1p1/R1B1KB1R w KQkq - 0 1"), List.of(
 	            new SimpleEntry<>("g7g8r", "r1b1kbRr/1P1pp3/8/8/8/8/1p1PP1p1/R1B1KB1R b KQkq - 0 1")
@@ -114,10 +132,42 @@ class StateTransitionTest {
 	            ,new SimpleEntry<>("a5b4", "8/3p4/2n1k1P1/1pP1P3/pp1PPp2/2pK2p1/7R/8 w - - 0 5")
 	            // more entries
 	        ));
+	}
+	
+	@Test
+	void testLoading() {
+		Gamestate g1 = new Gamestate();
+		Gamestate g2 = new Gamestate();
+
+		assertEquals(g1.loadFromFEN("r3k2r/pppbppb1/2nq1np1/3p3p/3P1P2/1PNBP2N/PBPQ2PP/R3K2R w KQkq - 0 1").getZobristHash(),
+				g2.loadFromFEN("r3k2r/pppbppb1/2nq1np1/3p3p/3P1P2/1PNBP2N/PBPQ2PP/R3K2R w KQkq - 0 1").getZobristHash());
 		
+		assertNotEquals(g1.loadFromFEN("r3k2r/pppbppb1/2nq1npp/3p4/3P1P2/1PNBP2N/PBPQ2PP/R3K2R w KQkq - 0 1").getZobristHash(),
+				g2.loadFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").getZobristHash());
 		
-		//todo: add zobrist hash check for transitions
-		//todo: add zobrist checks with FEN load
+		assertNotEquals(g1.loadFromFEN("r3k2r/pppbppb1/2nq1npp/3p4/3P1P2/1PNBP2N/PBPQ2PP/R3K2R w KQk - 0 1").getZobristHash(),
+				g2.loadFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").getZobristHash());
+		
+		assertNotEquals(g1.loadFromFEN("r3k2r/pppbppb1/2nq1npp/3p4/3P1P2/1PNBP2N/PBPQ2PP/R3K2R w KQq - 0 1").getZobristHash(),
+				g2.loadFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").getZobristHash());
+		
+		assertNotEquals(g1.loadFromFEN("r3k2r/pppbppb1/2nq1npp/3p4/3P1P2/1PNBP2N/PBPQ2PP/R3K2R w Kkq - 0 1").getZobristHash(),
+				g2.loadFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").getZobristHash());
+		
+		assertNotEquals(g1.loadFromFEN("r3k2r/pppbppb1/2nq1npp/3p4/3P1P2/1PNBP2N/PBPQ2PP/R3K2R w Qkq - 0 1").getZobristHash(),
+				g2.loadFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").getZobristHash());
+		
+		assertNotEquals(g1.loadFromFEN("r3k2r/pppbppb1/2nq1npp/3p4/3P1P2/1PNBP2N/PBPQ2PP/R3K2R b KQkq - 0 1").getZobristHash(),
+				g2.loadFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").getZobristHash());
+		
+		assertNotEquals(g1.loadFromFEN("r3k2r/pppbppb1/2nq1npp/3p4/3P1P2/1PNBP2N/PBPQ2PP/R3K2R w KQkq h6 0 1").getZobristHash(),
+				g2.loadFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").getZobristHash());
+		
+		assertNotEquals(g1.loadFromFEN("r3k2r/pppbppb1/2nq1npp/3p4/3P1P2/1PNBP2N/PBPQ2PP/R3K2R b KQkq f3 0 1").getZobristHash(),
+				g2.loadFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").getZobristHash());
+		
+		assertNotEquals(g1.loadFromFEN("r3k2r/pppbppb1/2nq1npp/3p4/3P1P2/1PNBP2N/PBPQ2PP/R3K2R b KQkq - 0 1").getZobristHash(),
+				g2.loadFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").getZobristHash());
 	}
 
 }
