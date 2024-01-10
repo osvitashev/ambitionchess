@@ -153,7 +153,7 @@ public class Gamestate {
 		pieceBB[piece] = setBit(pieceBB[piece], sq);
 		
 		zobristHash^=zobristHashValue_playerPieceSquare[player][piece][sq];
-		//todo: move this two levels up to makeMove - to avoid updating hash move moves that will be rejected!
+		//todo: currently this is getting called from makeDirtyMove which gets undone when validating move. Need a way to only do this when we truly want to update the game state!
 	}
 
 	private void clearPieceAt(int pieceType, int player, int sq) {
@@ -166,6 +166,7 @@ public class Gamestate {
 		pieceBB[pieceType] = clearBit(pieceBB[pieceType], sq);
 		
 		zobristHash^=zobristHashValue_playerPieceSquare[player][pieceType][sq];
+		//todo:  Need a way to only do this when we truly want to update the game state as opposed to move validation!
 	}
 
 	public int getPieceAt(int sq) {
