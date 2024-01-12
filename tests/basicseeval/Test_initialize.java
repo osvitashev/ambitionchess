@@ -654,6 +654,24 @@ class Test_initialize {
 		assertEquals(0x14008f0051525080L, eval.get_output_secondaryAttackedTargets(Player.BLACK));
 		assertEquals(0x5030110200000030L, eval.get_output_secondaryBatteryAttackedTargets(Player.WHITE));
 		assertEquals(0x14008c0050121000L, eval.get_output_secondaryBatteryAttackedTargets(Player.BLACK));
+		
+		//lesser pieces attacks
+		game.loadFromFEN("1b2r3/1B3pp1/4n3/1K5k/2R3q1/8/PP1Nb3/8 w - - 0 1");
+		eval.initialize();
+		assertEquals(0, eval.get_output_attackedByLesserPieceTargets(Player.WHITE, PieceType.PAWN));
+		assertEquals(458752l, eval.get_output_attackedByLesserPieceTargets(Player.WHITE, PieceType.KNIGHT));
+		assertEquals(0x14270022l, eval.get_output_attackedByLesserPieceTargets(Player.WHITE, PieceType.BISHOP));
+		assertEquals(0x5000508142740a2l, eval.get_output_attackedByLesserPieceTargets(Player.WHITE, PieceType.ROOK));
+		assertEquals(0x504050c7f2744a6l, eval.get_output_attackedByLesserPieceTargets(Player.WHITE, PieceType.QUEEN));
+		assertEquals(0x504050c7f2744a6l, eval.get_output_attackedByLesserPieceTargets(Player.WHITE, PieceType.KING));
+		assertEquals(0, eval.get_output_attackedByLesserPieceTargets(Player.BLACK, PieceType.PAWN));
+		assertEquals(0xf00000000000l, eval.get_output_attackedByLesserPieceTargets(Player.BLACK, PieceType.KNIGHT));
+		assertEquals(0x2844f04428000000l, eval.get_output_attackedByLesserPieceTargets(Player.BLACK, PieceType.BISHOP));
+		assertEquals(0x2845f8546c688028l, eval.get_output_attackedByLesserPieceTargets(Player.BLACK, PieceType.ROOK));
+		assertEquals(0xee55f8546c688028l, eval.get_output_attackedByLesserPieceTargets(Player.BLACK, PieceType.QUEEN));
+		assertEquals(0xee55f8f4fce8d068l, eval.get_output_attackedByLesserPieceTargets(Player.BLACK, PieceType.KING));
+		
+		
 	}
 	
 	@Test

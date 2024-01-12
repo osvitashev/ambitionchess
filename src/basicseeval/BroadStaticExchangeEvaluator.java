@@ -35,6 +35,11 @@ import gamestate.GlobalConstants.Square;
  *
  */
 public class BroadStaticExchangeEvaluator {
+	/**
+	 * set in initialize(). Should be checked in all public getters. Is intended to prevent Gamestate and ExchangeEvaluator getting out of sync!
+	 */
+	private long hashValue = 0;
+	
 	private final Gamestate game;
 	//private to this object. If we need a more light weight evaluator for static exchange - we can create a stand-alone instance of TargetStaticExchangeEvaluator
 	private final TargetStaticExchangeEvaluator targetSEE;
@@ -56,9 +61,11 @@ public class BroadStaticExchangeEvaluator {
 	 * 
 	 */
 	public void initialize() {
+		hashValue = game.getZobristHash();
 		output_defenderInteractions_size=0;
 		output_xRayInteractions_size=0;
 		
+		//output variable reset!
 		for(int player : Player.PLAYERS) {
 			var_target_isExchangeProcessed[player]=0;
 			for(int type : PieceType.PIECE_TYPES) {
@@ -69,6 +76,8 @@ public class BroadStaticExchangeEvaluator {
 				output_target_winning[player][type] =0;
 				output_target_neutral[player][type] =0;
 				output_target_losing[player][type] =0;
+				
+				output_bitboard_attackedByLesserPiece[player][type] =0;
 			}
 			output_combined_bitboard_attackedBy[player] =0;
 			output_combined_bitboard_secondary_attackedBy[player] =0;
@@ -79,7 +88,6 @@ public class BroadStaticExchangeEvaluator {
 		
 		for (int player : Player.PLAYERS) {
 			output_bitboard_attackedBy[player][PieceType.PAWN] |= BitboardGen.getMultiplePawnAttackSet(game.getPieces(player, PieceType.PAWN), player);
-
 			{
 				int bi = 0;
 				for (long zarg = game.getPieces(player, PieceType.KNIGHT),
@@ -126,6 +134,13 @@ public class BroadStaticExchangeEvaluator {
 			}
 
 			output_bitboard_attackedBy[player][PieceType.KING] = BitboardGen.getKingSet(game.getKingSquare(player));
+			
+			for(int type =PieceType.KNIGHT; type!=PieceType.NO_PIECE; ++type){
+				for(int lesserType = PieceType.PAWN; lesserType!=type; ++lesserType) {
+					output_bitboard_attackedByLesserPiece[player][type] |= output_bitboard_attackedBy[player][lesserType];
+				}
+			}
+			//output_bitboard_attackedByLesserPiece[player][PieceType.ROOK]
 			
 			//todo: the next 3 sections can be skipped conditionally....
 			
@@ -393,6 +408,11 @@ public class BroadStaticExchangeEvaluator {
 	 * For pawns this is attacks, NOT pushes
 	 */
 	private long output_bitboard_attackedBy [][]= new long[2][6];//[player][piece type]
+	
+	/**
+	 * [WHITE][ROOK] -> map of attacks by white pawn/knight/bishop
+	 */
+	private long output_bitboard_attackedByLesserPiece [][]= new long[2][6];//[player][piece type]
 	private long output_combined_bitboard_attackedBy []= new long[2];
 	
 	
@@ -434,6 +454,7 @@ public class BroadStaticExchangeEvaluator {
 	public long get_output_attackedTargets(int player, int pieceType) {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
+		assert hashValue == game.getZobristHash();
 		return output_bitboard_attackedBy[player][pieceType];
 	}
 	
@@ -448,7 +469,24 @@ public class BroadStaticExchangeEvaluator {
 	 */
 	public long get_output_attackedTargets(int player) {
 		assert Player.validate(player);
+		assert hashValue == game.getZobristHash();
 		return output_combined_bitboard_attackedBy[player];
+	}
+	
+	/**
+	 * Direct attacks broken down by player and piece type. Multiple pieces of the same type are combined together.
+	 * For pawns this is attacks AND NOT pushes.
+	 * 
+	 * The values are populated by calling initialize()
+	 * @param player
+	 * @param pieceType
+	 * @return
+	 */
+	public long get_output_attackedByLesserPieceTargets(int player, int pieceType) {
+		assert Player.validate(player);
+		assert PieceType.validate(pieceType);
+		assert hashValue == game.getZobristHash();
+		return output_bitboard_attackedByLesserPiece[player][pieceType];
 	}
 	
 	/**
@@ -465,6 +503,7 @@ public class BroadStaticExchangeEvaluator {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
 		assert pieceType == PieceType.BISHOP || pieceType == PieceType.ROOK || pieceType == PieceType.QUEEN;
+		assert hashValue == game.getZobristHash();
 		return output_bitboard_secondary_attackedBy[player][pieceType];
 	}
 
@@ -480,6 +519,7 @@ public class BroadStaticExchangeEvaluator {
 	 */
 	public long get_output_secondaryAttackedTargets(int player) {
 		assert Player.validate(player);
+		assert hashValue == game.getZobristHash();
 		return output_combined_bitboard_secondary_attackedBy[player];
 	}
 	
@@ -498,6 +538,7 @@ public class BroadStaticExchangeEvaluator {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
 		assert pieceType == PieceType.BISHOP || pieceType == PieceType.ROOK || pieceType == PieceType.QUEEN;
+		assert hashValue == game.getZobristHash();
 		return output_bitboard_secondary_battery_attackedBy[player][pieceType];
 	}
 	
@@ -514,6 +555,7 @@ public class BroadStaticExchangeEvaluator {
 	 */
 	public long get_output_secondaryBatteryAttackedTargets(int player) {
 		assert Player.validate(player);
+		assert hashValue == game.getZobristHash();
 		return output_combined_bitboard_secondary_battery_attackedBy[player];
 	}
 	
@@ -530,6 +572,7 @@ public class BroadStaticExchangeEvaluator {
 	 */
 	long get_var_target_isExchangeProcessed(int player) {
 		assert Player.validate(player);
+		assert hashValue == game.getZobristHash();
 		return var_target_isExchangeProcessed[player];
 	}
 	
@@ -540,6 +583,7 @@ public class BroadStaticExchangeEvaluator {
 	public long get_output_capture_winning(int player, int pieceType) {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
+		assert hashValue == game.getZobristHash();
 		return output_target_winning[player][pieceType] & game.getOccupied();
 	}
 	
@@ -548,6 +592,7 @@ public class BroadStaticExchangeEvaluator {
 	 */
 	public long get_output_capture_winning_any(int player) {
 		assert Player.validate(player);
+		assert hashValue == game.getZobristHash();
 		long ret=0;
 		for(int type : PieceType.PIECE_TYPES)
 			ret |= output_target_winning[player][type];
@@ -559,6 +604,7 @@ public class BroadStaticExchangeEvaluator {
 	 */
 	public long get_output_capture_neutral_any(int player) {
 		assert Player.validate(player);
+		assert hashValue == game.getZobristHash();
 		long ret=0;
 		for(int type : PieceType.PIECE_TYPES)
 			ret |= output_target_neutral[player][type];
@@ -571,6 +617,7 @@ public class BroadStaticExchangeEvaluator {
 	public long get_output_capture_neutral(int player, int pieceType) {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
+		assert hashValue == game.getZobristHash();
 		return output_target_neutral[player][pieceType] & game.getOccupied();
 	}
 	
@@ -580,6 +627,7 @@ public class BroadStaticExchangeEvaluator {
 	public long get_output_capture_losing(int player, int pieceType) {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
+		assert hashValue == game.getZobristHash();
 		return output_target_losing[player][pieceType] & game.getOccupied();
 	}
 	
@@ -589,6 +637,7 @@ public class BroadStaticExchangeEvaluator {
 	public long get_output_quiet_neutral(int player, int pieceType) {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
+		assert hashValue == game.getZobristHash();
 		return output_target_neutral[player][pieceType] & ~game.getOccupied();
 	}
 	
@@ -598,6 +647,7 @@ public class BroadStaticExchangeEvaluator {
 	public long get_output_quiet_losing(int player, int pieceType) {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
+		assert hashValue == game.getZobristHash();
 		return output_target_losing[player][pieceType] & ~game.getOccupied();
 	}
 	
@@ -609,19 +659,23 @@ public class BroadStaticExchangeEvaluator {
 	
 	public int get_output_defenderInteractions(int index) {
 		assert index<output_defenderInteractions_size;
+		assert hashValue == game.getZobristHash();
 		return output_defenderInteractions[index];
 	}
 	
 	public int get_output_defenderInteractions_size() {
+		assert hashValue == game.getZobristHash();
 		return output_defenderInteractions_size;
 	}
 	
 	public int get_output_xRayInteractions(int index) {
 		assert index<output_xRayInteractions_size;
+		assert hashValue == game.getZobristHash();
 		return output_xRayInteractions[index];
 	}
 	
 	public int get_output_xRayInteractions_size() {
+		assert hashValue == game.getZobristHash();
 		return output_xRayInteractions_size;
 	}
 	
@@ -629,6 +683,7 @@ public class BroadStaticExchangeEvaluator {
 		assert Square.validate(sq);
 		assert PieceType.validate(pieceType);
 		assert pieceType == PieceType.ROOK || pieceType == PieceType.BISHOP || pieceType == PieceType.QUEEN;
+		assert hashValue == game.getZobristHash();
 		long ret;
 		switch (pieceType) {
 		case PieceType.ROOK:
@@ -808,6 +863,12 @@ public class BroadStaticExchangeEvaluator {
 	}
 	
 	public void evaluateCaptures() {
+		/**
+		 * idea: we can do a second pass on board-wide evaluation, but ignoring attackers/defenders that are pinned or bound.
+		 * this should improve accuracy and resolve many of the situations where an exchange appears to not be loosing at first, but actually is!
+		 */
+		
+		assert hashValue == game.getZobristHash();
 		///a brute force implementation  - used to verify correctness and assertions
 		//todo: make the iteration smarter and avoid brute force!
 		int score;
@@ -834,6 +895,16 @@ public class BroadStaticExchangeEvaluator {
 	}
 	
 	public void evaluateQuietMoves() {
+		assert hashValue == game.getZobristHash();
+		/**
+		 * at this point we have the data needed to perform ed's lookup.
+		 * 
+		 * we could also have a way to determine whether ed's lookup would yield correct result.
+		 * This could be accomplished with a static map of ed's lookup keys which produce incorrect results.
+		 * Test for Ed's lookup being accurate: are there potential attsckers/defenders that do not fall into Ed's lookup key?
+		 * 
+		 */
+		
 		///a brute force implementation  - used to verify correctness and assertions
 		//todo: avoid brute forcing approach
 		int score;
@@ -860,6 +931,7 @@ public class BroadStaticExchangeEvaluator {
 	}
 	
 	public void evaluateBoundDefenders() {
+		assert hashValue == game.getZobristHash();
 		for (int player : Player.PLAYERS) {
 			{
 				//todo: try using flat square iterator
@@ -875,6 +947,7 @@ public class BroadStaticExchangeEvaluator {
 	}
 	
 	public void evaluateXRayInteractions() {
+		assert hashValue == game.getZobristHash();
 		int player, pieceType;
 		for (int sq : Square.SQUARES) {
 			player = game.getPlayerAt(sq);
@@ -884,6 +957,5 @@ public class BroadStaticExchangeEvaluator {
 			}
 		}
 	}
-	
 	
 }

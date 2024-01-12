@@ -37,7 +37,6 @@ public class TargetStaticExchangeEvaluator {
 	 */
 	private long var_attackStackSquares;
 	
-	
 	private int var_evaluateTarget_attackStack_lastIndex, var_evaluateTargetExchange_principalLineLastIndex;
 	
 	public TargetStaticExchangeEvaluator(Gamestate g){

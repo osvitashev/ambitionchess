@@ -13,7 +13,7 @@ class Test_MobilityEvaluator {
 	
 	private Gamestate game = new Gamestate();
 	private BroadStaticExchangeEvaluator seeval = new BroadStaticExchangeEvaluator(game);
-	private MobilityEvaluator meval = new MobilityEvaluator(game, seeval);
+	private BroadMobilityEvaluator meval = new BroadMobilityEvaluator(game, seeval);
 	
 	@Test
 	void testBlockadedPawns() {
