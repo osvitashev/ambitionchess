@@ -120,6 +120,27 @@ public class BitboardGen {
 		assert Square.validate(sq);
 		return KNIGHT_SETS[sq];
 	}
+	
+	/**
+	 * Generates 'attack set' for knights. Disregards target
+	 * square occupancy.
+	 * 
+	 * @param long
+	 * @return bitboard
+	 */
+	public static long getMultipleKnightSet(long knights) {
+		//todo: this should be done via parallel shifts
+		long ret=0;
+		{//iterate on bit indices
+			int bi = 0;
+			for (long zarg = knights, barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {//iterateOnBitIndices
+				bi = Bitboard.getFirstSquareIndex(barg);
+				ret|=KNIGHT_SETS[bi];
+			}
+		} //iterate on bit indices
+		
+		return ret;
+	}
 
 	// taken form import nl.s22k.chess.Util; for now...
 	private static class Magic {

@@ -2,6 +2,7 @@ package mobeval;
 
 import basicseeval.BroadStaticExchangeEvaluator;
 import gamestate.Bitboard;
+import gamestate.BitboardGen;
 import gamestate.Gamestate;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
@@ -54,6 +55,20 @@ public class BroadMobilityEvaluator {
 		return output_blockadedPawns[player];
 	}
 
+	//does a flood fill. Potentially stops after 3? iterations....
+	long doFloodFill_knight(int sq_from) {
+		long attacks = BitboardGen.getKnightSet(sq_from);
+		
+		System.out.println("Knight attacks: " + attacks);
+		attacks = attacks | BitboardGen.getMultipleKnightSet(attacks & game.getEmpty());
+		
+		System.out.println("Knight attacks: " + attacks);
+		attacks = attacks | BitboardGen.getMultipleKnightSet(attacks & game.getEmpty());
+		
+		System.out.println("Knight attacks: " + attacks);
+		
+		return attacks;
+	}
 	
 
 }

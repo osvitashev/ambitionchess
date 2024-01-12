@@ -98,5 +98,18 @@ class BitboardGenTest {
 		assertEquals(0x201000068c80000l, BitboardGen.getMultiplePawnPushSet(0x201000020e800L, Player.WHITE, 0x72c1188422e400L));
 		assertEquals(0x30e018840204l, BitboardGen.getMultiplePawnPushSet(0x70c01884020400L, Player.BLACK, 0x72c1188422e400L));
 	}
+	
+	@Test
+	void testMultipleKnightSet() {
+		assertEquals(660736, BitboardGen.getMultipleKnightSet(Bitboard.initFromAlgebraicSquares("a1", "c1")));
+		assertEquals(45053588739212288l, BitboardGen.getMultipleKnightSet(Bitboard.initFromAlgebraicSquares("e1", "g5")));
+		assertEquals(2689605648l, BitboardGen.getMultipleKnightSet(Bitboard.initFromAlgebraicSquares("h1", "g2")));
+		assertEquals(38932607513788416l, BitboardGen.getMultipleKnightSet(Bitboard.initFromAlgebraicSquares("c5", "f8")));
+		assertEquals(145243304219377664l, BitboardGen.getMultipleKnightSet(Bitboard.initFromAlgebraicSquares("a6", "a8")));
+		assertEquals(-8601707818633920512l, BitboardGen.getMultipleKnightSet(Bitboard.initFromAlgebraicSquares("g5", "f7")));
+		assertEquals(246496766255104l, BitboardGen.getMultipleKnightSet(Bitboard.initFromAlgebraicSquares("g4", "h4")));
+		assertEquals(-6903947788610961408l, BitboardGen.getMultipleKnightSet(Bitboard.initFromAlgebraicSquares("h8", "g6")));
+		assertEquals(4899991333173757952l, BitboardGen.getMultipleKnightSet(Bitboard.initFromAlgebraicSquares("e7", "f1")));
+	}
 
 }

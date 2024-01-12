@@ -8,6 +8,7 @@ import basicseeval.BroadStaticExchangeEvaluator;
 import gamestate.Bitboard;
 import gamestate.Gamestate;
 import gamestate.GlobalConstants.Player;
+import gamestate.GlobalConstants.Square;
 
 class Test_MobilityEvaluator {
 	
@@ -22,6 +23,14 @@ class Test_MobilityEvaluator {
 		meval.initialize();
 		assertEquals("{b2 g2 f4 }", Bitboard.toListString(meval.get_output_blockadedPawns(Player.WHITE)));
 		assertEquals("{g3 f5 g6 a7 }", Bitboard.toListString(meval.get_output_blockadedPawns(Player.BLACK)));
+	}
+	
+	@Test
+	void testKnightFlooding() {
+		game.loadFromFEN("rnq1k2r/1p2n1p1/2pR4/p6p/P6P/8/1P2BPP1/R3K2R w - - 0 1");
+		seeval.initialize();
+		meval.initialize();
+		meval.doFloodFill_knight(Square.B8);
 	}
 
 }
