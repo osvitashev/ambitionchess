@@ -78,7 +78,7 @@ public class BroadStaticExchangeEvaluator {
 				output_target_neutral[player][type] =0;
 				output_target_losing[player][type] =0;
 				
-				output_bitboard_attackedByLesserPiece[player][type] =0;
+				output_bitboard_attackedByLesserOrEqualPiece[player][type] =0;
 			}
 			output_combined_bitboard_attackedBy[player] =0;
 			output_combined_bitboard_secondary_attackedBy[player] =0;
@@ -151,10 +151,12 @@ public class BroadStaticExchangeEvaluator {
 			
 			for(int type =PieceType.KNIGHT; type!=PieceType.NO_PIECE; ++type){
 				for(int lesserType = PieceType.PAWN; lesserType!=type; ++lesserType) {
-					output_bitboard_attackedByLesserPiece[player][type] |= output_bitboard_attackedBy[player][lesserType];
+					output_bitboard_attackedByLesserOrEqualPiece[player][type] |= output_bitboard_attackedBy[player][lesserType];
 				}
+				output_bitboard_attackedByLesserOrEqualPiece[player][type] |= output_bitboard_attackedBy[player][type];
 			}
-			//output_bitboard_attackedByLesserPiece[player][PieceType.ROOK]
+			output_bitboard_attackedByLesserOrEqualPiece[player][PieceType.BISHOP] |= output_bitboard_attackedByLesserOrEqualPiece[player][PieceType.KNIGHT];
+			output_bitboard_attackedByLesserOrEqualPiece[player][PieceType.KNIGHT] |= output_bitboard_attackedByLesserOrEqualPiece[player][PieceType.BISHOP];
 			
 			//todo: the next 3 sections can be skipped conditionally....
 			
@@ -430,9 +432,9 @@ public class BroadStaticExchangeEvaluator {
 	private long output_bitboard_attackedByMultipleOfSameType [][]= new long[2][6];//[player][piece type]
 	
 	/**
-	 * [WHITE][ROOK] -> map of attacks by white pawn/knight/bishop
+	 * [WHITE][ROOK] -> map of attacks by white pawn/knight/bishop/rook
 	 */
-	private long output_bitboard_attackedByLesserPiece [][]= new long[2][6];//[player][piece type]
+	private long output_bitboard_attackedByLesserOrEqualPiece [][]= new long[2][6];//[player][piece type]
 	
 	/**
 	 * Attack sets resulting from lifting up the first blocker.
@@ -508,19 +510,22 @@ public class BroadStaticExchangeEvaluator {
 	}
 	
 	/**
-	 * Direct attacks broken down by player and piece type. Multiple pieces of the same type are combined together.
-	 * For pawns this is attacks AND NOT pushes.
+	 * [WHITE][ROOK] -> map of attacks by white pawn/knight/bishop/rook
+	 * The reasoning for LesserOrEqual is that an even trade is a negative outcome from the point of view of a given player.
+	 * Knight and bishop are treated as equivalent and would produce same result.
+	 * Not populated for pawns!
 	 * 
 	 * The values are populated by calling initialize()
 	 * @param player
 	 * @param pieceType
 	 * @return
 	 */
-	public long get_output_attackedByLesserPieceTargets(int player, int pieceType) {
+	public long get_output_attackedByLesserOrEqualPieceTargets(int player, int pieceType) {
 		assert Player.validate(player);
 		assert PieceType.validate(pieceType);
+		assert PieceType.PAWN != pieceType;
 		assert hashValue == game.getZobristHash();
-		return output_bitboard_attackedByLesserPiece[player][pieceType];
+		return output_bitboard_attackedByLesserOrEqualPiece[player][pieceType];
 	}
 	
 	/**

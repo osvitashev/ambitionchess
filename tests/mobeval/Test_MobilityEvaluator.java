@@ -37,65 +37,65 @@ class Test_MobilityEvaluator {
 	
 	@Test
 	void testRookFlooding() {
-//		assertEquals(0xffff0cebff08fddfl,
-//				BroadMobilityEvaluator.doFloodFill_rook(
-//						Bitboard.initFromAlgebraicSquares("a2"),//initial seed
-//						0xf31400f70220l,//occupied
-//						0//beaten
-//				)
-//		);
-//		assertEquals(0xffff0cebff08fddfl,
-//				BroadMobilityEvaluator.doFloodFill_rook(
-//						Bitboard.initFromAlgebraicSquares("a4"),//initial seed
-//						0xf31400f70220l,//occupied
-//						0//beaten
-//				)
-//		);
-//		assertEquals(0xffff0cebff08fddfl,
-//				BroadMobilityEvaluator.doFloodFill_rook(
-//						Bitboard.initFromAlgebraicSquares("b7"),//initial seed
-//						0xf31400f70220l,//occupied
-//						0//beaten
-//				)
-//		);
-//		assertEquals(0xffff0cebff08fddfl,
-//				BroadMobilityEvaluator.doFloodFill_rook(
-//						Bitboard.initFromAlgebraicSquares("g5"),//initial seed
-//						0xf31400f70220l,//occupied
-//						0//beaten
-//				)
-//		);
-//		//adding beaten 
-//		assertEquals(-0xf3f7fff70322l,
-//				BroadMobilityEvaluator.doFloodFill_rook(
-//						Bitboard.initFromAlgebraicSquares("c1"),//initial seed
-//						0xf31400f70220l,//occupied
-//						0x8000001l//beaten
-//				)
-//		);
-//		//seed overlaps with occupied mask
-//		assertEquals(0xa337000000l,
-//				BroadMobilityEvaluator.doFloodFill_rook(
-//						Bitboard.initFromAlgebraicSquares("c4"),//initial seed
-//						0xf31404f70220l,//occupied
-//						0x40c8000000l//beaten
-//				)
-//		);
-//		//seed partially overlaps with the beaten mask
-//		assertEquals(0x180e1d1b1f1b791fl,
-//				BroadMobilityEvaluator.doFloodFill_rook(
-//						Bitboard.initFromAlgebraicSquares("b8", "d8"),//initial seed
-//						0x2011222420640660l,//occupied
-//						0x700000000008000l//beaten
-//				)
-//		);
-//		assertEquals(0x180e1d1b1f1b7800l,
-//				BroadMobilityEvaluator.doFloodFill_rook(
-//						Bitboard.initFromAlgebraicSquares("b8", "d8"),//initial seed
-//						0x2011222420640660l,//occupied
-//						0x70000000000811bl//beaten
-//				)
-//		);
+		assertEquals(0xffff0cebff08fddfl,
+				BroadMobilityEvaluator.doFloodFill_rook(
+						Bitboard.initFromAlgebraicSquares("a2"),//initial seed
+						0xf31400f70220l,//occupied
+						0//beaten
+				)
+		);
+		assertEquals(0xffff0cebff08fddfl,
+				BroadMobilityEvaluator.doFloodFill_rook(
+						Bitboard.initFromAlgebraicSquares("a4"),//initial seed
+						0xf31400f70220l,//occupied
+						0//beaten
+				)
+		);
+		assertEquals(0xffff0cebff08fddfl,
+				BroadMobilityEvaluator.doFloodFill_rook(
+						Bitboard.initFromAlgebraicSquares("b7"),//initial seed
+						0xf31400f70220l,//occupied
+						0//beaten
+				)
+		);
+		assertEquals(0xffff0cebff08fddfl,
+				BroadMobilityEvaluator.doFloodFill_rook(
+						Bitboard.initFromAlgebraicSquares("g5"),//initial seed
+						0xf31400f70220l,//occupied
+						0//beaten
+				)
+		);
+		//adding beaten 
+		assertEquals(-0xf3f7fff70322l,
+				BroadMobilityEvaluator.doFloodFill_rook(
+						Bitboard.initFromAlgebraicSquares("c1"),//initial seed
+						0xf31400f70220l,//occupied
+						0x8000001l//beaten
+				)
+		);
+		//seed overlaps with occupied mask
+		assertEquals(0xa337000000l,
+				BroadMobilityEvaluator.doFloodFill_rook(
+						Bitboard.initFromAlgebraicSquares("c4"),//initial seed
+						0xf31404f70220l,//occupied
+						0x40c8000000l//beaten
+				)
+		);
+		//seed partially overlaps with the beaten mask
+		assertEquals(0x180e1d1b1f1b791fl,
+				BroadMobilityEvaluator.doFloodFill_rook(
+						Bitboard.initFromAlgebraicSquares("b8", "d8"),//initial seed
+						0x2011222420640660l,//occupied
+						0x700000000008000l//beaten
+				)
+		);
+		assertEquals(0x180e1d1b1f1b7800l,
+				BroadMobilityEvaluator.doFloodFill_rook(
+						Bitboard.initFromAlgebraicSquares("b8", "d8"),//initial seed
+						0x2011222420640660l,//occupied
+						0x70000000000811bl//beaten
+				)
+		);
 		
 		game.loadFromFEN("8/p3n3/1kb3pp/3r3P/1P1b1N2/2P2Q2/3P1PP1/4K2R w - - 0 1");
 		seeval.initialize();
@@ -104,26 +104,26 @@ class Test_MobilityEvaluator {
 				BroadMobilityEvaluator.doFloodFill_rook(
 						BitboardGen.getRookSet(Square.H1, game.getOccupied()) & game.getEmpty(),//initial seed
 						game.getOccupied(),//occupied
-						seeval.get_output_attackedByLesserPieceTargets(Player.BLACK, PieceType.ROOK)//beaten
+						seeval.get_output_attackedByLesserOrEqualPieceTargets(Player.BLACK, PieceType.ROOK)//beaten
 				)
 		);
 		
-		assertEquals(-5022075999715328l,
+		assertEquals(-5022078147231744l,
 				BroadMobilityEvaluator.doFloodFill_rook(
 						BitboardGen.getRookSet(Square.D5, game.getOccupied()) & game.getEmpty(),//initial seed
 						game.getOccupied(),//occupied
-						seeval.get_output_attackedByLesserPieceTargets(Player.WHITE, PieceType.ROOK)//beaten
+						seeval.get_output_attackedByLesserOrEqualPieceTargets(Player.WHITE, PieceType.ROOK)//beaten
 				)
 		);
 		
-		game.loadFromFEN("8/p3n3/1kb3p1/3r3P/1P1b1N2/2P2Q2/3P1PP1/4K2R w - - 0 1");
+		game.loadFromFEN("8/p3n3/1kb3p1/3rp2P/1P1b1N2/2P2Q2/3P1PP1/4K2R w - - 0 1");
 		seeval.initialize();
 		meval.initialize();
 		assertEquals(278111748192l,
 				BroadMobilityEvaluator.doFloodFill_rook(
 						BitboardGen.getRookSet(Square.H1, game.getOccupied()) & game.getEmpty(),//initial seed
 						game.getOccupied(),//occupied
-						seeval.get_output_attackedByLesserPieceTargets(Player.BLACK, PieceType.ROOK)//beaten
+						seeval.get_output_attackedByLesserOrEqualPieceTargets(Player.BLACK, PieceType.ROOK)//beaten
 				)
 		);
 		
