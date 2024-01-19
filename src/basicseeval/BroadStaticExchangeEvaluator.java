@@ -149,15 +149,17 @@ public class BroadStaticExchangeEvaluator {
 
 			output_bitboard_attackedBy[player][PieceType.KING] = BitboardGen.getKingSet(game.getKingSquare(player));
 			
-			for(int type =PieceType.KNIGHT; type!=PieceType.NO_PIECE; ++type){
-				for(int lesserType = PieceType.PAWN; lesserType!=type; ++lesserType) {
-					output_bitboard_attackedByLesserOrEqualPiece[player][type] |= output_bitboard_attackedBy[player][lesserType];
+			{//attackedByLesserOrEqualPiece - todo: this section can be optimized: we are doing redundant iteration for minor pieces, also king is just the attack set for the opponent!
+				for(int type =PieceType.KNIGHT; type!=PieceType.NO_PIECE; ++type){
+					for(int lesserType = PieceType.PAWN; lesserType!=type; ++lesserType) {
+						output_bitboard_attackedByLesserOrEqualPiece[player][type] |= output_bitboard_attackedBy[player][lesserType];
+					}
+					output_bitboard_attackedByLesserOrEqualPiece[player][type] |= output_bitboard_attackedBy[player][type];
 				}
-				output_bitboard_attackedByLesserOrEqualPiece[player][type] |= output_bitboard_attackedBy[player][type];
+				output_bitboard_attackedByLesserOrEqualPiece[player][PieceType.BISHOP] |= output_bitboard_attackedByLesserOrEqualPiece[player][PieceType.KNIGHT];
+				output_bitboard_attackedByLesserOrEqualPiece[player][PieceType.KNIGHT] |= output_bitboard_attackedByLesserOrEqualPiece[player][PieceType.BISHOP];
 			}
-			output_bitboard_attackedByLesserOrEqualPiece[player][PieceType.BISHOP] |= output_bitboard_attackedByLesserOrEqualPiece[player][PieceType.KNIGHT];
-			output_bitboard_attackedByLesserOrEqualPiece[player][PieceType.KNIGHT] |= output_bitboard_attackedByLesserOrEqualPiece[player][PieceType.BISHOP];
-			
+						
 			//todo: the next 3 sections can be skipped conditionally....
 			
 			{//bishops

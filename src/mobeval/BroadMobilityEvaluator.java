@@ -115,6 +115,15 @@ public class BroadMobilityEvaluator {
 		return ret;
 	}
 	
+	/**
+	 * the current implementation is using overlapping generations and therefor cannot differentiate locations accessible in 2 moves and 3 moves.
+	 * The up side of that is that it takes fewer iterations to finish the flood fill.
+	 * maybe it is worthwhile to have two different implementations of this: one to calculate the first 2-3 steps, then use the other one to efficiently finish the infinite fill.
+	 * @param currentFloodSet
+	 * @param occupied
+	 * @param beaten
+	 * @return
+	 */
 	private static long doFloodFill_step_rook(long currentFloodSet, long occupied, long beaten) {
 		long tempDirectionwise;
 		while (true) {
