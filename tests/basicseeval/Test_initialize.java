@@ -468,6 +468,11 @@ class Test_initialize {
 		Gamestate game = new Gamestate();
 		BroadStaticExchangeEvaluator eval = new BroadStaticExchangeEvaluator(game);
 		
+		game.loadFromFEN("8/ppp1k3/8/8/8/1P1P4/P1PP2K1/8 w - - 0 1");
+		eval.initialize();
+		assertEquals(0x4020000L, eval.get_output_attackedByMultipleOfSameType(Player.WHITE, PieceType.PAWN));
+		assertEquals(0x20000000000L, eval.get_output_attackedByMultipleOfSameType(Player.BLACK, PieceType.PAWN));
+		
 		game.loadFromFEN("1k1r4/pp1r1q2/2npb3/6B1/1R1R2b1/2KQN1NP/1P4P1/5Q2 w - - 0 1");
 		eval.initialize();
 		
@@ -484,6 +489,20 @@ class Test_initialize {
 		assertEquals(0xfe3e080000000000L, eval.get_output_attackedTargets(Player.BLACK, PieceType.ROOK));
 		assertEquals(0x70d870a020202020L, eval.get_output_attackedTargets(Player.BLACK, PieceType.QUEEN));
 		assertEquals(0x507000000000000L, eval.get_output_attackedTargets(Player.BLACK, PieceType.KING));
+		
+		assertEquals(0x0l, eval.get_output_attackedByMultipleOfSameType(Player.WHITE, PieceType.PAWN));
+		assertEquals(0x2000000020l, eval.get_output_attackedByMultipleOfSameType(Player.WHITE, PieceType.KNIGHT));
+		assertEquals(0x0l, eval.get_output_attackedByMultipleOfSameType(Player.WHITE, PieceType.BISHOP));
+		assertEquals(0x4000000l, eval.get_output_attackedByMultipleOfSameType(Player.WHITE, PieceType.ROOK));
+		assertEquals(0x200000100al, eval.get_output_attackedByMultipleOfSameType(Player.WHITE, PieceType.QUEEN));
+		assertEquals(0x0l, eval.get_output_attackedByMultipleOfSameType(Player.WHITE, PieceType.KING));
+		
+		assertEquals(0x0l, eval.get_output_attackedByMultipleOfSameType(Player.BLACK, PieceType.PAWN));
+		assertEquals(0x0l, eval.get_output_attackedByMultipleOfSameType(Player.BLACK, PieceType.KNIGHT));
+		assertEquals(0x2000000000l, eval.get_output_attackedByMultipleOfSameType(Player.BLACK, PieceType.BISHOP));
+		assertEquals(0x0l, eval.get_output_attackedByMultipleOfSameType(Player.BLACK, PieceType.ROOK));
+		assertEquals(0x0l, eval.get_output_attackedByMultipleOfSameType(Player.BLACK, PieceType.QUEEN));
+		assertEquals(0x0l, eval.get_output_attackedByMultipleOfSameType(Player.BLACK, PieceType.KING));
 		
 		//need to test a second position to verify the reset!
 		game.loadFromFEN("8/8/8/k7/7K/8/8/8 w - - 0 1");
@@ -502,6 +521,20 @@ class Test_initialize {
 		assertEquals(0x0L, eval.get_output_attackedTargets(Player.BLACK, PieceType.ROOK));
 		assertEquals(0x0L, eval.get_output_attackedTargets(Player.BLACK, PieceType.QUEEN));
 		assertEquals(0x30203000000L, eval.get_output_attackedTargets(Player.BLACK, PieceType.KING));
+		
+		assertEquals(0x0l, eval.get_output_attackedByMultipleOfSameType(Player.WHITE, PieceType.PAWN));
+		assertEquals(0x0L, eval.get_output_attackedByMultipleOfSameType(Player.WHITE, PieceType.KNIGHT));
+		assertEquals(0x0l, eval.get_output_attackedByMultipleOfSameType(Player.WHITE, PieceType.BISHOP));
+		assertEquals(0x0L, eval.get_output_attackedByMultipleOfSameType(Player.WHITE, PieceType.ROOK));
+		assertEquals(0x0L, eval.get_output_attackedByMultipleOfSameType(Player.WHITE, PieceType.QUEEN));
+		assertEquals(0x0l, eval.get_output_attackedByMultipleOfSameType(Player.WHITE, PieceType.KING));
+		
+		assertEquals(0x0l, eval.get_output_attackedByMultipleOfSameType(Player.BLACK, PieceType.PAWN));
+		assertEquals(0x0l, eval.get_output_attackedByMultipleOfSameType(Player.BLACK, PieceType.KNIGHT));
+		assertEquals(0x0L, eval.get_output_attackedByMultipleOfSameType(Player.BLACK, PieceType.BISHOP));
+		assertEquals(0x0l, eval.get_output_attackedByMultipleOfSameType(Player.BLACK, PieceType.ROOK));
+		assertEquals(0x0l, eval.get_output_attackedByMultipleOfSameType(Player.BLACK, PieceType.QUEEN));
+		assertEquals(0x0l, eval.get_output_attackedByMultipleOfSameType(Player.BLACK, PieceType.KING));
 		
 		//secondary targets for sliding pieces
 		game.loadFromFEN("3b2k1/1q4rr/p7/N3Q3/P2B4/2Kn4/2P1R1q1/8 w - - 0 1");
@@ -526,7 +559,6 @@ class Test_initialize {
 		assertEquals(0x77f474a52e2f2e2L, eval.get_output_attackedTargets(Player.BLACK, PieceType.QUEEN));
 		assertEquals(0x4180000000000c80L, eval.get_output_secondaryAttackedTargets(Player.BLACK, PieceType.QUEEN));
 		assertEquals(0xa0e0000000000000L, eval.get_output_attackedTargets(Player.BLACK, PieceType.KING));
-		
 		
 		//bish
 		game.loadFromFEN("k7/1pb5/3B4/4B3/1B6/2B3P1/6P1/4B2K w - - 0 1");
@@ -670,7 +702,6 @@ class Test_initialize {
 		assertEquals(0x2845f8546c688028l, eval.get_output_attackedByLesserPieceTargets(Player.BLACK, PieceType.ROOK));
 		assertEquals(0xee55f8546c688028l, eval.get_output_attackedByLesserPieceTargets(Player.BLACK, PieceType.QUEEN));
 		assertEquals(0xee55f8f4fce8d068l, eval.get_output_attackedByLesserPieceTargets(Player.BLACK, PieceType.KING));
-		
 		
 	}
 	

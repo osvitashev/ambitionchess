@@ -72,6 +72,7 @@ public class BroadStaticExchangeEvaluator {
 				output_bitboard_attackedBy[player][type] =0;
 				output_bitboard_secondary_attackedBy[player][type] =0;
 				output_bitboard_secondary_battery_attackedBy[player][type] =0;
+				output_bitboard_attackedByMultipleOfSameType[player][type] =0;
 				
 				output_target_winning[player][type] =0;
 				output_target_neutral[player][type] =0;
@@ -88,12 +89,22 @@ public class BroadStaticExchangeEvaluator {
 		
 		for (int player : Player.PLAYERS) {
 			output_bitboard_attackedBy[player][PieceType.PAWN] |= BitboardGen.getMultiplePawnAttackSet(game.getPieces(player, PieceType.PAWN), player);
+			
+			if(Player.isWhite(player))
+				output_bitboard_attackedByMultipleOfSameType[player][PieceType.PAWN] = Bitboard.shiftNorth( Bitboard.shiftEast(game.getPieces(player, PieceType.PAWN))) &
+					Bitboard.shiftNorth(Bitboard.shiftWest(game.getPieces(player, PieceType.PAWN)));
+			else
+				output_bitboard_attackedByMultipleOfSameType[player][PieceType.PAWN] =  Bitboard.shiftSouth( Bitboard.shiftEast(game.getPieces(player, PieceType.PAWN))) &
+					Bitboard.shiftSouth(Bitboard.shiftWest(game.getPieces(player, PieceType.PAWN)));
+			
 			{
 				int bi = 0;
 				for (long zarg = game.getPieces(player, PieceType.KNIGHT),
 						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 					bi = Bitboard.getFirstSquareIndex(barg);
-					output_bitboard_attackedBy[player][PieceType.KNIGHT] |= BitboardGen.getKnightSet(bi);
+					direct = BitboardGen.getKnightSet(bi);
+					output_bitboard_attackedByMultipleOfSameType[player][PieceType.KNIGHT] |= output_bitboard_attackedBy[player][PieceType.KNIGHT] & direct;
+					output_bitboard_attackedBy[player][PieceType.KNIGHT] |= direct;
 				}
 			}
 
@@ -103,6 +114,7 @@ public class BroadStaticExchangeEvaluator {
 						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 					bi = Bitboard.getFirstSquareIndex(barg);
 					direct = BitboardGen.getBishopSet(bi, game.getOccupied());
+					output_bitboard_attackedByMultipleOfSameType[player][PieceType.BISHOP] |= output_bitboard_attackedBy[player][PieceType.BISHOP] & direct;
 					output_bitboard_attackedBy[player][PieceType.BISHOP] |= direct;
 					indirect = BitboardGen.getBishopSet(bi, game.getOccupied() & ~direct) & ~direct;
 					output_bitboard_secondary_attackedBy[player][PieceType.BISHOP] |= indirect;
@@ -115,6 +127,7 @@ public class BroadStaticExchangeEvaluator {
 						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 					bi = Bitboard.getFirstSquareIndex(barg);
 					direct = BitboardGen.getRookSet(bi, game.getOccupied());
+					output_bitboard_attackedByMultipleOfSameType[player][PieceType.ROOK] |= output_bitboard_attackedBy[player][PieceType.ROOK] & direct;
 					output_bitboard_attackedBy[player][PieceType.ROOK] |= direct;
 					indirect = BitboardGen.getRookSet(bi, game.getOccupied() & ~direct) & ~direct;
 					output_bitboard_secondary_attackedBy[player][PieceType.ROOK] |= indirect;
@@ -127,6 +140,7 @@ public class BroadStaticExchangeEvaluator {
 						barg = Bitboard.isolateLsb(zarg); zarg != 0L; zarg = Bitboard.extractLsb(zarg), barg = Bitboard.isolateLsb(zarg)) {// iterateOnBitIndices
 					bi = Bitboard.getFirstSquareIndex(barg);
 					direct = BitboardGen.getQueenSet(bi, game.getOccupied());
+					output_bitboard_attackedByMultipleOfSameType[player][PieceType.QUEEN] |= output_bitboard_attackedBy[player][PieceType.QUEEN] & direct;
 					output_bitboard_attackedBy[player][PieceType.QUEEN] |= direct;
 					indirect = BitboardGen.getQueenSet(bi, game.getOccupied() & ~direct) & ~direct;
 					output_bitboard_secondary_attackedBy[player][PieceType.QUEEN] |= indirect;
@@ -408,13 +422,17 @@ public class BroadStaticExchangeEvaluator {
 	 * For pawns this is attacks, NOT pushes
 	 */
 	private long output_bitboard_attackedBy [][]= new long[2][6];//[player][piece type]
+	private long output_combined_bitboard_attackedBy []= new long[2];
+	
+	/**
+	 * is a strict subset of corresponding entries of output_bitboard_attackedBy
+	 */
+	private long output_bitboard_attackedByMultipleOfSameType [][]= new long[2][6];//[player][piece type]
 	
 	/**
 	 * [WHITE][ROOK] -> map of attacks by white pawn/knight/bishop
 	 */
 	private long output_bitboard_attackedByLesserPiece [][]= new long[2][6];//[player][piece type]
-	private long output_combined_bitboard_attackedBy []= new long[2];
-	
 	
 	/**
 	 * Attack sets resulting from lifting up the first blocker.
@@ -471,6 +489,22 @@ public class BroadStaticExchangeEvaluator {
 		assert Player.validate(player);
 		assert hashValue == game.getZobristHash();
 		return output_combined_bitboard_attackedBy[player];
+	}
+	
+	/**
+	 * Direct attacks broken down by player and piece type. Multiple pieces of the same type are combined together.
+	 * For pawns this is attacks AND NOT pushes.
+	 * 
+	 * The values are populated by calling initialize()
+	 * @param player
+	 * @param pieceType
+	 * @return
+	 */
+	public long get_output_attackedByMultipleOfSameType(int player, int pieceType) {
+		assert Player.validate(player);
+		assert PieceType.validate(pieceType);
+		assert hashValue == game.getZobristHash();
+		return output_bitboard_attackedByMultipleOfSameType[player][pieceType];
 	}
 	
 	/**
