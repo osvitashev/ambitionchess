@@ -98,6 +98,7 @@ public class BroadMobilityEvaluator {
 		// question: is it allowed for initial and beaten masks to intersect???
 		long ret = initial & ~beaten;
 		long prevCycle, tempDirectionwise;
+		System.out.println("new invocation: ");
 		while (true) {
 			prevCycle = ret;
 			System.out.println("checkpoint: " + ret);
@@ -105,39 +106,45 @@ public class BroadMobilityEvaluator {
 			 * if we introduce another intermediate variable instead of doing ret |=... and only update ret after all 4 loops finish,
 			 * it would be easier to isolate the 'step' routine. This would be useful in the 'speed' aka fixed iteration flood fill evaluation.
 			 */
+			ret = doFloodFill_step_rook(ret, occupied, beaten);
 			
-			while (true) {
-				tempDirectionwise = ret;
-				ret |= Bitboard.shiftNorth(ret) & ~occupied;
-				if (tempDirectionwise == ret)
-					break;
-			}
-			while (true) {
-				tempDirectionwise = ret;
-				ret |= Bitboard.shiftSouth(ret) & ~occupied;
-				if (tempDirectionwise == ret)
-					break;
-			}
-			ret &= ~beaten;// clear beaten mask before changing flood direction.
-
-			while (true) {
-				tempDirectionwise = ret;
-				ret |= Bitboard.shiftEast(ret) & ~occupied;
-				if (tempDirectionwise == ret)
-					break;
-			}
-			while (true) {
-				tempDirectionwise = ret;
-				ret |= Bitboard.shiftWest(ret) & ~occupied;
-				if (tempDirectionwise == ret)
-					break;
-			}
-			ret &= ~beaten;// clear beaten mask before changing flood direction.
 
 			if (prevCycle == ret)
 				break;
 		}
 		return ret;
+	}
+	
+	private static long doFloodFill_step_rook(long currentFloodSet, long occupied, long beaten) {
+		long tempDirectionwise;
+		while (true) {
+			tempDirectionwise = currentFloodSet;
+			currentFloodSet |= Bitboard.shiftNorth(currentFloodSet) & ~occupied;
+			if (tempDirectionwise == currentFloodSet)
+				break;
+		}
+		while (true) {
+			tempDirectionwise = currentFloodSet;
+			currentFloodSet |= Bitboard.shiftSouth(currentFloodSet) & ~occupied;
+			if (tempDirectionwise == currentFloodSet)
+				break;
+		}
+		currentFloodSet &= ~beaten;// clear beaten mask before changing flood direction.
+
+		while (true) {
+			tempDirectionwise = currentFloodSet;
+			currentFloodSet |= Bitboard.shiftEast(currentFloodSet) & ~occupied;
+			if (tempDirectionwise == currentFloodSet)
+				break;
+		}
+		while (true) {
+			tempDirectionwise = currentFloodSet;
+			currentFloodSet |= Bitboard.shiftWest(currentFloodSet) & ~occupied;
+			if (tempDirectionwise == currentFloodSet)
+				break;
+		}
+		currentFloodSet &= ~beaten;// clear beaten mask before changing flood direction.
+		return currentFloodSet;
 	}
 	
 
