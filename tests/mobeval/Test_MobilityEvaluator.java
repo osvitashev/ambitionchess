@@ -134,5 +134,36 @@ class Test_MobilityEvaluator {
 		 */
 		
 	}
+	
+	private void helper_progressiveRookMobility(String fen, int sq, long expected_1, long expected_2, long expected_3) {
+		game.loadFromFEN(fen);
+		seeval.initialize();
+		seeval.evaluateQuietMoves();//todo: see if this can be dropped.
+		meval.initialize();
+		int player = game.getPlayerAt(sq);
+		meval.processRook(player, sq);
+		assertEquals(1, meval.get_output_mobCollection_size(player));
+		assertEquals(sq, meval.get_output_mobCollection_sqFrom(player, 0));
+		assertEquals(PieceType.ROOK, meval.get_output_mobCollection_pieceType(player, 0));
+		assertEquals(expected_1, meval.get_output_mobCollection_safe_1(player, 0));
+		assertEquals(expected_2, meval.get_output_mobCollection_safe_2(player, 0));
+		//assertEquals(expected_3, meval.get_output_mobCollection_safe_3(player, 0));
+	}
+	
+	@Test
+	void testProcessRook() {
+		helper_progressiveRookMobility("1b2r3/1B3pp1/4n3/1K5k/2R3q1/8/PP1Nb3/8 w - - 0 1", Square.E8,
+				0xe810000000000000l, //first step
+				-1686448526868348928l, //second step
+				-1686342973738450944l //third step
+		);
+		
+		helper_progressiveRookMobility("r2r2k1/ppq2pb1/4b1pp/nP1np3/B3N3/B1PP1NP1/2Q2P1P/1R2R1K1 b - - 0 18", Square.B1,
+				525l, //first step
+				2829l, //second step
+				0 //third step
+		);
+		
+	}
 
 }

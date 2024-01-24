@@ -10,6 +10,10 @@ import gamestate.GlobalConstants.Square;
 
 public class BroadMobilityEvaluator {
 	/**
+	 * max conceivable player piece count. Pawns excluded. needs to be more than 8 to account for possible promotions.
+	 */
+	private static final int MAX_PLAYER_PIECE_COUNT = 12;
+	/**
 	 * set in initialize(). Should be checked in all public getters. Is intended to prevent Gamestate and ExchangeEvaluator getting out of sync!
 	 */
 	private long hashValue = 0;
@@ -21,6 +25,69 @@ public class BroadMobilityEvaluator {
 		game = g;
 		seeval=see;
 	}
+	
+	private int [] mobCollection_size = new int [2];
+	
+	private int [][] mobCollection_sqFrom = new int [2][MAX_PLAYER_PIECE_COUNT];
+	private int [][] mobCollection_pieceType = new int [2][MAX_PLAYER_PIECE_COUNT];
+	
+	/**
+	 * mobCollection_safe_X are all subsets of game.occupied! I.e. only contain empty squares.
+	 * The intention is that vulnerability evaluation can work backwards from potential victim.
+	 */
+	private long [][] mobCollection_safe_1 = new long [2][MAX_PLAYER_PIECE_COUNT];
+	private long [][] mobCollection_safe_2 = new long [2][MAX_PLAYER_PIECE_COUNT];
+	private long [][] mobCollection_safe_3 = new long [2][MAX_PLAYER_PIECE_COUNT];
+	private long [][] mobCollection_safe_inf = new long [2][MAX_PLAYER_PIECE_COUNT];
+	
+	public int get_output_mobCollection_size(int player) {
+		assert Player.validate(player);
+		assert hashValue == game.getZobristHash();
+		return mobCollection_size[player];
+	}
+	
+	public int get_output_mobCollection_sqFrom(int player, int i) {
+		assert Player.validate(player);
+		assert hashValue == game.getZobristHash();
+		assert i < mobCollection_size[player];
+		return mobCollection_sqFrom[player][i];
+	}
+	
+	public int get_output_mobCollection_pieceType(int player, int i) {
+		assert Player.validate(player);
+		assert hashValue == game.getZobristHash();
+		assert i < mobCollection_size[player];
+		return mobCollection_pieceType[player][i];
+	}
+	
+	public long get_output_mobCollection_safe_1(int player, int i) {
+		assert Player.validate(player);
+		assert hashValue == game.getZobristHash();
+		assert i < mobCollection_size[player];
+		return mobCollection_safe_1[player][i];
+	}
+	
+	public long get_output_mobCollection_safe_2(int player, int i) {
+		assert Player.validate(player);
+		assert hashValue == game.getZobristHash();
+		assert i < mobCollection_size[player];
+		return mobCollection_safe_2[player][i];
+	}
+	
+	public long get_output_mobCollection_safe_3(int player, int i) {
+		assert Player.validate(player);
+		assert hashValue == game.getZobristHash();
+		assert i < mobCollection_size[player];
+		return mobCollection_safe_3[player][i];
+	}
+	
+	public long get_output_mobCollection_safe_inf(int player, int i) {
+		assert Player.validate(player);
+		assert hashValue == game.getZobristHash();
+		assert i < mobCollection_size[player];
+		return mobCollection_safe_inf[player][i];
+	}
+	
 
 	/**
 	 * should be called any time internal game state changes
@@ -29,6 +96,8 @@ public class BroadMobilityEvaluator {
 	 */
 	void initialize() {
 		hashValue = game.getZobristHash();
+		mobCollection_size[0]=0;
+		mobCollection_size[1]=0;
 		
 		{// initialize blockaded pawns
 			long allPawns = game.getPieces(PieceType.PAWN);
@@ -54,6 +123,35 @@ public class BroadMobilityEvaluator {
 		assert hashValue == game.getZobristHash();
 		return output_blockadedPawns[player];
 	}
+	
+	void processRook(int player, int sq) {
+		assert Player.validate(player);
+		assert Square.validate(sq);
+		assert player == game.getPlayerAt(sq);
+		assert PieceType.ROOK == game.getPieceAt(sq);
+		int nextIndex = mobCollection_size[player];
+		mobCollection_sqFrom[player][nextIndex] = sq;
+		mobCollection_pieceType[player][nextIndex] = PieceType.ROOK;
+		long likelyUnSafeEmptySquares = seeval.get_output_attackedByLesserOrEqualPieceTargets(Player.getOtherPlayer(player), PieceType.ROOK);
+		
+		mobCollection_safe_1[player][nextIndex] =
+				BitboardGen.getRookSet(sq, game.getOccupied()) &
+				game.getEmpty() &
+				//todo: reevaluate whether quiet_neutral is needed here... for now it is here because we can calculate the first move more reliably.
+				seeval.get_output_quiet_neutral(player, PieceType.ROOK) &
+				~likelyUnSafeEmptySquares;
+		
+//		likelyUnSafeEmptySquares |= (seeval.get_output_attackedTargets(player, PieceType.ROOK)
+//				| seeval.get_output_attackedTargets(player, PieceType.QUEEN)) & ~seeval.get_output_attackedTargets(Player.getOtherPlayer(player));
+		
+		mobCollection_safe_2[player][nextIndex] = mobCollection_safe_1[player][nextIndex]
+				| fillStep_rook(mobCollection_safe_1[player][nextIndex], game.getOccupied(), likelyUnSafeEmptySquares);
+		
+//		mobCollection_safe_3[player][nextIndex] = mobCollection_safe_1[player][nextIndex]
+//				| fillStep_rook(mobCollection_safe_2[player][nextIndex], game.getOccupied(), likelyUnSafeEmptySquares);
+		
+		mobCollection_size[player]++;
+	}
 
 	//does a flood fill. Potentially stops after 3? iterations....
 	long doFloodFill_knight(int sq_from) {
@@ -68,6 +166,59 @@ public class BroadMobilityEvaluator {
 		System.out.println("Knight attacks: " + attacks);
 		
 		return attacks;
+	}
+	
+	private long fillStep_rook(long currentAttackSet, long occupied, long beaten) {
+		long ret =0, before, after;
+		{
+			after=0;
+			before = currentAttackSet;
+			while (true) {
+				after |= Bitboard.shiftNorth(before) & ~occupied;
+				if (before == after)
+					break;
+				else
+					before = after;
+			}
+			ret |= after;
+		}
+		{
+			after=0;
+			before = currentAttackSet;
+			while (true) {
+				after |= Bitboard.shiftSouth(before) & ~occupied;
+				if (before == after)
+					break;
+				else
+					before = after;
+			}
+			ret |= after;
+		}
+		{
+			after=0;
+			before = currentAttackSet;
+			while (true) {
+				after |= Bitboard.shiftEast(before) & ~occupied;
+				if (before == after)
+					break;
+				else
+					before = after;
+			}
+			ret |= after;
+		}
+		{
+			after=0;
+			before = currentAttackSet;
+			while (true) {
+				after |= Bitboard.shiftWest(before) & ~occupied;
+				if (before == after)
+					break;
+				else
+					before = after;
+			}
+			ret |= after;
+		}
+		return ret & ~beaten;
 	}
 	
 	/**
@@ -102,31 +253,30 @@ public class BroadMobilityEvaluator {
 		while (true) {
 			prevCycle = ret;
 			System.out.println("checkpoint: " + ret);
-			long tempDirectionwise1;
 			while (true) {
-				tempDirectionwise1 = ret;
+				tempDirectionwise = ret;
 				ret |= Bitboard.shiftNorth(ret) & ~occupied;
-				if (tempDirectionwise1 == ret)
+				if (tempDirectionwise == ret)
 					break;
 			}
 			while (true) {
-				tempDirectionwise1 = ret;
+				tempDirectionwise = ret;
 				ret |= Bitboard.shiftSouth(ret) & ~occupied;
-				if (tempDirectionwise1 == ret)
+				if (tempDirectionwise == ret)
 					break;
 			}
 			ret &= ~beaten;// clear beaten mask before changing flood direction.
 			
 			while (true) {
-				tempDirectionwise1 = ret;
+				tempDirectionwise = ret;
 				ret |= Bitboard.shiftEast(ret) & ~occupied;
-				if (tempDirectionwise1 == ret)
+				if (tempDirectionwise == ret)
 					break;
 			}
 			while (true) {
-				tempDirectionwise1 = ret;
+				tempDirectionwise = ret;
 				ret |= Bitboard.shiftWest(ret) & ~occupied;
-				if (tempDirectionwise1 == ret)
+				if (tempDirectionwise == ret)
 					break;
 			}
 			ret &= ~beaten;// clear beaten mask before changing flood direction.
