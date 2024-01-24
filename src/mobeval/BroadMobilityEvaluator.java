@@ -130,25 +130,48 @@ public class BroadMobilityEvaluator {
 		assert player == game.getPlayerAt(sq);
 		assert PieceType.ROOK == game.getPieceAt(sq);
 		int nextIndex = mobCollection_size[player];
+		int otherPlayer = Player.getOtherPlayer(player);
 		mobCollection_sqFrom[player][nextIndex] = sq;
 		mobCollection_pieceType[player][nextIndex] = PieceType.ROOK;
-		long likelyUnSafeEmptySquares = seeval.get_output_attackedByLesserOrEqualPieceTargets(Player.getOtherPlayer(player), PieceType.ROOK);
+		
+		/**
+		 * an approximation of board-wide SEE if the rook from [sq] is added as an attacker list. This set is disjointed from the first attack step set!
+		 */
+		long boardwide_likelySafe =
+				(
+					~seeval.get_output_attackedByLesserOrEqualPieceTargets(otherPlayer, PieceType.ROOK)
+					|
+						(
+							seeval.get_output_quiet_neutral(player, PieceType.ROOK) |
+							seeval.get_output_quiet_neutral(player, PieceType.QUEEN) |
+							seeval.get_output_quiet_neutral(player, PieceType.KING)
+						)
+				)
+				&
+				~(seeval.get_output_attackedTargets(otherPlayer) & ~seeval.get_output_attackedTargets(player))
+				&
+				game.getEmpty();
+		/**
+		 * a more meticulous filter for locations which are accessible on step one and are unsafe. The intention is that we will never return locations in this mask as any of the mobility outputs.
+		 */
+		long firstStep_stronglyUnsafe = seeval.get_output_quiet_losing(player, PieceType.ROOK) &
+				BitboardGen.getRookSet(sq, game.getOccupied()) &
+				game.getEmpty();
+		
+		System.out.println(">>boardwide_likelySafe: 0x" + Long.toHexString(boardwide_likelySafe));
+		System.out.println(">>firstStep_stronglyUnsafe: 0x" + Long.toHexString(firstStep_stronglyUnsafe));
 		
 		mobCollection_safe_1[player][nextIndex] =
 				BitboardGen.getRookSet(sq, game.getOccupied()) &
 				game.getEmpty() &
 				//todo: reevaluate whether quiet_neutral is needed here... for now it is here because we can calculate the first move more reliably.
-				seeval.get_output_quiet_neutral(player, PieceType.ROOK) &
-				~likelyUnSafeEmptySquares;
-		
-//		likelyUnSafeEmptySquares |= (seeval.get_output_attackedTargets(player, PieceType.ROOK)
-//				| seeval.get_output_attackedTargets(player, PieceType.QUEEN)) & ~seeval.get_output_attackedTargets(Player.getOtherPlayer(player));
+				~firstStep_stronglyUnsafe &
+				boardwide_likelySafe;
 		
 		mobCollection_safe_2[player][nextIndex] = mobCollection_safe_1[player][nextIndex]
-				| fillStep_rook(mobCollection_safe_1[player][nextIndex], game.getOccupied(), likelyUnSafeEmptySquares);
-		
-//		mobCollection_safe_3[player][nextIndex] = mobCollection_safe_1[player][nextIndex]
-//				| fillStep_rook(mobCollection_safe_2[player][nextIndex], game.getOccupied(), likelyUnSafeEmptySquares);
+				| fillStep_rook(mobCollection_safe_1[player][nextIndex], game.getOccupied()) & boardwide_likelySafe & ~firstStep_stronglyUnsafe;
+		mobCollection_safe_3[player][nextIndex] = mobCollection_safe_1[player][nextIndex]
+				| fillStep_rook(mobCollection_safe_2[player][nextIndex], game.getOccupied()) & boardwide_likelySafe & ~firstStep_stronglyUnsafe;
 		
 		mobCollection_size[player]++;
 	}
@@ -157,18 +180,18 @@ public class BroadMobilityEvaluator {
 	long doFloodFill_knight(int sq_from) {
 		long attacks = BitboardGen.getKnightSet(sq_from);
 		
-		System.out.println("Knight attacks: " + attacks);
+		//System.out.println("Knight attacks: " + attacks);
 		attacks = attacks | BitboardGen.getMultipleKnightSet(attacks & game.getEmpty());
 		
-		System.out.println("Knight attacks: " + attacks);
+		//System.out.println("Knight attacks: " + attacks);
 		attacks = attacks | BitboardGen.getMultipleKnightSet(attacks & game.getEmpty());
 		
-		System.out.println("Knight attacks: " + attacks);
+		//System.out.println("Knight attacks: " + attacks);
 		
 		return attacks;
 	}
 	
-	private long fillStep_rook(long currentAttackSet, long occupied, long beaten) {
+	private long fillStep_rook(long currentAttackSet, long occupied) {
 		long ret =0, before, after;
 		{
 			after=0;
@@ -218,7 +241,7 @@ public class BroadMobilityEvaluator {
 			}
 			ret |= after;
 		}
-		return ret & ~beaten;
+		return ret;
 	}
 	
 	/**
@@ -249,10 +272,10 @@ public class BroadMobilityEvaluator {
 		// question: is it allowed for initial and beaten masks to intersect???
 		long ret = initial & ~beaten;
 		long prevCycle, tempDirectionwise;
-		System.out.println("new invocation: ");
+		//System.out.println("new invocation: ");
 		while (true) {
 			prevCycle = ret;
-			System.out.println("checkpoint: " + ret);
+			//System.out.println("checkpoint: " + ret);
 			while (true) {
 				tempDirectionwise = ret;
 				ret |= Bitboard.shiftNorth(ret) & ~occupied;

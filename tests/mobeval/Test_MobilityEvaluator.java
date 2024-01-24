@@ -147,23 +147,49 @@ class Test_MobilityEvaluator {
 		assertEquals(PieceType.ROOK, meval.get_output_mobCollection_pieceType(player, 0));
 		assertEquals(expected_1, meval.get_output_mobCollection_safe_1(player, 0));
 		assertEquals(expected_2, meval.get_output_mobCollection_safe_2(player, 0));
-		//assertEquals(expected_3, meval.get_output_mobCollection_safe_3(player, 0));
+		assertEquals(expected_3, meval.get_output_mobCollection_safe_3(player, 0));
 	}
 	
 	@Test
-	void testProcessRook() {
+	void testProcessRook_progressiveMobility() {
 		helper_progressiveRookMobility("1b2r3/1B3pp1/4n3/1K5k/2R3q1/8/PP1Nb3/8 w - - 0 1", Square.E8,
-				0xe810000000000000l, //first step
-				-1686448526868348928l, //second step
-				-1686342973738450944l //third step
+			0xe810000000000000l, //first step
+			-1686448526868348928l, //second step
+			-1686342973738450944l //third step
 		);
 		
 		helper_progressiveRookMobility("r2r2k1/ppq2pb1/4b1pp/nP1np3/B3N3/B1PP1NP1/2Q2P1P/1R2R1K1 b - - 0 18", Square.B1,
-				525l, //first step
-				2829l, //second step
-				0 //third step
+			525l, //first step
+			2829l, //second step
+			6925l //third step
 		);
 		
+		helper_progressiveRookMobility("rnq1k2r/1p2n1p1/2pR4/p6p/P6P/8/1P2BPP1/R3K2R w - - 0 1", Square.A1,
+			0x1010el, //first step
+			17397910798l, //second step
+			20153009933582l //third step
+		);
+		helper_progressiveRookMobility("rnq1k2r/1p2n1p1/2pR4/p6p/P6P/8/1P2BPP1/R3K2R w - - 0 1", Square.A8,
+			281474976710656l, //first step
+			281474976710656l, //second step
+			281474976710656l //third step
+		);
+		helper_progressiveRookMobility("rnq1k2r/1p2n1p1/2pR4/p6p/P6P/8/1P2BPP1/R3K2R w - - 0 1", Square.H1,
+			8421472l, //first step
+			16744544l, //second step
+			20153009933676l //third step
+		);
+		helper_progressiveRookMobility("rnq1k2r/1p2n1p1/2pR4/p6p/P6P/8/1P2BPP1/R3K2R w - - 0 1", Square.H8,
+			6953698562148401152l, //first step
+			6962705899378966528l, //second step
+			6962705985580302336l //third step
+		);
+		
+//		helper_progressiveRookMobility("", Square.A1,
+//			0l, //first step
+//			0l, //second step
+//			0l //third step
+//		);
 	}
 
 }
