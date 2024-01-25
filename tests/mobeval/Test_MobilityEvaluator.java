@@ -185,13 +185,13 @@ class Test_MobilityEvaluator {
 			6962565248091947008l //third step
 		);
 		
-//		helper_progressiveRookMobility("4r3/bB4p1/4n3/1K5k/2Rp2q1/8/PP1Nb3/5Q2 w - - 0 1", Square.E8,
-//			-1580763469207044096l, //first step
-//			-1542333338792493056l, //second step
-//			0l //third step
-//		);
+		helper_progressiveRookMobility("4r3/bB4p1/4n3/1K5k/2Rp2q1/8/PP1Nb3/5Q2 w - - 0 1", Square.E8,
+			-1580763469207044096l, //first step
+			-1542298016445104128l, //second step
+			-1542227304103542784l //third step
+		);
 		
-		//>>> in this position B6 and F2 should NOT be a safe destination!!!!!
+		//>>> in this position B6 should NOT be a safe destination!!!!!
 		
 		
 //		helper_progressiveRookMobility("", Square.A1,

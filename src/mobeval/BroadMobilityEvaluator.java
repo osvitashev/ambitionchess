@@ -164,7 +164,7 @@ public class BroadMobilityEvaluator {
 		
 		mobCollection_safe_2[player][nextIndex] = mobCollection_safe_1[player][nextIndex]
 				| fillStep_rook(mobCollection_safe_1[player][nextIndex], game.getOccupied()) & boardwide_likelySafe & ~firstStep_stronglyUnsafe;
-		mobCollection_safe_3[player][nextIndex] = mobCollection_safe_1[player][nextIndex]
+		mobCollection_safe_3[player][nextIndex] = mobCollection_safe_2[player][nextIndex]
 				| fillStep_rook(mobCollection_safe_2[player][nextIndex], game.getOccupied()) & boardwide_likelySafe & ~firstStep_stronglyUnsafe;
 		
 		mobCollection_size[player]++;
