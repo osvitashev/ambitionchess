@@ -137,20 +137,14 @@ public class BroadMobilityEvaluator {
 		/**
 		 * an approximation of board-wide SEE if the rook from [sq] is added as an attacker list. This set is disjointed from the first attack step set!
 		 */
-		long boardwide_likelySafe =
-				(
-					~seeval.get_output_attackedByLesserOrEqualPieceTargets(otherPlayer, PieceType.ROOK)
-					|
-						(
-							seeval.get_output_quiet_neutral(player, PieceType.ROOK) |
-							seeval.get_output_quiet_neutral(player, PieceType.QUEEN) |
-							seeval.get_output_quiet_neutral(player, PieceType.KING)
-						)
-				)
-				&
-				~(seeval.get_output_attackedTargets(otherPlayer) & ~seeval.get_output_attackedTargets(player))
-				&
-				game.getEmpty();
+		
+		long boardwide_likelySafe = game.getEmpty();
+		//now we subtract the likely unsafe sets from the empty set.
+		boardwide_likelySafe &= ~seeval.get_output_attackedByLesserOrEqualPieceTargets(otherPlayer, PieceType.ROOK);
+		
+		boardwide_likelySafe &= ~(seeval.get_output_attackedTargets(otherPlayer) & ~seeval.get_output_attackedTargets(player));
+		
+		
 		/**
 		 * a more meticulous filter for locations which are accessible on step one and are unsafe. The intention is that we will never return locations in this mask as any of the mobility outputs.
 		 */
