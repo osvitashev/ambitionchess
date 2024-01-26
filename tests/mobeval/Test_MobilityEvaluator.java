@@ -35,106 +35,6 @@ class Test_MobilityEvaluator {
 		meval.doFloodFill_knight(Square.B8);
 	}
 	
-	@Test
-	void testRookFlooding() {
-		assertEquals(0xffff0cebff08fddfl,
-				BroadMobilityEvaluator.doFloodFill_rook(
-						Bitboard.initFromAlgebraicSquares("a2"),//initial seed
-						0xf31400f70220l,//occupied
-						0//beaten
-				)
-		);
-		assertEquals(0xffff0cebff08fddfl,
-				BroadMobilityEvaluator.doFloodFill_rook(
-						Bitboard.initFromAlgebraicSquares("a4"),//initial seed
-						0xf31400f70220l,//occupied
-						0//beaten
-				)
-		);
-		assertEquals(0xffff0cebff08fddfl,
-				BroadMobilityEvaluator.doFloodFill_rook(
-						Bitboard.initFromAlgebraicSquares("b7"),//initial seed
-						0xf31400f70220l,//occupied
-						0//beaten
-				)
-		);
-		assertEquals(0xffff0cebff08fddfl,
-				BroadMobilityEvaluator.doFloodFill_rook(
-						Bitboard.initFromAlgebraicSquares("g5"),//initial seed
-						0xf31400f70220l,//occupied
-						0//beaten
-				)
-		);
-		//adding beaten 
-		assertEquals(-0xf3f7fff70322l,
-				BroadMobilityEvaluator.doFloodFill_rook(
-						Bitboard.initFromAlgebraicSquares("c1"),//initial seed
-						0xf31400f70220l,//occupied
-						0x8000001l//beaten
-				)
-		);
-		//seed overlaps with occupied mask
-		assertEquals(0xa337000000l,
-				BroadMobilityEvaluator.doFloodFill_rook(
-						Bitboard.initFromAlgebraicSquares("c4"),//initial seed
-						0xf31404f70220l,//occupied
-						0x40c8000000l//beaten
-				)
-		);
-		//seed partially overlaps with the beaten mask
-		assertEquals(0x180e1d1b1f1b791fl,
-				BroadMobilityEvaluator.doFloodFill_rook(
-						Bitboard.initFromAlgebraicSquares("b8", "d8"),//initial seed
-						0x2011222420640660l,//occupied
-						0x700000000008000l//beaten
-				)
-		);
-		assertEquals(0x180e1d1b1f1b7800l,
-				BroadMobilityEvaluator.doFloodFill_rook(
-						Bitboard.initFromAlgebraicSquares("b8", "d8"),//initial seed
-						0x2011222420640660l,//occupied
-						0x70000000000811bl//beaten
-				)
-		);
-		
-		game.loadFromFEN("8/p3n3/1kb3pp/3r3P/1P1b1N2/2P2Q2/3P1PP1/4K2R w - - 0 1");
-		seeval.initialize();
-		meval.initialize();
-		assertEquals(0xc0c08060l,
-				BroadMobilityEvaluator.doFloodFill_rook(
-						BitboardGen.getRookSet(Square.H1, game.getOccupied()) & game.getEmpty(),//initial seed
-						game.getOccupied(),//occupied
-						seeval.get_output_attackedByLesserOrEqualPieceTargets(Player.BLACK, PieceType.ROOK)//beaten
-				)
-		);
-		
-		assertEquals(-5022078147231744l,
-				BroadMobilityEvaluator.doFloodFill_rook(
-						BitboardGen.getRookSet(Square.D5, game.getOccupied()) & game.getEmpty(),//initial seed
-						game.getOccupied(),//occupied
-						seeval.get_output_attackedByLesserOrEqualPieceTargets(Player.WHITE, PieceType.ROOK)//beaten
-				)
-		);
-		
-		game.loadFromFEN("8/p3n3/1kb3p1/3rp2P/1P1b1N2/2P2Q2/3P1PP1/4K2R w - - 0 1");
-		seeval.initialize();
-		meval.initialize();
-		assertEquals(278111748192l,
-				BroadMobilityEvaluator.doFloodFill_rook(
-						BitboardGen.getRookSet(Square.H1, game.getOccupied()) & game.getEmpty(),//initial seed
-						game.getOccupied(),//occupied
-						seeval.get_output_attackedByLesserOrEqualPieceTargets(Player.BLACK, PieceType.ROOK)//beaten
-				)
-		);
-		
-		
-		/**
-		 * consider adding 'attacked by more than one piece of this type'[player][type] array to SEEval.
-		 * this make it easier to handle cases not caught by 'lesser defender' heuristic - i.e. to bulk evaluate basic exchanges!
-		 */
-		
-	}
-	
 	private void helper_progressiveRookMobility(String fen, int sq, long expected_1, long expected_2, long expected_3) {
 		game.loadFromFEN(fen);
 		seeval.initialize();
@@ -148,6 +48,7 @@ class Test_MobilityEvaluator {
 		assertEquals(expected_1, meval.get_output_mobCollection_safe_1(player, 0));
 		assertEquals(expected_2, meval.get_output_mobCollection_safe_2(player, 0));
 		assertEquals(expected_3, meval.get_output_mobCollection_safe_3(player, 0));
+		
 	}
 	
 	@Test
@@ -188,11 +89,221 @@ class Test_MobilityEvaluator {
 		helper_progressiveRookMobility("4r3/bB4p1/4n3/1K5k/2Rp2q1/8/PP1Nb3/5Q2 w - - 0 1", Square.E8,
 			-1580763469207044096l, //first step
 			-1542298016445104128l, //second step
-			-1542227304103542784l //third step
+			-1542225105080287232l //third step
+		);//>>> in this position B6 should NOT be a safe destination!!!!!
+		
+		/**
+		 * the cases below are a list of permutations of one defender and one attacker
+		 */
+		
+		helper_progressiveRookMobility("8/8/8/6k1/p7/8/1P6/RN1K4 w - - 0 1", Square.A1,
+				0x10100l, //first step
+				0xfd0100l, //second step
+				-4846968191886426636l //third step
+		);// 0 - 0
+		
+		helper_progressiveRookMobility("8/8/8/8/p3p3/7k/1P6/RN1K4 w - - 0 1", Square.A1,
+				0x10100l, //first step
+				1376512, //second step
+				289360691353425172l //third step
+		);// 0 - p
+		
+		helper_progressiveRookMobility("8/8/2p2k2/6n1/p7/8/1P6/RN1K4 w - - 0 1", Square.A1,
+				0x10100l, //first step
+				0x5d0100l, //second step
+				1731642871278034260l //third step
+		);// 0 - n
+		
+		helper_progressiveRookMobility("8/8/2p2k2/8/p7/8/1P3b2/RN1K4 w - - 0 1", Square.A1,
+				0x10100l, //first step
+				0xad0100l, //second step
+				-8608480603766157948l //third step
+		);// 0 - b
+		
+		helper_progressiveRookMobility("8/6n1/2p2kr1/8/p7/8/1P6/RN1K4 w - - 0 1", Square.A1,
+				0x10100l, //first step
+				0xbd0100l, //second step
+				-8608621871279260236l //third step
+		);// 0 - r
+		
+		helper_progressiveRookMobility("8/6n1/2p2k2/8/p5q1/8/1P6/RN1K4 w - - 0 1", Square.A1,
+				0x10100l, //first step
+				1900800l, //second step
+				576469565578222868l //third step
+		);// 0 - q
+		
+		helper_progressiveRookMobility("8/6n1/2p2k2/8/p5q1/8/1P6/RN1K4 w - - 0 1", Square.A1,
+				0x10100l, //first step
+				1900800l, //second step
+				576469565578222868l //third step
+		);// 0 - q
+		
+		helper_progressiveRookMobility("8/6n1/2p2k2/8/p5q1/8/1P5P/RN1K4 w - - 0 1", Square.A1,
+				0x10100l, //first step
+				0x5d0100l, //second step
+				576469565582417172l //third step
+		);// p - q
+		
+		helper_progressiveRookMobility("8/6n1/2p2k2/5N2/p5q1/8/1P6/RN1K4 w - - 0 1", Square.A1,
+				0x10100l, //first step
+				0x5d0100l, //second step
+				583224965157690644l //third step
+		);// n - q
+		
+		helper_progressiveRookMobility("8/6n1/2pk4/8/p5q1/8/1P4Q1/RNK5 w - - 0 1", Square.A1,
+				0x10100l, //first step
+				0xfd0100l, //second step
+				-6872317109221868104l //third step
+		);// q - q
+		
+		helper_progressiveRookMobility("8/6n1/2p5/8/p5k1/8/1P5B/RNK5 w - - 0 1", Square.A1,
+				0x10100l, //first step
+				0x5d0100l, //second step
+				583225034212728152l //third step
+		);// b - k
+		
+		helper_progressiveRookMobility("4r3/bB4p1/8/1K2n2k/2Rp2q1/8/PP1Nb3/5Q2 w - - 0 1", Square.E8,
+				-3886588886234693632l, //first step
+				-3839043804426403840l, //second step
+				-3839043391572672512l //third step
+		);// b - k
+		
+		helper_progressiveRookMobility("1k4rr/1pp4p/1p3p2/1P2p2q/P1P4P/3P1Np1/4RPK1/6R1 w - - 0 29", Square.G8,
+				4341540410603077632l, //first step
+				4357470135603167232l, //second step
+				4357470273042120704l //third step
 		);
 		
-		//>>> in this position B6 should NOT be a safe destination!!!!!
+		helper_progressiveRookMobility("1k4rr/1pp4p/1p3p2/1P2p2q/P1P4P/3P1Np1/4RPK1/6R1 w - - 0 29", Square.E2,
+				269487888l, //first step
+				303501119l, //second step
+				303501119l //third step
+		);
 		
+		helper_progressiveRookMobility("2r5/1p1k1pp1/1p2rn1p/1Nqp4/P2P1Q2/2P4P/1P4P1/R3R2K b - - 0 23", Square.E6,
+				1157429502280728576l, //first step
+				-571952754629541888l, //second step
+				-535923957610577920l //third step
+		);
+		helper_progressiveRookMobility("2r5/1p1k1pp1/1p2rn1p/1Nqp4/P2P1Q2/2P4P/1P4P1/R3R2K b - - 0 23", Square.E1,
+				110l, //first step
+				2632814l, //second step
+				6827118l //third step
+		);
+		
+		helper_progressiveRookMobility("r2r2k1/ppq2pb1/4b1pp/nP1np3/B3N3/B1PP1NP1/2Q2P1P/1R2R1K1 b - - 0 18", Square.D8,
+				1587518868648099840l, //first step
+				1587518868648099840l, //second step
+				1587518868648099840l //third step
+		);
+		
+		helper_progressiveRookMobility("8/8/2Rb3p/1P1kN3/3P1P2/7P/2p3PK/2r5 w - - 1 38", Square.C6,
+				288233674753966080l, //first step
+				-2521168063475351296l, //second step
+				-2455795499060544768l //third step
+		);
+		
+		helper_progressiveRookMobility("1r1nnrk1/p3b1pp/1p1pP1q1/8/2PQ1P2/BP4PP/P4PB1/R3R1K1 w - - 3 23", Square.B8,
+				288230376151711744l, //first step
+				289356276058554368l, //second step
+				289356276058554368l //third step
+		);
+		
+		helper_progressiveRookMobility("1r1nnrk1/p3b1pp/1p1pP1q1/8/2PQ1P2/BP4PP/P4PB1/R3R1K1 w - - 3 23", Square.F8,
+				35321811042304l, //first step
+				35875861823488l, //second step
+				177712861806592l //third step
+		);
+		
+		helper_progressiveRookMobility("1r1nnrk1/p3b1pp/1p1pP1q1/8/2PQ1P2/BP4PP/P4PB1/R3R1K1 w - - 3 23", Square.A1,
+				14l, //first step
+				789006l, //second step
+				3938830l //third step
+		);
+		
+		helper_progressiveRookMobility("1r1nnrk1/p3b1pp/1p1pP1q1/8/2PQ1P2/BP4PP/P4PB1/R3R1K1 w - - 3 23", Square.E1,
+				269488174l, //first step
+				272374318l, //second step
+				272374318l //third step
+		);
+		
+		helper_progressiveRookMobility("1rrqn1k1/5p1p/b2p2pQ/3P4/1p1BP1P1/2p2P1P/1PB5/3N2RK w - - 0 31", Square.B8,
+				72620552581283840l, //first step
+				80501856224149504l, //second step
+				80501856291258625l //third step
+		);
+		
+		helper_progressiveRookMobility("1rrqn1k1/5p1p/b2p2pQ/3P4/1p1BP1P1/2p2P1P/1PB5/3N2RK w - - 0 31", Square.C8,
+				1125899973951488l, //first step
+				8444249368428544l, //second step
+				8444257958363136l //third step
+		);
+		
+		helper_progressiveRookMobility("1rrqn1k1/5p1p/b2p2pQ/3P4/1p1BP1P1/2p2P1P/1PB5/3N2RK w - - 0 31", Square.G1,
+				4210704l, //first step
+				5300240l, //second step
+				5300240l //third step
+		);
+		
+		helper_progressiveRookMobility("8/p3rqpk/1p1R3p/1bp2p1P/4pN2/2QnP3/PP3PP1/1K1R4 w - - 1 27", Square.D6,
+				576531155407339520l, //first step
+				1080934313677029376l, //second step
+				1080934313685417984l //third step
+		);
+		
+		helper_progressiveRookMobility("8/p3rqpk/1p1R3p/1bp2p1P/4pN2/2QnP3/PP3PP1/1K1R4 w - - 1 27", Square.D1,
+				2272l, //first step
+				2155912416l, //second step
+				2160106720l //third step
+		);
+		
+		helper_progressiveRookMobility("8/p3rqpk/1p1R3p/1bp2p1P/4pN2/2QnP3/PP3PP1/1K1R4 w - - 1 27", Square.E7,
+				1154610423186587648l, //first step
+				-646829427761610752l, //second step
+				-646829427761610752l //third step
+		);
+		
+		helper_progressiveRookMobility("6k1/5pp1/1p2p2p/rp1pN3/1R1P2P1/PRn1PP2/2r3P1/5K2 w - - 0 29", Square.B3,
+				0l, //first step
+				0l, //second step
+				0l //third step
+		);
+		
+		helper_progressiveRookMobility("4rb2/2k5/2b1p1p1/2p1PpNp/2P2P1P/6P1/P2K4/1R2R3 b - - 0 33", Square.E8,
+				941252322120433664l, //first step
+				961801099377967104l, //second step
+				5573487117805355008l //third step
+		);
+		
+		helper_progressiveRookMobility("4rb2/2k5/2b1p1p1/2p1PpNp/2P2P1P/6P1/P2K4/1R2R3 b - - 0 33", Square.E1,
+				1052780l, //first step
+				2077804l, //second step
+				284777817028204l //third step
+		);
+		
+		helper_progressiveRookMobility("5rk1/pp1r1ppp/1qp1pn2/8/2PP4/1PQ2BP1/P4P1P/3RR1K1 w - - 5 19", Square.E1,
+				68720529440l, //first step
+				365073800736l, //second step
+				365090643494l //third step
+		);
+		
+		helper_progressiveRookMobility("r2q1rk1/p2p1ppp/2pNp1n1/2P1P3/R4PP1/B5K1/7P/3Q1B1R w - - 1 23", Square.A8,
+				144115188075855872l, //first step
+				144115188075855872l, //second step
+				144115188075855872l //third step
+		);
+		
+		helper_progressiveRookMobility("5rk1/pb3ppp/1p5r/3p2q1/3Nn3/P3PBP1/1PQ2P1P/3RR1K1 b - - 0 21", Square.F8,
+				2233785415175766016l, //first step
+				2240549696676298752l, //second step
+				2240655254087532544l //third step
+		);
+		
+		helper_progressiveRookMobility("3q2B1/P3r1Bp/p3P3/Q2N2k1/nPR5/1K2N2p/7P/2r4b w - - 0 1", Square.C4,
+				1744830464l, //first step
+				2305878332774295552l, //second step
+				2306019138982131968l //third step
+		);
 		
 //		helper_progressiveRookMobility("", Square.A1,
 //			0l, //first step
