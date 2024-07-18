@@ -4,6 +4,10 @@ import java.util.zip.CRC32;
 
 import org.junit.jupiter.api.Test;
 
+/**
+ * Might be useful later as an approach to validating refactoring results.
+ */
+
 class RollingCheckSumTest {
 
 	@Test
