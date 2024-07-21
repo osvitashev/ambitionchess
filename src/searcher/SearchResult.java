@@ -40,6 +40,8 @@ import static util.BitField64.*;
  *
  */
 public class SearchResult {
+	public static int WIN = Short.MAX_VALUE;
+	public static int LOSS = Short.MIN_VALUE+1;
 	
 	/**
 	 * Returns the score intended for comparisons in alpha-beta search.
@@ -119,5 +121,24 @@ public class SearchResult {
 	 */
 	public static boolean isScoreLess(long rez1, long rez2) {
 		return getScore(rez1) < getScore(rez2);
+	}
+	
+	public static boolean isScoreGreater(long rez1, long rez2) {
+		return getScore(rez1) > getScore(rez2);
+	}
+	
+	public static boolean isScoreLessOrEqual(long rez1, long rez2) {
+		return getScore(rez1) <= getScore(rez2);
+	}
+	
+	public static boolean isScoreGreaterOrEqual(long rez1, long rez2) {
+		return getScore(rez1) >= getScore(rez2);
+	}
+	
+	public static long createCheckmate(int distance) {
+		long ret = setCheckmate(0L);
+		ret = setDepth(ret, distance);
+		ret = setScore(ret, LOSS+distance);
+		return ret;
 	}
 }

@@ -51,5 +51,31 @@ class SearchResultTest {
 		assertFalse(SearchResult.isScoreLess(rez, neg));
 		assertTrue(SearchResult.isScoreLess(neg, rez));
 	}
-
+	
+	@Test
+	void testConstructors() {
+		long rez =0;
+		
+		rez=SearchResult.createCheckmate(3);
+		assertEquals(SearchResult.LOSS+3, SearchResult.getScore(rez));
+		assertEquals(3, SearchResult.getDepth(rez));
+		assertEquals(true, SearchResult.isCheckmate(rez));
+		assertEquals(false, SearchResult.isStalemate(rez));
+		assertEquals(false, SearchResult.isOtherDraw(rez));
+		
+		rez=SearchResult.negateScore(rez);
+		assertEquals(SearchResult.WIN-3, SearchResult.getScore(rez));
+		assertEquals(3, SearchResult.getDepth(rez));
+		assertEquals(true, SearchResult.isCheckmate(rez));
+		assertEquals(false, SearchResult.isStalemate(rez));
+		assertEquals(false, SearchResult.isOtherDraw(rez));
+		
+		rez=SearchResult.negateScore(rez);
+		assertEquals(SearchResult.LOSS+3, SearchResult.getScore(rez));
+		assertEquals(3, SearchResult.getDepth(rez));
+		assertEquals(true, SearchResult.isCheckmate(rez));
+		assertEquals(false, SearchResult.isStalemate(rez));
+		assertEquals(false, SearchResult.isOtherDraw(rez));
+		
+	}
 }

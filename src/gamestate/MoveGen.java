@@ -10,35 +10,14 @@ import gamestate.GlobalConstants.Square;
  * Contains methods of the form {{public static int generateXXX(Board brd, int[]
  * movelist, int movelist_size, int move)}} all of which generate moves, and
  * then put them through addToMoveListIfValid to validate them and set the check
- * flag on opponent's king. The idea is to be able to fine tune the performance
+ * flag on opponent's king. The intention is to be able to fine tune the performance
  * by doing early rejection of illegal moves without affecting legal move
  * generation and tests.
  * 
+ * The class is stateless. The methods are not declared static because unit tests need an interface to access them in a  clean way.
  *
  */
 public class MoveGen {
-	///TODO: reevaluate whether this is needed!
-	private long pinnedPieces;
-
-	private long getPinnedPieces() {
-		return pinnedPieces;
-	}
-
-	private void setPinnedPieces(long pinnedPieces) {
-		this.pinnedPieces = pinnedPieces;
-	}
-
-	/**
-	 * Populates internal fields needed for correct move generation in a given
-	 * position.
-	 * 
-	 * @param brd
-	 * @return
-	 */
-	public void initialize(Gamestate brd) {
-		setPinnedPieces(brd.getPlayerPieces(brd.getPlayerToMove()) & brd.calculatePinsSkewersAndDiscoveredAttacks(brd.getKingSquare(brd.getPlayerToMove()), brd.getPlayerToMove()));
-	}
-
 	/**
 	 * An abstract representation of a method which generates legal moves and
 	 * appends them to a move list returning the new move list size. For now used to

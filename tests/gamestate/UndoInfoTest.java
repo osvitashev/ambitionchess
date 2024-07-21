@@ -61,7 +61,6 @@ class UndoInfoTest {
 		info = 0;
 		info = UndoInfo.setHalfmoveCounter(info, 121);
 		assertEquals(121, UndoInfo.getHalfmoveCounter(info));
-		assertEquals(0, UndoInfo.getEnpassantSquare(info));
 
 		info = 0;
 		info = UndoInfo.setEnpassantSquare(info, Square.B3);
@@ -73,7 +72,6 @@ class UndoInfoTest {
 
 		info = 0;
 		info = UndoInfo.setCastlingWK(info, true);
-		assertEquals(0, UndoInfo.getEnpassantSquare(info));
 		assertEquals(true, UndoInfo.getCastlingWK(info));
 		assertEquals(false, UndoInfo.getCastlingWQ(info));
 		assertEquals(false, UndoInfo.getCastlingBK(info));

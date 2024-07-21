@@ -555,7 +555,6 @@ class MoveGenTest {
 	private void assertMovelist(String fen, MoveGen.LegalMoveGenerator generator, int[] expectedMoves) {
 		assertMovePool.clear();
 		assertMovelist_brd.loadFromFEN(fen);
-		test_move_generator.initialize(assertMovelist_brd);
 		int nummoves = generator.generateLegalMoves(assertMovelist_brd, assertMovePool);
 		assertMoveListsEqual(expectedMoves, assertMovePool, nummoves);
 	}
