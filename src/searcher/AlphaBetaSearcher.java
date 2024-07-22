@@ -27,21 +27,19 @@ public class AlphaBetaSearcher {
 	public long evaluateGamestate() {
 		return 0;
 	}
-	
-	private static int MAX_SEARCH_DEPTH = 7;
-	
+		
 	/**
 	 * @return SearchResult
 	 */
-	public long doSearchForCheckmate(long alpha, long beta, int depth) {
-		principalVariation.resetAtDepth(depth);
-		if(depth == MAX_SEARCH_DEPTH)
+	public long doSearchForCheckmate(long alpha, long beta, int depth, int maxDepthLimit) {
+		principalVariation.resetAtDepth(depth);//todo:re-evaluate whether this is needed. Maybe, i can do it at addMoveAtDepth
+		if(depth == maxDepthLimit)
 			return 0;//this matches an evaluation with an even score and no flags set.
 		int movelist_size_old = movepool.size();
 		move_generator.generateLegalMoves(brd, movepool);
 		if (movepool.size() == movelist_size_old && brd.getIsCheck()) {
-			//checkmate!
 			long score = SearchResult.createCheckmate(depth);
+			//notice that we do not need to resize the move pool - no new moves have been generated.
 			if(SearchResult.isScoreGreater(score, alpha))
 				return score;
 			else
@@ -55,7 +53,8 @@ public class AlphaBetaSearcher {
 						doSearchForCheckmate(
 							SearchResult.negateScore(beta),
 							SearchResult.negateScore(alpha),
-							depth+1
+							depth+1,
+							maxDepthLimit
 						)
 					);
 				brd.unmakeMove(move);
