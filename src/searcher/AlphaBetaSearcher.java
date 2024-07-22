@@ -18,9 +18,6 @@ public class AlphaBetaSearcher {
 		return principalVariation;
 	}
 
-	public void reset() {
-		movepool.clear();
-	}
 	
 	/**
 	 * Will need to figure a way to make this configurable somehow.
@@ -39,7 +36,7 @@ public class AlphaBetaSearcher {
 	 * @return score
 	 */
 	private long returnScoreFromSearch(int movelistSize, long score) {
-		movepool.resize(movelistSize);
+		movepool.resize(movelistSize);//this could be removed if movelist size was added as a parameter to the recursive search
 		return score;
 	}
 		

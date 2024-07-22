@@ -79,7 +79,10 @@ public class Gamestate {
 	
 	private int[] undoStack = new int[200];
 	private int undoStack_sze = 0;
-	// TODO: there should be a stack of historical moves, zorbist codes too
+	
+	private int[] moveHistory = new int[300];
+	private int moveHistory_size = 0;
+	// TODO: there should be a stack of zorbist codes too
 
 	public int getPlayerToMove() {
 		return playerToMove;
@@ -487,6 +490,7 @@ public class Gamestate {
 	 * @param move
 	 */
 	public void makeMove(int move) {
+		moveHistory[moveHistory_size++]=move;
 		// OPTIMIZE: streamline tested conditions in this method
 		makeDirtyMove(move);
 		int undoinfo = 0;
@@ -576,7 +580,8 @@ public class Gamestate {
 	}
 
 	public void unmakeMove(int move) {
-	
+		moveHistory_size--;
+		
 		if(playerToMove == Player.BLACK)//for unmake we are doing this in reverse order - before updating player to move!
 			zobristHash ^= zobristHashValue_isSideToMoveBlack;
 		
@@ -668,6 +673,14 @@ public class Gamestate {
 		}
 		b.append("   a |  b |  c |  d |  e |  f |  g |  h ");
 		return b.toString();
+	}
+	
+	public String getMoveHistoryString() {
+		String ret = "{";
+		for(int i=0; i< moveHistory_size; ++i)
+			ret += Move.toUCINotation(moveHistory[i]) + " ";
+		ret = ret.replaceFirst("\\s++$", "");
+		return ret + "}";
 	}
 
 	private void clear() {
