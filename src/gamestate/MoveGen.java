@@ -232,7 +232,7 @@ public class MoveGen {
 		}
 		return movepool.size();
 	}
-
+	
 	public int generateLegalMoves(Gamestate brd, MovePool movepool) {
 		// TODO: ALL Movegen methods should accept a boolean-valued function determining
 		// the move's acceptance. This would be called inside dirty make/unmake wrapper.

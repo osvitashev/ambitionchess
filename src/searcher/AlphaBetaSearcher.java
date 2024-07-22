@@ -1,21 +1,23 @@
 package searcher;
 
 import gamestate.Gamestate;
-import gamestate.Move;
 import gamestate.MoveGen;
 import gamestate.MovePool;
-import gamestate.GlobalConstants.MoveType;
 
 public class AlphaBetaSearcher {
 	private MoveGen move_generator = new MoveGen();
 	private MovePool movepool = new MovePool();
-	private Gamestate brd;
-	public PrincipalVariation principalVariation = new PrincipalVariation();
+	private Gamestate brd = new Gamestate();
+	private PrincipalVariation principalVariation = new PrincipalVariation();
 	
-	AlphaBetaSearcher(Gamestate game){
-		this.brd = game;
+	public Gamestate getBrd() {
+		return brd;
 	}
-	
+
+	public PrincipalVariation getPrincipalVariation() {
+		return principalVariation;
+	}
+
 	public void reset() {
 		movepool.clear();
 	}
@@ -27,23 +29,36 @@ public class AlphaBetaSearcher {
 	public long evaluateGamestate() {
 		return 0;
 	}
+	
+	/**
+	 * MUST be called as a wrapper around EVERY return statement of the recursive alpha-beta search.
+	 * This function is responsible to doing cleanup tasks such as freeing up movepool.
+	 * 
+	 * @param movelistSize
+	 * @param score - to be returned
+	 * @return score
+	 */
+	private long returnScoreFromSearch(int movelistSize, long score) {
+		movepool.resize(movelistSize);
+		return score;
+	}
 		
 	/**
 	 * @return SearchResult
 	 */
 	public long doSearchForCheckmate(long alpha, long beta, int depth, int maxDepthLimit) {
 		principalVariation.resetAtDepth(depth);//todo:re-evaluate whether this is needed. Maybe, i can do it at addMoveAtDepth
-		if(depth == maxDepthLimit)
-			return 0;//this matches an evaluation with an even score and no flags set.
 		int movelist_size_old = movepool.size();
+		if(depth == maxDepthLimit)
+			return returnScoreFromSearch(movelist_size_old, 0);//this matches an evaluation with an even score and no flags set.
 		move_generator.generateLegalMoves(brd, movepool);
 		if (movepool.size() == movelist_size_old && brd.getIsCheck()) {
 			long score = SearchResult.createCheckmate(depth);
 			//notice that we do not need to resize the move pool - no new moves have been generated.
 			if(SearchResult.isScoreGreater(score, alpha))
-				return score;
+				return returnScoreFromSearch(movelist_size_old, score);
 			else
-				return alpha;
+				return returnScoreFromSearch(movelist_size_old, alpha);
 		}
 		else {
 			for (int i = movelist_size_old; i < movepool.size(); ++i) {
@@ -60,8 +75,7 @@ public class AlphaBetaSearcher {
 				brd.unmakeMove(move);
 				
 				if(SearchResult.isScoreGreaterOrEqual(score, beta)) {
-					movepool.resize(movelist_size_old);
-					return beta;
+					return returnScoreFromSearch(movelist_size_old, beta);
 				}
 					
 				if(SearchResult.isScoreGreater(score, alpha)){
@@ -71,7 +85,6 @@ public class AlphaBetaSearcher {
 			}
 		}
 		
-		movepool.resize(movelist_size_old);
-		return alpha;
+		return returnScoreFromSearch(movelist_size_old, alpha);
 	}
 }
