@@ -12,7 +12,7 @@ class AlphaBetaSearcherTest {
 	@Test
 	void testMateIn3() {
 		AlphaBetaSearcher searcher = new AlphaBetaSearcher();
-		
+		searcher.setFullDepthSearchLimit(6);
 		String[][] tests = {
 				{ "2r1k3/1b3ppp/p3p3/1p1n4/4q3/PQ2P1P1/1P2BP1P/5RK1 b - - 0 1", "{e4g2 g1g2 d5f4 g2g1 f4h3 }" },
 				{ "r1q2r1k/p4b2/1p2pP2/3p3p/1P1B1P2/2PB4/P3Q2P/6RK w - - 0 1", "{e2h5 f7h5 f6f7 e6e5 d4e5 }" },
@@ -36,7 +36,7 @@ class AlphaBetaSearcherTest {
 		
 		for (int t = 0; t < tests.length; ++t) {
 			searcher.getBrd().loadFromFEN(tests[t][0]);
-			searcher.doSearchForCheckmate(SearchResult.LOSS, SearchResult.WIN, 0, 6);
+			searcher.doSearchForCheckmate(SearchResult.LOSS, SearchResult.WIN, 0);
 			System.out.println(searcher.getPrincipalVariation().toString());
 			assertEquals(tests[t][1], searcher.getPrincipalVariation().toString());
 		}
@@ -48,7 +48,8 @@ class AlphaBetaSearcherTest {
 	@Test
 	void testMateIn3WithUnderestimatedDepth() {
 		AlphaBetaSearcher searcher = new AlphaBetaSearcher();
-		
+		searcher.setFullDepthSearchLimit(9);
+
 		String[][] tests = {
 				{ "2r1k3/1b3ppp/p3p3/1p1n4/4q3/PQ2P1P1/1P2BP1P/5RK1 b - - 0 1", "{e4g2 g1g2 d5f4 g2g1 f4h3 }" },
 				{ "r1q2r1k/p4b2/1p2pP2/3p3p/1P1B1P2/2PB4/P3Q2P/6RK w - - 0 1", "{e2h5 f7h5 f6f7 e6e5 d4e5 }" },
@@ -72,7 +73,7 @@ class AlphaBetaSearcherTest {
 		
 		for (int t = 0; t < tests.length; ++t) {
 			searcher.getBrd().loadFromFEN(tests[t][0]);
-			searcher.doSearchForCheckmate(SearchResult.LOSS, SearchResult.WIN, 0, 9);
+			searcher.doSearchForCheckmate(SearchResult.LOSS, SearchResult.WIN, 0);
 			System.out.println(searcher.getPrincipalVariation().toString());
 			assertEquals(tests[t][1], searcher.getPrincipalVariation().toString());
 		}
@@ -81,6 +82,8 @@ class AlphaBetaSearcherTest {
 	@Test
 	void testMateWithIterativeDeepening() {
 		AlphaBetaSearcher searcher = new AlphaBetaSearcher();
+		searcher.setFullDepthSearchLimit(6);
+
 		long searchResult;
 		
 		String[][] tests = {
@@ -96,7 +99,8 @@ class AlphaBetaSearcherTest {
 		for (int t = 0; t < tests.length; t+=1) {
 			for(int moves=2; ; moves+=2) {
 				searcher.getBrd().loadFromFEN(tests[t][0]);
-				searchResult = searcher.doSearchForCheckmate(SearchResult.LOSS, SearchResult.WIN, 0, moves);
+				searcher.setFullDepthSearchLimit(moves);
+				searchResult = searcher.doSearchForCheckmate(SearchResult.LOSS, SearchResult.WIN, 0);
 				System.out.println("Trying depth: " + moves);
 				if(SearchResult.isCheckmate(searchResult)) {
 					System.out.println(searcher.getPrincipalVariation().toString());

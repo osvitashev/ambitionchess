@@ -41,7 +41,7 @@ import static util.BitField64.*;
  */
 public class SearchResult {
 	public static int WIN = Short.MAX_VALUE;
-	public static int LOSS = Short.MIN_VALUE+1;
+	public static int LOSS = Short.MIN_VALUE+1;//+1 is needed to achieve symmetry abound 0
 	
 	/**
 	 * Returns the score intended for comparisons in alpha-beta search.
@@ -139,6 +139,13 @@ public class SearchResult {
 		long ret = setCheckmate(0L);
 		ret = setDepth(ret, distance);
 		ret = setScore(ret, LOSS+distance);
+		return ret;
+	}
+	
+	public static long createWithDepthAndScore(int depth, int score) {
+		long ret = 0;
+		ret = setDepth(ret, depth);
+		ret = setScore(ret, score);
 		return ret;
 	}
 }

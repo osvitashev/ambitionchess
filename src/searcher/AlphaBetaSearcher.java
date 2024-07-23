@@ -10,6 +10,8 @@ public class AlphaBetaSearcher {
 	private Gamestate brd = new Gamestate();
 	private PrincipalVariation principalVariation = new PrincipalVariation();
 	
+	private int fullDepthSearchLimit=0;
+	
 	public Gamestate getBrd() {
 		return brd;
 	}
@@ -19,6 +21,10 @@ public class AlphaBetaSearcher {
 	}
 
 	
+	public void setFullDepthSearchLimit(int fullDepthSearchLimit) {
+		this.fullDepthSearchLimit = fullDepthSearchLimit;
+	}
+
 	/**
 	 * Will need to figure a way to make this configurable somehow.
 	 * @return SearchResult
@@ -30,6 +36,8 @@ public class AlphaBetaSearcher {
 	/**
 	 * MUST be called as a wrapper around EVERY return statement of the recursive alpha-beta search.
 	 * This function is responsible to doing cleanup tasks such as freeing up movepool.
+	 * 
+	 * Can be used for other useful extensions: such as keeping an incremental count of the number of calls/returns to the alpha-beta.
 	 * 
 	 * @param movelistSize
 	 * @param score - to be returned
@@ -43,11 +51,12 @@ public class AlphaBetaSearcher {
 	/**
 	 * @return SearchResult
 	 */
-	public long doSearchForCheckmate(long alpha, long beta, int depth, int maxDepthLimit) {
+	public long doSearchForCheckmate(long alpha, long beta, int depth) {
 		principalVariation.resetAtDepth(depth);//todo:re-evaluate whether this is needed. Maybe, i can do it at addMoveAtDepth
 		int movelist_size_old = movepool.size();
-		if(depth == maxDepthLimit)
-			return returnScoreFromSearch(movelist_size_old, 0);//this matches an evaluation with an even score and no flags set.
+		if(depth == fullDepthSearchLimit)
+			//this matches an evaluation with an even score and no flags set.
+			return returnScoreFromSearch(movelist_size_old, SearchResult.createWithDepthAndScore(depth, 0));
 		move_generator.generateLegalMoves(brd, movepool);
 		if (movepool.size() == movelist_size_old && brd.getIsCheck()) {
 			long score = SearchResult.createCheckmate(depth);
@@ -65,8 +74,7 @@ public class AlphaBetaSearcher {
 						doSearchForCheckmate(
 							SearchResult.negateScore(beta),
 							SearchResult.negateScore(alpha),
-							depth+1,
-							maxDepthLimit
+							depth+1
 						)
 					);
 				brd.unmakeMove(move);
