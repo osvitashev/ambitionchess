@@ -10,6 +10,12 @@ public class AlphaBetaSearcher {
 	private Gamestate brd = new Gamestate();
 	private PrincipalVariation principalVariation = new PrincipalVariation();
 	
+	/**
+	 * Should also take a comparator that can be used instead of SearchResult.isScoreLess
+	 * This could be a way to fine tune engine's preference when it comes to choosing
+	 * between a leaf node with a stalemate and a node with some numerical value in the positional evaluation.
+	 */
+	
 	private int fullDepthSearchLimit=0;
 	
 	public Gamestate getBrd() {
@@ -53,21 +59,24 @@ public class AlphaBetaSearcher {
 	 */
 	public long doSearchForCheckmate(long alpha, long beta, int depth) {
 		principalVariation.resetAtDepth(depth);//todo:re-evaluate whether this is needed. Maybe, i can do it at addMoveAtDepth
-		int movelist_size_old = movepool.size();
+		int movepool_size_old = movepool.size();
 		if(depth == fullDepthSearchLimit)
 			//this matches an evaluation with an even score and no flags set.
-			return returnScoreFromSearch(movelist_size_old, SearchResult.createWithDepthAndScore(depth, 0));
+			return returnScoreFromSearch(movepool_size_old, SearchResult.createWithDepthAndScore(depth, 0));
 		move_generator.generateLegalMoves(brd, movepool);
-		if (movepool.size() == movelist_size_old && brd.getIsCheck()) {
+		if (movepool.size() == movepool_size_old && brd.getIsCheck()) {
 			long score = SearchResult.createCheckmate(depth);
 			//notice that we do not need to resize the move pool - no new moves have been generated.
 			if(SearchResult.isScoreGreater(score, alpha))
-				return returnScoreFromSearch(movelist_size_old, score);
+				return returnScoreFromSearch(movepool_size_old, score);
 			else
-				return returnScoreFromSearch(movelist_size_old, alpha);
+				return returnScoreFromSearch(movepool_size_old, alpha);
 		}
+//		else if (movepool.size() == movepool_size_old && !brd.getIsCheck()) {
+//			HANDLE THE CASE FOR STALEMATE
+//		}
 		else {
-			for (int i = movelist_size_old; i < movepool.size(); ++i) {
+			for (int i = movepool_size_old; i < movepool.size(); ++i) {
 				int move = movepool.get(i);
 				brd.makeMove(move);
 				long score = SearchResult.negateScore(
@@ -80,7 +89,7 @@ public class AlphaBetaSearcher {
 				brd.unmakeMove(move);
 				
 				if(SearchResult.isScoreGreaterOrEqual(score, beta)) {
-					return returnScoreFromSearch(movelist_size_old, beta);
+					return returnScoreFromSearch(movepool_size_old, beta);
 				}
 					
 				if(SearchResult.isScoreGreater(score, alpha)){
@@ -90,6 +99,6 @@ public class AlphaBetaSearcher {
 			}
 		}
 		
-		return returnScoreFromSearch(movelist_size_old, alpha);
+		return returnScoreFromSearch(movepool_size_old, alpha);
 	}
 }
