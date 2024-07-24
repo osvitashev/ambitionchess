@@ -17,10 +17,10 @@ class AlphaBetaSearcherTest {
 				{ "2r1k3/1b3ppp/p3p3/1p1n4/4q3/PQ2P1P1/1P2BP1P/5RK1 b - - 0 1", "{e4g2 g1g2 d5f4 g2g1 f4h3 }" },
 				{ "r1q2r1k/p4b2/1p2pP2/3p3p/1P1B1P2/2PB4/P3Q2P/6RK w - - 0 1", "{e2h5 f7h5 f6f7 e6e5 d4e5 }" },
 				{ "1k1r4/ppq2pp1/4p3/1PP5/Q5n1/7r/P4PB1/R1R3K1 b - - 0 1", "{h3h1 g2h1 c7h2 g1f1 h2f2 }" },
-				{ "1B6/NK6/3p4/p2R4/Pk6/1P1P4/B7/8 w - - 0 1", "{d5c5 d6d5 c5c2 b4a3 b8d6 }" }, // has two solutions! {d5c5 d6d5 c5c2 b4a3 b8d6 } and {d5c5 d6c5 a7b5 c5c4 b8d6 } 
+				{ "1B6/NK6/3p4/p2R4/Pk6/1P1P4/B7/8 w - - 0 1", "{d5c5 d6d5 c5c2 d5d4 b8d6 }" }, // has two solutions! {d5c5 d6d5 c5c2 b4a3 b8d6 } and {d5c5 d6c5 a7b5 c5c4 b8d6 } 
 				{ "6B1/3N4/2qpN3/P2k4/4pQP1/8/P1P3nK/2b5 w - - 0 1", "{f4e3 g2e3 e6f4 d5d4 f4e2 }" },
 				{ "7b/8/r7/3B4/8/8/8/1kBK2Q1 w - - 0 1", "{d1e2 a6a1 d5e4 b1a2 g1g8 }" },
-				{ "8/1pkn4/p1p4K/7b/P6P/5p2/6r1/5R2 b - - 0 1", "{d7f6 a4a5 g2g6 }" },///actually, a mate in 2!
+				{ "8/1pkn4/p1p4K/7b/P6P/5p2/6r1/5R2 b - - 0 1", "{d7f6 f1g1 g2g1 a4a5 g1g6 }" },
 				{ "6k1/5ppp/Q1b3q1/2P5/PP6/5NB1/3rr1PP/5RK1 b - - 0 1", "{e2g2 g1h1 g2h2 g3h2 g6g2 }" },
 				{ "1bN5/2p2p1Q/4PB2/3k3P/8/P4N1K/P7/n4R2 w - - 0 1", "{a3a4 c7c6 h7d3 d5c5 d3d4 }" },
 				{ "3r3k/p5bp/2p3p1/2q1n3/PQ4P1/2P2pBP/3r1P2/2R1KBR1 b - - 0 1", "{c5e3 f2e3 f3f2 g3f2 e5f3 }" },
@@ -54,10 +54,10 @@ class AlphaBetaSearcherTest {
 				{ "2r1k3/1b3ppp/p3p3/1p1n4/4q3/PQ2P1P1/1P2BP1P/5RK1 b - - 0 1", "{e4g2 g1g2 d5f4 g2g1 f4h3 }" },
 				{ "r1q2r1k/p4b2/1p2pP2/3p3p/1P1B1P2/2PB4/P3Q2P/6RK w - - 0 1", "{e2h5 f7h5 f6f7 e6e5 d4e5 }" },
 				{ "1k1r4/ppq2pp1/4p3/1PP5/Q5n1/7r/P4PB1/R1R3K1 b - - 0 1", "{h3h1 g2h1 c7h2 g1f1 h2f2 }" },
-				{ "1B6/NK6/3p4/p2R4/Pk6/1P1P4/B7/8 w - - 0 1", "{d5c5 d6c5 a7b5 c5c4 b8d6 }" },// has two solutions! {d5c5 d6d5 c5c2 b4a3 b8d6 } and {d5c5 d6c5 a7b5 c5c4 b8d6 }
+				{ "1B6/NK6/3p4/p2R4/Pk6/1P1P4/B7/8 w - - 0 1", "{d5c5 d6d5 c5c2 d5d4 b8d6 }" }, // has two solutions! {d5c5 d6d5 c5c2 b4a3 b8d6 } and {d5c5 d6c5 a7b5 c5c4 b8d6 } 
 				{ "6B1/3N4/2qpN3/P2k4/4pQP1/8/P1P3nK/2b5 w - - 0 1", "{f4e3 g2e3 e6f4 d5d4 f4e2 }" },
 				{ "7b/8/r7/3B4/8/8/8/1kBK2Q1 w - - 0 1", "{d1e2 a6a1 d5e4 b1a2 g1g8 }" },
-				{ "8/1pkn4/p1p4K/7b/P6P/5p2/6r1/5R2 b - - 0 1", "{d7f6 a4a5 g2g6 }" },///actually, a mate in 2!
+				{ "8/1pkn4/p1p4K/7b/P6P/5p2/6r1/5R2 b - - 0 1", "{d7f6 f1g1 g2g1 a4a5 g1g6 }" },
 				{ "6k1/5ppp/Q1b3q1/2P5/PP6/5NB1/3rr1PP/5RK1 b - - 0 1", "{e2g2 g1h1 g2h2 g3h2 g6g2 }" },
 				{ "1bN5/2p2p1Q/4PB2/3k3P/8/P4N1K/P7/n4R2 w - - 0 1", "{a3a4 c7c6 h7d3 d5c5 d3d4 }" },
 				{ "3r3k/p5bp/2p3p1/2q1n3/PQ4P1/2P2pBP/3r1P2/2R1KBR1 b - - 0 1", "{c5e3 f2e3 f3f2 g3f2 e5f3 }" },

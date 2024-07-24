@@ -142,10 +142,19 @@ public class SearchResult {
 		return ret;
 	}
 	
+	public static long createStalemate(int depth, int score) {
+		long ret = setStalemate(0L);
+		ret = setDepth(ret, depth);
+		ret = setScore(ret, score);
+		return ret;
+	}
+	
 	public static long createWithDepthAndScore(int depth, int score) {
 		long ret = 0;
 		ret = setDepth(ret, depth);
 		ret = setScore(ret, score);
 		return ret;
 	}
+	
+	
 }

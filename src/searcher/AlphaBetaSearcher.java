@@ -3,6 +3,8 @@ package searcher;
 import gamestate.Gamestate;
 import gamestate.MoveGen;
 import gamestate.MovePool;
+import java.util.function.ToIntFunction;
+
 
 public class AlphaBetaSearcher {
 	private MoveGen move_generator = new MoveGen();
@@ -11,12 +13,23 @@ public class AlphaBetaSearcher {
 	private PrincipalVariation principalVariation = new PrincipalVariation();
 	
 	/**
+	 * takes the current state of the searcher and returns a score for a draw.
+	 * A positive score is meant to be desirable for the maximizing player.
+	 * >>NEED to flip the sign depending on whose turn it is.
+	 */
+	private ToIntFunction<AlphaBetaSearcher> assignScoreToDraw;
+	
+	/**
 	 * Should also take a comparator that can be used instead of SearchResult.isScoreLess
 	 * This could be a way to fine tune engine's preference when it comes to choosing
 	 * between a leaf node with a stalemate and a node with some numerical value in the positional evaluation.
 	 */
 	
 	private int fullDepthSearchLimit=0;
+	
+	AlphaBetaSearcher(){
+		assignScoreToDraw = searcher -> 0;
+	}
 	
 	public Gamestate getBrd() {
 		return brd;
@@ -72,9 +85,27 @@ public class AlphaBetaSearcher {
 			else
 				return returnScoreFromSearch(movepool_size_old, alpha);
 		}
-//		else if (movepool.size() == movepool_size_old && !brd.getIsCheck()) {
-//			HANDLE THE CASE FOR STALEMATE
-//		}
+		/**
+		 * Somehow, he next else-if statement results in failing tests for mate in 3.
+		 * Commenting out the elseif fixes the test.
+		 */
+		else if (movepool.size() == movepool_size_old && !brd.getIsCheck()) {
+			//HANDLE THE CASE FOR STALEMATE
+			int drawWeight = assignScoreToDraw.applyAsInt(this);
+			
+			
+			/* Not sure if the condition should be flipped: (depth % 2 == 1) vs (depth % 2 == 0)
+			 * 
+			 * 
+			 */
+			
+			long score = SearchResult.createStalemate(depth, (depth % 2 == 1) ? drawWeight : -drawWeight);
+			//notice that we do not need to resize the move pool - no new moves have been generated.
+			if(SearchResult.isScoreGreater(score, alpha))
+				return returnScoreFromSearch(movepool_size_old, score);
+			else
+				return returnScoreFromSearch(movepool_size_old, alpha);
+		}
 		else {
 			for (int i = movepool_size_old; i < movepool.size(); ++i) {
 				int move = movepool.get(i);
