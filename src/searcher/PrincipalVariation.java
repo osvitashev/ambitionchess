@@ -43,6 +43,7 @@ public class PrincipalVariation {
 		String ret = "{";
 		for(int i=0; i<lengthAtDepth[0];++i)
 			ret+=Move.toUCINotation(pvTable[0][i]) + " ";
-		return ret+"}";
+		ret = ret.replaceFirst("\\s++$", "");
+		return ret + "}";
 	}
 }

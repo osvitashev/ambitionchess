@@ -39,8 +39,9 @@ import static util.BitField64.*;
  //@formatter:on
  *
  */
-public class SearchResult {
-	public static int WIN = Short.MAX_VALUE;
+public class SearchOutcome {
+	public static int FAVOURABLE_DRAW_FOR_MAXIMIZING_PLAYER = 31000;
+	public static int WIN =  Short.MAX_VALUE;
 	public static int LOSS = Short.MIN_VALUE+1;//+1 is needed to achieve symmetry abound 0
 	
 	/**
@@ -54,8 +55,8 @@ public class SearchResult {
 	}
 	
 	public static long setScore(long rez, int score) {
-		assert Short.MAX_VALUE >= score;
-		assert Short.MIN_VALUE <= score;
+		assert Short.MAX_VALUE >= score : "got: " + score;
+		assert Short.MIN_VALUE <= score : "got: " + score;
 		rez &= ~0xFFFFL;
 		rez |= ((long)score) & 0xFFFFL;;
 		return rez;
@@ -156,5 +157,32 @@ public class SearchResult {
 		return ret;
 	}
 	
+	public static String outcomeToString(long outcome) {
+		String ret = "{depth=";
+		ret+=getDepth(outcome);
+		ret+=", score=";
+		ret+=getScore(outcome);
+		if(isCheckmate(outcome))
+			ret+= ", CHECKMATE!";
+		if(isStalemate(outcome))
+			ret+= ", STALEMATE!";
+		if(isOtherDraw(outcome))
+			ret+= ", OTHER_DRAW!";
+		return ret + "}";
+	}
+	
+	public static String outcomeToStringInMaximixerPerspective(long outcome, boolean isMaximizer) {
+		String ret = "{depth=";
+		ret+=getDepth(outcome);
+		ret+=", maximizerScore=";
+		ret+=isMaximizer ? getScore(outcome) : -getScore(outcome);
+		if(isCheckmate(outcome))
+			ret+= ", CHECKMATE!";
+		if(isStalemate(outcome))
+			ret+= ", STALEMATE!";
+		if(isOtherDraw(outcome))
+			ret+= ", OTHER_DRAW!";
+		return ret + "}";
+	}
 	
 }

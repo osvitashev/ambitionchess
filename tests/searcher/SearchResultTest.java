@@ -11,71 +11,71 @@ class SearchResultTest {
 		long rez, neg;
 		
 		rez=0;
-		rez = SearchResult.setScore(rez, -10000);
-		rez = SearchResult.setDepth(rez, 122);
-		rez = SearchResult.setCheckmate(rez);
-		rez = SearchResult.setOtherDraw(rez);
-		assertEquals(-10000, SearchResult.getScore(rez));
-		assertEquals(122, SearchResult.getDepth(rez));
-		assertEquals(true, SearchResult.isCheckmate(rez));
-		assertEquals(false, SearchResult.isStalemate(rez));
-		assertEquals(true, SearchResult.isOtherDraw(rez));
+		rez = SearchOutcome.setScore(rez, -10000);
+		rez = SearchOutcome.setDepth(rez, 122);
+		rez = SearchOutcome.setCheckmate(rez);
+		rez = SearchOutcome.setOtherDraw(rez);
+		assertEquals(-10000, SearchOutcome.getScore(rez));
+		assertEquals(122, SearchOutcome.getDepth(rez));
+		assertEquals(true, SearchOutcome.isCheckmate(rez));
+		assertEquals(false, SearchOutcome.isStalemate(rez));
+		assertEquals(true, SearchOutcome.isOtherDraw(rez));
 		
-		neg = SearchResult.negateScore(rez);
-		assertEquals(10000, SearchResult.getScore(neg));
-		assertEquals(122, SearchResult.getDepth(neg));
-		assertEquals(true, SearchResult.isCheckmate(neg));
-		assertEquals(false, SearchResult.isStalemate(neg));
-		assertEquals(true, SearchResult.isOtherDraw(neg));
+		neg = SearchOutcome.negateScore(rez);
+		assertEquals(10000, SearchOutcome.getScore(neg));
+		assertEquals(122, SearchOutcome.getDepth(neg));
+		assertEquals(true, SearchOutcome.isCheckmate(neg));
+		assertEquals(false, SearchOutcome.isStalemate(neg));
+		assertEquals(true, SearchOutcome.isOtherDraw(neg));
 		
-		assertTrue(SearchResult.isScoreLess(rez, neg));
-		assertFalse(SearchResult.isScoreLess(neg, rez));
+		assertTrue(SearchOutcome.isScoreLess(rez, neg));
+		assertFalse(SearchOutcome.isScoreLess(neg, rez));
 		
 		rez=0;
-		rez = SearchResult.setScore(rez, 1500);
-		rez = SearchResult.setDepth(rez, 78);
-		rez = SearchResult.setStalemate(rez);
-		assertEquals(1500, SearchResult.getScore(rez));
-		assertEquals(78, SearchResult.getDepth(rez));
-		assertEquals(false, SearchResult.isCheckmate(rez));
-		assertEquals(true, SearchResult.isStalemate(rez));
-		assertEquals(false, SearchResult.isOtherDraw(rez));
+		rez = SearchOutcome.setScore(rez, 1500);
+		rez = SearchOutcome.setDepth(rez, 78);
+		rez = SearchOutcome.setStalemate(rez);
+		assertEquals(1500, SearchOutcome.getScore(rez));
+		assertEquals(78, SearchOutcome.getDepth(rez));
+		assertEquals(false, SearchOutcome.isCheckmate(rez));
+		assertEquals(true, SearchOutcome.isStalemate(rez));
+		assertEquals(false, SearchOutcome.isOtherDraw(rez));
 		
-		neg = SearchResult.negateScore(rez);
-		assertEquals(-1500, SearchResult.getScore(neg));
-		assertEquals(78, SearchResult.getDepth(neg));
-		assertEquals(false, SearchResult.isCheckmate(neg));
-		assertEquals(true, SearchResult.isStalemate(neg));
-		assertEquals(false, SearchResult.isOtherDraw(neg));
+		neg = SearchOutcome.negateScore(rez);
+		assertEquals(-1500, SearchOutcome.getScore(neg));
+		assertEquals(78, SearchOutcome.getDepth(neg));
+		assertEquals(false, SearchOutcome.isCheckmate(neg));
+		assertEquals(true, SearchOutcome.isStalemate(neg));
+		assertEquals(false, SearchOutcome.isOtherDraw(neg));
 		
-		assertFalse(SearchResult.isScoreLess(rez, neg));
-		assertTrue(SearchResult.isScoreLess(neg, rez));
+		assertFalse(SearchOutcome.isScoreLess(rez, neg));
+		assertTrue(SearchOutcome.isScoreLess(neg, rez));
 	}
 	
 	@Test
 	void testConstructors() {
 		long rez =0;
 		
-		rez=SearchResult.createCheckmate(3);
-		assertEquals(SearchResult.LOSS+3, SearchResult.getScore(rez));
-		assertEquals(3, SearchResult.getDepth(rez));
-		assertEquals(true, SearchResult.isCheckmate(rez));
-		assertEquals(false, SearchResult.isStalemate(rez));
-		assertEquals(false, SearchResult.isOtherDraw(rez));
+		rez=SearchOutcome.createCheckmate(3);
+		assertEquals(SearchOutcome.LOSS+3, SearchOutcome.getScore(rez));
+		assertEquals(3, SearchOutcome.getDepth(rez));
+		assertEquals(true, SearchOutcome.isCheckmate(rez));
+		assertEquals(false, SearchOutcome.isStalemate(rez));
+		assertEquals(false, SearchOutcome.isOtherDraw(rez));
 		
-		rez=SearchResult.negateScore(rez);
-		assertEquals(SearchResult.WIN-3, SearchResult.getScore(rez));
-		assertEquals(3, SearchResult.getDepth(rez));
-		assertEquals(true, SearchResult.isCheckmate(rez));
-		assertEquals(false, SearchResult.isStalemate(rez));
-		assertEquals(false, SearchResult.isOtherDraw(rez));
+		rez=SearchOutcome.negateScore(rez);
+		assertEquals(SearchOutcome.WIN-3, SearchOutcome.getScore(rez));
+		assertEquals(3, SearchOutcome.getDepth(rez));
+		assertEquals(true, SearchOutcome.isCheckmate(rez));
+		assertEquals(false, SearchOutcome.isStalemate(rez));
+		assertEquals(false, SearchOutcome.isOtherDraw(rez));
 		
-		rez=SearchResult.negateScore(rez);
-		assertEquals(SearchResult.LOSS+3, SearchResult.getScore(rez));
-		assertEquals(3, SearchResult.getDepth(rez));
-		assertEquals(true, SearchResult.isCheckmate(rez));
-		assertEquals(false, SearchResult.isStalemate(rez));
-		assertEquals(false, SearchResult.isOtherDraw(rez));
+		rez=SearchOutcome.negateScore(rez);
+		assertEquals(SearchOutcome.LOSS+3, SearchOutcome.getScore(rez));
+		assertEquals(3, SearchOutcome.getDepth(rez));
+		assertEquals(true, SearchOutcome.isCheckmate(rez));
+		assertEquals(false, SearchOutcome.isStalemate(rez));
+		assertEquals(false, SearchOutcome.isOtherDraw(rez));
 		
 	}
 }
