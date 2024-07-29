@@ -1,11 +1,7 @@
 package searcher;
 
-import java.util.function.Consumer;
 import java.util.function.ObjIntConsumer;
 import java.util.function.ToIntFunction;
-import java.util.function.ToLongFunction;
-
-import gamestate.GlobalConstants.Player;
 
 /**
  * As i add more optional features to the evaluator (for example, incremental PSTs),

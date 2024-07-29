@@ -5,11 +5,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import gamestate.Bitboard;
-import gamestate.Gamestate;
-import gamestate.GlobalConstants;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
-import gamestate.Move;
 
 class AlphaBetaSearcherTest {
 
@@ -80,6 +77,7 @@ class AlphaBetaSearcherTest {
 			searcher.getBrd().loadFromFEN(tests[t][0]);
 			long outcome = searcher.doSearth(SearchOutcome.createLowerBound(SearchOutcome.LOSS), SearchOutcome.createUpperBound(SearchOutcome.WIN));
 			System.out.println(searcher.getPrincipalVariation().toString());
+			assertTrue(SearchOutcome.isCheckmate(outcome));
 			assertEquals(tests[t][1], searcher.getPrincipalVariation().toString());
 		}
 	}
@@ -161,7 +159,7 @@ class AlphaBetaSearcherTest {
 			searcher.getBrd().loadFromFEN(tests[t][0]);
 			long outcome = searcher.doSearth(SearchOutcome.createLowerBound(SearchOutcome.LOSS), SearchOutcome.createUpperBound(SearchOutcome.WIN));
 			System.out.println("final PV: " + searcher.getPrincipalVariation().toString());
-			System.out.println("final outcome: " + SearchOutcome.outcomeToStringInMaximixerPerspective(outcome, true));
+			System.out.println("final outcome: " + SearchOutcome.outcomeToString(outcome, true));
 			assertTrue(SearchOutcome.isStalemate(outcome));
 			assertEquals(tests[t][1], searcher.getPrincipalVariation().toString());
 			

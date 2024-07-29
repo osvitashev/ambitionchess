@@ -3,8 +3,6 @@ package searcher;
 import gamestate.Gamestate;
 import gamestate.MoveGen;
 import gamestate.MovePool;
-import java.util.function.ToIntFunction;
-
 
 public class AlphaBetaSearcher {
 	private MoveGen move_generator = new MoveGen();
@@ -27,12 +25,6 @@ public class AlphaBetaSearcher {
 	 * it is incremented at the start of the recursive call. -1 as the start value makes it correct throughout.
 	 */
 	private int depth = -1;
-	
-	/**
-	 * Should also take a comparator that can be used instead of SearchResult.isScoreLess
-	 * This could be a way to fine tune engine's preference when it comes to choosing
-	 * between a leaf node with a stalemate and a node with some numerical value in the positional evaluation.
-	 */
 	
 	private int fullDepthSearchLimit=0;
 	
@@ -72,6 +64,10 @@ public class AlphaBetaSearcher {
 	}
 		
 	/**
+	 * currently implements a fail-hard version of alpha-beta.
+	 * This means that the return value is strictly in the range [alpha, beta], Inclusive!
+	 * If the search is done with an aspiration window, return value of either alpha or beta would mean the search going out of bounds.
+	 * 
 	 * @return SearchResult
 	 */
 	public long doSearth(long alpha, long beta) {
@@ -82,18 +78,9 @@ public class AlphaBetaSearcher {
 		
 		int movepool_size_old = movepool.size();
 		if(depth == fullDepthSearchLimit)
-			/**
-			 * if the current player is in check - do a (quick?) test for checkmate
-			 * 		if it is not a checkmate, return unknown score
-			 * if the current player is not in check, return the evaluation score.
-			 * 
-			 * this way we are going to miss stalemates at the max depth....
-			 */
-			
-			//this matches an evaluation with an even score and no flags set.
 			return returnScoreFromSearch(movepool_size_old, SearchOutcome.createWithDepthAndScore(depth, evaluator.evaluate()));
 		move_generator.generateLegalMoves(brd, movepool);
-		if (movepool.size() == movepool_size_old && brd.getIsCheck()) {
+		if (movepool.size() == movepool_size_old && brd.getIsCheck()) {//CHECKMATE
 			long score = SearchOutcome.createCheckmate(depth);
 			//notice that we do not need to resize the move pool - no new moves have been generated.
 			if(SearchOutcome.isScoreGreater(score, alpha))
@@ -101,10 +88,7 @@ public class AlphaBetaSearcher {
 			else
 				return returnScoreFromSearch(movepool_size_old, alpha);
 		}
-		else if (movepool.size() == movepool_size_old && !brd.getIsCheck()) {
-			//HANDLE THE CASE FOR STALEMATE
-
-			//the draw evaluation is not necessarily symmetric. It could effectively count as a win for the weaker opponent, or a loss for the stronger opponent.
+		else if (movepool.size() == movepool_size_old && !brd.getIsCheck()) {// STALEMATE
 			long score = SearchOutcome.createStalemate(depth, evaluator.assignScoreToDraw());
 			//notice that we do not need to resize the move pool - no new moves have been generated.
 			if(SearchOutcome.isScoreGreater(score, alpha))

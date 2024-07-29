@@ -183,7 +183,7 @@ public class SearchOutcome {
 		return ret;
 	}
 	
-	public static String outcomeToString(long outcome) {
+	public static String outcomeToPlainString(long outcome) {
 		String ret = "{depth=";
 		ret+=getDepth(outcome);
 		ret+=", score=";
@@ -201,7 +201,7 @@ public class SearchOutcome {
 		return ret + "}";
 	}
 	
-	public static String outcomeToStringInMaximixerPerspective(long outcome, boolean isMaximizer) {
+	public static String outcomeToString(long outcome, boolean isMaximizer) {
 		String ret = "{depth=";
 		ret+=getDepth(outcome);
 		ret+=", maximizerScore=";
