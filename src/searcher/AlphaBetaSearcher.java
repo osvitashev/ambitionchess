@@ -75,6 +75,7 @@ public class AlphaBetaSearcher {
 	 * @return SearchResult
 	 */
 	public long doSearth(long alpha, long beta) {
+//		if(depth==-1)System.out.println(">> "+ SearchOutcome.outcomeToStringInMaximixerPerspective(alpha, true) + " >> "+ SearchOutcome.outcomeToStringInMaximixerPerspective(beta,true));
 		depth++;
 		principalVariation.resetAtDepth(depth);//todo:re-evaluate whether this is needed. Maybe, i can do it at addMoveAtDepth
 		

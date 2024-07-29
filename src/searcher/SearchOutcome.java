@@ -30,6 +30,8 @@ import static util.BitField64.*;
 	24		1		is checkmate?
 	25		1		is stalemate? (side to play has no legal moves)
 	26		1		is draw for other reason (triple repetition, insufficient material, triple move rule...)
+	27		1		is lower bound of alphabeta
+	28		1		is upper bound of alphabeta
 	
  	
  	There is a lot of room for potential future improvements:
@@ -41,8 +43,9 @@ import static util.BitField64.*;
  */
 public class SearchOutcome {
 	public static int FAVOURABLE_DRAW_FOR_MAXIMIZING_PLAYER = 31000;
-	public static int WIN =  Short.MAX_VALUE;
-	public static int LOSS = Short.MIN_VALUE+1;//+1 is needed to achieve symmetry abound 0
+	public static int WIN =  32000;//Short.MAX_VALUE;
+	public static int LOSS = -32000;//Short.MIN_VALUE+1;//+1 is needed to achieve symmetry abound 0
+	private static int MID_POINT = 32000;//needed to map the score to a positive range. Doing bitwise masks with negative numbers proves to be tricky.
 	
 	/**
 	 * Returns the score intended for comparisons in alpha-beta search.
@@ -51,12 +54,13 @@ public class SearchOutcome {
 	 * @return
 	 */
 	public static int getScore(long rez) {
-		return (short)(rez & 0xFFFFL);
+		return (int)(rez & 0xFFFFL) - MID_POINT;
 	}
 	
 	public static long setScore(long rez, int score) {
 		assert Short.MAX_VALUE >= score : "got: " + score;
 		assert Short.MIN_VALUE <= score : "got: " + score;
+		score+=MID_POINT;
 		rez &= ~0xFFFFL;
 		rez |= ((long)score) & 0xFFFFL;;
 		return rez;
@@ -89,6 +93,14 @@ public class SearchOutcome {
 	
 	public static long setStalemate(long rez) {
 		return setBoolean(rez, true, 25);
+	}
+	
+	public static boolean isLowerBound(long rez) {
+		return getBoolean(rez, 27);
+	}
+	
+	public static boolean isUpperBound(long rez) {
+		return getBoolean(rez, 28);
 	}
 	
 	/**
@@ -150,6 +162,20 @@ public class SearchOutcome {
 		return ret;
 	}
 	
+	public static long createLowerBound(int score) {
+		long ret = 0;
+		ret = setScore(ret, score);
+		ret = setBoolean(ret, true, 27);
+		return ret;
+	}
+	
+	public static long createUpperBound(int score) {
+		long ret = 0;
+		ret = setScore(ret, score);
+		ret = setBoolean(ret, true, 28);
+		return ret;
+	}
+	
 	public static long createWithDepthAndScore(int depth, int score) {
 		long ret = 0;
 		ret = setDepth(ret, depth);
@@ -168,6 +194,10 @@ public class SearchOutcome {
 			ret+= ", STALEMATE!";
 		if(isOtherDraw(outcome))
 			ret+= ", OTHER_DRAW!";
+		if(isLowerBound(outcome))
+			ret+= ", LOW!";
+		if(isUpperBound(outcome))
+			ret+= ", HIGH!";
 		return ret + "}";
 	}
 	
@@ -175,13 +205,18 @@ public class SearchOutcome {
 		String ret = "{depth=";
 		ret+=getDepth(outcome);
 		ret+=", maximizerScore=";
-		ret+=isMaximizer ? getScore(outcome) : -getScore(outcome);
+		int score = getScore(outcome);
+		ret+=isMaximizer ? score : -score;
 		if(isCheckmate(outcome))
 			ret+= ", CHECKMATE!";
 		if(isStalemate(outcome))
 			ret+= ", STALEMATE!";
 		if(isOtherDraw(outcome))
 			ret+= ", OTHER_DRAW!";
+		if(isLowerBound(outcome))
+			ret+= ", LOW!";
+		if(isUpperBound(outcome))
+			ret+= ", HIGH!";
 		return ret + "}";
 	}
 	
