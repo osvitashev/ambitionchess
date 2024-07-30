@@ -36,6 +36,22 @@ class EvaluatorPestoTest {
 			<
 			pesto.evaluate(b2.loadFromFEN("rnbqkbnr/pppp1ppp/8/4p3/4P3/7N/PPPP1PPP/RNBQKB1R b - - 0 1"))
 		);
-
+	}
+	
+	/**
+	 *  * En example of how to link an evaluator and AlphaBeta searcher using a closure.
+	 */
+	@Test
+	void testLinkWithSearch() {
+		EvaluatorPesto pesto = new EvaluatorPesto();
+		AlphaBetaSearcher searcher = new AlphaBetaSearcher(new Evaluator(Evaluator.Builder.newInstance()
+				.setEvaluator((mysearcher) -> {
+					return pesto.evaluate(mysearcher.getBrd());
+				})// setEvaluator
+		));
+		
+		assertTrue(pesto.evaluate(searcher.getBrd().loadFromFEN("8/4nr2/3kp3/8/B7/1PP5/2K5/8 w - - 0 1"))<0);
+		assertTrue(pesto.evaluate(searcher.getBrd().loadFromFEN("8/4nr2/3kp3/8/B7/1PP5/2K5/8 b - - 0 1"))>0);
+		
 	}
 }
