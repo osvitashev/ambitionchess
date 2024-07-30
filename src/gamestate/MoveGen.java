@@ -261,6 +261,94 @@ public class MoveGen {
 		return movepool.size();
 
 	}
+	
+	/**
+	 * If the current sized to move is in check, the method does a quick probe with the move generator to see if it is a checkmate.
+	 * @param brd
+	 * @param movepool - is only used as a temporary placeholder. It's state is not modified when the function returns.
+	 * @return
+	 */
+	public boolean isCheckmate(Gamestate brd, MovePool movepool) {
+		//OPTIMIZE: the individual move generators can be re-ordered so that the function exits faster.
+		assert brd.getIsCheck();
+		int movepool_size_old = movepool.size();
+		generateEnpassant(brd, movepool);
+		if(movepool.size() != movepool_size_old) {
+			movepool.resize(movepool_size_old);
+			return false;
+		}
+		generatePawnMoves(brd, movepool);
+		if(movepool.size() != movepool_size_old) {
+			movepool.resize(movepool_size_old);
+			return false;
+		}
+		generatePawnCaptures(brd, movepool);
+		if(movepool.size() != movepool_size_old) {
+			movepool.resize(movepool_size_old);
+			return false;
+		}
+		generatePawnPromotionsAndCapturePromotions(brd, movepool);
+		if(movepool.size() != movepool_size_old) {
+			movepool.resize(movepool_size_old);
+			return false;
+		}
+		generateRookMoves(brd, movepool);
+		if(movepool.size() != movepool_size_old) {
+			movepool.resize(movepool_size_old);
+			return false;
+		}
+		generateRookCaptures(brd, movepool);
+		if(movepool.size() != movepool_size_old) {
+			movepool.resize(movepool_size_old);
+			return false;
+		}
+		generateKnightMoves(brd, movepool);
+		if(movepool.size() != movepool_size_old) {
+			movepool.resize(movepool_size_old);
+			return false;
+		}
+		generateKnightCaptures(brd, movepool);
+		if(movepool.size() != movepool_size_old) {
+			movepool.resize(movepool_size_old);
+			return false;
+		}
+		generateBishopMoves(brd, movepool);
+		if(movepool.size() != movepool_size_old) {
+			movepool.resize(movepool_size_old);
+			return false;
+		}
+		generateBishopCaptures(brd, movepool);
+		if(movepool.size() != movepool_size_old) {
+			movepool.resize(movepool_size_old);
+			return false;
+		}
+		generateQueenMoves(brd, movepool);
+		if(movepool.size() != movepool_size_old) {
+			movepool.resize(movepool_size_old);
+			return false;
+		}
+		generateQueenCaptures(brd, movepool);
+		if(movepool.size() != movepool_size_old) {
+			movepool.resize(movepool_size_old);
+			return false;
+		}
+		generateKingMoves(brd, movepool);
+		if(movepool.size() != movepool_size_old) {
+			movepool.resize(movepool_size_old);
+			return false;
+		}
+		generateKingCaptures(brd, movepool);
+		if(movepool.size() != movepool_size_old) {
+			movepool.resize(movepool_size_old);
+			return false;
+		}
+		generateCastling(brd, movepool);//really, thoube be removed - we cannot castle when in check!
+		if(movepool.size() != movepool_size_old) {
+			movepool.resize(movepool_size_old);
+			return false;
+		}
+		return true;
+	}
 
 	int generatePawnCaptures(Gamestate brd, MovePool movepool) {
 		// TODO: THIS IS INEFFECIENT...

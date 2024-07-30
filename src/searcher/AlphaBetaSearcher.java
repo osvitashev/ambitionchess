@@ -70,15 +70,26 @@ public class AlphaBetaSearcher {
 	 * 
 	 * @return SearchResult
 	 */
-	public long doSearth(long alpha, long beta) {
+	public long doSearch(long alpha, long beta) {
 //		if(depth==-1)System.out.println(">> "+ SearchOutcome.outcomeToStringInMaximixerPerspective(alpha, true) + " >> "+ SearchOutcome.outcomeToStringInMaximixerPerspective(beta,true));
 		depth++;
 		principalVariation.resetAtDepth(depth);//todo:re-evaluate whether this is needed. Maybe, i can do it at addMoveAtDepth
 		
 		
 		int movepool_size_old = movepool.size();
-		if(depth == fullDepthSearchLimit)
-			return returnScoreFromSearch(movepool_size_old, SearchOutcome.createWithDepthAndScore(depth, evaluator.evaluate()));
+		if(depth == fullDepthSearchLimit) {
+			if(brd.getIsCheck() && move_generator.isCheckmate(brd, movepool)) {
+				long score = SearchOutcome.createCheckmate(depth);
+				if(SearchOutcome.isScoreGreater(score, alpha))
+					return returnScoreFromSearch(movepool_size_old, score);
+				else
+					return returnScoreFromSearch(movepool_size_old, alpha);
+			}
+			else {
+				return returnScoreFromSearch(movepool_size_old, SearchOutcome.createWithDepthAndScore(depth, evaluator.evaluate()));
+			}
+		}
+			
 		move_generator.generateLegalMoves(brd, movepool);
 		if (movepool.size() == movepool_size_old && brd.getIsCheck()) {//CHECKMATE
 			long score = SearchOutcome.createCheckmate(depth);
@@ -101,7 +112,7 @@ public class AlphaBetaSearcher {
 				int move = movepool.get(i);
 				brd.makeMove(move);
 				long score = SearchOutcome.negateScore(
-						doSearth(
+						doSearch(
 							SearchOutcome.negateScore(beta),
 							SearchOutcome.negateScore(alpha)
 						)
