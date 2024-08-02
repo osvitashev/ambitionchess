@@ -2,6 +2,7 @@ package gamestate;
 
 import static gamestate.Bitboard.*;
 import static gamestate.GlobalConstants.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
@@ -24,6 +25,7 @@ public class Gamestate {
 	
 	private static final long [][][] zobristHashValue_playerPieceSquare;
 	private static final long zobristHashValue_isSideToMoveBlack;
+	private static final long zobristHashValue_isSideToMoveWhite;
 	private static final long [] zobristHashValue_playerKingCastle;
 	private static final long [] zobristHashValue_playerQueenCastle;
 	private static final long [] zobristHashValue_enpassantTarget;
@@ -36,6 +38,7 @@ public class Gamestate {
 					zobristHashValue_playerPieceSquare[player][type][sq]=ran.nextLong();
 		
 		zobristHashValue_isSideToMoveBlack=ran.nextLong();
+		zobristHashValue_isSideToMoveWhite=ran.nextLong();
 		
 		zobristHashValue_playerKingCastle = new long [2];
 		zobristHashValue_playerQueenCastle = new long [2];
@@ -342,6 +345,7 @@ public class Gamestate {
 	void makeDirtyMove(int move) {
 		int player = Move.getPlayer(move);
 		int otherPlayer = Player.getOtherPlayer(player);
+		assertEquals(getPlayerToMove(), player);
 		switch (Move.getMoveType(move)) {
 		case MoveType.PROMO_CAPTURE:
 			clearPieceAt(Move.getPieceCapturedType(move), otherPlayer, Move.getSquareTo(move));
@@ -407,6 +411,8 @@ public class Gamestate {
 			clearPieceAt(Move.getPieceType(move), player, Move.getSquareFrom(move));
 			putPieceAt(Move.getPieceType(move), player, Move.getSquareTo(move));
 			break;
+		case MoveType.NULL_MOVE:
+			break;
 		}
 		playerToMove = Player.getOtherPlayer(player);
 	}
@@ -414,6 +420,7 @@ public class Gamestate {
 	void unmakeDirtyMove(int move) {
 		int player = Move.getPlayer(move);
 		int otherPlayer = Player.getOtherPlayer(player);
+		assertEquals(Player.getOtherPlayer(getPlayerToMove()), player);
 		switch (Move.getMoveType(move)) {
 		case MoveType.PROMO_CAPTURE:
 			clearPieceAt(Move.getPiecePromotedType(move), player, Move.getSquareTo(move));
@@ -478,6 +485,9 @@ public class Gamestate {
 		case MoveType.DOUBLE_PUSH:
 			clearPieceAt(PieceType.PAWN, player, Move.getSquareTo(move));
 			putPieceAt(PieceType.PAWN, player, Move.getSquareFrom(move));
+			break;
+		case MoveType.NULL_MOVE:
+			assert (false == getIsCheck());
 			break;
 		}
 		playerToMove = player;
@@ -554,6 +564,8 @@ public class Gamestate {
 		
 		if(playerToMove == Player.BLACK)
 			zobristHash ^= zobristHashValue_isSideToMoveBlack;
+		else
+			zobristHash ^= zobristHashValue_isSideToMoveWhite;
 		//todo: streamline with side-to-move!
 		if(UndoInfo.getCastlingWK(undoinfo) != castling_WK)
 			zobristHash ^= zobristHashValue_playerKingCastle[Player.WHITE];
@@ -584,6 +596,8 @@ public class Gamestate {
 		
 		if(playerToMove == Player.BLACK)//for unmake we are doing this in reverse order - before updating player to move!
 			zobristHash ^= zobristHashValue_isSideToMoveBlack;
+		else
+			zobristHash ^= zobristHashValue_isSideToMoveWhite;
 		
 		unmakeDirtyMove(move);
 		int undoinfo = undoStack[undoStack_sze - 1];

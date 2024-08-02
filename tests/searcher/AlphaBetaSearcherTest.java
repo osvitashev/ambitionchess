@@ -41,6 +41,8 @@ class AlphaBetaSearcherTest {
 			System.out.println(searcher.getPrincipalVariation().toString());
 			assertEquals(tests[t][1], searcher.getPrincipalVariation().toString());
 			assertTrue(SearchOutcome.isCheckmate(outcome));
+			assertEquals(tests[t][1].substring(1, tests[t][1].length() - 1).split(" ").length, SearchOutcome.getDepth(outcome));
+			assertEquals(0, SearchOutcome.getQuiescenceDepth(outcome));
 		}
 	}
 	
@@ -78,6 +80,8 @@ class AlphaBetaSearcherTest {
 			long outcome = searcher.doSearch(SearchOutcome.createLowerBound(SearchOutcome.LOSS), SearchOutcome.createUpperBound(SearchOutcome.WIN));
 			System.out.println(searcher.getPrincipalVariation().toString());
 			assertTrue(SearchOutcome.isCheckmate(outcome));
+			assertEquals(tests[t][1].substring(1, tests[t][1].length() - 1).split(" ").length, SearchOutcome.getDepth(outcome));
+			assertEquals(0, SearchOutcome.getQuiescenceDepth(outcome));
 			assertEquals(tests[t][1], searcher.getPrincipalVariation().toString());
 		}
 	}
@@ -102,9 +106,11 @@ class AlphaBetaSearcherTest {
 				searcher.setFullDepthSearchLimit(moves);
 				long outcome = searcher.doSearch(SearchOutcome.createLowerBound(SearchOutcome.LOSS), SearchOutcome.createUpperBound(SearchOutcome.WIN));
 				System.out.println("Trying depth: " + moves);
-				if(SearchOutcome.isCheckmate(outcome)) {
+				if(SearchOutcome.isCheckmate(outcome) && SearchOutcome.getQuiescenceDepth(outcome)==0) {
 					System.out.println(searcher.getPrincipalVariation().toString());
 					assertTrue(SearchOutcome.isCheckmate(outcome));
+					assertEquals(tests[t][1].substring(1, tests[t][1].length() - 1).split(" ").length, SearchOutcome.getDepth(outcome));
+					assertEquals(0, SearchOutcome.getQuiescenceDepth(outcome));
 					assertEquals(tests[t][1], searcher.getPrincipalVariation().toString());
 					break;
 				}
@@ -161,6 +167,8 @@ class AlphaBetaSearcherTest {
 			System.out.println("final PV: " + searcher.getPrincipalVariation().toString());
 			System.out.println("final outcome: " + SearchOutcome.outcomeToString(outcome, true));
 			assertTrue(SearchOutcome.isStalemate(outcome));
+			assertEquals(tests[t][1].substring(1, tests[t][1].length() - 1).split(" ").length, SearchOutcome.getDepth(outcome));
+			assertEquals(0, SearchOutcome.getQuiescenceDepth(outcome));
 			assertEquals(tests[t][1], searcher.getPrincipalVariation().toString());
 			
 		}

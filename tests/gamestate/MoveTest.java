@@ -122,6 +122,8 @@ class MoveTest {
 		assertEquals("e7xg6", Move.moveToString(move));
 		move = Move.createNormal(Square.E1, Square.E2, PieceType.KING, Player.WHITE);
 		assertEquals("e1-e2", Move.moveToString(move));
+		move = Move.createNullMove(Player.BLACK);
+		assertEquals("null", Move.moveToString(move));
 	}
 	
 	@Test
@@ -168,7 +170,7 @@ class MoveTest {
 			method.setAccessible(true);
 			method.invoke(brd, move);
 		} catch (Exception e) {
-
+			System.out.println(">> caught exception: " + e);
 		}
 	}
 
@@ -208,7 +210,59 @@ class MoveTest {
 		assertBoardLocation(brd, Player.WHITE, PieceType.KING, Square.E1);
 		assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.D1);
 		assertEquals(Square.E1, brd.getKingSquare(Player.WHITE));
-
+		
+		
+		{//null
+			int move = Move.createNullMove(Player.WHITE);
+			makeDirtyMoveHelper(brd, move);
+			
+			assertEquals(Player.BLACK, brd.getPlayerToMove());
+			assertBoardLocation(brd, Player.BLACK, PieceType.ROOK, Square.A8);
+			assertBoardLocation(brd, Player.WHITE, PieceType.PAWN, Square.B7);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.B8);
+			assertBoardLocation(brd, Player.BLACK, PieceType.QUEEN, Square.G6);
+			assertBoardLocation(brd, Player.WHITE, PieceType.KNIGHT, Square.E7);
+			assertBoardLocation(brd, Player.WHITE, PieceType.KING, Square.E1);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.E2);
+			assertBoardLocation(brd, Player.WHITE, PieceType.PAWN, Square.G2);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.G4);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.E6);
+			assertBoardLocation(brd, Player.WHITE, PieceType.PAWN, Square.D5);
+			assertBoardLocation(brd, Player.BLACK, PieceType.PAWN, Square.E5);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.F1);
+			assertBoardLocation(brd, Player.WHITE, PieceType.ROOK, Square.H1);
+			assertBoardLocation(brd, Player.WHITE, PieceType.KING, Square.E1);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.G1);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.C1);
+			assertBoardLocation(brd, Player.WHITE, PieceType.ROOK, Square.A1);
+			assertBoardLocation(brd, Player.WHITE, PieceType.KING, Square.E1);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.D1);
+			assertEquals(Square.E1, brd.getKingSquare(Player.WHITE));
+			
+			unmakeDirtyMoveHelper(brd, move);
+			assertEquals(Player.WHITE, brd.getPlayerToMove());
+			assertBoardLocation(brd, Player.BLACK, PieceType.ROOK, Square.A8);
+			assertBoardLocation(brd, Player.WHITE, PieceType.PAWN, Square.B7);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.B8);
+			assertBoardLocation(brd, Player.BLACK, PieceType.QUEEN, Square.G6);
+			assertBoardLocation(brd, Player.WHITE, PieceType.KNIGHT, Square.E7);
+			assertBoardLocation(brd, Player.WHITE, PieceType.KING, Square.E1);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.E2);
+			assertBoardLocation(brd, Player.WHITE, PieceType.PAWN, Square.G2);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.G4);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.E6);
+			assertBoardLocation(brd, Player.WHITE, PieceType.PAWN, Square.D5);
+			assertBoardLocation(brd, Player.BLACK, PieceType.PAWN, Square.E5);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.F1);
+			assertBoardLocation(brd, Player.WHITE, PieceType.ROOK, Square.H1);
+			assertBoardLocation(brd, Player.WHITE, PieceType.KING, Square.E1);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.G1);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.C1);
+			assertBoardLocation(brd, Player.WHITE, PieceType.ROOK, Square.A1);
+			assertBoardLocation(brd, Player.WHITE, PieceType.KING, Square.E1);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.D1);
+			assertEquals(Square.E1, brd.getKingSquare(Player.WHITE));
+		}
 		// capture_promo
 		{
 			int move = Move.createCapturePromo(Square.B7, Square.A8, PieceType.ROOK, PieceType.QUEEN, Player.WHITE);
@@ -388,7 +442,58 @@ class MoveTest {
 		assertBoardLocation(brd, Player.BLACK, PieceType.PAWN, Square.A7);
 		assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.A5);
 		assertEquals(Square.E8, brd.getKingSquare(Player.BLACK));
+		
+		{//null
+			int move = Move.createNullMove(Player.BLACK);
 
+			makeDirtyMoveHelper(brd, move);
+			assertEquals(Player.WHITE, brd.getPlayerToMove());
+			assertBoardLocation(brd, Player.WHITE, PieceType.ROOK, Square.F1);
+			assertBoardLocation(brd, Player.BLACK, PieceType.PAWN, Square.E2);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.E1);
+			assertBoardLocation(brd, Player.BLACK, PieceType.PAWN, Square.E2);
+			assertBoardLocation(brd, Player.BLACK, PieceType.QUEEN, Square.F6);
+			assertBoardLocation(brd, Player.WHITE, PieceType.PAWN, Square.F4);
+			assertBoardLocation(brd, Player.WHITE, PieceType.PAWN, Square.F4);
+			assertBoardLocation(brd, Player.BLACK, PieceType.PAWN, Square.G4);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.F8);
+			assertBoardLocation(brd, Player.BLACK, PieceType.ROOK, Square.H8);
+			assertBoardLocation(brd, Player.BLACK, PieceType.KING, Square.E8);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.G8);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.C8);
+			assertBoardLocation(brd, Player.BLACK, PieceType.ROOK, Square.A8);
+			assertBoardLocation(brd, Player.BLACK, PieceType.KING, Square.E8);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.D8);
+			assertBoardLocation(brd, Player.BLACK, PieceType.KNIGHT, Square.B6);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.D5);
+			assertBoardLocation(brd, Player.BLACK, PieceType.PAWN, Square.A7);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.A5);
+			assertEquals(Square.E8, brd.getKingSquare(Player.BLACK));
+			
+			unmakeDirtyMoveHelper(brd, move);
+			assertEquals(Player.BLACK, brd.getPlayerToMove());
+			assertBoardLocation(brd, Player.WHITE, PieceType.ROOK, Square.F1);
+			assertBoardLocation(brd, Player.BLACK, PieceType.PAWN, Square.E2);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.E1);
+			assertBoardLocation(brd, Player.BLACK, PieceType.PAWN, Square.E2);
+			assertBoardLocation(brd, Player.BLACK, PieceType.QUEEN, Square.F6);
+			assertBoardLocation(brd, Player.WHITE, PieceType.PAWN, Square.F4);
+			assertBoardLocation(brd, Player.WHITE, PieceType.PAWN, Square.F4);
+			assertBoardLocation(brd, Player.BLACK, PieceType.PAWN, Square.G4);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.F8);
+			assertBoardLocation(brd, Player.BLACK, PieceType.ROOK, Square.H8);
+			assertBoardLocation(brd, Player.BLACK, PieceType.KING, Square.E8);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.G8);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.C8);
+			assertBoardLocation(brd, Player.BLACK, PieceType.ROOK, Square.A8);
+			assertBoardLocation(brd, Player.BLACK, PieceType.KING, Square.E8);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.D8);
+			assertBoardLocation(brd, Player.BLACK, PieceType.KNIGHT, Square.B6);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.D5);
+			assertBoardLocation(brd, Player.BLACK, PieceType.PAWN, Square.A7);
+			assertBoardLocation(brd, Player.NO_PLAYER, PieceType.NO_PIECE, Square.A5);
+			assertEquals(Square.E8, brd.getKingSquare(Player.BLACK));
+		}
 		// capture_promo
 		{
 			int move = Move.createCapturePromo(Square.E2, Square.F1, PieceType.ROOK, PieceType.BISHOP, Player.BLACK);

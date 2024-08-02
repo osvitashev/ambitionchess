@@ -9,7 +9,7 @@ public class BitField64 {
 	private static final long[] BIT_EXTRACTION_MASK = { 0, 0x1, 0x3, 0x7, 0xF, 0x1F, 0x3F, 0x7F, 0xFF };
 
 	public static long setBits(long info, int val, int pos, int len) {
-		int val2 = val;
+		long val2 = val;
 		info &= ~(BIT_EXTRACTION_MASK[len] << pos);// this clears out the bit range we want to set.
 		return info | (val2 << pos);
 	}

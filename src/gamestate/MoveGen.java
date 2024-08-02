@@ -259,18 +259,35 @@ public class MoveGen {
 
 		generateCastling(brd, movepool);
 		return movepool.size();
-
 	}
 	
 	/**
-	 * If the current sized to move is in check, the method does a quick probe with the move generator to see if it is a checkmate.
+	 * generates captures+promotions.
+	 * DOES NOT EXPLICITLY GENERATE CHECKS!!!!!
+	 * @param brd
+	 * @param movepool
+	 * @return
+	 */
+	public int generateNonQuietLegalMoves(Gamestate brd, MovePool movepool) {
+		generateEnpassant(brd, movepool);
+		generatePawnCaptures(brd, movepool);
+		generatePawnPromotionsAndCapturePromotions(brd, movepool);
+		generateRookCaptures(brd, movepool);
+		generateKnightCaptures(brd, movepool);
+		generateBishopCaptures(brd, movepool);
+		generateQueenCaptures(brd, movepool);
+		generateKingCaptures(brd, movepool);
+		return movepool.size();
+	}
+	
+	/**
+	 * the method does a quick probe with the move generator to see if it is a checkmate/stalemate.
 	 * @param brd
 	 * @param movepool - is only used as a temporary placeholder. It's state is not modified when the function returns.
 	 * @return
 	 */
-	public boolean isCheckmate(Gamestate brd, MovePool movepool) {
+	public boolean noMovesAreAvailable(Gamestate brd, MovePool movepool) {
 		//OPTIMIZE: the individual move generators can be re-ordered so that the function exits faster.
-		assert brd.getIsCheck();
 		int movepool_size_old = movepool.size();
 		generateEnpassant(brd, movepool);
 		if(movepool.size() != movepool_size_old) {
@@ -342,7 +359,7 @@ public class MoveGen {
 			movepool.resize(movepool_size_old);
 			return false;
 		}
-		generateCastling(brd, movepool);//really, thoube be removed - we cannot castle when in check!
+		generateCastling(brd, movepool);
 		if(movepool.size() != movepool_size_old) {
 			movepool.resize(movepool_size_old);
 			return false;

@@ -32,6 +32,8 @@ import static util.BitField64.*;
 	26		1		is draw for other reason (triple repetition, insufficient material, triple move rule...)
 	27		1		is lower bound of alphabeta
 	28		1		is upper bound of alphabeta
+	29		6		Quiescence depth
+	35		??
 	
  	
  	There is a lot of room for potential future improvements:
@@ -72,6 +74,14 @@ public class SearchOutcome {
 	
 	public static long setDepth(long rez, int val) {
 		return setBits(rez, val, 16, 8);
+	}
+	
+	public static int getQuiescenceDepth(long rez) {
+		return getBits(rez, 29, 6);
+	}
+	
+	public static long setQuiescenceDepth(long rez, int val) {
+		return setBits(rez, val, 29, 6);
 	}
 	
 	public static boolean isCheckmate(long rez) {
@@ -148,16 +158,47 @@ public class SearchOutcome {
 		return getScore(rez1) >= getScore(rez2);
 	}
 	
-	public static long createCheckmate(int distance) {
+	public static long createCheckmate(int depth) {
 		long ret = setCheckmate(0L);
-		ret = setDepth(ret, distance);
-		ret = setScore(ret, LOSS+distance);
+		ret = setDepth(ret, depth);
+		ret = setScore(ret, LOSS+depth);
 		return ret;
 	}
 	
 	public static long createStalemate(int depth, int score) {
 		long ret = setStalemate(0L);
 		ret = setDepth(ret, depth);
+		ret = setScore(ret, score);
+		return ret;
+	}
+	
+	public static long createWithDepthAndScore(int depth, int score) {
+		long ret = 0;
+		ret = setDepth(ret, depth);
+		ret = setScore(ret, score);
+		return ret;
+	}
+	
+	public static long createCheckmate(int depth, int qDepth) {
+		long ret = setCheckmate(0L);
+		ret = setDepth(ret, depth);
+		ret = setQuiescenceDepth(ret, qDepth);
+		ret = setScore(ret, LOSS+depth);
+		return ret;
+	}
+	
+	public static long createStalemate(int depth, int qDepth, int score) {
+		long ret = setStalemate(0L);
+		ret = setDepth(ret, depth);
+		ret = setQuiescenceDepth(ret, qDepth);
+		ret = setScore(ret, score);
+		return ret;
+	}
+	
+	public static long createWithDepthAndScore(int depth, int qDepth, int score) {
+		long ret = 0;
+		ret = setDepth(ret, depth);
+		ret = setQuiescenceDepth(ret, qDepth);
 		ret = setScore(ret, score);
 		return ret;
 	}
@@ -173,13 +214,6 @@ public class SearchOutcome {
 		long ret = 0;
 		ret = setScore(ret, score);
 		ret = setBoolean(ret, true, 28);
-		return ret;
-	}
-	
-	public static long createWithDepthAndScore(int depth, int score) {
-		long ret = 0;
-		ret = setDepth(ret, depth);
-		ret = setScore(ret, score);
 		return ret;
 	}
 	
@@ -204,6 +238,7 @@ public class SearchOutcome {
 	public static String outcomeToString(long outcome, boolean isMaximizer) {
 		String ret = "{depth=";
 		ret+=getDepth(outcome);
+		ret+=", qDepth="+getQuiescenceDepth(outcome);
 		ret+=", maximizerScore=";
 		int score = getScore(outcome);
 		ret+=isMaximizer ? score : -score;
@@ -218,6 +253,10 @@ public class SearchOutcome {
 		if(isUpperBound(outcome))
 			ret+= ", HIGH!";
 		return ret + "}";
+	}
+	
+	public static String outcomeToString(long outcome) {
+		return outcomeToString(outcome, true);
 	}
 	
 }

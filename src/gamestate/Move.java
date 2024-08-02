@@ -21,9 +21,9 @@ import gamestate.GlobalConstants.Square;
 	12		3		piece_type
 	15		3		piece_captured
 	18		3		piece_promoted
-	21		3		move_type
- 	24		1		player
- 	25		1		check = is set by move validation
+	21		4		move_type
+ 	25		1		player
+ 	26		1		check = is set by move validation
 	
 	IDEA: Zobriest hashing can be implemented for moves in order to implement Killer move heuristic
 	
@@ -86,33 +86,33 @@ public class Move {
 	}
 
 	public static int getMoveType(int move) {
-		return getBits(move, 21, 3);
+		return getBits(move, 21, 4);
 	}
 
 	public static int setMoveType(int move, int type) {
 		assert MoveType.validate(type);
-		return setBits(move, type, 21, 3);
+		return setBits(move, type, 21, 4);
 	}
 
 	public static int getPlayer(int move) {
-		return getBits(move, 24, 1);
+		return getBits(move, 25, 1);
 	}
 
 	public static int setPlayer(int move, int pl) {
 		assert Player.validate(pl);
-		return setBits(move, pl, 24, 1);
+		return setBits(move, pl, 25, 1);
 	}
 
 	public static boolean getCheck(int move) {
-		return getBoolean(move, 25);
+		return getBoolean(move, 26);
 	}
 
 	public static int setCheck(int move, boolean val) {
-		return setBoolean(move, val, 25);
+		return setBoolean(move, val, 26);
 	}
 
 	public static int setCheck(int move) {
-		return setBoolean(move, true, 25);
+		return setBoolean(move, true, 26);
 	}
 
 	public static String moveToString(int move) {
@@ -144,7 +144,11 @@ public class Move {
 		case MoveType.DOUBLE_PUSH:
 			ret = Square.squareToAlgebraicString(Move.getSquareFrom(move)) + "-" + Square.squareToAlgebraicString(Move.getSquareTo(move));
 			break;
+		case MoveType.NULL_MOVE:
+			ret = "null";
+			break;
 		}
+		
 		if (Move.getCheck(move))
 			ret += "+";
 		return ret;
@@ -184,6 +188,9 @@ public class Move {
 			break;
 		case MoveType.DOUBLE_PUSH:
 			ret = Square.squareToAlgebraicString(Move.getSquareFrom(move)) + Square.squareToAlgebraicString(Move.getSquareTo(move));
+			break;
+		case MoveType.NULL_MOVE:
+			ret = "null";
 			break;
 		}
 		return ret;
@@ -285,6 +292,14 @@ public class Move {
 		move = Move.setSquareFrom(move, squareFrom);
 		move = Move.setSquareTo(move, squareTo);
 		move = Move.setMoveType(move, MoveType.DOUBLE_PUSH);
+		move = Move.setPlayer(move, player);
+		return move;
+	}
+	
+	public static int createNullMove(int player) {
+		assert Player.validate(player);
+		int move = 0;
+		move = Move.setMoveType(move, MoveType.NULL_MOVE);
 		move = Move.setPlayer(move, player);
 		return move;
 	}

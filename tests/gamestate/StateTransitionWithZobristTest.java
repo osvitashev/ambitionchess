@@ -20,33 +20,51 @@ class StateTransitionWithZobristTest {
 		if (moveToFENMapping.size()==0) {
 			return;
 		}
-		
-		int test_movelist_size_old = test_movepool.size();
-		test_move_generator.generateLegalMoves(test_board, test_movepool);
-		boolean found = false;
-		String oldFEN= game.toFEN();
-		long oldZobristHash = game.getZobristHash();
-		for (int i = test_movelist_size_old; i < test_movepool.size(); ++i) {
-			if(Move.toUCINotation(test_movepool.get(i)).equals(moveToFENMapping.get(0).getKey())) {
-				found = true;
-				int move = test_movepool.get(i);
-				game.makeMove(move);
-				assertEquals(moveToFENMapping.get(0).getValue(), game.toFEN(), " with: " + moveToFENMapping.get(0).getKey());
-				assertNotEquals(oldZobristHash, game.getZobristHash(), " with: " + moveToFENMapping.get(0).getKey());
-				
-				processMoveSequence(game,
-						moveToFENMapping.subList(1, moveToFENMapping.size()),
-						moveHistrotyStr + (moveHistrotyStr.length() == 0 ? "" : " ") + Move.toUCINotation(move)
-					);
-				
-				game.unmakeMove(move);
-				assertEquals(oldFEN, game.toFEN(), " with: " + moveToFENMapping.get(0).getKey());
-				assertEquals(oldZobristHash, game.getZobristHash(), " with: " + moveToFENMapping.get(0).getKey());
-				break;
-			}
+		if(moveToFENMapping.get(0).getKey().equals("null")) {
+			long oldZobristHash = game.getZobristHash();
+			String oldFEN= game.toFEN();
+			int move = Move.createNullMove(game.getPlayerToMove());
+			game.makeMove(move);
+			assertEquals(moveToFENMapping.get(0).getValue(), game.toFEN(), " with: " + moveToFENMapping.get(0).getKey());
+			assertNotEquals(oldZobristHash, game.getZobristHash(), " with: " + moveToFENMapping.get(0).getKey());
+			
+			processMoveSequence(game,
+					moveToFENMapping.subList(1, moveToFENMapping.size()),
+					moveHistrotyStr + (moveHistrotyStr.length() == 0 ? "" : " ") + Move.toUCINotation(move)
+				);
+			
+			game.unmakeMove(move);
+			assertEquals(oldFEN, game.toFEN(), " with: " + moveToFENMapping.get(0).getKey());
+			assertEquals(oldZobristHash, game.getZobristHash(), " with: " + moveToFENMapping.get(0).getKey());
 		}
-		assertEquals(true, found, " with: " + moveToFENMapping.get(0).getKey());
-		test_movepool.resize(test_movelist_size_old);
+		else {
+			int test_movelist_size_old = test_movepool.size();
+			test_move_generator.generateLegalMoves(test_board, test_movepool);
+			boolean found = false;
+			String oldFEN= game.toFEN();
+			long oldZobristHash = game.getZobristHash();
+			for (int i = test_movelist_size_old; i < test_movepool.size(); ++i) {
+				if(Move.toUCINotation(test_movepool.get(i)).equals(moveToFENMapping.get(0).getKey())) {
+					found = true;
+					int move = test_movepool.get(i);
+					game.makeMove(move);
+					assertEquals(moveToFENMapping.get(0).getValue(), game.toFEN(), " with: " + moveToFENMapping.get(0).getKey());
+					assertNotEquals(oldZobristHash, game.getZobristHash(), " with: " + moveToFENMapping.get(0).getKey());
+					
+					processMoveSequence(game,
+							moveToFENMapping.subList(1, moveToFENMapping.size()),
+							moveHistrotyStr + (moveHistrotyStr.length() == 0 ? "" : " ") + Move.toUCINotation(move)
+						);
+					
+					game.unmakeMove(move);
+					assertEquals(oldFEN, game.toFEN(), " with: " + moveToFENMapping.get(0).getKey());
+					assertEquals(oldZobristHash, game.getZobristHash(), " with: " + moveToFENMapping.get(0).getKey());
+					break;
+				}
+			}
+			assertEquals(true, found, " with: " + moveToFENMapping.get(0).getKey());
+			test_movepool.resize(test_movelist_size_old);
+		}
 	}
 	
 	@Test
@@ -138,7 +156,18 @@ class StateTransitionWithZobristTest {
 	            ,new SimpleEntry<>("a5b4", "8/3p4/2n1k1P1/1pP1P3/pp1PPp2/2pK2p1/7R/8 w - - 0 5")
 	            // more entries
 	        ), "");
+		//null move
+		processMoveSequence(test_board.loadFromFEN("8/8/2k5/2N5/5p2/5K2/8/8 w - - 0 1"), List.of(
+	            new SimpleEntry<>("null", "8/8/2k5/2N5/5p2/5K2/8/8 b - - 1 1")
+	            ,new SimpleEntry<>("null", "8/8/2k5/2N5/5p2/5K2/8/8 w - - 2 2")
+	            ,new SimpleEntry<>("f3f2", "8/8/2k5/2N5/5p2/8/5K2/8 b - - 3 2")
+	            ,new SimpleEntry<>("null", "8/8/2k5/2N5/5p2/8/5K2/8 w - - 4 3")
+	            ,new SimpleEntry<>("null", "8/8/2k5/2N5/5p2/8/5K2/8 b - - 5 3")
+	            // more entries
+	        ), "");
 	}
+	
+	//todo: add case to test that transitioning from position A to position B by two different routes results in the same hash value.
 	
 	@Test
 	void testLoading() {

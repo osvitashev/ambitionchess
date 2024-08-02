@@ -193,7 +193,7 @@ public class GlobalConstants {
 	 */
 	public static final class MoveType {
 		public static boolean validate(int pt) {
-			return pt>=0 && pt<=7;
+			return pt>=0 && pt<=8;
 		}
 		// NOTICE: assigned value roughly indicate the desired move ordering.
 		public static final int PROMO_CAPTURE = 0;
@@ -204,6 +204,10 @@ public class GlobalConstants {
 		public static final int CASTLE_QUEEN = 5;
 		public static final int NORMAL = 6;
 		public static final int DOUBLE_PUSH = 7;
+		public static final int NULL_MOVE = 8;
+		/**
+		 * Does not include null move!
+		 */
 		public static final int[] MOVE_TYPES = { PROMO_CAPTURE, PROMO, CAPTURE, ENPASSANT, CASTLE_KING, CASTLE_QUEEN, NORMAL, DOUBLE_PUSH };
 		
 		public static String toString(int mType) {
@@ -222,8 +226,10 @@ public class GlobalConstants {
 				return "CASTLE_QUEEN";
 			case NORMAL:
 				return "NORMAL";
+			case DOUBLE_PUSH:
+				return "DOUBLE_PUSH";
 			}
-			return "DOUBLE_PUSH";
+			return "NULL_MOVE";
 		}
 	}
 

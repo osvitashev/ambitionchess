@@ -506,6 +506,29 @@ class UndoInfoTest {
 		brd.unmakeMove(move);
 		assertEquals(fen, brd.toFEN());
 		assertEquals(false, brd.getIsCheck());
+		
+		//null move
+		fen = "8/8/2k5/2N5/5p2/5K2/8/8 w - - 3 4";
+		brd = new Gamestate(fen);
+		assertEquals(false, brd.getIsCheck());
+		move = Move.createNullMove(Player.WHITE);
+		brd.makeMove(move);
+		assertEquals("8/8/2k5/2N5/5p2/5K2/8/8 b - - 4 4", brd.toFEN());
+		assertEquals(false, brd.getIsCheck());
+		brd.unmakeMove(move);
+		assertEquals(fen, brd.toFEN());
+		assertEquals(false, brd.getIsCheck());
+		
+		fen = "8/8/2k5/2N5/5p2/5K2/8/8 b - - 3 4";
+		brd = new Gamestate(fen);
+		assertEquals(false, brd.getIsCheck());
+		move = Move.createNullMove(Player.BLACK);
+		brd.makeMove(move);
+		assertEquals("8/8/2k5/2N5/5p2/5K2/8/8 w - - 4 5", brd.toFEN());
+		assertEquals(false, brd.getIsCheck());
+		brd.unmakeMove(move);
+		assertEquals(fen, brd.toFEN());
+		assertEquals(false, brd.getIsCheck());
 	}
 
 }
