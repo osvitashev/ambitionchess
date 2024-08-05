@@ -20,7 +20,9 @@ class AlphaBetaSearcherTest {
 		));
 		
 		
-		AlphaBetaSearcher searcher = new AlphaBetaSearcher(context);
+		AlphaBetaSearcher searcher = new AlphaBetaSearcher(AlphaBetaSearcher.Builder.newInstance()
+				.setContext(context)
+			);
 		searcher.setFullDepthSearchLimit(5);
 		String[][] tests = {
 				{ "2r1k3/1b3ppp/p3p3/1p1n4/4q3/PQ2P1P1/1P2BP1P/5RK1 b - - 0 1", "{e4g2 g1g2 d5f4 g2g1 f4h3}" },
@@ -67,7 +69,9 @@ class AlphaBetaSearcherTest {
 		));
 		
 		
-		AlphaBetaSearcher searcher = new AlphaBetaSearcher(context);
+		AlphaBetaSearcher searcher = new AlphaBetaSearcher(AlphaBetaSearcher.Builder.newInstance()
+				.setContext(context)
+			);
 		searcher.setFullDepthSearchLimit(7);
 
 		String[][] tests = {
@@ -112,14 +116,15 @@ class AlphaBetaSearcherTest {
 		));
 		
 		
-		AlphaBetaSearcher searcher = new AlphaBetaSearcher(context);
+		AlphaBetaSearcher searcher = new AlphaBetaSearcher(AlphaBetaSearcher.Builder.newInstance()
+				.setContext(context)
+			);
 
 		String[][] tests = {
 				{ "2r1k3/1b3ppp/p3p3/1p1n4/4q3/PQ2P1P1/1P2BP1P/5RK1 b - - 0 1", "{e4g2 g1g2 d5f4 g2g1 f4h3}" },
 				{ "r1q2r1k/p4b2/1p2pP2/3p3p/1P1B1P2/2PB4/P3Q2P/6RK w - - 0 1", "{e2h5 f7h5 f6f7 e6e5 d4e5}" },
+				
 				{ "2q1nk1r/4Rp2/1ppp1P2/6Pp/3p1B2/3P3P/PPP1Q3/6K1 w - - 0 1", "{e7e8 c8e8 f4d6 e8e7 e2e7 f8g8 g5g6 h5h4 e7d8}" },//mate in 5
-				
-				
 				{ "4r3/7q/nb2prRp/pk1p3P/3P4/P7/1P2N1P1/1K1B1N2 w - - 0 1", "{d1a4 b5c4 b2b3 c4d3 a4b5 d3e4 g6g4 f6f4 g4f4}" },
 		};
 		
@@ -147,13 +152,14 @@ class AlphaBetaSearcherTest {
 	@Test
 	void testDraw() {
 		SearchContext context = new SearchContext();
-		AlphaBetaSearcher searcher = new AlphaBetaSearcher(context);
+		AlphaBetaSearcher searcher = new AlphaBetaSearcher(AlphaBetaSearcher.Builder.newInstance()
+				.setDrawAsVictoryForMaximixingPlayer()
+				.setContext(context)
+			);
 		
 		context.setEvaluator(new Evaluator(Evaluator.Builder.newInstance()
-				.setDrawAsVictoryForMaximixingPlayer()
 				.setSearcher(searcher)
 				.setEvaluator(() -> {
-					
 					int ret = 0;
 					int player = Player.WHITE;
 					ret+=100*Bitboard.popcount(context.getBrd().getPieces(player, PieceType.PAWN));

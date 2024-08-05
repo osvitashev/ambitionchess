@@ -1,16 +1,26 @@
 package searcher;
 
+import java.util.function.IntSupplier;
+import java.util.function.ToIntFunction;
+
 import gamestate.Gamestate;
 import gamestate.Move;
 import gamestate.MoveGen;
 import gamestate.MovePool;
+import searcher.Evaluator.Builder;
 
 public class AlphaBetaSearcher {
 	private SearchContext context;
 	private PrincipalVariation principalVariation = new PrincipalVariation();
+	/**
+	 * only returns the score part of the SearchOutcome.
+	 * It is caller's responsibility to distinguish between different types of draw if it is needed.
+	 */
+	private ToIntFunction<AlphaBetaSearcher>  drawScoreAssigner;
 	
-	AlphaBetaSearcher(SearchContext c){
-		this.context = c;
+	public AlphaBetaSearcher(Builder bld) {
+		context=bld.context;
+		drawScoreAssigner=bld.drawScoreAssigner;
 	}
 	
 	/**
@@ -92,7 +102,7 @@ public class AlphaBetaSearcher {
 				return returnScoreFromSearch(movepool_size_old, alpha);
 		}
 		else if (movepool.size() == movepool_size_old && !brd.getIsCheck()) {// STALEMATE
-			long score = SearchOutcome.createStalemate(depth, evaluator.assignScoreToDraw());
+			long score = SearchOutcome.createStalemate(depth, drawScoreAssigner.applyAsInt(this));
 			//notice that we do not need to resize the move pool - no new moves have been generated.
 			if(SearchOutcome.isScoreGreater(score, alpha))
 				return returnScoreFromSearch(movepool_size_old, score);
@@ -123,5 +133,45 @@ public class AlphaBetaSearcher {
 		}
 		
 		return returnScoreFromSearch(movepool_size_old, alpha);
+	}
+	
+	public static class Builder{
+		private SearchContext context;
+		public Builder setContext(SearchContext context) {
+			this.context = context;
+			return this;
+		}
+
+
+		private ToIntFunction<AlphaBetaSearcher> drawScoreAssigner;
+		
+		public static Builder newInstance()
+        {
+			Builder bld = new Builder();
+            return bld;
+        }
+
+        private Builder() {
+        	drawScoreAssigner = (seacher) -> 0;
+        }
+        
+        
+        public Builder setDrawAsVictoryForMaximixingPlayer() {
+        	//this version correctly handles { "8/8/8/5k2/7K/2R2n2/8/5q2 w - - 0 1", "{c3f3 f1f3}" }
+//        	assignerScoreToDraw = (searcher) -> {
+//        		if(searcher.getBrd().getPlayerToMove() == Player.WHITE ^ searcher.getDepth() % 2 == 1)
+//        			return 1;
+//        		else
+//        			return -1;
+//        	};
+        	
+        	drawScoreAssigner = (searcher) -> {
+        		if(searcher.getDepth() % 2 == 0)
+        			return SearchOutcome.FAVOURABLE_DRAW_FOR_MAXIMIZING_PLAYER-searcher.getDepth();
+        		else
+        			return -SearchOutcome.FAVOURABLE_DRAW_FOR_MAXIMIZING_PLAYER+searcher.getDepth();
+        	};
+        	return this;
+        }
 	}
 }
