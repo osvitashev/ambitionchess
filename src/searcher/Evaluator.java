@@ -1,5 +1,7 @@
 package searcher;
 
+import java.util.function.IntConsumer;
+import java.util.function.IntSupplier;
 import java.util.function.ObjIntConsumer;
 import java.util.function.ToIntFunction;
 
@@ -26,48 +28,45 @@ public class Evaluator {
 	//todo: this should also take a custom comparator!
 	
 	private AlphaBetaSearcher searcher;
-	
-	public void setSearcher(AlphaBetaSearcher searcher) {
-		this.searcher = searcher;
-	}
 
 	/**
 	 * only returns the score part of the SearchOutcome.
 	 * It is caller's responsibility to distinguish between different types of draw if it is needed.
 	 */
-	private ToIntFunction<AlphaBetaSearcher> assignerScoreToDraw;
+	private IntSupplier assignerScoreToDraw;
 	
-	private ToIntFunction<AlphaBetaSearcher> evaluator;
+	private IntSupplier evaluator;
 	
 	/**
 	 * is intended to incrementally update data needed for evaluation
 	 * MUST call brd.makeMove(move);
 	 * https://marcelkliemannel.com/articles/2021/avoiding-autoboxing-by-using-primitive-in-functional-interfaces-streams-and-optionals/
 	 */
-	private ObjIntConsumer<AlphaBetaSearcher> makerMoveWithSideEffectts;
+	private IntConsumer makerMoveWithSideEffectts;
 	
 	/**
 	 * is intended to incrementally update data needed for evaluation
 	 * MUST call brd.unmakeMove(move);
 	 */
-	private ObjIntConsumer<AlphaBetaSearcher> unmakerMoveWithSideEffectts;
+	private IntConsumer unmakerMoveWithSideEffectts;
 	
 	
 	
 	public int assignScoreToDraw() {
-		return assignerScoreToDraw.applyAsInt(searcher);
+		return assignerScoreToDraw.getAsInt();
 	}
 	
 	public int evaluate() {
-		return evaluator.applyAsInt(searcher);
+		return evaluator.getAsInt();
 	}
 	
 	
 	public static class Builder {
-		private ToIntFunction<AlphaBetaSearcher> assignerScoreToDraw;
-		private ToIntFunction<AlphaBetaSearcher> evaluator;
-		private ObjIntConsumer<AlphaBetaSearcher> makerMoveWithSideEffectts;
-		private ObjIntConsumer<AlphaBetaSearcher> unmakerMoveWithSideEffectts;
+		private IntSupplier assignerScoreToDraw;
+		private IntSupplier evaluator;
+		private IntConsumer makerMoveWithSideEffectts;
+		private IntConsumer unmakerMoveWithSideEffectts;
+		private AlphaBetaSearcher searcher;
 		
 		private int[] PIECE_MATERIAL_VALUES;
 		
@@ -78,10 +77,10 @@ public class Evaluator {
         }
 
         private Builder() {
-        	assignerScoreToDraw = searcher -> 0;
-        	evaluator = searcher -> 0;
-        	makerMoveWithSideEffectts = (searcher, move) -> {};
-        	unmakerMoveWithSideEffectts = (searcher, move) -> {};
+        	assignerScoreToDraw = () -> 0;
+        	evaluator = () -> 0;
+        	makerMoveWithSideEffectts = (move) -> {};
+        	unmakerMoveWithSideEffectts = (move) -> {};
         }
         
         public Builder setPieceMaterialValues(int [] matvals) {
@@ -98,7 +97,7 @@ public class Evaluator {
 //        			return -1;
 //        	};
         	
-        	assignerScoreToDraw = (searcher) -> {
+        	assignerScoreToDraw = () -> {
         		if(searcher.getDepth() % 2 == 0)
         			return SearchOutcome.FAVOURABLE_DRAW_FOR_MAXIMIZING_PLAYER-searcher.getDepth();
         		else
@@ -107,11 +106,15 @@ public class Evaluator {
         	return this;
         }
 
-		public Builder setEvaluator(ToIntFunction<AlphaBetaSearcher> evaluator) {
+		public Builder setEvaluator(IntSupplier evaluator) {
 			this.evaluator = evaluator;
 			return this;
 		}
 
+		public Builder setSearcher(AlphaBetaSearcher searcher) {
+			this.searcher= searcher;
+			return this;
+		}
 
 	}
 }

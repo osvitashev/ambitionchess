@@ -12,7 +12,15 @@ class AlphaBetaSearcherTest {
 
 	@Test
 	void testMateIn3() {
-		AlphaBetaSearcher searcher = new AlphaBetaSearcher(new Evaluator(Evaluator.Builder.newInstance()));
+		SearchContext context = new SearchContext();
+		context.setEvaluator(new Evaluator(Evaluator.Builder.newInstance()
+				.setEvaluator(() -> {
+					return 0;
+				})// setEvaluator
+		));
+		
+		
+		AlphaBetaSearcher searcher = new AlphaBetaSearcher(context);
 		searcher.setFullDepthSearchLimit(5);
 		String[][] tests = {
 				{ "2r1k3/1b3ppp/p3p3/1p1n4/4q3/PQ2P1P1/1P2BP1P/5RK1 b - - 0 1", "{e4g2 g1g2 d5f4 g2g1 f4h3}" },
@@ -36,7 +44,7 @@ class AlphaBetaSearcherTest {
 		};
 		
 		for (int t = 0; t < tests.length; ++t) {
-			searcher.getBrd().loadFromFEN(tests[t][0]);
+			context.getBrd().loadFromFEN(tests[t][0]);
 			long outcome = searcher.doSearch(SearchOutcome.createLowerBound(SearchOutcome.LOSS), SearchOutcome.createUpperBound(SearchOutcome.WIN));
 			System.out.println(searcher.getPrincipalVariation().toString());
 			assertEquals(tests[t][1], searcher.getPrincipalVariation().toString());
@@ -51,7 +59,15 @@ class AlphaBetaSearcherTest {
 	 */
 	@Test
 	void testMateIn3WithUnderestimatedDepth() {
-		AlphaBetaSearcher searcher = new AlphaBetaSearcher(new Evaluator(Evaluator.Builder.newInstance()));
+		SearchContext context = new SearchContext();
+		context.setEvaluator(new Evaluator(Evaluator.Builder.newInstance()
+				.setEvaluator(() -> {
+					return 0;
+				})// setEvaluator
+		));
+		
+		
+		AlphaBetaSearcher searcher = new AlphaBetaSearcher(context);
 		searcher.setFullDepthSearchLimit(7);
 
 		String[][] tests = {
@@ -76,7 +92,7 @@ class AlphaBetaSearcherTest {
 		};
 		
 		for (int t = 0; t < tests.length; ++t) {
-			searcher.getBrd().loadFromFEN(tests[t][0]);
+			context.getBrd().loadFromFEN(tests[t][0]);
 			long outcome = searcher.doSearch(SearchOutcome.createLowerBound(SearchOutcome.LOSS), SearchOutcome.createUpperBound(SearchOutcome.WIN));
 			System.out.println(searcher.getPrincipalVariation().toString());
 			assertTrue(SearchOutcome.isCheckmate(outcome));
@@ -88,7 +104,15 @@ class AlphaBetaSearcherTest {
 	
 	@Test
 	void testMateWithIterativeDeepening() {
-		AlphaBetaSearcher searcher = new AlphaBetaSearcher(new Evaluator(Evaluator.Builder.newInstance()));
+		SearchContext context = new SearchContext();
+		context.setEvaluator(new Evaluator(Evaluator.Builder.newInstance()
+				.setEvaluator(() -> {
+					return 0;
+				})// setEvaluator
+		));
+		
+		
+		AlphaBetaSearcher searcher = new AlphaBetaSearcher(context);
 
 		String[][] tests = {
 				{ "2r1k3/1b3ppp/p3p3/1p1n4/4q3/PQ2P1P1/1P2BP1P/5RK1 b - - 0 1", "{e4g2 g1g2 d5f4 g2g1 f4h3}" },
@@ -102,7 +126,7 @@ class AlphaBetaSearcherTest {
 		
 		for (int t = 0; t < tests.length; t+=1) {
 			for(int moves=0; ; moves+=1) {
-				searcher.getBrd().loadFromFEN(tests[t][0]);
+				context.getBrd().loadFromFEN(tests[t][0]);
 				searcher.setFullDepthSearchLimit(moves);
 				long outcome = searcher.doSearch(SearchOutcome.createLowerBound(SearchOutcome.LOSS), SearchOutcome.createUpperBound(SearchOutcome.WIN));
 				System.out.println("Trying depth: " + moves);
@@ -122,35 +146,44 @@ class AlphaBetaSearcherTest {
 	
 	@Test
 	void testDraw() {
-		AlphaBetaSearcher searcher = new AlphaBetaSearcher(new Evaluator(
-				Evaluator.Builder.newInstance()
+		SearchContext context = new SearchContext();
+		AlphaBetaSearcher searcher = new AlphaBetaSearcher(context);
+		
+		context.setEvaluator(new Evaluator(Evaluator.Builder.newInstance()
 				.setDrawAsVictoryForMaximixingPlayer()
-				.setEvaluator((mysearcher) -> {
+				.setSearcher(searcher)
+				.setEvaluator(() -> {
 					
 					int ret = 0;
 					int player = Player.WHITE;
-					ret+=100*Bitboard.popcount(mysearcher.getBrd().getPieces(player, PieceType.PAWN));
-					ret+=300*Bitboard.popcount(mysearcher.getBrd().getPieces(player, PieceType.KNIGHT));
-					ret+=300*Bitboard.popcount(mysearcher.getBrd().getPieces(player, PieceType.BISHOP));
-					ret+=500*Bitboard.popcount(mysearcher.getBrd().getPieces(player, PieceType.ROOK));
-					ret+=900*Bitboard.popcount(mysearcher.getBrd().getPieces(player, PieceType.QUEEN));
+					ret+=100*Bitboard.popcount(context.getBrd().getPieces(player, PieceType.PAWN));
+					ret+=300*Bitboard.popcount(context.getBrd().getPieces(player, PieceType.KNIGHT));
+					ret+=300*Bitboard.popcount(context.getBrd().getPieces(player, PieceType.BISHOP));
+					ret+=500*Bitboard.popcount(context.getBrd().getPieces(player, PieceType.ROOK));
+					ret+=900*Bitboard.popcount(context.getBrd().getPieces(player, PieceType.QUEEN));
 					player = Player.BLACK;
-					ret-=100*Bitboard.popcount(mysearcher.getBrd().getPieces(player, PieceType.PAWN));
-					ret-=300*Bitboard.popcount(mysearcher.getBrd().getPieces(player, PieceType.KNIGHT));
-					ret-=300*Bitboard.popcount(mysearcher.getBrd().getPieces(player, PieceType.BISHOP));
-					ret-=500*Bitboard.popcount(mysearcher.getBrd().getPieces(player, PieceType.ROOK));
-					ret-=900*Bitboard.popcount(mysearcher.getBrd().getPieces(player, PieceType.QUEEN));
-					ret= mysearcher.getBrd().getPlayerToMove() == Player.WHITE ? ret : -ret;
+					ret-=100*Bitboard.popcount(context.getBrd().getPieces(player, PieceType.PAWN));
+					ret-=300*Bitboard.popcount(context.getBrd().getPieces(player, PieceType.KNIGHT));
+					ret-=300*Bitboard.popcount(context.getBrd().getPieces(player, PieceType.BISHOP));
+					ret-=500*Bitboard.popcount(context.getBrd().getPieces(player, PieceType.ROOK));
+					ret-=900*Bitboard.popcount(context.getBrd().getPieces(player, PieceType.QUEEN));
+					ret= context.getBrd().getPlayerToMove() == Player.WHITE ? ret : -ret;
 					
 					//player who is behind on material is considered to be losing and thus favors the stalemate.
 					if(ret > 0 )
-						return SearchOutcome.WIN - mysearcher.getDepth();
+						return SearchOutcome.WIN - searcher.getDepth();
 					else if(ret<0)
-						return SearchOutcome.LOSS + mysearcher.getDepth();
+						return SearchOutcome.LOSS + searcher.getDepth();
 					else
 						return 0;
-				})//setEvaluator
+				
+				})// setEvaluator
 		));
+		
+		
+		
+		
+		
 		searcher.setFullDepthSearchLimit(6);
 		String[][] tests = {
 				//side-to-move needs to be actually down on material in order to prioritize the stalemate
@@ -162,7 +195,7 @@ class AlphaBetaSearcherTest {
 		};
 		
 		for (int t = 0; t < tests.length; ++t) {
-			searcher.getBrd().loadFromFEN(tests[t][0]);
+			context.getBrd().loadFromFEN(tests[t][0]);
 			long outcome = searcher.doSearch(SearchOutcome.createLowerBound(SearchOutcome.LOSS), SearchOutcome.createUpperBound(SearchOutcome.WIN));
 			System.out.println("final PV: " + searcher.getPrincipalVariation().toString());
 			System.out.println("final outcome: " + SearchOutcome.outcomeToString(outcome, true));

@@ -10,12 +10,6 @@ import org.junit.jupiter.api.Test;
 class QuiescenceSearchTest {
 	static final boolean ENABLE_LOGGING=true;
 	
-	EvaluatorPesto pesto = new EvaluatorPesto();
-	AlphaBetaSearcher searcher = new AlphaBetaSearcher(new Evaluator(Evaluator.Builder.newInstance()
-			.setEvaluator((mysearcher) -> {
-				return pesto.evaluate(mysearcher.getBrd());
-			})// setEvaluator
-	));
 	
 	private int getPV_length(String pv) {
 		String [] strings = pv.substring(1, pv.length() - 1).split(" ");
@@ -55,7 +49,16 @@ class QuiescenceSearchTest {
 	@Test
 	@Disabled
 	void testQSearch_comparable() {
+		SearchContext context = new SearchContext();
+		EvaluatorPesto pesto = new EvaluatorPesto();
+		context.setEvaluator(new Evaluator(Evaluator.Builder.newInstance()
+				.setEvaluator((mysearcher) -> {
+					return pesto.evaluate(context.getBrd());
+				})// setEvaluator
+		));
 		
+		
+		AlphaBetaSearcher searcher = new AlphaBetaSearcher(context);
 		
 		searcher.setFullDepthSearchLimit(0);
 		
@@ -117,6 +120,8 @@ class QuiescenceSearchTest {
 		 qsTraceHelper("8/p3k3/1q2n3/5P2/8/1R6/PP6/K7 w - - 0 1");
 
 		 qsTraceHelper("8/1p2k3/1q2n3/5P2/8/1R6/PP6/K7 w - - 0 1");
+		 
+		 qsTraceHelper("8/4N3/5k2/1p6/1K6/8/8/8 w - - 0 1");
 
 		/**
 		 * assuming that {b3b6 a7b6 null null f5e6 e7e6} and {b3b6 a7b6 f5e6 e7e6 null null}

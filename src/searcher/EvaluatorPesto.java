@@ -228,11 +228,6 @@ public class EvaluatorPesto {
 		return pesto_eval();
 	}
 	
-	int evaluate(AlphaBetaSearcher searcher) {
-		doTranslation(searcher.getBrd());
-		return pesto_eval();
-	}
-	
 	/**
 	 * Populates board with [WHITE_PAWN, EMPTY]
 	 * @param searcher
