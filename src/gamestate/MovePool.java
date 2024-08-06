@@ -13,6 +13,7 @@ public class MovePool {
 	}
 	
 	public void resize(int newSize) {
+		assert newSize>=0;
 		movepool_size=newSize;
 	}
 	

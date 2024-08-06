@@ -24,6 +24,11 @@ public class AlphaBetaSearcher {
 	}
 	
 	/**
+	 * marker to the movelist generated at the given depth.
+	 */
+	private int[] numMovesAtDepth = new int[50];
+	
+	/**
 	 * it is incremented at the start of the recursive call. -1 as the start value makes it correct throughout.
 	 */
 	private int depth = -1;//todo: can actually be dropped. All we need is the game plycount at the beginning of the search. Search depth can be calculated using that and the updated game state!!!
@@ -54,10 +59,11 @@ public class AlphaBetaSearcher {
 	 * @param score - to be returned
 	 * @return score
 	 */
-	private long returnScoreFromSearch(int movelistSize, long score) {
+	private long returnScoreFromSearch(long score) {
 //		System.out.println(brd.getMoveHistoryString() + " {"+brd.toFEN() + "} returning " + SearchOutcome.outcomeToStringInMaximixerPerspective(score, getDepth()%2==0));
+		context.getMovepool().resize(context.getMovepool().size()-numMovesAtDepth[getDepth()]);
 		depth--;
-		context.getMovepool().resize(movelistSize);//this could be removed if movelist size was added as a parameter to the recursive search
+		//this could be removed if movelist size was added as a parameter to the recursive search
 		return score;
 	}
 		
@@ -72,6 +78,7 @@ public class AlphaBetaSearcher {
 //		if(depth==-1)System.out.println(">> "+ SearchOutcome.outcomeToStringInMaximixerPerspective(alpha, true) + " >> "+ SearchOutcome.outcomeToStringInMaximixerPerspective(beta,true));
 		depth++;
 		principalVariation.resetAtDepth(depth);//todo:re-evaluate whether this is needed. Maybe, i can do it at addMoveAtDepth
+		numMovesAtDepth[getDepth()]=0;
 		
 		MovePool movepool = context.getMovepool();
 		Gamestate brd=context.getBrd();
@@ -84,37 +91,39 @@ public class AlphaBetaSearcher {
 				long score = SearchOutcome.createCheckmate(depth);
 				//notice that we do not need to resize the move pool - no new moves have been generated.
 				if(SearchOutcome.compare(score, SearchOutcome.GTE, beta))
-					return returnScoreFromSearch(movepool_size_old, beta);
+					return returnScoreFromSearch(beta);
 				else if(SearchOutcome.compare(score, SearchOutcome.GT, alpha))
-					return returnScoreFromSearch(movepool_size_old, score);
+					return returnScoreFromSearch(score);
 				else
-					return returnScoreFromSearch(movepool_size_old, alpha);
+					return returnScoreFromSearch(alpha);
 			}
 			else {
-				return returnScoreFromSearch(movepool_size_old, SearchOutcome.createWithDepthAndScore(depth, evaluator.evaluate()));
+				return returnScoreFromSearch(SearchOutcome.createWithDepthAndScore(depth, evaluator.evaluate()));
 			}
 		}
 			
 		move_generator.generateLegalMoves(brd, movepool);
+		numMovesAtDepth[getDepth()]=movepool.size()-movepool_size_old;
+		
 		if (movepool.size() == movepool_size_old && brd.getIsCheck()) {//CHECKMATE
 			long score = SearchOutcome.createCheckmate(depth);
 			//notice that we do not need to resize the move pool - no new moves have been generated.
 			if(SearchOutcome.compare(score, SearchOutcome.GTE, beta))
-				return returnScoreFromSearch(movepool_size_old, beta);
+				return returnScoreFromSearch(beta);
 			else if(SearchOutcome.compare(score, SearchOutcome.GT, alpha))
-				return returnScoreFromSearch(movepool_size_old, score);
+				return returnScoreFromSearch(score);
 			else
-				return returnScoreFromSearch(movepool_size_old, alpha);
+				return returnScoreFromSearch(alpha);
 		}
 		else if (movepool.size() == movepool_size_old && !brd.getIsCheck()) {// STALEMATE
 			long score = SearchOutcome.createStalemate(depth, drawScoreAssigner.applyAsInt(this));
 			//notice that we do not need to resize the move pool - no new moves have been generated.
 			if(SearchOutcome.compare(score, SearchOutcome.GTE, beta))
-				return returnScoreFromSearch(movepool_size_old, beta);
+				return returnScoreFromSearch(beta);
 			else if(SearchOutcome.compare(score, SearchOutcome.GT, alpha))
-				return returnScoreFromSearch(movepool_size_old, score);
+				return returnScoreFromSearch(score);
 			else
-				return returnScoreFromSearch(movepool_size_old, alpha);
+				return returnScoreFromSearch(alpha);
 		}
 		else {
 			for (int i = movepool_size_old; i < movepool.size(); ++i) {
@@ -129,7 +138,7 @@ public class AlphaBetaSearcher {
 				brd.unmakeMove(move);
 				
 				if(SearchOutcome.compare(score, SearchOutcome.GTE, beta)) {
-					return returnScoreFromSearch(movepool_size_old, beta);
+					return returnScoreFromSearch(beta);
 				}
 					
 				if(SearchOutcome.compare(score, SearchOutcome.GT, alpha)){
@@ -139,7 +148,7 @@ public class AlphaBetaSearcher {
 			}
 		}
 		
-		return returnScoreFromSearch(movepool_size_old, alpha);
+		return returnScoreFromSearch(alpha);
 	}
 	
 	public static class Builder{

@@ -2,15 +2,22 @@ package searcher;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.FixMethodOrder;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.runners.MethodSorters;
 
 import gamestate.Bitboard;
 import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class AlphaBetaSearcherTest {
 
 	@Test
+	@Order(1)
 	void testMateIn3() {
 		SearchContext context = new SearchContext();
 		context.setEvaluator(new Evaluator(Evaluator.Builder.newInstance()
@@ -60,6 +67,7 @@ class AlphaBetaSearcherTest {
 	 * same test set as testMateIn3 bun with increased max depth. What we want to verify is that the solver returns the shortest path to a solution.
 	 */
 	@Test
+	@Order(3)
 	void testMateIn3WithUnderestimatedDepth() {
 		SearchContext context = new SearchContext();
 		context.setEvaluator(new Evaluator(Evaluator.Builder.newInstance()
@@ -107,6 +115,7 @@ class AlphaBetaSearcherTest {
 	}
 	
 	@Test
+	@Order(4)
 	void testMateWithIterativeDeepening() {
 		SearchContext context = new SearchContext();
 		context.setEvaluator(new Evaluator(Evaluator.Builder.newInstance()
@@ -150,6 +159,7 @@ class AlphaBetaSearcherTest {
 	}
 	
 	@Test
+	@Order(2)
 	void testDraw() {
 		SearchContext context = new SearchContext();
 		AlphaBetaSearcher searcher = new AlphaBetaSearcher(AlphaBetaSearcher.Builder.newInstance()
