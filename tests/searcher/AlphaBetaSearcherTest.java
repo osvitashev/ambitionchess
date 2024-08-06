@@ -130,6 +130,12 @@ class AlphaBetaSearcherTest {
 			);
 
 		String[][] tests = {
+				{ "6k1/2b2ppp/2p1r3/p1Bp4/Q2P4/2P1NbPK/5P2/4R3 b - - 0 1", "{e6h6}" },
+				{ "6k1/2b2ppp/2p1r2q/p1Bp4/Q2P4/2P1NbPP/5P1K/4R3 b - - 0 1", "{h6h3 h2g1 h3h1}" },
+				
+				{ "r2qk2r/pb4pp/1n2Pb2/2B2Q2/p1p5/2P5/2B2PPP/RN2R1K1 w - - 0 1", "{f5g6 h7g6 c2g6}" },
+								
+				
 				{ "2r1k3/1b3ppp/p3p3/1p1n4/4q3/PQ2P1P1/1P2BP1P/5RK1 b - - 0 1", "{e4g2 g1g2 d5f4 g2g1 f4h3}" },
 				{ "r1q2r1k/p4b2/1p2pP2/3p3p/1P1B1P2/2PB4/P3Q2P/6RK w - - 0 1", "{e2h5 f7h5 f6f7 e6e5 d4e5}" },
 				
@@ -139,6 +145,7 @@ class AlphaBetaSearcherTest {
 		
 		
 		for (int t = 0; t < tests.length; t+=1) {
+			boolean found=false;
 			for(int moves=0; ; moves+=1) {
 				context.getBrd().loadFromFEN(tests[t][0]);
 				searcher.setFullDepthSearchLimit(moves);
@@ -150,11 +157,12 @@ class AlphaBetaSearcherTest {
 					assertEquals(tests[t][1].substring(1, tests[t][1].length() - 1).split(" ").length, SearchOutcome.getDepth(outcome));
 					assertEquals(0, SearchOutcome.getQuiescenceDepth(outcome));
 					assertEquals(tests[t][1], searcher.getPrincipalVariation().toString());
+					found=true;
 					break;
 				}
 				
 			}
-			
+			assertTrue(found);
 		}
 	}
 	
