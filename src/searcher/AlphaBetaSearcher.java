@@ -1,6 +1,7 @@
 package searcher;
 
 import java.util.function.IntSupplier;
+import java.util.function.LongBinaryOperator;
 import java.util.function.ToIntFunction;
 
 import gamestate.Gamestate;
@@ -13,6 +14,11 @@ public class AlphaBetaSearcher {
 	private SearchContext context;
 	private PrincipalVariation principalVariation = new PrincipalVariation();
 	/**
+	 * takes [alpha beta] range and returns SearchResult. Is not required to detect endgame states.
+	 * In other words: it is acceptable to return static evaluation score even in a position that is a check/stalemate/checkmate
+	 */
+	private LongBinaryOperator qSearcher;
+	/**
 	 * only returns the score part of the SearchOutcome.
 	 * It is caller's responsibility to distinguish between different types of draw if it is needed.
 	 */
@@ -21,6 +27,10 @@ public class AlphaBetaSearcher {
 	public AlphaBetaSearcher(Builder bld) {
 		context=bld.context;
 		drawScoreAssigner=bld.drawScoreAssigner;
+		if(bld.useBasicQSearch)
+			qSearcher = this::doBasicQSearch;
+		else
+			qSearcher = this::doFlatQSearch;
 	}
 	
 	/**
@@ -83,11 +93,10 @@ public class AlphaBetaSearcher {
 		MovePool movepool = context.getMovepool();
 		Gamestate brd=context.getBrd();
 		MoveGen move_generator = context.getMoveGenerator();
-		Evaluator evaluator = context.getEvaluator();
 		
 		int movepool_size_old = movepool.size();
 		if(depth == fullDepthSearchLimit) {
-			if(brd.getIsCheck() && move_generator.noMovesAreAvailable(brd, movepool)) {
+			if(brd.getIsCheck() && move_generator.noMovesAreAvailable(brd, movepool)) {//q-search does not return checkmate score. this is here so we do not miss out on a definite checkmate.
 				long score = SearchOutcome.createCheckmate(depth);
 				//notice that we do not need to resize the move pool - no new moves have been generated.
 				if(SearchOutcome.compare(score, SearchOutcome.GTE, beta))
@@ -98,7 +107,9 @@ public class AlphaBetaSearcher {
 					return returnScoreFromSearch(alpha);
 			}
 			else {
-				return returnScoreFromSearch(SearchOutcome.createWithDepthAndScore(depth, evaluator.evaluate()));
+				
+				long score = qSearcher.applyAsLong(alpha, beta); 
+				return returnScoreFromSearch(score);
 			}
 		}
 			
@@ -151,8 +162,79 @@ public class AlphaBetaSearcher {
 		return returnScoreFromSearch(alpha);
 	}
 	
+	/**
+	 * returns evaluation value for the current position without doing more searching.
+	 * @param alpha
+	 * @param beta
+	 * @return SearchOutcome
+	 */
+	private long doFlatQSearch(long alpha, long beta) {
+		return SearchOutcome.createWithDepthAndScore(depth, context.getEvaluator().evaluate());
+	}
+	
+	private long doBasicQSearch(long alpha, long beta) {
+		depth--;//feels silly. there must be a better way of doing this.
+		return doBasicQSearch(alpha, beta, 0);
+	}
+	
+	private long doBasicQSearch(long alpha, long beta, int qDepth) {
+		depth++;
+		//todo: whether or not principalVariation is getting updated should be parametrizable!
+		principalVariation.resetAtDepth(depth);//todo:re-evaluate whether this is needed. Maybe, i can do it at addMoveAtDepth
+		numMovesAtDepth[getDepth()]=0;
+		
+		MovePool movepool = context.getMovepool();
+		Gamestate brd=context.getBrd();
+		MoveGen move_generator = context.getMoveGenerator();
+		
+		int movepool_size_old = movepool.size();
+		
+		long standPat = SearchOutcome.setQuiescenceDepth(
+				SearchOutcome.createWithDepthAndScore(depth, context.getEvaluator().evaluate()),
+				qDepth
+			);
+		if(SearchOutcome.compare(standPat, SearchOutcome.GTE, beta))
+			return returnScoreFromSearch(beta);
+		else if(SearchOutcome.compare(standPat, SearchOutcome.GT, alpha))
+			alpha = standPat;
+		
+		move_generator.generateNonQuietLegalMoves(brd, movepool);
+		numMovesAtDepth[getDepth()]=movepool.size()-movepool_size_old;
+		
+		for (int i = movepool_size_old; i < movepool.size(); ++i) {
+			int move = movepool.get(i);
+			brd.makeMove(move);
+			long score = SearchOutcome.negateScore(
+					doSearch(
+						SearchOutcome.negateScore(beta),
+						SearchOutcome.negateScore(alpha)
+					)
+				);
+			brd.unmakeMove(move);
+			
+			if(SearchOutcome.compare(score, SearchOutcome.GTE, beta)) {
+				return returnScoreFromSearch(beta);
+			}
+				
+			if(SearchOutcome.compare(score, SearchOutcome.GT, alpha)){
+				alpha=score;
+				principalVariation.addMoveAtDepth(move, depth);
+			}
+		}
+		
+		return returnScoreFromSearch(alpha);
+	}
+	
 	public static class Builder{
+		boolean useBasicQSearch=false;
+		
 		private SearchContext context;
+		
+		public Builder setBasicQSearch() {
+			useBasicQSearch=true;
+			return this;
+		}
+		
 		public Builder setContext(SearchContext context) {
 			this.context = context;
 			return this;

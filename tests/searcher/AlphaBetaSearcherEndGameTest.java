@@ -14,7 +14,7 @@ import gamestate.GlobalConstants.PieceType;
 import gamestate.GlobalConstants.Player;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class AlphaBetaSearcherTest {
+class AlphaBetaSearcherEndGameTest {
 
 	@Test
 	@Order(1)
