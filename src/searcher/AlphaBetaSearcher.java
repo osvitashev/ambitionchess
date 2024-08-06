@@ -82,7 +82,13 @@ public class AlphaBetaSearcher {
 		if(depth == fullDepthSearchLimit) {
 			if(brd.getIsCheck() && move_generator.noMovesAreAvailable(brd, movepool)) {
 				long score = SearchOutcome.createCheckmate(depth);
-				if(SearchOutcome.isScoreGreater(score, alpha))
+				
+				/**
+				 * FIX: with aspiration window it is possible to get a score that is greater than beta, which is incorrect!!
+				 * 
+				 */
+				
+				if(SearchOutcome.compare(score, SearchOutcome.GT, alpha))
 					return returnScoreFromSearch(movepool_size_old, score);
 				else
 					return returnScoreFromSearch(movepool_size_old, alpha);
@@ -96,7 +102,7 @@ public class AlphaBetaSearcher {
 		if (movepool.size() == movepool_size_old && brd.getIsCheck()) {//CHECKMATE
 			long score = SearchOutcome.createCheckmate(depth);
 			//notice that we do not need to resize the move pool - no new moves have been generated.
-			if(SearchOutcome.isScoreGreater(score, alpha))
+			if(SearchOutcome.compare(score, SearchOutcome.GT, alpha))
 				return returnScoreFromSearch(movepool_size_old, score);
 			else
 				return returnScoreFromSearch(movepool_size_old, alpha);
@@ -104,7 +110,7 @@ public class AlphaBetaSearcher {
 		else if (movepool.size() == movepool_size_old && !brd.getIsCheck()) {// STALEMATE
 			long score = SearchOutcome.createStalemate(depth, drawScoreAssigner.applyAsInt(this));
 			//notice that we do not need to resize the move pool - no new moves have been generated.
-			if(SearchOutcome.isScoreGreater(score, alpha))
+			if(SearchOutcome.compare(score, SearchOutcome.GT, alpha))
 				return returnScoreFromSearch(movepool_size_old, score);
 			else
 				return returnScoreFromSearch(movepool_size_old, alpha);
@@ -121,11 +127,11 @@ public class AlphaBetaSearcher {
 					);
 				brd.unmakeMove(move);
 				
-				if(SearchOutcome.isScoreGreaterOrEqual(score, beta)) {
+				if(SearchOutcome.compare(score, SearchOutcome.GTE, beta)) {
 					return returnScoreFromSearch(movepool_size_old, beta);
 				}
 					
-				if(SearchOutcome.isScoreGreater(score, alpha)){
+				if(SearchOutcome.compare(score, SearchOutcome.GT, alpha)){
 					alpha=score;
 					principalVariation.addMoveAtDepth(move, depth);
 				}

@@ -50,6 +50,23 @@ public class SearchOutcome {
 	private static int MID_POINT = 32000;//needed to map the score to a positive range. Doing bitwise masks with negative numbers proves to be tricky.
 	
 	/**
+	 * greater than
+	 */
+	static final int GT=0;
+	/**
+	 * less than
+	 */
+	static final int LT=1;
+	/**
+	 * greater than or  equal
+	 */
+	static final int GTE=2;
+	/**
+	 * less than or equal
+	 */
+	static final int LTE=3;
+	
+	/**
 	 * Returns the score intended for comparisons in alpha-beta search.
 	 * NOTE: It is not guaranteed that a draw would have a zero score. That mapping is determined elsewhere.
 	 * @param rez
@@ -136,26 +153,18 @@ public class SearchOutcome {
 		return setScore(rez, -getScore(rez));
 	}
 	
-	/**
-	 * Acts as an implementation of the less_than operator
-	 * @param rez1
-	 * @param rez2
-	 * @return
-	 */
-	public static boolean isScoreLess(long rez1, long rez2) {
-		return getScore(rez1) < getScore(rez2);
-	}
-	
-	public static boolean isScoreGreater(long rez1, long rez2) {
-		return getScore(rez1) > getScore(rez2);
-	}
-	
-	public static boolean isScoreLessOrEqual(long rez1, long rez2) {
-		return getScore(rez1) <= getScore(rez2);
-	}
-	
-	public static boolean isScoreGreaterOrEqual(long rez1, long rez2) {
-		return getScore(rez1) >= getScore(rez2);
+	public static boolean compare(long se1, int comparisonOperator, long se2) {
+		assert 0<=comparisonOperator && comparisonOperator<=3;
+		switch (comparisonOperator) {
+		case GT:
+			return getScore(se1) > getScore(se2);
+		case GTE:
+			return getScore(se1) >= getScore(se2);
+		case LT:
+			return getScore(se1) < getScore(se2);	
+		default:
+			return getScore(se1) <= getScore(se2);
+		}
 	}
 	
 	public static long createCheckmate(int depth) {
@@ -258,5 +267,4 @@ public class SearchOutcome {
 	public static String outcomeToString(long outcome) {
 		return outcomeToString(outcome, true);
 	}
-	
 }

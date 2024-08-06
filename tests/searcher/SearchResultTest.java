@@ -31,8 +31,8 @@ class SearchResultTest {
 		assertEquals(false, SearchOutcome.isStalemate(neg));
 		assertEquals(true, SearchOutcome.isOtherDraw(neg));
 		
-		assertTrue(SearchOutcome.isScoreLess(rez, neg));
-		assertFalse(SearchOutcome.isScoreLess(neg, rez));
+		assertTrue(SearchOutcome.compare(rez, SearchOutcome.LT, neg));
+		assertFalse(SearchOutcome.compare(neg, SearchOutcome.LT, rez));
 		
 		rez=0;
 		rez = SearchOutcome.setScore(rez, 1500);
@@ -54,8 +54,8 @@ class SearchResultTest {
 		assertEquals(true, SearchOutcome.isStalemate(neg));
 		assertEquals(false, SearchOutcome.isOtherDraw(neg));
 		
-		assertFalse(SearchOutcome.isScoreLess(rez, neg));
-		assertTrue(SearchOutcome.isScoreLess(neg, rez));
+		assertFalse(SearchOutcome.compare(rez, SearchOutcome.LT, neg));
+		assertTrue(SearchOutcome.compare(neg, SearchOutcome.LT, rez));
 	}
 	
 	@Test
