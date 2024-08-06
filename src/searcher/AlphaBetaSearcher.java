@@ -82,13 +82,10 @@ public class AlphaBetaSearcher {
 		if(depth == fullDepthSearchLimit) {
 			if(brd.getIsCheck() && move_generator.noMovesAreAvailable(brd, movepool)) {
 				long score = SearchOutcome.createCheckmate(depth);
-				
-				/**
-				 * FIX: with aspiration window it is possible to get a score that is greater than beta, which is incorrect!!
-				 * 
-				 */
-				
-				if(SearchOutcome.compare(score, SearchOutcome.GT, alpha))
+				//notice that we do not need to resize the move pool - no new moves have been generated.
+				if(SearchOutcome.compare(score, SearchOutcome.GTE, beta))
+					return returnScoreFromSearch(movepool_size_old, beta);
+				else if(SearchOutcome.compare(score, SearchOutcome.GT, alpha))
 					return returnScoreFromSearch(movepool_size_old, score);
 				else
 					return returnScoreFromSearch(movepool_size_old, alpha);
@@ -102,7 +99,9 @@ public class AlphaBetaSearcher {
 		if (movepool.size() == movepool_size_old && brd.getIsCheck()) {//CHECKMATE
 			long score = SearchOutcome.createCheckmate(depth);
 			//notice that we do not need to resize the move pool - no new moves have been generated.
-			if(SearchOutcome.compare(score, SearchOutcome.GT, alpha))
+			if(SearchOutcome.compare(score, SearchOutcome.GTE, beta))
+				return returnScoreFromSearch(movepool_size_old, beta);
+			else if(SearchOutcome.compare(score, SearchOutcome.GT, alpha))
 				return returnScoreFromSearch(movepool_size_old, score);
 			else
 				return returnScoreFromSearch(movepool_size_old, alpha);
@@ -110,7 +109,9 @@ public class AlphaBetaSearcher {
 		else if (movepool.size() == movepool_size_old && !brd.getIsCheck()) {// STALEMATE
 			long score = SearchOutcome.createStalemate(depth, drawScoreAssigner.applyAsInt(this));
 			//notice that we do not need to resize the move pool - no new moves have been generated.
-			if(SearchOutcome.compare(score, SearchOutcome.GT, alpha))
+			if(SearchOutcome.compare(score, SearchOutcome.GTE, beta))
+				return returnScoreFromSearch(movepool_size_old, beta);
+			else if(SearchOutcome.compare(score, SearchOutcome.GT, alpha))
 				return returnScoreFromSearch(movepool_size_old, score);
 			else
 				return returnScoreFromSearch(movepool_size_old, alpha);
@@ -163,14 +164,6 @@ public class AlphaBetaSearcher {
         
         
         public Builder setDrawAsVictoryForMaximixingPlayer() {
-        	//this version correctly handles { "8/8/8/5k2/7K/2R2n2/8/5q2 w - - 0 1", "{c3f3 f1f3}" }
-//        	assignerScoreToDraw = (searcher) -> {
-//        		if(searcher.getBrd().getPlayerToMove() == Player.WHITE ^ searcher.getDepth() % 2 == 1)
-//        			return 1;
-//        		else
-//        			return -1;
-//        	};
-        	
         	drawScoreAssigner = (searcher) -> {
         		if(searcher.getDepth() % 2 == 0)
         			return SearchOutcome.FAVOURABLE_DRAW_FOR_MAXIMIZING_PLAYER-searcher.getDepth();
