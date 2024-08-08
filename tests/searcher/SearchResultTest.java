@@ -63,25 +63,57 @@ class SearchResultTest {
 		long rez =0;
 		
 		rez=SearchOutcome.createCheckmate(3);
-		assertEquals(SearchOutcome.LOSS+3, SearchOutcome.getScore(rez));
+		assertEquals(SearchOutcome.LOSS+4, SearchOutcome.getScore(rez));
 		assertEquals(3, SearchOutcome.getDepth(rez));
 		assertEquals(true, SearchOutcome.isCheckmate(rez));
 		assertEquals(false, SearchOutcome.isStalemate(rez));
 		assertEquals(false, SearchOutcome.isOtherDraw(rez));
 		
 		rez=SearchOutcome.negateScore(rez);
-		assertEquals(SearchOutcome.WIN-3, SearchOutcome.getScore(rez));
+		assertEquals(SearchOutcome.WIN-4, SearchOutcome.getScore(rez));
 		assertEquals(3, SearchOutcome.getDepth(rez));
 		assertEquals(true, SearchOutcome.isCheckmate(rez));
 		assertEquals(false, SearchOutcome.isStalemate(rez));
 		assertEquals(false, SearchOutcome.isOtherDraw(rez));
 		
 		rez=SearchOutcome.negateScore(rez);
-		assertEquals(SearchOutcome.LOSS+3, SearchOutcome.getScore(rez));
+		assertEquals(SearchOutcome.LOSS+4, SearchOutcome.getScore(rez));
 		assertEquals(3, SearchOutcome.getDepth(rez));
 		assertEquals(true, SearchOutcome.isCheckmate(rez));
 		assertEquals(false, SearchOutcome.isStalemate(rez));
 		assertEquals(false, SearchOutcome.isOtherDraw(rez));
+		
+		assertTrue(
+			SearchOutcome.compare(
+				SearchOutcome.createCheckmate(1),
+				SearchOutcome.GTE,
+				SearchOutcome.createLowerBound(SearchOutcome.LOSS)
+			)
+		);
+		
+		assertTrue(
+			SearchOutcome.compare(
+				SearchOutcome.createCheckmate(1),
+				SearchOutcome.GT,
+				SearchOutcome.createLowerBound(SearchOutcome.LOSS)
+			)
+		);
+		
+		assertTrue(
+			SearchOutcome.compare(
+				SearchOutcome.createCheckmate(1),
+				SearchOutcome.LT,
+				SearchOutcome.createLowerBound(SearchOutcome.WIN)
+			)
+		);
+		
+		assertTrue(
+			SearchOutcome.compare(
+				SearchOutcome.createCheckmate(1),
+				SearchOutcome.LTE,
+				SearchOutcome.createLowerBound(SearchOutcome.WIN)
+			)
+		);
 		
 	}
 }

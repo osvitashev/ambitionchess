@@ -41,7 +41,7 @@ public class AlphaBetaSearcher {
 	/**
 	 * it is incremented at the start of the recursive call. -1 as the start value makes it correct throughout.
 	 */
-	private int depth = -1;//todo: can actually be dropped. All we need is the game plycount at the beginning of the search. Search depth can be calculated using that and the updated game state!!!
+	private int depth = 0;//todo: can actually be dropped. All we need is the game plycount at the beginning of the search. Search depth can be calculated using that and the updated game state!!!
 		
 	
 	private int fullDepthSearchLimit=0;
@@ -72,7 +72,7 @@ public class AlphaBetaSearcher {
 	private long returnScoreFromSearch(long score) {
 //		System.out.println(brd.getMoveHistoryString() + " {"+brd.toFEN() + "} returning " + SearchOutcome.outcomeToStringInMaximixerPerspective(score, getDepth()%2==0));
 		context.getMovepool().resize(context.getMovepool().size()-numMovesAtDepth[getDepth()]);
-		depth--;
+//		depth--;
 		//this could be removed if movelist size was added as a parameter to the recursive search
 		return score;
 	}
@@ -86,7 +86,7 @@ public class AlphaBetaSearcher {
 	 */
 	public long doSearch(long alpha, long beta) {
 //		if(depth==-1)System.out.println(">> "+ SearchOutcome.outcomeToStringInMaximixerPerspective(alpha, true) + " >> "+ SearchOutcome.outcomeToStringInMaximixerPerspective(beta,true));
-		depth++;
+		
 		principalVariation.resetAtDepth(depth);//todo:re-evaluate whether this is needed. Maybe, i can do it at addMoveAtDepth
 		numMovesAtDepth[getDepth()]=0;
 		
@@ -109,10 +109,10 @@ public class AlphaBetaSearcher {
 			else {
 				
 				long score = qSearcher.applyAsLong(alpha, beta); 
-				return returnScoreFromSearch(score);
+				return score; //returnScoreFromSearch is called in the q-search handler
 			}
 		}
-			
+		
 		move_generator.generateLegalMoves(brd, movepool);
 		numMovesAtDepth[getDepth()]=movepool.size()-movepool_size_old;
 		
@@ -140,12 +140,14 @@ public class AlphaBetaSearcher {
 			for (int i = movepool_size_old; i < movepool.size(); ++i) {
 				int move = movepool.get(i);
 				brd.makeMove(move);
+				depth++;
 				long score = SearchOutcome.negateScore(
 						doSearch(
 							SearchOutcome.negateScore(beta),
 							SearchOutcome.negateScore(alpha)
 						)
 					);
+				depth--;
 				brd.unmakeMove(move);
 				
 				if(SearchOutcome.compare(score, SearchOutcome.GTE, beta)) {
@@ -169,16 +171,26 @@ public class AlphaBetaSearcher {
 	 * @return SearchOutcome
 	 */
 	private long doFlatQSearch(long alpha, long beta) {
-		return SearchOutcome.createWithDepthAndScore(depth, context.getEvaluator().evaluate());
+//		depth++;
+		return returnScoreFromSearch(SearchOutcome.createWithDepthAndScore(depth, context.getEvaluator().evaluate()));
 	}
 	
+	/**
+	 * 
+	 * Generates all check evasions, but does not seek checks specifically. This way he have a hard limit on the size of the search tree.
+	 * 
+	 * @param alpha
+	 * @param beta
+	 * @return SearchOutcome
+	 */
 	private long doBasicQSearch(long alpha, long beta) {
-		depth--;//feels silly. there must be a better way of doing this.
-		return doBasicQSearch(alpha, beta, 0);
+		long temp=doBasicQSearch(alpha, beta, 0);
+		return temp;
 	}
 	
 	private long doBasicQSearch(long alpha, long beta, int qDepth) {
-		depth++;
+		//todo: detect and handle end game states reached in QS. This would probably require re-search to obtain a reliable score.
+		
 		//todo: whether or not principalVariation is getting updated should be parametrizable!
 		principalVariation.resetAtDepth(depth);//todo:re-evaluate whether this is needed. Maybe, i can do it at addMoveAtDepth
 		numMovesAtDepth[getDepth()]=0;
@@ -189,29 +201,34 @@ public class AlphaBetaSearcher {
 		
 		int movepool_size_old = movepool.size();
 		
-		long standPat = SearchOutcome.setQuiescenceDepth(
-				SearchOutcome.createWithDepthAndScore(depth, context.getEvaluator().evaluate()),
-				qDepth
-			);
-		if(SearchOutcome.compare(standPat, SearchOutcome.GTE, beta))
-			return returnScoreFromSearch(beta);
-		else if(SearchOutcome.compare(standPat, SearchOutcome.GT, alpha))
-			alpha = standPat;
+		if(!brd.getIsCheck()) {
+			long standPat = SearchOutcome.setQuiescenceDepth(SearchOutcome.createWithDepthAndScore(depth, context.getEvaluator().evaluate()), qDepth);
+			if (SearchOutcome.compare(standPat, SearchOutcome.GTE, beta))
+				return returnScoreFromSearch(beta);
+			else if (SearchOutcome.compare(standPat, SearchOutcome.GT, alpha))
+				alpha = standPat;
+		}
 		
-		move_generator.generateNonQuietLegalMoves(brd, movepool);
+		
+		if(brd.getIsCheck())
+			move_generator.generateLegalMoves(brd, movepool);
+		else
+			move_generator.generateNonQuietLegalMoves(brd, movepool);
 		numMovesAtDepth[getDepth()]=movepool.size()-movepool_size_old;
 		
 		for (int i = movepool_size_old; i < movepool.size(); ++i) {
 			int move = movepool.get(i);
+			depth++;
 			brd.makeMove(move);
 			long score = SearchOutcome.negateScore(
-					doSearch(
+					doBasicQSearch(
 						SearchOutcome.negateScore(beta),
-						SearchOutcome.negateScore(alpha)
+						SearchOutcome.negateScore(alpha),
+						qDepth+1
 					)
 				);
 			brd.unmakeMove(move);
-			
+			depth--;
 			if(SearchOutcome.compare(score, SearchOutcome.GTE, beta)) {
 				return returnScoreFromSearch(beta);
 			}

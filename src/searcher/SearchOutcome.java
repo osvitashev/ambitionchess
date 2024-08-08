@@ -45,9 +45,9 @@ import static util.BitField64.*;
  */
 public class SearchOutcome {
 	public static int FAVOURABLE_DRAW_FOR_MAXIMIZING_PLAYER = 31000;
-	public static int WIN =  32000;//Short.MAX_VALUE;
-	public static int LOSS = -32000;//Short.MIN_VALUE+1;//+1 is needed to achieve symmetry abound 0
-	private static int MID_POINT = 32000;//needed to map the score to a positive range. Doing bitwise masks with negative numbers proves to be tricky.
+	public static int WIN =  32001;//Short.MAX_VALUE;
+	public static int LOSS = -32001;//Short.MIN_VALUE+1;//+1 is needed to achieve symmetry abound 0
+	private static int MID_POINT = 32001;//needed to map the score to a positive range. Doing bitwise masks with negative numbers proves to be tricky.
 	
 	/**
 	 * greater than
@@ -170,7 +170,7 @@ public class SearchOutcome {
 	public static long createCheckmate(int depth) {
 		long ret = setCheckmate(0L);
 		ret = setDepth(ret, depth);
-		ret = setScore(ret, LOSS+depth);
+		ret = setScore(ret, LOSS+depth+1);
 		return ret;
 	}
 	
@@ -192,7 +192,7 @@ public class SearchOutcome {
 		long ret = setCheckmate(0L);
 		ret = setDepth(ret, depth);
 		ret = setQuiescenceDepth(ret, qDepth);
-		ret = setScore(ret, LOSS+depth);
+		ret = setScore(ret, LOSS+depth+1);
 		return ret;
 	}
 	
