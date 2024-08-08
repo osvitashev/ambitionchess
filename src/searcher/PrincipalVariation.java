@@ -16,6 +16,11 @@ public class PrincipalVariation {
 	 * lengthAtDepth[0] is the length of principal variation.
 	 */
 	private int[] lengthAtDepth = new int[MAX_POSSIBLE_DEPTH];
+	
+	public int getFirst() {
+		assert lengthAtDepth[0]>0;
+		return pvTable[0][0];
+	}
 
 	public PrincipalVariation() {
 		for (int i = 0; i < MAX_POSSIBLE_DEPTH; ++i) {
